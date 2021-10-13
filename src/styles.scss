@@ -1,0 +1,150 @@
+// font //
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');// sans-serif
+// font //
+
+// color //
+$main-font-color: #000;
+$background-color: #FFFFFF;
+
+$purple1: #9B51E0;
+$purple2: #BC2FEE;
+$light-purple: #F9F5FF;
+$grey: #F2F2F2;
+$dark-grey: #4F4F4F;
+$grey1: #E0E0E0;
+$grey2: #828282;
+$lighter-grey: #BDBDBD;
+$green: #27AE60;
+$yellow: #F7C223;
+
+$large-font-size: 32px;
+$big-font-size: 24px;
+$body-font-size: 16px;
+$smaller-font-size: 14px;
+$small-font-size: 12px;
+$smallest-font-size: 10px;
+// color //
+
+// widgets //
+@mixin myButton(
+  $width:0, $height:0, $radius:0, $border: 0,
+  $color:$main-font-color, $block-color1:#FFF, $block-color2:#FFF, $border-color: #FFF,
+  $margin-horizontal: 5px, 
+  $font-size:$body-font-size, $font-weight:400, $text-align:center) {
+  
+  @if $width > 0 { width:$width; }
+  @if $height > 0 { height:$height; }
+  border-radius: $radius;
+  @if $border > 0 { border: $border solid $border-color }
+
+  color: $color;
+  @if $block-color2 == #FFF { background-color: $block-color1; }
+  @else { background: linear-gradient($block-color1, $block-color2); }
+
+  margin-left: $margin-horizontal;
+  margin-right: $margin-horizontal;
+
+  font-size: $font-size;
+  font-weight: $font-weight;
+  text-align: $text-align;
+  vertical-align: middle;
+  line-height: $height;
+
+  cursor: pointer;
+}
+
+@mixin popupBox($width, $height: auto, $block-color:#fff, $border-width: 0, $border-color: black) {
+  width:$width;
+  height:$height;
+  margin: 10% auto;
+  padding: 40px 48px;
+  
+  background-color: $block-color;
+
+  @if $border-width > 0 {
+    border: $border-width solid $border-color;
+  }
+}
+
+@mixin epkIcon($size) {
+  width: $size;
+  height: $size;
+  border-radius: $size * 0.5;
+  border: 1px solid $lighter-grey;
+  background-color: white;
+  line-height: $size * 0.9;
+  padding-left: 2.5px;
+  padding-right: 2.5px;
+}
+
+@mixin disabled() {
+  background-color: $grey1;
+  cursor: not-allowed;
+}
+// widgets//
+
+body {
+    background: $background-color;
+    font-family: sans-serif;
+    color: $main-font-color;
+    letter-spacing: 0;
+    padding: 5px;
+    min-height: 100vh;
+  }
+  
+  h1 {
+    font-size: $large-font-size;
+  }
+
+  h2 {
+    font-size: $big-font-size;
+  }
+
+  h3 {
+    font-size: $body-font-size;
+    font-weight: 700;
+  }
+
+  .default-gesture {
+    width: 100%;
+    height: auto;
+    margin-top: 70px;
+    background-color: transparent;
+  } 
+
+  .loading-block {
+    position: absolute;
+    z-index: 8;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: radial-gradient(99.12% 159.6% at 92.94% 95.93%, #E4D3FF 0%, #E5EEFF 62.33%, #EEE1FF 69.62%, #DAD7F8 81.02%);
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+  }
+  
+  @media screen and (max-width: 400px) {
+    h1 {
+      font-size: 30px;
+    }
+  
+    header {
+      .links {
+        a {
+          font-size: 1.2rem;
+        }
+  
+        .link:link,
+        .link:visited {
+          margin: unset;
+        }
+      }
+    }
+  
+    .main-form {
+      width: 100%;
+    }
+  }

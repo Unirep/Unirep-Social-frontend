@@ -1,0 +1,226 @@
+@import '../../styles.scss';
+
+.post-block {
+    width: 100%;
+    background-image: linear-gradient(180.55deg, rgba(249, 245, 255, 0) 73.13%, #F9F5FF 99.52%), radial-gradient(99.12% 159.6% at 92.94% 95.93%, #E4D3FF 0%, #E5EEFF 62.33%, #EEE1FF 69.62%, #DAD7F8 81.02%);
+    border-radius: 8px;
+    display: block;
+    flex-direction: row;
+    padding: 8px;
+    margin: 10px auto;
+  
+    .divider {
+      width: 100%;
+      height: 1px;
+      background-color: $grey1;
+      margin: 0 auto;
+    }
+
+    .datetime-text {
+      color: $grey2;
+      font-size: $small-font-size;
+      margin-right: 10px;
+    }
+
+    .etherscan {
+      color: $grey2;
+      font-size: $small-font-size;
+      margin-right: auto;
+      cursor: pointer;
+
+      &:hover {
+        color: $purple1;
+      }
+
+      & > img {
+        width: 16px;
+        height: 16px;
+        margin-left: 5px;
+      }
+    }
+  
+    .post-block-main {
+      width: 100%;
+      padding: 16px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      background-color: #fff;
+      border-radius: 8px;
+  
+      .post-block-info {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+  
+        .post-share {
+          width: 20px;
+          height: 20px;
+          cursor: pointer;
+          border: 1px solid black;
+          border-radius: 10px;
+          display: block;
+          line-height: 16px;
+          text-align: center;
+          box-shadow: 0px 3px 2px rgba(0, 0, 0, 0.1);
+  
+          img {
+            width: 12.5px;
+            height: 12.5px;
+          }
+        }
+      }
+  
+      .post-text {
+        margin-top: 20px;
+      }
+    }
+  
+    .post-voters {
+      width: 100%;
+      padding: 0px 15px 8px 15px;
+      display: flex;
+      flex-direction: row;
+      cursor: pointer;
+  
+      .voter {
+        @include epkIcon(24px);
+        margin-left: -5px;
+      }
+  
+      .voter-text {
+        font-size: $small-font-size;
+        color: $dark-grey;
+        line-height: 24px;
+        vertical-align: middle;
+        margin-left: 10px;
+      }
+  
+      .voter-more {
+        text-decoration: underline;
+      }
+    }
+  
+    .voters-list {
+      padding: 8px 16px 16px 16px;
+      width: 100%;
+      max-height: 150px;
+      overflow-y: scroll;
+  
+      .voter {
+        width: 100%;
+        height: 30px;
+        margin-top: 8px;
+        margin-bottom: 8px;
+        padding: 10px;
+  
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+  
+        background-color: white;
+        border-radius: 4px;
+        font-size: $small-font-size;
+  
+        & > span {
+          margin-left: 10px;
+          margin-right: 25px;
+        }
+  
+        & > .epk-icon {
+          @include epkIcon(18px);
+        }
+  
+        & > img {
+          width: 20px;
+          height: 10px;
+        }
+      }
+    }
+  
+    .comment-block {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      padding: 0px 27px;
+      position: relative;
+  
+      .comment-btn {
+        @include myButton(138px, 32px, $radius: 4px, $border: 1px, $border-color: $dark-grey, $font-size: $smaller-font-size);
+        margin-left: 0px;
+        box-shadow: 0px 3px 2px rgba(0, 0, 0, 0.1);
+  
+        & > img {
+          width: 14px;
+          height: 14px;
+          margin-right: 8px;
+        }
+      }
+  
+      .without-bottom {
+        z-index: 2;
+        border-bottom: none;
+        border-bottom-left-radius: 0px;
+        border-bottom-right-radius: 0px;
+        box-shadow: none;
+      }
+
+      .disabled {
+        @include disabled;
+      }
+  
+      .comment-field {
+        z-index: 1;
+        margin-top: -1px;
+        padding: 8px;
+        background-color: white;
+        border: 1px solid $dark-grey;
+        border-radius: 0px 4px 4px 4px;
+        box-shadow: 0px 3px 2px rgba(0, 0, 0, 0.1);
+      }
+
+      .hover-box {
+        position: absolute;
+        top: 12px;
+        left: 20px;
+        width: 200px;
+        z-index: 7;
+        padding: 10px;
+        background-color: rgba(51, 51, 51, 0.8);
+        border-radius: 4px;
+        font-size: $small-font-size;
+        color: white;
+      }
+    }
+  
+    .comments-list {
+      margin: 15px 27px;
+  
+      .comment {
+        border-radius: 8px;
+        border: 1px solid $grey1;
+        padding: 10px 20px;
+        background-color: white;
+        margin: 10px 0px;
+
+        p {
+          margin-top: 20px;
+        }
+  
+        .divider {
+          margin: 10px 0px;
+        }
+
+        .comment-block-info {
+          width: 100%;
+          display: flex;
+          flex-direction: row;
+        }
+      }
+  
+      .view-more-comments {
+        margin: 17px 27px;
+        font-size: $body-font-size;
+        cursor: pointer;
+      }
+    }
+}

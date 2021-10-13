@@ -1,0 +1,68 @@
+@import '../../styles.scss';
+
+.block-header {
+    width: 100%;
+    height: 43px;
+    padding-left: 16px;
+    padding-right: 16px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .epk-icon {
+      @include epkIcon(30px);
+    }
+
+    .rep {
+      flex: 1;
+      margin-left: 8px;
+      margin-right: 8px;
+    }
+
+    .epk {
+      flex: 14;
+      color: $purple1;
+    }
+
+    .vote-button-box {
+      flex: 3;
+      margin-left: 10px;
+      position: relative;
+
+      .vote {
+        @include myButton(79px, 24px, $radius: 20px, $font-size: $small-font-size);
+        width: 100%;
+        border: 1px solid $dark-grey;
+        box-shadow: 0px 3px 2px rgba(0, 0, 0, 0.1);
+  
+        img {
+          margin-right: 7px;
+          width: 20px;
+          height: 10px;
+        }
+      }
+  
+      .vote-purple {
+        color: $purple1;
+        border: 1px solid $purple1;
+        cursor: not-allowed !important;
+      }
+  
+      .disabled {
+        @include disabled;
+      }
+
+      .hover-box {
+        position: absolute;
+        top: 12px;
+        left: 20px;
+        width: 200px;
+        z-index: 7;
+        padding: 10px;
+        background-color: rgba(51, 51, 51, 0.8);
+        border-radius: 4px;
+        font-size: $small-font-size;
+        color: white;
+      }
+    }
+  }

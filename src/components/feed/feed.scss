@@ -1,0 +1,88 @@
+@import '../../styles.scss';
+
+.feed-row {
+    display: flex;
+  
+    .toggle-switch {
+  
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 64px;
+        height: 32px;
+        cursor: pointer;
+  
+        input { 
+          opacity: 0;
+          width: 0;
+          height: 0;
+        }
+  
+        .slider {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: $grey1;
+          border: 1px solid $grey;
+          -webkit-transition: .4s;
+          transition: .4s;
+  
+          &:before {
+            position: absolute;
+            content: "";
+            height: 28px;
+            width: 28px;
+            left: 4px;
+            bottom: 1px;
+            background-color: white;
+            border: 1px solid $dark-grey;
+            box-shadow: 0px 3px 2px rgba(0, 0, 0, 0.1);
+            -webkit-transition: .4s;
+            transition: .4s;
+          }
+        }
+  
+        input:checked + .slider:before {
+          -webkit-transform: translateX(28px);
+          -ms-transform: translateX(28px);
+          transform: translateX(28px);
+        }
+  
+        .round {
+          border-radius: 32px;
+  
+          &:before {
+            border-radius: 50%;
+          }
+        }
+  
+        .diamond {
+          width: 20px;
+          height: 17.6px;
+          position: absolute;
+          top: 8px;
+          left: 9px;
+        }
+  
+        .clock {
+          width: 18px;
+          height: 18px;
+          position: absolute;
+          top: 7.5px;
+          right: 8px;
+        }
+      }
+    }
+  
+    .dropdown-row {
+      display: flex;
+      flex-direction: row;
+  
+      .dropdown-box {
+        width: 108px;
+        margin: 0px 10px;
+      }
+    }
+}

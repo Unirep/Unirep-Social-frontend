@@ -1,0 +1,111 @@
+@import '../../styles.scss';
+
+header {
+    z-index: 10;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    text-align: left;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    padding-left: 30px;
+    padding-right: 30px;
+    font-weight: 700;
+    background-color: $background-color;
+    box-shadow: 0px 3px 2px rgba(0, 0, 0, 0.1);
+    
+    .navLinks {
+      flex: 1;
+      text-transform: uppercase;
+      font-size: $big-font-size;
+      font-weight: 700;
+      
+      .link:link,
+      .link:visited {
+        padding: 5px 10px;
+        margin: 1rem;
+        color: $main-font-color;
+        text-decoration: none;
+        text-transform: uppercase;
+        border-bottom: 2px solid transparent;
+      }
+  
+      .link:hover,
+      .link:active {
+        color: #757575;
+      }
+    }
+
+    .search-bar {
+      flex: 2;
+      padding-left: 8px;
+      width: 700px;
+      height: 32px;
+      line-height: 32px;
+      vertical-align: middle;
+      background-color: #fff;
+      border-radius: 20px;
+      border: 1px solid #bdbdbd;
+      display: flex;
+      flex-direction: row;
+
+      form {
+        flex: 15;
+
+        .search-icon {
+          flex: 1;
+        } 
+
+        input {
+          outline: none;
+          border: none;
+          background-color:transparent;
+          width: 100%;
+          font-size: 12px;
+        }
+      }
+    }
+
+    .timer {
+      flex: 2;
+      margin: 0px auto;
+      text-align: center;
+      line-height: 32px;
+      font-size: 18px;
+    }
+
+    .navButtons {
+      flex: 1;
+      justify-content: flex-end;
+      align-items: center;
+      display: flex;
+      padding-right: 10px;
+
+      .purpleButton {
+        @include myButton(99px, 32px, $color: #FFF, $block-color1: $purple2, $block-color2: $purple1, $radius: 20px);
+      }
+
+      .whiteButton {
+        @include myButton(99px, 32px, $color: $purple1, $radius: 20px, $border: 2px, $border-color: $purple1);
+      }
+
+      .lightPurpleButton {
+        @include myButton(99px, 32px, $color: $purple1, $block-color1: $light-purple, $radius: 20px, $border: 2px, $border-color: $purple1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        img {
+          width: 12px;
+          height: 15px;
+          margin-right: 15px;
+        }
+      }
+
+      .disabled {
+        @include disabled;
+      }
+    }
+  }
