@@ -2,120 +2,135 @@ import { genIdentity, genIdentityCommitment, serialiseIdentity, unSerialiseIdent
 import base64url from 'base64url'
 import { ethers } from 'ethers'
 import { stringifyBigInts } from 'maci-crypto'
+import { genUserStateFromContract } from '@unirep/unirep'
+import { UnirepSocialContract } from '@unirep/unirep-social';
 import * as config from './config'
 
-import UnirepSocial from "./artifacts/contracts/UnirepSocial.sol/UnirepSocial.json"
-import Unirep from "./artifacts/contracts/Unirep.sol/Unirep.json"
-
-import { genEpochKey, genUserStateFromContract } from './core/utils'
-import { add0x } from './crypto/SMT'
-import { genVerifyReputationProofAndPublicSignals, 
-    verifyProveReputationProof, formatProofForVerifierContract, 
-    genVerifyUserStateTransitionProofAndPublicSignals, verifyUserStateTransitionProof} from './circuits'
+const add0x = (str: string): string => {
+    str = str.padStart(64,"0")
+    return str.startsWith('0x') ? str : '0x' + str
+}
 
 export const getUserState = async (identity: string) => {
     console.log('get user state');
-    const provider = new ethers.providers.JsonRpcProvider(config.DEFAULT_ETH_PROVIDER)
+    // const provider = new ethers.providers.JsonRpcProvider(config.DEFAULT_ETH_PROVIDER)
 
-    const unirepSocialContract = new ethers.Contract(
-        config.UNIREP_SOCIAL,
-        UnirepSocial.abi,
-        provider,
-    )
+    // const unirepSocialContract = new ethers.Contract(
+    //     config.UNIREP_SOCIAL,
+    //     UnirepSocial.abi,
+    //     provider,
+    // )
 
-    const unirepAddress = await unirepSocialContract.unirep()
-    const unirepContract = new ethers.Contract(
-        unirepAddress,
-        Unirep.abi,
-        provider,
-    )
+    // const unirepAddress = await unirepSocialContract.unirep()
+    // const unirepContract = new ethers.Contract(
+    //     unirepAddress,
+    //     Unirep.abi,
+    //     provider,
+    // )
 
-    const numEpochKeyNoncePerEpoch = await unirepContract.numEpochKeyNoncePerEpoch()
-    const encodedIdentity = identity.slice(config.identityPrefix.length)
-    const decodedIdentity = base64url.decode(encodedIdentity)
-    const id = unSerialiseIdentity(decodedIdentity)
-    const commitment = genIdentityCommitment(id)
-    const currentEpoch = (await unirepContract.currentEpoch()).toNumber()
-    const treeDepths = await unirepContract.treeDepths()
+    // const numEpochKeyNoncePerEpoch = await unirepContract.numEpochKeyNoncePerEpoch()
     
-    // Gen epoch key proof and reputation proof from Unirep contract
+    
+    // // Gen epoch key proof and reputation proof from Unirep contract
+    // const userState = await genUserStateFromContract(
+    //     provider,
+    //     unirepAddress,
+    //     config.DEFAULT_START_BLOCK,
+    //     id,
+    //     commitment,
+    // )
+
+    const provider = new ethers.providers.JsonRpcProvider(config.DEFAULT_ETH_PROVIDER)
+    const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
+    const unirepContract = await unirepSocialContract.getUnirep();
+
+    const encodedIdentity = identity.slice(config.identityPrefix.length);
+    const decodedIdentity = base64url.decode(encodedIdentity);
+    const id = unSerialiseIdentity(decodedIdentity);
+    const commitment = genIdentityCommitment(id);
+    
     const userState = await genUserStateFromContract(
         provider,
-        unirepAddress,
+        unirepContract.address,
         config.DEFAULT_START_BLOCK,
         id,
         commitment,
-    )
+    );
 
-    return {userState, id, currentEpoch, treeDepths, numEpochKeyNoncePerEpoch}
+    console.log(userState);
+
+    // return {userState, id, currentEpoch, treeDepths, numEpochKeyNoncePerEpoch}
+    return {userState, id, currentEpoch: 1, treeDepths: 10, numEpochKeyNoncePerEpoch: 2};
 }
 
 export const getEpochKeys = async (identity: string) => {
-    const {userState, id, currentEpoch, treeDepths, numEpochKeyNoncePerEpoch} = await getUserState(identity);
-    const epochTreeDepth = treeDepths.epochTreeDepth
-    let epks: string[] = []
+    // const {userState, id, currentEpoch, treeDepths, numEpochKeyNoncePerEpoch} = await getUserState(identity);
+    // const epochTreeDepth = treeDepths.epochTreeDepth
+    // let epks: string[] = []
 
-    for (let i = 0; i < numEpochKeyNoncePerEpoch; i++) {
-        const tmp = genEpochKey(id.identityNullifier, currentEpoch, i, epochTreeDepth).toString(16)
-        epks = [...epks, tmp]
-    }
-    console.log(epks)
+    // for (let i = 0; i < numEpochKeyNoncePerEpoch; i++) {
+    //     const tmp = genEpochKey(id.identityNullifier, currentEpoch, i, epochTreeDepth).toString(16)
+    //     epks = [...epks, tmp]
+    // }
+    // console.log(epks)
 
-    return {epks, userState, currentEpoch}
+    // return {epks, userState, currentEpoch}
+    return {epks: null, userState: null, currentEpoch: null};
 }
 
 const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount: number, minRep: number = 0) => {
-    const {userState, id, currentEpoch, treeDepths, numEpochKeyNoncePerEpoch} = await getUserState(identity);
+    // const {userState, id, currentEpoch, treeDepths, numEpochKeyNoncePerEpoch} = await getUserState(identity);
 
-    if (epkNonce >= numEpochKeyNoncePerEpoch) {
-        console.error('no such epknonce available')
-    }
+    // if (epkNonce >= numEpochKeyNoncePerEpoch) {
+    //     console.error('no such epknonce available')
+    // }
 
-    const epochTreeDepth = treeDepths.epochTreeDepth
-    const epk = genEpochKey(id.identityNullifier, currentEpoch, epkNonce, epochTreeDepth).toString(16)
-    console.log('after gen epoch key: ' + epk)
+    // const epochTreeDepth = treeDepths.epochTreeDepth
+    // const epk = genEpochKey(id.identityNullifier, currentEpoch, epkNonce, epochTreeDepth).toString(16)
+    // console.log('after gen epoch key: ' + epk)
 
-    let circuitInputs: any
-    let GSTRoot: any
-    let nullifierTreeRoot: any
+    // let circuitInputs: any
+    // let GSTRoot: any
+    // let nullifierTreeRoot: any
 
-    console.log('generating proving circuit from contract...')
+    // console.log('generating proving circuit from contract...')
 
-    circuitInputs = await userState.genProveReputationCircuitInputs(
-        epkNonce,                       // generate epoch key from epoch nonce
-        proveKarmaAmount,               // the amount of output karma nullifiers
-        minRep                          // the amount of minimum reputation the user wants to prove
-    )
+    // circuitInputs = await userState.genProveReputationCircuitInputs(
+    //     epkNonce,                       // generate epoch key from epoch nonce
+    //     proveKarmaAmount,               // the amount of output karma nullifiers
+    //     minRep                          // the amount of minimum reputation the user wants to prove
+    // )
     
-    GSTRoot = userState.getUnirepStateGSTree(currentEpoch).root
-    nullifierTreeRoot = (await userState.getUnirepStateNullifierTree()).getRootHash()
+    // GSTRoot = userState.getUnirepStateGSTree(currentEpoch).root
+    // nullifierTreeRoot = (await userState.getUnirepStateNullifierTree()).getRootHash()
 
-    console.log('genVerifyReputationProofAndPublicSignals...')
-    const results = await genVerifyReputationProofAndPublicSignals(stringifyBigInts(circuitInputs))
-    console.log(results)
+    // console.log('genVerifyReputationProofAndPublicSignals...')
+    // const results = await genVerifyReputationProofAndPublicSignals(stringifyBigInts(circuitInputs))
+    // console.log(results)
     
-    const nullifiers = results['publicSignals'].slice(0, config.MAX_KARMA_BUDGET)
+    // const nullifiers = results['publicSignals'].slice(0, config.MAX_KARMA_BUDGET)
     
-    // TODO: Not sure if this validation is necessary
-    const isValid = await verifyProveReputationProof(results['proof'], results['publicSignals'])
-    if(!isValid) {
-        console.error('Error: reputation proof generated is not valid!')
-        return
-    }
+    // // TODO: Not sure if this validation is necessary
+    // const isValid = await verifyProveReputationProof(results['proof'], results['publicSignals'])
+    // if(!isValid) {
+    //     console.error('Error: reputation proof generated is not valid!')
+    //     return
+    // }
 
-    const proof = formatProofForVerifierContract(results['proof'])
+    // const proof = formatProofForVerifierContract(results['proof'])
 
-    // generate public signals
-    const publicSignals = [
-        GSTRoot,
-        nullifierTreeRoot,
-        BigInt(true),
-        proveKarmaAmount,
-        minRep !== 0 ? BigInt(1) : BigInt(0),
-        minRep !== 0 ? BigInt(minRep) : BigInt(0)
-    ]
+    // // generate public signals
+    // const publicSignals = [
+    //     GSTRoot,
+    //     nullifierTreeRoot,
+    //     BigInt(true),
+    //     proveKarmaAmount,
+    //     minRep !== 0 ? BigInt(1) : BigInt(0),
+    //     minRep !== 0 ? BigInt(minRep) : BigInt(0)
+    // ]
 
-    return {epk, proof, publicSignals, nullifiers}
+    // return {epk, proof, publicSignals, nullifiers}
+    return {epk: null, proof: null, publicSignals: null, nullifiers: null};
 }
 
 const makeURL = (action: string, data: any) => {
@@ -267,50 +282,52 @@ export const vote = async(identity: string, upvote: number, downvote: number, po
            transaction = data.transaction
        });
 
-    const epochKey = BigInt(add0x(ret.epk))
+    // const epochKey = BigInt(add0x(ret.epk))
     return {epk: ret.epk, transaction} 
 }
 
 export const leaveComment = async(identity: string, content: string, postId: string, epkNonce: number = 0, minRep: number = 0) => {
-    const ret = await genProof(identity, epkNonce, config.DEFAULT_COMMENT_KARMA, minRep)
-    if (ret === undefined) {
-        console.error('genProof error, ret is undefined.')
-        return
-    }
+    // const ret = await genProof(identity, epkNonce, config.DEFAULT_COMMENT_KARMA, minRep)
+    // if (ret === undefined) {
+    //     console.error('genProof error, ret is undefined.')
+    //     return
+    // }
 
-    // send proof, publicSignals, postid, content, epockKey to backend
-    const apiURL = makeURL('comment', {})
-     const data = {
-        content,
-        epk: ret.epk,
-        proof: ret.proof, 
-        minRep,
-        postId,
-        nullifiers: ret.nullifiers,
-        publicSignals: ret.publicSignals,
-     }
-     const stringifiedData = JSON.stringify(data, (key, value) => 
-        typeof value === "bigint" ? value.toString() + "n" : value
-     )
-     console.log('before leave comment api: ' + stringifiedData)
+    // // send proof, publicSignals, postid, content, epockKey to backend
+    // const apiURL = makeURL('comment', {})
+    //  const data = {
+    //     content,
+    //     epk: ret.epk,
+    //     proof: ret.proof, 
+    //     minRep,
+    //     postId,
+    //     nullifiers: ret.nullifiers,
+    //     publicSignals: ret.publicSignals,
+    //  }
+    //  const stringifiedData = JSON.stringify(data, (key, value) => 
+    //     typeof value === "bigint" ? value.toString() + "n" : value
+    //  )
+    //  console.log('before leave comment api: ' + stringifiedData)
      
-     let transaction: string = ''
-     let commentId: string = ''
-     let currentEpoch: number = 0
-     await fetch(apiURL, {
-         headers: header,
-         body: stringifiedData,
-         method: 'POST',
-     }).then(response => response.json())
-        .then(function(data){
-            console.log(JSON.stringify(data))
-            transaction = data.transaction
-            commentId = data.commentId
-            currentEpoch = data.currentEpoch
-        });
+    //  let transaction: string = ''
+    //  let commentId: string = ''
+    //  let currentEpoch: number = 0
+    //  await fetch(apiURL, {
+    //      headers: header,
+    //      body: stringifiedData,
+    //      method: 'POST',
+    //  }).then(response => response.json())
+    //     .then(function(data){
+    //         console.log(JSON.stringify(data))
+    //         transaction = data.transaction
+    //         commentId = data.commentId
+    //         currentEpoch = data.currentEpoch
+    //     });
 
-    const epochKey = BigInt(add0x(ret.epk))
-    return {epk: epochKey.toString(), commentId, transaction, currentEpoch}
+    // const epochKey = BigInt(add0x(ret.epk))
+    // return {epk: epochKey.toString(), commentId, transaction, currentEpoch}
+
+    return {epk: null, commentId: null, transaction: null, currentEpoch: null};
 }
 
 export const getNextEpochTime = async () => {
@@ -326,86 +343,87 @@ export const getNextEpochTime = async () => {
 }
 
 export const userStateTransition = async (identity: string) => {
-    const {userState, id, currentEpoch, treeDepths, numEpochKeyNoncePerEpoch} = await getUserState(identity);
-    const nullifierTreeDepth = treeDepths["nullifierTreeDepth"]
-    let circuitInputs: any
+    // const {userState, id, currentEpoch, treeDepths, numEpochKeyNoncePerEpoch} = await getUserState(identity);
+    // const nullifierTreeDepth = treeDepths["nullifierTreeDepth"]
+    // let circuitInputs: any
 
-    console.log('generating proving circuit from contract...')
-    circuitInputs = await userState.genUserStateTransitionCircuitInputs()
+    // console.log('generating proving circuit from contract...')
+    // circuitInputs = await userState.genUserStateTransitionCircuitInputs()
     
-    const results = await genVerifyUserStateTransitionProofAndPublicSignals(stringifyBigInts(circuitInputs));
-    const newGSTLeaf = results['publicSignals'][0]
-    const newState = await userState.genNewUserStateAfterTransition()
-    if (newGSTLeaf != newState.newGSTLeaf.toString()) {
-        console.error('Error: Computed new GST leaf should match')
-        return
-    }
+    // const results = await genVerifyUserStateTransitionProofAndPublicSignals(stringifyBigInts(circuitInputs));
+    // const newGSTLeaf = results['publicSignals'][0]
+    // const newState = await userState.genNewUserStateAfterTransition()
+    // if (newGSTLeaf != newState.newGSTLeaf.toString()) {
+    //     console.error('Error: Computed new GST leaf should match')
+    //     return
+    // }
     
-    const isValid = await verifyUserStateTransitionProof(results['proof'], results['publicSignals'])
-    if (!isValid) {
-        console.error('Error: user state transition proof generated is not valid!')
-        return
-    }
+    // const isValid = await verifyUserStateTransitionProof(results['proof'], results['publicSignals'])
+    // if (!isValid) {
+    //     console.error('Error: user state transition proof generated is not valid!')
+    //     return
+    // }
 
-    const fromEpoch = userState.latestTransitionedEpoch
-    const GSTreeRoot = userState.getUnirepStateGSTree(fromEpoch).root
-    const epochTreeRoot = (await userState.getUnirepStateEpochTree(fromEpoch)).getRootHash()
-    const nullifierTreeRoot = (await userState.getUnirepStateNullifierTree()).getRootHash()
-    const attestationNullifiers = userState.getAttestationNullifiers(fromEpoch)
-    const epkNullifiers = userState.getEpochKeyNullifiers(fromEpoch)
-    // Verify nullifiers outputted by circuit are the same as the ones computed off-chain
-    const outputAttestationNullifiers: BigInt[] = []
-    for (let i = 0; i < attestationNullifiers.length; i++) {
-        const outputNullifier = results['publicSignals'][1+i]
-        const modedOutputNullifier = BigInt(outputNullifier) % BigInt(2 ** nullifierTreeDepth)
-        if (modedOutputNullifier != attestationNullifiers[i]) {
-            console.error(`Error: nullifier outputted by circuit(${modedOutputNullifier}) does not match the ${i}-th computed attestation nullifier(${attestationNullifiers[i]})`)
-            return
-        }
-        outputAttestationNullifiers.push(outputNullifier)
-    }
-    const outputEPKNullifiers: BigInt[] = []
-    for (let i = 0; i < epkNullifiers.length; i++) {
-        const outputNullifier = results['publicSignals'][13+i]
-        const modedOutputNullifier = BigInt(outputNullifier) % BigInt(2 ** nullifierTreeDepth)
-        if (modedOutputNullifier != epkNullifiers[i]) {
-            console.error(`Error: nullifier outputted by circuit(${modedOutputNullifier}) does not match the ${i}-th computed attestation nullifier(${epkNullifiers[i]})`)
-            return
-        }
-        outputEPKNullifiers.push(outputNullifier)
-    }
+    // const fromEpoch = userState.latestTransitionedEpoch
+    // const GSTreeRoot = userState.getUnirepStateGSTree(fromEpoch).root
+    // const epochTreeRoot = (await userState.getUnirepStateEpochTree(fromEpoch)).getRootHash()
+    // const nullifierTreeRoot = (await userState.getUnirepStateNullifierTree()).getRootHash()
+    // const attestationNullifiers = userState.getAttestationNullifiers(fromEpoch)
+    // const epkNullifiers = userState.getEpochKeyNullifiers(fromEpoch)
+    // // Verify nullifiers outputted by circuit are the same as the ones computed off-chain
+    // const outputAttestationNullifiers: BigInt[] = []
+    // for (let i = 0; i < attestationNullifiers.length; i++) {
+    //     const outputNullifier = results['publicSignals'][1+i]
+    //     const modedOutputNullifier = BigInt(outputNullifier) % BigInt(2 ** nullifierTreeDepth)
+    //     if (modedOutputNullifier != attestationNullifiers[i]) {
+    //         console.error(`Error: nullifier outputted by circuit(${modedOutputNullifier}) does not match the ${i}-th computed attestation nullifier(${attestationNullifiers[i]})`)
+    //         return
+    //     }
+    //     outputAttestationNullifiers.push(outputNullifier)
+    // }
+    // const outputEPKNullifiers: BigInt[] = []
+    // for (let i = 0; i < epkNullifiers.length; i++) {
+    //     const outputNullifier = results['publicSignals'][13+i]
+    //     const modedOutputNullifier = BigInt(outputNullifier) % BigInt(2 ** nullifierTreeDepth)
+    //     if (modedOutputNullifier != epkNullifiers[i]) {
+    //         console.error(`Error: nullifier outputted by circuit(${modedOutputNullifier}) does not match the ${i}-th computed attestation nullifier(${epkNullifiers[i]})`)
+    //         return
+    //     }
+    //     outputEPKNullifiers.push(outputNullifier)
+    // }
 
-    const proof = formatProofForVerifierContract(results['proof'])
-    const apiURL = makeURL('userStateTransition', {})
-    const data = {
-        newGSTLeaf,
-        outputAttestationNullifiers,
-        outputEPKNullifiers,
-        fromEpoch,
-        GSTreeRoot,
-        epochTreeRoot,
-        nullifierTreeRoot,
-        proof
-    }
+    // const proof = formatProofForVerifierContract(results['proof'])
+    // const apiURL = makeURL('userStateTransition', {})
+    // const data = {
+    //     newGSTLeaf,
+    //     outputAttestationNullifiers,
+    //     outputEPKNullifiers,
+    //     fromEpoch,
+    //     GSTreeRoot,
+    //     epochTreeRoot,
+    //     nullifierTreeRoot,
+    //     proof
+    // }
 
-    const stringifiedData = JSON.stringify(data, (key, value) => 
-       typeof value === "bigint" ? value.toString() + "n" : value
-    )
-    console.log('before vote api: ' + stringifiedData)
+    // const stringifiedData = JSON.stringify(data, (key, value) => 
+    //    typeof value === "bigint" ? value.toString() + "n" : value
+    // )
+    // console.log('before vote api: ' + stringifiedData)
 
-    let transaction: string = ''
-    let toEpoch: number = 0
-    await fetch(apiURL, {
-        headers: header,
-        body: stringifiedData,
-        method: 'POST',
-    }).then(response => response.json())
-       .then(function(data){
-           console.log(JSON.stringify(data))
-           transaction = data.transaction
-           toEpoch = data.currentEpoch
-    });
+    // let transaction: string = ''
+    // let toEpoch: number = 0
+    // await fetch(apiURL, {
+    //     headers: header,
+    //     body: stringifiedData,
+    //     method: 'POST',
+    // }).then(response => response.json())
+    //    .then(function(data){
+    //        console.log(JSON.stringify(data))
+    //        transaction = data.transaction
+    //        toEpoch = data.currentEpoch
+    // });
 
     
-    return {transaction, toEpoch} 
+    // return {transaction, toEpoch} 
+    return {transaction: null, toEpoch: 2};
 }
