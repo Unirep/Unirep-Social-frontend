@@ -75,7 +75,7 @@ export const getEpochKeys = async (identity: string) => {
     // console.log(epks)
 
     // return {epks, userState, currentEpoch}
-    return {epks: null, userState: null, currentEpoch: null};
+    return {epks: [], userState: null, currentEpoch: 1};
 }
 
 const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount: number, minRep: number = 0) => {

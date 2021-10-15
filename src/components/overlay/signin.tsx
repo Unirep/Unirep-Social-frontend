@@ -24,58 +24,58 @@ const SignUp = () => {
         const ret = await userSignIn(userInput);
         
         if (ret) {
-            const ret = await getEpochKeys(userInput);
-            const userState = ret.userState;
-            const reputations = userState.getRep();
-            const userEpoch = userState.latestTransitionedEpoch;
+            // const ret = await getEpochKeys(userInput);
+            // const userState = ret.userState;
+            // const reputations = userState.getRep();
+            // const userEpoch = userState.latestTransitionedEpoch;
 
-            if (userEpoch !== ret.currentEpoch) {
-                console.log('user epoch is not the same as current epoch, do user state transition, ' + userEpoch + ' != ' + ret.currentEpoch);
-                const ret1 = await userStateTransition(userInput);
-                console.log(ret1);
-            }
+            // if (userEpoch !== ret.currentEpoch) {
+            //     console.log('user epoch is not the same as current epoch, do user state transition, ' + userEpoch + ' != ' + ret.currentEpoch);
+            //     const ret1 = await userStateTransition(userInput);
+            //     console.log(ret1);
+            // }
 
-            setUser({
-                identity: userInput,
-                epoch_keys: ret.epks,
-                reputation: reputations,
-                current_epoch: ret.currentEpoch,
-            });
+            // setUser({
+            //     identity: userInput,
+            //     epoch_keys: ret.epks,
+            //     reputation: reputations,
+            //     current_epoch: ret.currentEpoch,
+            // });
 
-            setShownPosts([...shownPosts].map(p => {
-                let isUpvoted: boolean = false, isDownvoted: boolean = false;
-                p.votes.forEach(v => {
-                    const e = ret.epks.find(_e => _e === v.epoch_key);
-                    if (e !== undefined) {
-                        if (v.upvote > 0) {
-                            isUpvoted = true;
-                        }
-                        if (v.downvote > 0) {
-                            isDownvoted = true;
-                        }
-                    }
-                });
-                let comments = [...p.comments].map(c => {
-                    let isUpvotedC: boolean = false, isDownvotedC: boolean = false;
-                    c.votes.forEach(v => {
-                        const e = ret.epks.find(_e => _e === v.epoch_key);
-                        if (e !== undefined) {
-                            if (v.upvote > 0) {
-                                isUpvotedC = true;
-                            }
-                            if (v.downvote > 0) {
-                                isDownvotedC = true;
-                            }
-                        }
-                    });
-                    let isAuthorC: boolean = ret.epks.find(_e => _e === c.epoch_key) !== undefined;
-                    let newComment: Constants.Comment = {...c, isUpvoted: isUpvotedC, isDownvoted: isDownvotedC, isAuthor: isAuthorC};
-                    return newComment;
-                });
-                let isAuthor: boolean = ret.epks.find(_e => _e === p.epoch_key) !== undefined;
-                let newPost: Constants.Post = {...p, isUpvoted, isDownvoted, isAuthor, comments};
-                return newPost;
-            }));
+            // setShownPosts([...shownPosts].map(p => {
+            //     let isUpvoted: boolean = false, isDownvoted: boolean = false;
+            //     p.votes.forEach(v => {
+            //         const e = ret.epks.find(_e => _e === v.epoch_key);
+            //         if (e !== undefined) {
+            //             if (v.upvote > 0) {
+            //                 isUpvoted = true;
+            //             }
+            //             if (v.downvote > 0) {
+            //                 isDownvoted = true;
+            //             }
+            //         }
+            //     });
+            //     let comments = [...p.comments].map(c => {
+            //         let isUpvotedC: boolean = false, isDownvotedC: boolean = false;
+            //         c.votes.forEach(v => {
+            //             const e = ret.epks.find(_e => _e === v.epoch_key);
+            //             if (e !== undefined) {
+            //                 if (v.upvote > 0) {
+            //                     isUpvotedC = true;
+            //                 }
+            //                 if (v.downvote > 0) {
+            //                     isDownvotedC = true;
+            //                 }
+            //             }
+            //         });
+            //         let isAuthorC: boolean = ret.epks.find(_e => _e === c.epoch_key) !== undefined;
+            //         let newComment: Constants.Comment = {...c, isUpvoted: isUpvotedC, isDownvoted: isDownvotedC, isAuthor: isAuthorC};
+            //         return newComment;
+            //     });
+            //     let isAuthor: boolean = ret.epks.find(_e => _e === p.epoch_key) !== undefined;
+            //     let newPost: Constants.Post = {...p, isUpvoted, isDownvoted, isAuthor, comments};
+            //     return newPost;
+            // }));
 
             setPageStatus(Constants.PageStatus.None);
 

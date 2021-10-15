@@ -64,27 +64,27 @@ const PostField = ({ page }: Props) => {
         } else {
             const ret = await publishPost(content, epkNonce, user.identity, reputation); // content, epkNonce, identity, minRep
             if (ret !== undefined) {
-                const newPost: Post = {
-                    type: DataType.Post,
-                    id: ret.postId,
-                    content,
-                    votes: [],
-                    upvote: 0,
-                    downvote: 0,
-                    isUpvoted: false,
-                    isDownvoted: false,
-                    epoch_key: ret.epk,
-                    username: 'username',
-                    post_time: Date.now(),
-                    reputation: +reputation,
-                    comments: [],
-                    isAuthor: true,
-                    current_epoch: ret.currentEpoch
-                }
+                // const newPost: Post = {
+                //     type: DataType.Post,
+                //     id: ret.postId,
+                //     content,
+                //     votes: [],
+                //     upvote: 0,
+                //     downvote: 0,
+                //     isUpvoted: false,
+                //     isDownvoted: false,
+                //     epoch_key: ret.epk,
+                //     username: 'username',
+                //     post_time: Date.now(),
+                //     reputation: +reputation,
+                //     comments: [],
+                //     isAuthor: true,
+                //     current_epoch: ret.currentEpoch
+                // }
                 
-                setShownPosts([newPost, ...shownPosts]);
-                const reputations = (await getUserState(user.identity)).userState.getRep();
-                setUser({...user, reputation: reputations})
+                // setShownPosts([newPost, ...shownPosts]);
+                // const reputations = (await getUserState(user.identity)).userState.getRep();
+                // setUser({...user, reputation: reputations})
 
                 init();
             } else {

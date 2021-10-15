@@ -27,30 +27,30 @@ const CommentField = (props: Props) => {
         } else {
             const ret = await leaveComment(user.identity, content, props.post.id, epkNonce, reputation)
             if (ret !== undefined) {
-                let c: Comment = {
-                    type: DataType.Comment,
-                    id: ret.commentId,
-                    post_id: props.post.id,
-                    content,
-                    votes: [],
-                    upvote: 0,
-                    downvote: 0,
-                    isUpvoted: false,
-                    isDownvoted: false,
-                    epoch_key: user.epoch_keys[epkNonce],
-                    username: 'username',
-                    post_time: Date.now(),
-                    reputation: +reputation,
-                    isAuthor: true,
-                    current_epoch: ret.currentEpoch,
-                };
-                const filteredPosts = shownPosts.filter((p) => p.id != props.post?.id)
-                let comments = props.post.comments.length > 0? [c, ...props.post.comments] : [c];
-                let p = {...props.post, comments};
+                // let c: Comment = {
+                //     type: DataType.Comment,
+                //     id: ret.commentId,
+                //     post_id: props.post.id,
+                //     content,
+                //     votes: [],
+                //     upvote: 0,
+                //     downvote: 0,
+                //     isUpvoted: false,
+                //     isDownvoted: false,
+                //     epoch_key: user.epoch_keys[epkNonce],
+                //     username: 'username',
+                //     post_time: Date.now(),
+                //     reputation: +reputation,
+                //     isAuthor: true,
+                //     current_epoch: ret.currentEpoch,
+                // };
+                // const filteredPosts = shownPosts.filter((p) => p.id != props.post?.id)
+                // let comments = props.post.comments.length > 0? [c, ...props.post.comments] : [c];
+                // let p = {...props.post, comments};
 
-                setShownPosts([p, ...filteredPosts]);
-                const rep = (await getUserState(user.identity)).userState.getRep();
-                setUser({...user, reputation: rep})
+                // setShownPosts([p, ...filteredPosts]);
+                // const rep = (await getUserState(user.identity)).userState.getRep();
+                // setUser({...user, reputation: rep})
 
                 props.closeComment();
             } else {

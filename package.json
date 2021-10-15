@@ -38,8 +38,7 @@
     "postinstall": "link-module-alias"
   },
   "_moduleAliases": {
-    "worker_threads": "./externals/worker_threads.js",
-    "perf_hooks": "./externals/perf_hooks.js"
+    "worker_threads": "./externals/worker_threads.js"
   },
   "eslintConfig": {
     "extends": [

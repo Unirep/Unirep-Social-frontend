@@ -45,43 +45,43 @@ const VoteBox = (props: Props) => {
                 console.log('downvote ret: ' + JSON.stringify(ret))
             }
 
-            const newVote: Vote = {
-                upvote: props.isUpvote? givenAmount:0,
-                downvote: props.isUpvote? 0:givenAmount,
-                epoch_key: user.epoch_keys[epkNonce],
-            }
-            let v = [...props.data.votes, newVote];
-            if (props.data.type === DataType.Post) {
-                const filteredPosts = shownPosts.filter((p) => p.id != props.data.id)
-                let p: Post = {...(props.data as Post), 
-                    upvote: props.data.upvote + (props.isUpvote? givenAmount : 0),
-                    downvote: props.data.downvote + (props.isUpvote? 0 : givenAmount), 
-                    isUpvoted: props.isUpvote || props.data.isUpvoted, 
-                    isDownvoted: !props.isUpvote || props.data.isDownvoted, 
-                    votes: v
-                };
-                setShownPosts([p, ...filteredPosts]);
-            } else if (props.data.type === DataType.Comment) {
-                const selectedPost = shownPosts.find((p) => p.id === (props.data as Comment).post_id);
-                if (selectedPost === undefined) {
-                    console.error('no such post!?????');
-                } else {
-                    const filteredPosts = shownPosts.filter((p) => p.id !== (props.data as Comment).post_id);
-                    const filteredComment = selectedPost.comments.filter((c) => c.id !== props.data.id);
-                    let c: Comment = {...(props.data as Comment), 
-                        upvote: props.data.upvote + (props.isUpvote? givenAmount : 0),
-                        downvote: props.data.downvote + (props.isUpvote? 0 : givenAmount), 
-                        isUpvoted: props.isUpvote || props.data.isUpvoted, 
-                        isDownvoted: !props.isUpvote || props.data.isDownvoted, 
-                        votes: v
-                    };
-                    let p: Post = {...selectedPost, comments: [c, ...filteredComment]}
-                    setShownPosts([p, ...filteredPosts]);
-                }
-            }
+            // const newVote: Vote = {
+            //     upvote: props.isUpvote? givenAmount:0,
+            //     downvote: props.isUpvote? 0:givenAmount,
+            //     epoch_key: user.epoch_keys[epkNonce],
+            // }
+            // let v = [...props.data.votes, newVote];
+            // if (props.data.type === DataType.Post) {
+            //     const filteredPosts = shownPosts.filter((p) => p.id != props.data.id)
+            //     let p: Post = {...(props.data as Post), 
+            //         upvote: props.data.upvote + (props.isUpvote? givenAmount : 0),
+            //         downvote: props.data.downvote + (props.isUpvote? 0 : givenAmount), 
+            //         isUpvoted: props.isUpvote || props.data.isUpvoted, 
+            //         isDownvoted: !props.isUpvote || props.data.isDownvoted, 
+            //         votes: v
+            //     };
+            //     setShownPosts([p, ...filteredPosts]);
+            // } else if (props.data.type === DataType.Comment) {
+            //     const selectedPost = shownPosts.find((p) => p.id === (props.data as Comment).post_id);
+            //     if (selectedPost === undefined) {
+            //         console.error('no such post!?????');
+            //     } else {
+            //         const filteredPosts = shownPosts.filter((p) => p.id !== (props.data as Comment).post_id);
+            //         const filteredComment = selectedPost.comments.filter((c) => c.id !== props.data.id);
+            //         let c: Comment = {...(props.data as Comment), 
+            //             upvote: props.data.upvote + (props.isUpvote? givenAmount : 0),
+            //             downvote: props.data.downvote + (props.isUpvote? 0 : givenAmount), 
+            //             isUpvoted: props.isUpvote || props.data.isUpvoted, 
+            //             isDownvoted: !props.isUpvote || props.data.isDownvoted, 
+            //             votes: v
+            //         };
+            //         let p: Post = {...selectedPost, comments: [c, ...filteredComment]}
+            //         setShownPosts([p, ...filteredPosts]);
+            //     }
+            // }
             
-            const reputations = (await getUserState(user.identity)).userState.getRep();
-            setUser({...user, reputation: reputations});
+            // const reputations = (await getUserState(user.identity)).userState.getRep();
+            // setUser({...user, reputation: reputations});
             init();
         }
     }

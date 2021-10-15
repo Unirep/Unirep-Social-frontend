@@ -20,10 +20,10 @@ const Header = () => {
             
             const next = await getNextEpochTime();
             setNextUSTTime(next);
-            const ret2 = await getEpochKeys(user.identity);
-            if (ret !== undefined) {
-                setUser({...user, epoch_keys: ret2.epks, reputation: ret2.userState.getRep(), current_epoch: ret.toEpoch})
-            }
+            // const ret2 = await getEpochKeys(user.identity);
+            // if (ret !== undefined) {
+            //     setUser({...user, epoch_keys: ret2.epks, reputation: ret2.userState.getRep(), current_epoch: ret.toEpoch})
+            // }
             setIsUSTing(false);
             setIsLoading(false);
         }
