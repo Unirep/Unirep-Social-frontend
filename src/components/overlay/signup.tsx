@@ -2,11 +2,11 @@ import React, { useState, useContext } from 'react';
 import { WebContext } from '../../context/WebContext';
 import * as Constants from '../../constants';
 import { FaTwitter } from 'react-icons/fa';
-import { checkInvitationCode, userSignUp, getEpochKeys, getNextEpochTime } from '../../utils';
+import { checkInvitationCode, userSignUp, getEpochKeys, getNextEpochTime, getAirdrop } from '../../utils';
 import './overlay.scss';
 
 const SignUp = () => {
-    const { setUser, setPageStatus, setNextUSTTime } = useContext(WebContext);
+    const { user, setUser, setPageStatus, setNextUSTTime } = useContext(WebContext);
     
     
     // step 0: sign up with twitter / others
@@ -38,9 +38,15 @@ const SignUp = () => {
             setCommitment(c);
             const ret = await getEpochKeys(i);
             setEpks(ret.epks);
-            const currentRep = ret.userState.getRepByAttester(BigInt(1));
+            const currentRep = ret.userState.getRepByAttester(ret.attesterId);
             setReputations(Number(currentRep.posRep) - Number(currentRep.negRep));
             setCurrentEpoch(ret.currentEpoch);
+        }
+
+        if (step === 2) {
+            if (user !== null) {
+                await getAirdrop(user.identity);
+            }
         }
 
         setStep((prevState) => (prevState + 1));

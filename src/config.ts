@@ -3,8 +3,12 @@ import { ethers } from 'ethers'
 const identityPrefix = 'Unirep.identity.'
 const identityCommitmentPrefix = 'Unirep.identityCommitment.'
 const epkProofPrefix = 'Unirep.epkProof.'
+const epkPublicSignalsPrefix = 'Unirep.epk.publicSignals.'
 const reputationProofPrefix = 'Unirep.reputationProof.'
+const reputationPublicSignalsPrefix = 'Unirep.reputation.publicSignals.'
 const reputationProofFromAttesterPrefix = 'Unirep.reputationProofFromAttester.'
+const signUpProofPrefix = 'Unirep.signUp.proof.'
+const signUpPublicSignalsPrefix = 'Unirep.signUp.publicSignals.'
 
 const SERVER = 'http://localhost:3001'
 const DEFAULT_ETH_PROVIDER = 'http://localhost:8545'
@@ -41,8 +45,12 @@ export {
     identityPrefix,
     identityCommitmentPrefix,
     epkProofPrefix,
+    epkPublicSignalsPrefix,
     reputationProofPrefix,
+    reputationPublicSignalsPrefix,
     reputationProofFromAttesterPrefix,
+    signUpProofPrefix,
+    signUpPublicSignalsPrefix,
     DEFAULT_ETH_PROVIDER,
     DEFAULT_START_BLOCK,
     DEFAULT_MAX_EPOCH_KEY_NONCE,

@@ -11,6 +11,19 @@ const add0x = (str: string): string => {
     return str.startsWith('0x') ? str : '0x' + str
 }
 
+const formatProofForVerifierContract = (_proof: any) => {
+    return ([
+        _proof.pi_a[0],
+        _proof.pi_a[1],
+        _proof.pi_b[0][1],
+        _proof.pi_b[0][0],
+        _proof.pi_b[1][1],
+        _proof.pi_b[1][0],
+        _proof.pi_c[0],
+        _proof.pi_c[1],
+    ]).map((x) => x.toString());
+};
+
 export const getUserState = async (identity: string) => {
     console.log('get user state');
 
@@ -30,16 +43,17 @@ export const getUserState = async (identity: string) => {
         id,
         commitment,
     );
-    const numEpochKeyNoncePerEpoch = await unirepContract.numEpochKeyNoncePerEpoch()
+    const numEpochKeyNoncePerEpoch = await unirepContract.numEpochKeyNoncePerEpoch();
     const currentEpoch = await unirepSocialContract.currentEpoch();
+    const attesterId = await unirepSocialContract.attesterId();
 
     console.log(userState);
 
-    return {userState, numEpochKeyNoncePerEpoch, currentEpoch: Number(currentEpoch)};
+    return {userState, numEpochKeyNoncePerEpoch, currentEpoch: Number(currentEpoch), attesterId};
 }
 
 export const getEpochKeys = async (identity: string) => {
-    const { userState, numEpochKeyNoncePerEpoch, currentEpoch } = await getUserState(identity);
+    const { userState, numEpochKeyNoncePerEpoch, currentEpoch, attesterId } = await getUserState(identity);
 
     let epks: string[] = []
 
@@ -50,7 +64,37 @@ export const getEpochKeys = async (identity: string) => {
     }
     console.log(epks)
 
-    return {epks, userState, currentEpoch}
+    return {epks, userState, currentEpoch, attesterId}
+}
+
+export const getAirdrop = async (identity: string) => {
+    const { userState, attesterId } = await getUserState(identity);
+    const results = await userState.genUserSignUpProof(BigInt(attesterId));
+
+    const formattedProof = formatProofForVerifierContract(results.proof)
+    const encodedProof = base64url.encode(JSON.stringify(formattedProof))
+    const encodedPublicSignals = base64url.encode(JSON.stringify(results.publicSignals))
+    const signUpProof = config.signUpProofPrefix + encodedProof
+    const signUpPublicSignals = config.signUpPublicSignalsPrefix + encodedPublicSignals
+    
+    const apiURL = makeURL('airdrop', {})
+    const data = {
+        proof: signUpProof, 
+        publicSignals: signUpPublicSignals,
+    }
+    const stringifiedData = JSON.stringify(data)
+    let transaction: string = ''
+    await fetch(apiURL, {
+            headers: header,
+            body: stringifiedData,
+            method: 'POST',
+        }).then(response => response.json())
+        .then(function(data){
+            console.log(JSON.stringify(data))
+            transaction = data.transaction
+        });
+
+    return { transaction }
 }
 
 const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount: number, minRep: number = 0) => {
