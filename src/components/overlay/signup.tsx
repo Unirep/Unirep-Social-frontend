@@ -36,10 +36,11 @@ const SignUp = () => {
             const {i, c} = await userSignUp();
             setIdentity(i);
             setCommitment(c);
-            // const ret = await getEpochKeys(i);
-            // setEpks(ret.epks);
-            // setReputations(ret.userState.getRep());
-            // setCurrentEpoch(ret.currentEpoch);
+            const ret = await getEpochKeys(i);
+            setEpks(ret.epks);
+            const currentRep = ret.userState.getRepByAttester(BigInt(1));
+            setReputations(Number(currentRep.posRep) - Number(currentRep.negRep));
+            setCurrentEpoch(ret.currentEpoch);
         }
 
         setStep((prevState) => (prevState + 1));

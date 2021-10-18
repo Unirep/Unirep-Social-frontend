@@ -13,32 +13,6 @@ const add0x = (str: string): string => {
 
 export const getUserState = async (identity: string) => {
     console.log('get user state');
-    // const provider = new ethers.providers.JsonRpcProvider(config.DEFAULT_ETH_PROVIDER)
-
-    // const unirepSocialContract = new ethers.Contract(
-    //     config.UNIREP_SOCIAL,
-    //     UnirepSocial.abi,
-    //     provider,
-    // )
-
-    // const unirepAddress = await unirepSocialContract.unirep()
-    // const unirepContract = new ethers.Contract(
-    //     unirepAddress,
-    //     Unirep.abi,
-    //     provider,
-    // )
-
-    // const numEpochKeyNoncePerEpoch = await unirepContract.numEpochKeyNoncePerEpoch()
-    
-    
-    // // Gen epoch key proof and reputation proof from Unirep contract
-    // const userState = await genUserStateFromContract(
-    //     provider,
-    //     unirepAddress,
-    //     config.DEFAULT_START_BLOCK,
-    //     id,
-    //     commitment,
-    // )
 
     const provider = new ethers.providers.JsonRpcProvider(config.DEFAULT_ETH_PROVIDER)
     const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
@@ -56,26 +30,27 @@ export const getUserState = async (identity: string) => {
         id,
         commitment,
     );
+    const numEpochKeyNoncePerEpoch = await unirepContract.numEpochKeyNoncePerEpoch()
+    const currentEpoch = await unirepSocialContract.currentEpoch();
 
     console.log(userState);
 
-    // return {userState, id, currentEpoch, treeDepths, numEpochKeyNoncePerEpoch}
-    return {userState, id, currentEpoch: 1, treeDepths: 10, numEpochKeyNoncePerEpoch: 2};
+    return {userState, numEpochKeyNoncePerEpoch, currentEpoch: Number(currentEpoch)};
 }
 
 export const getEpochKeys = async (identity: string) => {
-    // const {userState, id, currentEpoch, treeDepths, numEpochKeyNoncePerEpoch} = await getUserState(identity);
-    // const epochTreeDepth = treeDepths.epochTreeDepth
-    // let epks: string[] = []
+    const { userState, numEpochKeyNoncePerEpoch, currentEpoch } = await getUserState(identity);
 
-    // for (let i = 0; i < numEpochKeyNoncePerEpoch; i++) {
-    //     const tmp = genEpochKey(id.identityNullifier, currentEpoch, i, epochTreeDepth).toString(16)
-    //     epks = [...epks, tmp]
-    // }
-    // console.log(epks)
+    let epks: string[] = []
 
-    // return {epks, userState, currentEpoch}
-    return {epks: [], userState: null, currentEpoch: 1};
+    for (let i = 0; i < numEpochKeyNoncePerEpoch; i++) {
+        const results = await userState.genVerifyEpochKeyProof(i);
+        const tmp = results.epochKey.toString();
+        epks = [...epks, tmp];
+    }
+    console.log(epks)
+
+    return {epks, userState, currentEpoch}
 }
 
 const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount: number, minRep: number = 0) => {
