@@ -17,12 +17,13 @@ const SignUp = () => {
     const handleUserInput = (event: any) => {
         event.stopPropagation();
         setUserInput(event.target.value);
+        setErrorMsg('');
     }
 
     const closeBox = async () => {
-        const ret = await userSignIn(userInput);
+        const ret = await getUserState(userInput);
         
-        if (ret) {
+        if (ret.hasSignedUp) {
             const ret = await getEpochKeys(userInput);
             const userEpoch = ret.userState.latestTransitionedEpoch;
 
@@ -89,7 +90,7 @@ const SignUp = () => {
             const nextET = await getNextEpochTime();
             setNextUSTTime(nextET);
         } else {
-            console.log(ret);
+            setErrorMsg('This identity hasn\'t signed up yet.')
         }
         
     }
@@ -106,7 +107,12 @@ const SignUp = () => {
                 <div className="sign-private-key">
                     <textarea name="userInput" placeholder="enter your private key" onChange={handleUserInput} />
                 </div>
-                <div className="margin-box"></div>
+                {errorMsg !== ''? 
+                    <div className="sign-error-message">
+                        <img src="/images/warning.png" />
+                        <span>{errorMsg}</span>
+                    </div> : <div className="margin-box"></div>
+                }
                 <div className="sign-button-purple" onClick={closeBox}>Confirm</div>
             </div>
         </div>

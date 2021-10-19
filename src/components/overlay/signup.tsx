@@ -104,7 +104,7 @@ const SignUp = () => {
             epoch_keys: epks, 
             reputation: Number(currentRep.posRep) - Number(currentRep.negRep), 
             current_epoch: currentEpoch, 
-            isConfirmed: ret.isConfirmed 
+            isConfirmed: ret.hasSignedUp 
         });
 
         const nextET = await getNextEpochTime();

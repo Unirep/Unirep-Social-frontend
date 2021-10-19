@@ -62,15 +62,15 @@ export const getUserState = async (identity: string) => {
     const jsonedUserState = JSON.parse(userState.toJSON());
     console.log(jsonedUserState);
 
-    return {userState, numEpochKeyNoncePerEpoch, currentEpoch: Number(currentEpoch), attesterId, isConfirmed: jsonedUserState.hasSignedUp};
+    return {userState, numEpochKeyNoncePerEpoch, currentEpoch: Number(currentEpoch), attesterId, hasSignedUp: jsonedUserState.hasSignedUp};
 }
 
 export const getEpochKeys = async (identity: string) => {
-    const { userState, numEpochKeyNoncePerEpoch, currentEpoch, attesterId, isConfirmed } = await getUserState(identity);
+    const { userState, numEpochKeyNoncePerEpoch, currentEpoch, attesterId, hasSignedUp } = await getUserState(identity);
 
     let epks: string[] = []
  
-    if (isConfirmed) {
+    if (hasSignedUp) {
         for (let i = 0; i < numEpochKeyNoncePerEpoch; i++) {
             const results = await userState.genVerifyEpochKeyProof(i);
             const tmp = results.epochKey.toString();
@@ -79,12 +79,18 @@ export const getEpochKeys = async (identity: string) => {
         console.log(epks)
     }
 
-    return {epks, userState, currentEpoch, attesterId, isConfirmed}
+    return {epks, userState, currentEpoch, attesterId, hasSignedUp}
 }
 
 export const getAirdrop = async (identity: string) => {
     const { userState, attesterId } = await getUserState(identity);
     const results = await userState.genUserSignUpProof(BigInt(attesterId));
+    console.log(results)
+
+    const isValid = await verifyProof('proveUserSignUp', results.proof, results.publicSignals)
+    if(!isValid) {
+        console.error('Error: user sign up proof generated is not valid!')
+    }
 
     const formattedProof = formatProofForVerifierContract(results.proof)
     const encodedProof = base64url.encode(JSON.stringify(formattedProof))
