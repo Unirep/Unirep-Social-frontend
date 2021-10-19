@@ -59,23 +59,27 @@ export const getUserState = async (identity: string) => {
     const attesterId = await unirepSocialContract.attesterId();
 
     console.log(userState);
+    const jsonedUserState = JSON.parse(userState.toJSON());
+    console.log(jsonedUserState);
 
-    return {userState, numEpochKeyNoncePerEpoch, currentEpoch: Number(currentEpoch), attesterId};
+    return {userState, numEpochKeyNoncePerEpoch, currentEpoch: Number(currentEpoch), attesterId, isConfirmed: jsonedUserState.hasSignedUp};
 }
 
 export const getEpochKeys = async (identity: string) => {
-    const { userState, numEpochKeyNoncePerEpoch, currentEpoch, attesterId } = await getUserState(identity);
+    const { userState, numEpochKeyNoncePerEpoch, currentEpoch, attesterId, isConfirmed } = await getUserState(identity);
 
     let epks: string[] = []
-
-    for (let i = 0; i < numEpochKeyNoncePerEpoch; i++) {
-        const results = await userState.genVerifyEpochKeyProof(i);
-        const tmp = results.epochKey.toString();
-        epks = [...epks, tmp];
+ 
+    if (isConfirmed) {
+        for (let i = 0; i < numEpochKeyNoncePerEpoch; i++) {
+            const results = await userState.genVerifyEpochKeyProof(i);
+            const tmp = results.epochKey.toString();
+            epks = [...epks, tmp];
+        }
+        console.log(epks)
     }
-    console.log(epks)
 
-    return {epks, userState, currentEpoch, attesterId}
+    return {epks, userState, currentEpoch, attesterId, isConfirmed}
 }
 
 export const getAirdrop = async (identity: string) => {
@@ -200,14 +204,16 @@ export const userSignUp = async () => {
     console.log(config.identityCommitmentPrefix + encodedIdentityCommitment)
 
     // call server user sign up
+    let epoch: number = 0
     const apiURL = makeURL('signup', {commitment: config.identityCommitmentPrefix + encodedIdentityCommitment})
     await fetch(apiURL)
         .then(response => response.json())
         .then(function(data){
             console.log(data)
+            epoch = data.epoch
         });
 
-    return {i: config.identityPrefix + encodedIdentity, c: config.identityCommitmentPrefix + encodedIdentityCommitment}
+    return {i: config.identityPrefix + encodedIdentity, c: config.identityCommitmentPrefix + encodedIdentityCommitment, epoch }
 }
 
 export const userSignIn = async (identityInput: string) => {

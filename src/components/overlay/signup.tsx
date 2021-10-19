@@ -33,20 +33,10 @@ const SignUp = () => {
         setErrorMsg("");
 
         if (step === 0) {
-            const {i, c} = await userSignUp();
+            const {i, c, epoch} = await userSignUp();
             setIdentity(i);
             setCommitment(c);
-            const ret = await getEpochKeys(i);
-            setEpks(ret.epks);
-            const currentRep = ret.userState.getRepByAttester(ret.attesterId);
-            setReputations(Number(currentRep.posRep) - Number(currentRep.negRep));
-            setCurrentEpoch(ret.currentEpoch);
-        }
-
-        if (step === 2) {
-            if (user !== null) {
-                await getAirdrop(user.identity);
-            }
+            setCurrentEpoch(epoch);
         }
 
         setStep((prevState) => (prevState + 1));
@@ -102,8 +92,20 @@ const SignUp = () => {
     }
 
     const closeBox = async () => {
+        // get userstate related functions will check if user has signed up, if no, save in local storage, every refresh of page will check it again. //
+        const ret = await getEpochKeys(identity);
+        setEpks(ret.epks);
+        const currentRep = ret.userState.getRepByAttester(ret.attesterId);
+        await getAirdrop(identity);
+
         setPageStatus(Constants.PageStatus.None);
-        setUser({ identity: identity, epoch_keys: epks, reputation: reputations, current_epoch: currentEpoch });
+        setUser({ 
+            identity: identity, 
+            epoch_keys: epks, 
+            reputation: Number(currentRep.posRep) - Number(currentRep.negRep), 
+            current_epoch: currentEpoch, 
+            isConfirmed: ret.isConfirmed 
+        });
 
         const nextET = await getNextEpochTime();
         setNextUSTTime(nextET);

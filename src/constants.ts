@@ -14,6 +14,7 @@ export interface User {
     epoch_keys: string[],
     reputation: number,
     current_epoch: number,
+    isConfirmed: boolean,
 }
 
 export interface Vote {
