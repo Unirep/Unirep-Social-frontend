@@ -455,5 +455,5 @@ export const userStateTransition = async (identity: string) => {
 
     
     // return {transaction, toEpoch} 
-    return {transaction: null, toEpoch: 2};
+    return {transaction: null, toEpoch: 2, userState: undefined};
 }
