@@ -6,11 +6,14 @@ import { genUserStateFromContract } from '@unirep/unirep'
 import { UnirepSocialContract } from '@unirep/unirep-social';
 import * as config from './config'
 
+const snarkjs = require("snarkjs")
+
 const add0x = (str: string): string => {
     str = str.padStart(64,"0")
     return str.startsWith('0x') ? str : '0x' + str
 }
 
+/* circuit functions */
 const formatProofForVerifierContract = (_proof: any) => {
     return ([
         _proof.pi_a[0],
@@ -23,6 +26,14 @@ const formatProofForVerifierContract = (_proof: any) => {
         _proof.pi_c[1],
     ]).map((x) => x.toString());
 };
+
+const verifyProof = async (circuitName: string, proof: any, publicSignals: any) => {
+    const vkeyJsonPath =  `/build/${circuitName}.vkey.json`;
+    const vKey = await fetch(vkeyJsonPath).then( (res) => res.json());
+    const res = await snarkjs.groth16.verify(vKey, publicSignals, proof);
+    return res;
+};
+/* circuit functions */
 
 export const getUserState = async (identity: string) => {
     console.log('get user state');
