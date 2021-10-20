@@ -36,52 +36,54 @@ const VoteBox = (props: Props) => {
             setIsLoading(true);
             setIsBlockLoading(true);
 
+            const isPost = props.data.type === DataType.Post;
             let ret: any;
             if (props.isUpvote) {
-                ret = await vote(user.identity, givenAmount, 0, props.data.id, props.data.epoch_key, epkNonce, 0, false);
+                ret = await vote(user.identity, givenAmount, 0, props.data.id, props.data.epoch_key, epkNonce, 0, isPost);
                 console.log('upvote ret: ' + JSON.stringify(ret))
             } else {
-                ret = await vote(user.identity, 0, givenAmount, props.data.id, props.data.epoch_key, epkNonce, 0, false);
+                ret = await vote(user.identity, 0, givenAmount, props.data.id, props.data.epoch_key, epkNonce, 0, isPost);
                 console.log('downvote ret: ' + JSON.stringify(ret))
             }
 
-            // const newVote: Vote = {
-            //     upvote: props.isUpvote? givenAmount:0,
-            //     downvote: props.isUpvote? 0:givenAmount,
-            //     epoch_key: user.epoch_keys[epkNonce],
-            // }
-            // let v = [...props.data.votes, newVote];
-            // if (props.data.type === DataType.Post) {
-            //     const filteredPosts = shownPosts.filter((p) => p.id != props.data.id)
-            //     let p: Post = {...(props.data as Post), 
-            //         upvote: props.data.upvote + (props.isUpvote? givenAmount : 0),
-            //         downvote: props.data.downvote + (props.isUpvote? 0 : givenAmount), 
-            //         isUpvoted: props.isUpvote || props.data.isUpvoted, 
-            //         isDownvoted: !props.isUpvote || props.data.isDownvoted, 
-            //         votes: v
-            //     };
-            //     setShownPosts([p, ...filteredPosts]);
-            // } else if (props.data.type === DataType.Comment) {
-            //     const selectedPost = shownPosts.find((p) => p.id === (props.data as Comment).post_id);
-            //     if (selectedPost === undefined) {
-            //         console.error('no such post!?????');
-            //     } else {
-            //         const filteredPosts = shownPosts.filter((p) => p.id !== (props.data as Comment).post_id);
-            //         const filteredComment = selectedPost.comments.filter((c) => c.id !== props.data.id);
-            //         let c: Comment = {...(props.data as Comment), 
-            //             upvote: props.data.upvote + (props.isUpvote? givenAmount : 0),
-            //             downvote: props.data.downvote + (props.isUpvote? 0 : givenAmount), 
-            //             isUpvoted: props.isUpvote || props.data.isUpvoted, 
-            //             isDownvoted: !props.isUpvote || props.data.isDownvoted, 
-            //             votes: v
-            //         };
-            //         let p: Post = {...selectedPost, comments: [c, ...filteredComment]}
-            //         setShownPosts([p, ...filteredPosts]);
-            //     }
-            // }
+            const newVote: Vote = {
+                upvote: props.isUpvote? givenAmount:0,
+                downvote: props.isUpvote? 0:givenAmount,
+                epoch_key: user.epoch_keys[epkNonce],
+            }
+            let v = [...props.data.votes, newVote];
+            if (props.data.type === DataType.Post) {
+                const filteredPosts = shownPosts.filter((p) => p.id != props.data.id)
+                let p: Post = {...(props.data as Post), 
+                    upvote: props.data.upvote + (props.isUpvote? givenAmount : 0),
+                    downvote: props.data.downvote + (props.isUpvote? 0 : givenAmount), 
+                    isUpvoted: props.isUpvote || props.data.isUpvoted, 
+                    isDownvoted: !props.isUpvote || props.data.isDownvoted, 
+                    votes: v
+                };
+                setShownPosts([p, ...filteredPosts]);
+            } else if (props.data.type === DataType.Comment) {
+                const selectedPost = shownPosts.find((p) => p.id === (props.data as Comment).post_id);
+                if (selectedPost === undefined) {
+                    console.error('no such post!?????');
+                } else {
+                    const filteredPosts = shownPosts.filter((p) => p.id !== (props.data as Comment).post_id);
+                    const filteredComment = selectedPost.comments.filter((c) => c.id !== props.data.id);
+                    let c: Comment = {...(props.data as Comment), 
+                        upvote: props.data.upvote + (props.isUpvote? givenAmount : 0),
+                        downvote: props.data.downvote + (props.isUpvote? 0 : givenAmount), 
+                        isUpvoted: props.isUpvote || props.data.isUpvoted, 
+                        isDownvoted: !props.isUpvote || props.data.isDownvoted, 
+                        votes: v
+                    };
+                    let p: Post = {...selectedPost, comments: [c, ...filteredComment]}
+                    setShownPosts([p, ...filteredPosts]);
+                }
+            }
             
-            // const reputations = (await getUserState(user.identity)).userState.getRep();
-            // setUser({...user, reputation: reputations});
+            const userStateRet = await getUserState(user.identity)
+            const rep = userStateRet.userState.getRepByAttester(userStateRet.attesterId);
+            setUser({...user, reputation: Number(rep.posRep) - Number(rep.negRep)});
             init();
         }
     }
