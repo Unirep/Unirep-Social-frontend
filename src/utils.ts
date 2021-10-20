@@ -1,7 +1,6 @@
-import { genIdentity, genIdentityCommitment, serialiseIdentity, unSerialiseIdentity } from 'libsemaphore'
 import base64url from 'base64url'
 import { ethers } from 'ethers'
-import { stringifyBigInts } from 'maci-crypto'
+import { genIdentity, genIdentityCommitment, serialiseIdentity, unSerialiseIdentity } from '@unirep/crypto'
 import { genUserStateFromContract } from '@unirep/unirep'
 import { UnirepSocialContract } from '@unirep/unirep-social';
 import * as config from './config'
@@ -119,11 +118,27 @@ export const getAirdrop = async (identity: string) => {
 }
 
 const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount: number, minRep: number = 0) => {
-    // const {userState, id, currentEpoch, treeDepths, numEpochKeyNoncePerEpoch} = await getUserState(identity);
+    const {userState, currentEpoch, numEpochKeyNoncePerEpoch, attesterId} = await getUserState(identity);
 
-    // if (epkNonce >= numEpochKeyNoncePerEpoch) {
-    //     console.error('no such epknonce available')
-    // }
+    if (epkNonce >= numEpochKeyNoncePerEpoch) {
+        console.error('no such epknonce available')
+    }
+
+    const proveGraffiti = BigInt(0);
+    const graffitiPreImage = BigInt(0);
+    const results = await userState.genProveReputationProof(
+        BigInt(attesterId), 
+        proveKarmaAmount, 
+        epkNonce, BigInt(minRep), 
+        proveGraffiti, graffitiPreImage
+    );
+    console.log(results)
+
+    const isValid = await verifyProof('proveReputation', results.proof, results.publicSignals)
+    if(!isValid) {
+        console.error('Error: reputation proof generated is not valid!')
+        return
+    }
 
     // const epochTreeDepth = treeDepths.epochTreeDepth
     // const epk = genEpochKey(id.identityNullifier, currentEpoch, epkNonce, epochTreeDepth).toString(16)
@@ -170,7 +185,7 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
     // ]
 
     // return {epk, proof, publicSignals, nullifiers}
-    return {epk: null, proof: null, publicSignals: null, nullifiers: null};
+    return {epk: null, proof: null, publicSignals: null, currentEpoch};
 }
 
 const makeURL = (action: string, data: any) => {
@@ -240,42 +255,42 @@ export const userSignIn = async (identityInput: string) => {
 export const publishPost = async (content: string, epkNonce: number, identity: string, minRep: number = 0) => {
     const ret = await genProof(identity, epkNonce, config.DEFAULT_POST_KARMA, minRep, )
 
-    if (ret === undefined) {
-        console.error('genProof error, ret is undefined.')
-        return
-    }
+    // if (ret === undefined) {
+    //     console.error('genProof error, ret is undefined.')
+    //     return
+    // }
 
-     // to backend: proof, publicSignals, content
-     const apiURL = makeURL('post', {})
-     const data = {
-        content,
-        epk: ret.epk,
-        proof: ret.proof, 
-        minRep,
-        nullifiers: ret.nullifiers,
-        publicSignals: ret.publicSignals,
-     }
-     const stringifiedData = JSON.stringify(data, (key, value) => 
-        typeof value === "bigint" ? value.toString() + "n" : value
-     )
-     console.log('before publish post api: ' + stringifiedData)
+    //  // to backend: proof, publicSignals, content
+    //  const apiURL = makeURL('post', {})
+    //  const data = {
+    //     content,
+    //     epk: ret.epk,
+    //     proof: ret.proof, 
+    //     minRep,
+    //     nullifiers: ret.nullifiers,
+    //     publicSignals: ret.publicSignals,
+    //  }
+    //  const stringifiedData = JSON.stringify(data, (key, value) => 
+    //     typeof value === "bigint" ? value.toString() + "n" : value
+    //  )
+    //  console.log('before publish post api: ' + stringifiedData)
      
      let transaction: string = ''
      let postId: string = ''
      let currentEpoch: number = 0
-     await fetch(apiURL, {
-         headers: header,
-         body: stringifiedData,
-         method: 'POST',
-     }).then(response => response.json())
-        .then(function(data){
-            console.log(JSON.stringify(data))
-            transaction = data.transaction
-            postId = data.postId
-            currentEpoch = data.currentEpoch
-        });
+    //  await fetch(apiURL, {
+    //      headers: header,
+    //      body: stringifiedData,
+    //      method: 'POST',
+    //  }).then(response => response.json())
+    //     .then(function(data){
+    //         console.log(JSON.stringify(data))
+    //         transaction = data.transaction
+    //         postId = data.postId
+    //         currentEpoch = data.currentEpoch
+    //     });
     
-    return {epk: ret.epk, transaction, postId, currentEpoch}
+    return {transaction, postId, currentEpoch}
 }
 
 export const vote = async(identity: string, upvote: number, downvote: number, postId: string, receiver: string, epkNonce: number = 0, minRep: number = 0, isPost: boolean = true) => {
@@ -293,36 +308,36 @@ export const vote = async(identity: string, upvote: number, downvote: number, po
     console.error(postId)
 
     // send publicsignals, proof, voted post id, receiver epoch key, graffiti to backend  
-    const apiURL = makeURL('vote', {})
-    const data = {
-       upvote,
-       downvote,
-       graffiti,
-       overwriteGraffiti,
-       epk: ret.epk,
-       proof: ret.proof, 
-       minRep,
-       nullifiers: ret.nullifiers,
-       publicSignals: ret.publicSignals,
-       receiver,
-       postId,
-       isPost
-    }
-    const stringifiedData = JSON.stringify(data, (key, value) => 
-       typeof value === "bigint" ? value.toString() + "n" : value
-    )
-    console.log('before vote api: ' + stringifiedData)
+    // const apiURL = makeURL('vote', {})
+    // const data = {
+    //    upvote,
+    //    downvote,
+    //    graffiti,
+    //    overwriteGraffiti,
+    //    epk: ret.epk,
+    //    proof: ret.proof, 
+    //    minRep,
+    //    nullifiers: ret.nullifiers,
+    //    publicSignals: ret.publicSignals,
+    //    receiver,
+    //    postId,
+    //    isPost
+    // }
+    // const stringifiedData = JSON.stringify(data, (key, value) => 
+    //    typeof value === "bigint" ? value.toString() + "n" : value
+    // )
+    // console.log('before vote api: ' + stringifiedData)
     
     let transaction: string = ''
-    await fetch(apiURL, {
-        headers: header,
-        body: stringifiedData,
-        method: 'POST',
-    }).then(response => response.json())
-       .then(function(data){
-           console.log(JSON.stringify(data))
-           transaction = data.transaction
-       });
+    // await fetch(apiURL, {
+    //     headers: header,
+    //     body: stringifiedData,
+    //     method: 'POST',
+    // }).then(response => response.json())
+    //    .then(function(data){
+    //        console.log(JSON.stringify(data))
+    //        transaction = data.transaction
+    //    });
 
     // const epochKey = BigInt(add0x(ret.epk))
     return {epk: ret.epk, transaction} 
