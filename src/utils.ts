@@ -231,7 +231,6 @@ export const publishPost = async (content: string, epkNonce: number, identity: s
      
      let transaction: string = ''
      let postId: string = ''
-     let currentEpoch: number = 0
      await fetch(apiURL, {
          headers: header,
          body: stringifiedData,
@@ -241,10 +240,9 @@ export const publishPost = async (content: string, epkNonce: number, identity: s
             console.log(JSON.stringify(data))
             transaction = data.transaction
             postId = data.postId
-            currentEpoch = data.currentEpoch
         });
     
-    return {transaction, postId, currentEpoch, epk: ret.epk}
+    return {transaction, postId, currentEpoch: ret.currentEpoch, epk: ret.epk}
 }
 
 export const vote = async(identity: string, upvote: number, downvote: number, postId: string, receiver: string, epkNonce: number = 0, minRep: number = 0, isPost: boolean = true) => {
@@ -298,47 +296,40 @@ export const vote = async(identity: string, upvote: number, downvote: number, po
 }
 
 export const leaveComment = async(identity: string, content: string, postId: string, epkNonce: number = 0, minRep: number = 0) => {
-    // const ret = await genProof(identity, epkNonce, config.DEFAULT_COMMENT_KARMA, minRep)
-    // if (ret === undefined) {
-    //     console.error('genProof error, ret is undefined.')
-    //     return
-    // }
+    const ret = await genProof(identity, epkNonce, config.DEFAULT_COMMENT_KARMA, minRep)
 
-    // // send proof, publicSignals, postid, content, epockKey to backend
-    // const apiURL = makeURL('comment', {})
-    //  const data = {
-    //     content,
-    //     epk: ret.epk,
-    //     proof: ret.proof, 
-    //     minRep,
-    //     postId,
-    //     nullifiers: ret.nullifiers,
-    //     publicSignals: ret.publicSignals,
-    //  }
-    //  const stringifiedData = JSON.stringify(data, (key, value) => 
-    //     typeof value === "bigint" ? value.toString() + "n" : value
-    //  )
-    //  console.log('before leave comment api: ' + stringifiedData)
+    if (ret === undefined) {
+        console.error('genProof error, ret is undefined.')
+        return
+    }
+
+     // to backend: proof, publicSignals, content
+     const apiURL = makeURL('comment', {})
+     const data = {
+        content,
+        epk: ret.epk,
+        proof: ret.proof, 
+        minRep,
+        postId,
+        publicSignals: ret.publicSignals,
+     }
+     const stringifiedData = JSON.stringify(data)
+     console.log('before leave comment api: ' + stringifiedData)
      
-    //  let transaction: string = ''
-    //  let commentId: string = ''
-    //  let currentEpoch: number = 0
-    //  await fetch(apiURL, {
-    //      headers: header,
-    //      body: stringifiedData,
-    //      method: 'POST',
-    //  }).then(response => response.json())
-    //     .then(function(data){
-    //         console.log(JSON.stringify(data))
-    //         transaction = data.transaction
-    //         commentId = data.commentId
-    //         currentEpoch = data.currentEpoch
-    //     });
-
-    // const epochKey = BigInt(add0x(ret.epk))
-    // return {epk: epochKey.toString(), commentId, transaction, currentEpoch}
-
-    return {epk: null, commentId: null, transaction: null, currentEpoch: null};
+     let transaction: string = ''
+     let commentId: string = ''
+     await fetch(apiURL, {
+         headers: header,
+         body: stringifiedData,
+         method: 'POST',
+     }).then(response => response.json())
+        .then(function(data){
+            console.log(JSON.stringify(data))
+            transaction = data.transaction
+            commentId = data.postId
+        });
+    
+    return {transaction, commentId, currentEpoch: ret.currentEpoch, epk: ret.epk}
 }
 
 export const getNextEpochTime = async () => {
