@@ -1,7 +1,7 @@
 import base64url from 'base64url'
 import { ethers } from 'ethers'
 import { genIdentity, genIdentityCommitment, serialiseIdentity, unSerialiseIdentity } from '@unirep/crypto'
-import { genUserStateFromContract } from '@unirep/unirep'
+import { genUserStateFromContract, genEpochKey } from '@unirep/unirep'
 import { UnirepSocialContract } from '@unirep/unirep-social';
 import * as config from './config'
 
@@ -35,8 +35,6 @@ const verifyProof = async (circuitName: string, proof: any, publicSignals: any) 
 /* circuit functions */
 
 export const getUserState = async (identity: string) => {
-    console.log('get user state');
-
     const provider = new ethers.providers.JsonRpcProvider(config.DEFAULT_ETH_PROVIDER)
     const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
     const unirepContract = await unirepSocialContract.getUnirep();
@@ -56,23 +54,30 @@ export const getUserState = async (identity: string) => {
     const numEpochKeyNoncePerEpoch = await unirepContract.numEpochKeyNoncePerEpoch();
     const currentEpoch = await unirepSocialContract.currentEpoch();
     const attesterId = await unirepSocialContract.attesterId();
-
-    console.log(userState);
     const jsonedUserState = JSON.parse(userState.toJSON());
-    console.log(jsonedUserState);
 
-    return {userState, numEpochKeyNoncePerEpoch, currentEpoch: Number(currentEpoch), attesterId, hasSignedUp: jsonedUserState.hasSignedUp};
+    return {id, userState, numEpochKeyNoncePerEpoch, currentEpoch: Number(currentEpoch), attesterId, hasSignedUp: jsonedUserState.hasSignedUp};
+}
+
+const getEpochKey = async (epkNonce: number, id: any, epochTreeDepth: number, currentEpoch: number) => {
+    const epochKey = genEpochKey(
+        id.identityNullifier, 
+        currentEpoch, epkNonce, epochTreeDepth
+    );
+
+    return epochKey.toString(16);
 }
 
 export const getEpochKeys = async (identity: string) => {
-    const { userState, numEpochKeyNoncePerEpoch, currentEpoch, attesterId, hasSignedUp } = await getUserState(identity);
+    const { id, userState, numEpochKeyNoncePerEpoch, currentEpoch, attesterId, hasSignedUp } = await getUserState(identity);
+
+    const epochTreeDepth = (JSON.parse(userState.toJSON())).unirepState.epochTreeDepth;
 
     let epks: string[] = []
  
     if (hasSignedUp) {
         for (let i = 0; i < numEpochKeyNoncePerEpoch; i++) {
-            const results = await userState.genVerifyEpochKeyProof(i);
-            const tmp = results.epochKey.toString();
+            const tmp = await getEpochKey(i, id, epochTreeDepth, currentEpoch);
             epks = [...epks, tmp];
         }
         console.log(epks)
@@ -85,11 +90,6 @@ export const getAirdrop = async (identity: string) => {
     const { userState, attesterId } = await getUserState(identity);
     const results = await userState.genUserSignUpProof(BigInt(attesterId));
     console.log(results)
-
-    const isValid = await verifyProof('proveUserSignUp', results.proof, results.publicSignals)
-    if(!isValid) {
-        console.error('Error: user sign up proof generated is not valid!')
-    }
 
     const formattedProof = formatProofForVerifierContract(results.proof)
     const encodedProof = base64url.encode(JSON.stringify(formattedProof))
@@ -118,7 +118,7 @@ export const getAirdrop = async (identity: string) => {
 }
 
 const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount: number, minRep: number = 0) => {
-    const {userState, currentEpoch, numEpochKeyNoncePerEpoch, attesterId} = await getUserState(identity);
+    const {id, userState, currentEpoch, numEpochKeyNoncePerEpoch, attesterId} = await getUserState(identity);
 
     if (epkNonce >= numEpochKeyNoncePerEpoch) {
         console.error('no such epknonce available')
@@ -134,58 +134,15 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
     );
     console.log(results)
 
-    const isValid = await verifyProof('proveReputation', results.proof, results.publicSignals)
-    if(!isValid) {
-        console.error('Error: reputation proof generated is not valid!')
-        return
-    }
+    const epochTreeDepth = (JSON.parse(userState.toJSON())).unirepState.epochTreeDepth;
+    const epk = await getEpochKey(epkNonce, id, epochTreeDepth, currentEpoch);
+    const formattedProof = formatProofForVerifierContract(results.proof)
+    const encodedProof = base64url.encode(JSON.stringify(formattedProof))
+    const encodedPublicSignals = base64url.encode(JSON.stringify(results.publicSignals))
+    const proof = config.reputationProofPrefix + encodedProof
+    const publicSignals = config.reputationPublicSignalsPrefix + encodedPublicSignals
 
-    // const epochTreeDepth = treeDepths.epochTreeDepth
-    // const epk = genEpochKey(id.identityNullifier, currentEpoch, epkNonce, epochTreeDepth).toString(16)
-    // console.log('after gen epoch key: ' + epk)
-
-    // let circuitInputs: any
-    // let GSTRoot: any
-    // let nullifierTreeRoot: any
-
-    // console.log('generating proving circuit from contract...')
-
-    // circuitInputs = await userState.genProveReputationCircuitInputs(
-    //     epkNonce,                       // generate epoch key from epoch nonce
-    //     proveKarmaAmount,               // the amount of output karma nullifiers
-    //     minRep                          // the amount of minimum reputation the user wants to prove
-    // )
-    
-    // GSTRoot = userState.getUnirepStateGSTree(currentEpoch).root
-    // nullifierTreeRoot = (await userState.getUnirepStateNullifierTree()).getRootHash()
-
-    // console.log('genVerifyReputationProofAndPublicSignals...')
-    // const results = await genVerifyReputationProofAndPublicSignals(stringifyBigInts(circuitInputs))
-    // console.log(results)
-    
-    // const nullifiers = results['publicSignals'].slice(0, config.MAX_KARMA_BUDGET)
-    
-    // // TODO: Not sure if this validation is necessary
-    // const isValid = await verifyProveReputationProof(results['proof'], results['publicSignals'])
-    // if(!isValid) {
-    //     console.error('Error: reputation proof generated is not valid!')
-    //     return
-    // }
-
-    // const proof = formatProofForVerifierContract(results['proof'])
-
-    // // generate public signals
-    // const publicSignals = [
-    //     GSTRoot,
-    //     nullifierTreeRoot,
-    //     BigInt(true),
-    //     proveKarmaAmount,
-    //     minRep !== 0 ? BigInt(1) : BigInt(0),
-    //     minRep !== 0 ? BigInt(minRep) : BigInt(0)
-    // ]
-
-    // return {epk, proof, publicSignals, nullifiers}
-    return {epk: null, proof: null, publicSignals: null, currentEpoch};
+    return {epk, proof, publicSignals, currentEpoch}
 }
 
 const makeURL = (action: string, data: any) => {
@@ -237,60 +194,57 @@ export const userSignUp = async () => {
     return {i: config.identityPrefix + encodedIdentity, c: config.identityCommitmentPrefix + encodedIdentityCommitment, epoch }
 }
 
-export const userSignIn = async (identityInput: string) => {
-    const encodedIdentity = identityInput.slice(config.identityPrefix.length)
-    const decodedIdentity = base64url.decode(encodedIdentity)
-    const id = unSerialiseIdentity(decodedIdentity)
-    const commitment = genIdentityCommitment(id)
-    const serializedCommitment = commitment.toString(16)
-    const encodedCommitment = base64url.encode(serializedCommitment)
+// export const userSignIn = async (identityInput: string) => {
+//     const encodedIdentity = identityInput.slice(config.identityPrefix.length)
+//     const decodedIdentity = base64url.decode(encodedIdentity)
+//     const id = unSerialiseIdentity(decodedIdentity)
+//     const commitment = genIdentityCommitment(id)
+//     const serializedCommitment = commitment.toString(16)
+//     const encodedCommitment = base64url.encode(serializedCommitment)
     
-    const apiURL = makeURL('signin', {commitment: config.identityCommitmentPrefix + encodedCommitment})
+//     const apiURL = makeURL('signin', {commitment: config.identityCommitmentPrefix + encodedCommitment})
     
-    let isSuccess
-    await fetch(apiURL).then(response => isSuccess = response);
-    return isSuccess
-}
+//     let isSuccess
+//     await fetch(apiURL).then(response => isSuccess = response);
+//     return isSuccess
+// }
 
 export const publishPost = async (content: string, epkNonce: number, identity: string, minRep: number = 0) => {
-    const ret = await genProof(identity, epkNonce, config.DEFAULT_POST_KARMA, minRep, )
+    const ret = await genProof(identity, epkNonce, config.DEFAULT_POST_KARMA, minRep)
 
-    // if (ret === undefined) {
-    //     console.error('genProof error, ret is undefined.')
-    //     return
-    // }
+    if (ret === undefined) {
+        console.error('genProof error, ret is undefined.')
+        return
+    }
 
-    //  // to backend: proof, publicSignals, content
-    //  const apiURL = makeURL('post', {})
-    //  const data = {
-    //     content,
-    //     epk: ret.epk,
-    //     proof: ret.proof, 
-    //     minRep,
-    //     nullifiers: ret.nullifiers,
-    //     publicSignals: ret.publicSignals,
-    //  }
-    //  const stringifiedData = JSON.stringify(data, (key, value) => 
-    //     typeof value === "bigint" ? value.toString() + "n" : value
-    //  )
-    //  console.log('before publish post api: ' + stringifiedData)
+     // to backend: proof, publicSignals, content
+     const apiURL = makeURL('post', {})
+     const data = {
+        content,
+        epk: ret.epk,
+        proof: ret.proof, 
+        minRep,
+        publicSignals: ret.publicSignals,
+     }
+     const stringifiedData = JSON.stringify(data)
+     console.log('before publish post api: ' + stringifiedData)
      
      let transaction: string = ''
      let postId: string = ''
      let currentEpoch: number = 0
-    //  await fetch(apiURL, {
-    //      headers: header,
-    //      body: stringifiedData,
-    //      method: 'POST',
-    //  }).then(response => response.json())
-    //     .then(function(data){
-    //         console.log(JSON.stringify(data))
-    //         transaction = data.transaction
-    //         postId = data.postId
-    //         currentEpoch = data.currentEpoch
-    //     });
+     await fetch(apiURL, {
+         headers: header,
+         body: stringifiedData,
+         method: 'POST',
+     }).then(response => response.json())
+        .then(function(data){
+            console.log(JSON.stringify(data))
+            transaction = data.transaction
+            postId = data.postId
+            currentEpoch = data.currentEpoch
+        });
     
-    return {transaction, postId, currentEpoch}
+    return {transaction, postId, currentEpoch, epk: ret.epk}
 }
 
 export const vote = async(identity: string, upvote: number, downvote: number, postId: string, receiver: string, epkNonce: number = 0, minRep: number = 0, isPost: boolean = true) => {

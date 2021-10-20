@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { WebContext } from '../../context/WebContext';
 import * as Constants from '../../constants';
-import { userSignIn, getEpochKeys, getUserState, getNextEpochTime, userStateTransition } from '../../utils';
+import { getEpochKeys, getUserState, getNextEpochTime, userStateTransition } from '../../utils';
 import './overlay.scss';
 
 const SignUp = () => {

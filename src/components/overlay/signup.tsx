@@ -18,9 +18,7 @@ const SignUp = () => {
     const [errorMsg, setErrorMsg] = useState("");
     const [identity, setIdentity] = useState("");
     const [commitment, setCommitment] = useState("");
-    const [epks, setEpks] = useState<string[]>([]);
     const [currentEpoch, setCurrentEpoch] = useState(0);
-    const [reputations, setReputations] = useState(0);
     const [isCopied, setIsCopied] = useState(false);
     const [isDownloaded, setIsDownloaded] = useState(false);
 
@@ -94,14 +92,13 @@ const SignUp = () => {
     const closeBox = async () => {
         // get userstate related functions will check if user has signed up, if no, save in local storage, every refresh of page will check it again. //
         const ret = await getEpochKeys(identity);
-        setEpks(ret.epks);
         const currentRep = ret.userState.getRepByAttester(ret.attesterId);
         await getAirdrop(identity);
 
         setPageStatus(Constants.PageStatus.None);
         setUser({ 
             identity: identity, 
-            epoch_keys: epks, 
+            epoch_keys: ret.epks, 
             reputation: Number(currentRep.posRep) - Number(currentRep.negRep), 
             current_epoch: currentEpoch, 
             isConfirmed: ret.hasSignedUp 
