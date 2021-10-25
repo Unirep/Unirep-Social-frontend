@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { NavLink, useHistory } from 'react-router-dom';
 import { WebContext } from '../../context/WebContext';
 import * as Constants from '../../constants';
-import { userStateTransition, getNextEpochTime, getEpochKeys } from '../../utils';
+import { userStateTransition, getNextEpochTime, getEpochKeys, getAirdrop } from '../../utils';
 import './header.scss';
 
 const Header = () => {
@@ -18,12 +18,15 @@ const Header = () => {
             const ret = await userStateTransition(user.identity);
             console.log(ret);
             
+            const ret2 = await getEpochKeys(user.identity);
+            const rep = ret2.userState.getRepByAttester(ret2.attesterId);
+            if (ret !== undefined) {
+                setUser({...user, epoch_keys: ret2.epks, reputation: Number(rep.posRep) - Number(rep.negRep), current_epoch: ret.toEpoch})
+            }
+            await getAirdrop(user.identity);
             const next = await getNextEpochTime();
             setNextUSTTime(next);
-            // const ret2 = await getEpochKeys(user.identity);
-            // if (ret !== undefined) {
-            //     setUser({...user, epoch_keys: ret2.epks, reputation: ret2.userState.getRep(), current_epoch: ret.toEpoch})
-            // }
+
             setIsUSTing(false);
             setIsLoading(false);
         }

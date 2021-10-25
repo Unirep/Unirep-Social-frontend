@@ -194,20 +194,6 @@ export const userSignUp = async () => {
     return {i: config.identityPrefix + encodedIdentity, c: config.identityCommitmentPrefix + encodedIdentityCommitment, epoch }
 }
 
-// export const userSignIn = async (identityInput: string) => {
-//     const encodedIdentity = identityInput.slice(config.identityPrefix.length)
-//     const decodedIdentity = base64url.decode(encodedIdentity)
-//     const id = unSerialiseIdentity(decodedIdentity)
-//     const commitment = genIdentityCommitment(id)
-//     const serializedCommitment = commitment.toString(16)
-//     const encodedCommitment = base64url.encode(serializedCommitment)
-    
-//     const apiURL = makeURL('signin', {commitment: config.identityCommitmentPrefix + encodedCommitment})
-    
-//     let isSuccess
-//     await fetch(apiURL).then(response => isSuccess = response);
-//     return isSuccess
-// }
 
 export const publishPost = async (content: string, epkNonce: number, identity: string, minRep: number = 0) => {
     const ret = await genProof(identity, epkNonce, config.DEFAULT_POST_KARMA, minRep)
@@ -328,87 +314,31 @@ export const getNextEpochTime = async () => {
 }
 
 export const userStateTransition = async (identity: string) => {
-    // const {userState, id, currentEpoch, treeDepths, numEpochKeyNoncePerEpoch} = await getUserState(identity);
-    // const nullifierTreeDepth = treeDepths["nullifierTreeDepth"]
-    // let circuitInputs: any
+    const {userState} = await getUserState(identity);
+    const results = await userState.genUserStateTransitionProofs();
 
-    // console.log('generating proving circuit from contract...')
-    // circuitInputs = await userState.genUserStateTransitionCircuitInputs()
+    const fromEpoch = userState.latestTransitionedEpoch;
+    const toEpoch = userState.getUnirepStateCurrentEpoch();
+
+    const apiURL = makeURL('userStateTransition', {})
+    const data = {
+        results,
+        fromEpoch,
+    }
+
+    const stringifiedData = JSON.stringify(data)
+    console.log('before UST api: ' + stringifiedData)
+
+    let transaction: string = ''
+    await fetch(apiURL, {
+        headers: header,
+        body: stringifiedData,
+        method: 'POST',
+    }).then(response => response.json())
+       .then(function(data){
+           console.log(JSON.stringify(data))
+           transaction = data.transaction
+    });
     
-    // const results = await genVerifyUserStateTransitionProofAndPublicSignals(stringifyBigInts(circuitInputs));
-    // const newGSTLeaf = results['publicSignals'][0]
-    // const newState = await userState.genNewUserStateAfterTransition()
-    // if (newGSTLeaf != newState.newGSTLeaf.toString()) {
-    //     console.error('Error: Computed new GST leaf should match')
-    //     return
-    // }
-    
-    // const isValid = await verifyUserStateTransitionProof(results['proof'], results['publicSignals'])
-    // if (!isValid) {
-    //     console.error('Error: user state transition proof generated is not valid!')
-    //     return
-    // }
-
-    // const fromEpoch = userState.latestTransitionedEpoch
-    // const GSTreeRoot = userState.getUnirepStateGSTree(fromEpoch).root
-    // const epochTreeRoot = (await userState.getUnirepStateEpochTree(fromEpoch)).getRootHash()
-    // const nullifierTreeRoot = (await userState.getUnirepStateNullifierTree()).getRootHash()
-    // const attestationNullifiers = userState.getAttestationNullifiers(fromEpoch)
-    // const epkNullifiers = userState.getEpochKeyNullifiers(fromEpoch)
-    // // Verify nullifiers outputted by circuit are the same as the ones computed off-chain
-    // const outputAttestationNullifiers: BigInt[] = []
-    // for (let i = 0; i < attestationNullifiers.length; i++) {
-    //     const outputNullifier = results['publicSignals'][1+i]
-    //     const modedOutputNullifier = BigInt(outputNullifier) % BigInt(2 ** nullifierTreeDepth)
-    //     if (modedOutputNullifier != attestationNullifiers[i]) {
-    //         console.error(`Error: nullifier outputted by circuit(${modedOutputNullifier}) does not match the ${i}-th computed attestation nullifier(${attestationNullifiers[i]})`)
-    //         return
-    //     }
-    //     outputAttestationNullifiers.push(outputNullifier)
-    // }
-    // const outputEPKNullifiers: BigInt[] = []
-    // for (let i = 0; i < epkNullifiers.length; i++) {
-    //     const outputNullifier = results['publicSignals'][13+i]
-    //     const modedOutputNullifier = BigInt(outputNullifier) % BigInt(2 ** nullifierTreeDepth)
-    //     if (modedOutputNullifier != epkNullifiers[i]) {
-    //         console.error(`Error: nullifier outputted by circuit(${modedOutputNullifier}) does not match the ${i}-th computed attestation nullifier(${epkNullifiers[i]})`)
-    //         return
-    //     }
-    //     outputEPKNullifiers.push(outputNullifier)
-    // }
-
-    // const proof = formatProofForVerifierContract(results['proof'])
-    // const apiURL = makeURL('userStateTransition', {})
-    // const data = {
-    //     newGSTLeaf,
-    //     outputAttestationNullifiers,
-    //     outputEPKNullifiers,
-    //     fromEpoch,
-    //     GSTreeRoot,
-    //     epochTreeRoot,
-    //     nullifierTreeRoot,
-    //     proof
-    // }
-
-    // const stringifiedData = JSON.stringify(data, (key, value) => 
-    //    typeof value === "bigint" ? value.toString() + "n" : value
-    // )
-    // console.log('before vote api: ' + stringifiedData)
-
-    // let transaction: string = ''
-    // let toEpoch: number = 0
-    // await fetch(apiURL, {
-    //     headers: header,
-    //     body: stringifiedData,
-    //     method: 'POST',
-    // }).then(response => response.json())
-    //    .then(function(data){
-    //        console.log(JSON.stringify(data))
-    //        transaction = data.transaction
-    //        toEpoch = data.currentEpoch
-    // });
-
-    
-    // return {transaction, toEpoch} 
-    return {transaction: null, toEpoch: 2, userState: undefined};
+    return {transaction, toEpoch}
 }
