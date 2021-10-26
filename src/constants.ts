@@ -15,6 +15,7 @@ export interface User {
     reputation: number,
     current_epoch: number,
     isConfirmed: boolean,
+    userState: any,
 }
 
 export interface Vote {

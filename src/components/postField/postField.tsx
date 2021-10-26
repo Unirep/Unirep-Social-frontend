@@ -2,6 +2,7 @@ import { useState, useContext }  from 'react';
 
 import { publishPost, getUserState } from '../../utils';
 import { Post, DataType, Page } from '../../constants';
+import { DEFAULT_POST_KARMA } from '../../config';
 import { WebContext } from '../../context/WebContext';
 import { MainPageContext } from '../../context/MainPageContext';
 import { UserPageContext } from '../../context/UserPageContext';
@@ -62,7 +63,7 @@ const PostField = ({ page }: Props) => {
         } else if (content.length === 0) {
             console.error('not enter anything yet.');
         } else {
-            const ret = await publishPost(content, epkNonce, user.identity, reputation); // content, epkNonce, identity, minRep
+            const ret = await publishPost(content, epkNonce, user.identity, reputation, user.userState); // content, epkNonce, identity, minRep
             if (ret !== undefined) {
                 const newPost: Post = {
                     type: DataType.Post,
@@ -83,9 +84,11 @@ const PostField = ({ page }: Props) => {
                 }
                 
                 setShownPosts([newPost, ...shownPosts]);
-                const currentRep = await getUserState(user.identity);
-                const reputations = currentRep.userState.getRepByAttester(currentRep.attesterId);
-                setUser({...user, reputation: Number(reputations.posRep) - Number(reputations.negRep)})
+                if (user.userState === undefined) {
+                    setUser({...user, reputation: user.reputation - DEFAULT_POST_KARMA, userState: ret.userState})
+                } else {
+                    setUser({...user, reputation: user.reputation - DEFAULT_POST_KARMA})
+                }
 
                 init();
             } else {

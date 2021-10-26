@@ -47,6 +47,7 @@ const SignUp = () => {
                     reputation: Number(reputation.posRep) - Number(reputation.negRep),
                     current_epoch: ret.currentEpoch,
                     isConfirmed: true,
+                    userState: ret.userState,
                 });
             // }
 

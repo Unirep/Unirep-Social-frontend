@@ -1,8 +1,8 @@
 import { leaveComment, getUserState } from '../../utils';
 import { WebContext } from '../../context/WebContext';
-import { MainPageContext } from '../../context/MainPageContext';
 import { useState, useContext } from 'react';
 import { Post, Comment, DataType, Page } from '../../constants';
+import { DEFAULT_COMMENT_KARMA } from '../../config';
 import WritingField from '../writingField/writingField';
 
 type Props = {
@@ -25,7 +25,7 @@ const CommentField = (props: Props) => {
         } else if (content.length === 0) {
             console.error('nothing happened, no input.')
         } else {
-            const ret = await leaveComment(user.identity, content, props.post.id, epkNonce, reputation)
+            const ret = await leaveComment(user.identity, content, props.post.id, epkNonce, reputation, user.userState)
             if (ret !== undefined) {
                 let c: Comment = {
                     type: DataType.Comment,
@@ -49,9 +49,12 @@ const CommentField = (props: Props) => {
                 let p = {...props.post, comments};
 
                 setShownPosts([p, ...filteredPosts]);
-                const userStateRet = await getUserState(user.identity)
-                const rep = userStateRet.userState.getRepByAttester(userStateRet.attesterId);
-                setUser({...user, reputation: Number(rep.posRep) - Number(rep.negRep)})
+                if (user.userState === undefined) {
+                    setUser({...user, reputation: user.reputation - DEFAULT_COMMENT_KARMA, userState: ret.userState})
+                } else {
+                    setUser({...user, reputation: user.reputation - DEFAULT_COMMENT_KARMA})
+                }
+            
                 setIsLoading(false);
 
                 props.closeComment();

@@ -15,15 +15,15 @@ const Header = () => {
         if (user !== null) {
             setIsUSTing(true);
             setIsLoading(true);
-            const ret = await userStateTransition(user.identity);
+            const ret = await userStateTransition(user.identity, user.userState);
             console.log(ret);
             
             const ret2 = await getEpochKeys(user.identity);
             const rep = ret2.userState.getRepByAttester(ret2.attesterId);
             if (ret !== undefined) {
-                setUser({...user, epoch_keys: ret2.epks, reputation: Number(rep.posRep) - Number(rep.negRep), current_epoch: ret.toEpoch})
+                setUser({...user, epoch_keys: ret2.epks, reputation: Number(rep.posRep) - Number(rep.negRep), current_epoch: ret.toEpoch, userState: ret2.userState})
             }
-            await getAirdrop(user.identity);
+            await getAirdrop(user.identity, ret2.userState);
             const next = await getNextEpochTime();
             setNextUSTTime(next);
 

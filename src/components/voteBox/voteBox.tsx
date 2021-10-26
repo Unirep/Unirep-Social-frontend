@@ -39,10 +39,10 @@ const VoteBox = (props: Props) => {
             const isPost = props.data.type === DataType.Post;
             let ret: any;
             if (props.isUpvote) {
-                ret = await vote(user.identity, givenAmount, 0, props.data.id, props.data.epoch_key, epkNonce, 0, isPost);
+                ret = await vote(user.identity, givenAmount, 0, props.data.id, props.data.epoch_key, epkNonce, 0, isPost, user.userState);
                 console.log('upvote ret: ' + JSON.stringify(ret))
             } else {
-                ret = await vote(user.identity, 0, givenAmount, props.data.id, props.data.epoch_key, epkNonce, 0, isPost);
+                ret = await vote(user.identity, 0, givenAmount, props.data.id, props.data.epoch_key, epkNonce, 0, isPost, user.userState);
                 console.log('downvote ret: ' + JSON.stringify(ret))
             }
 
@@ -81,9 +81,11 @@ const VoteBox = (props: Props) => {
                 }
             }
             
-            const userStateRet = await getUserState(user.identity)
-            const rep = userStateRet.userState.getRepByAttester(userStateRet.attesterId);
-            setUser({...user, reputation: Number(rep.posRep) - Number(rep.negRep)});
+            if (user.userState === undefined) {
+                setUser({...user, reputation: user.reputation - givenAmount, userState: ret.userState});
+            } else {
+                setUser({...user, reputation: user.reputation - givenAmount});
+            }
             init();
         }
     }

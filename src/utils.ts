@@ -70,6 +70,7 @@ const getEpochKey = async (epkNonce: number, id: any, epochTreeDepth: number, cu
 
 export const getEpochKeys = async (identity: string) => {
     const { id, userState, numEpochKeyNoncePerEpoch, currentEpoch, attesterId, hasSignedUp } = await getUserState(identity);
+    const us: any = userState;
 
     const epochTreeDepth = (JSON.parse(userState.toJSON())).unirepState.epochTreeDepth;
 
@@ -83,11 +84,17 @@ export const getEpochKeys = async (identity: string) => {
         console.log(epks)
     }
 
-    return {epks, userState, currentEpoch, attesterId, hasSignedUp}
+    return {epks, userState: us, currentEpoch, attesterId, hasSignedUp}
 }
 
-export const getAirdrop = async (identity: string) => {
-    const { userState, attesterId } = await getUserState(identity);
+export const getAirdrop = async (identity: string, us: any) => {
+    let userState: any = us;
+    if (userState === null || userState === undefined) {
+        const ret = await getUserState(identity);
+        userState = ret.userState;
+    }
+    const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
+    const attesterId = await unirepSocialContract.attesterId();
     const results = await userState.genUserSignUpProof(BigInt(attesterId));
     console.log(results)
 
@@ -114,11 +121,28 @@ export const getAirdrop = async (identity: string) => {
             transaction = data.transaction
         });
 
-    return { transaction }
+    return { transaction, userState }
 }
 
-const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount: number, minRep: number = 0) => {
-    const {id, userState, currentEpoch, numEpochKeyNoncePerEpoch, attesterId} = await getUserState(identity);
+const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount: number, minRep: number = 0, us: any) => {
+    let userState: any = us;
+    let currentEpoch: number;
+    let numEpochKeyNoncePerEpoch: number;
+    let attesterId: number;
+    if (userState === null || userState === undefined) {
+        const ret = await getUserState(identity);
+        userState = ret.userState;
+    }
+    const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
+    const unirepContract = await unirepSocialContract.getUnirep();
+
+    const encodedIdentity = identity.slice(config.identityPrefix.length);
+    const decodedIdentity = base64url.decode(encodedIdentity);
+    const id = unSerialiseIdentity(decodedIdentity);
+
+    numEpochKeyNoncePerEpoch = await unirepContract.numEpochKeyNoncePerEpoch();
+    currentEpoch = Number(await unirepSocialContract.currentEpoch());
+    attesterId = await unirepSocialContract.attesterId();
 
     if (epkNonce >= numEpochKeyNoncePerEpoch) {
         console.error('no such epknonce available')
@@ -142,7 +166,7 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
     const proof = config.reputationProofPrefix + encodedProof
     const publicSignals = config.reputationPublicSignalsPrefix + encodedPublicSignals
 
-    return {epk, proof, publicSignals, currentEpoch}
+    return {epk, proof, publicSignals, currentEpoch, userState}
 }
 
 const makeURL = (action: string, data: any) => {
@@ -195,8 +219,8 @@ export const userSignUp = async () => {
 }
 
 
-export const publishPost = async (content: string, epkNonce: number, identity: string, minRep: number = 0) => {
-    const ret = await genProof(identity, epkNonce, config.DEFAULT_POST_KARMA, minRep)
+export const publishPost = async (content: string, epkNonce: number, identity: string, minRep: number = 0, us: any) => {
+    const ret = await genProof(identity, epkNonce, config.DEFAULT_POST_KARMA, minRep, us)
 
     if (ret === undefined) {
         console.error('genProof error, ret is undefined.')
@@ -226,13 +250,13 @@ export const publishPost = async (content: string, epkNonce: number, identity: s
             postId = data.postId
         });
     
-    return {transaction, postId, currentEpoch: ret.currentEpoch, epk: ret.epk}
+    return {transaction, postId, currentEpoch: ret.currentEpoch, epk: ret.epk, userState: ret.userState}
 }
 
-export const vote = async(identity: string, upvote: number, downvote: number, postId: string, receiver: string, epkNonce: number = 0, minRep: number = 0, isPost: boolean = true) => {
+export const vote = async(identity: string, upvote: number, downvote: number, postId: string, receiver: string, epkNonce: number = 0, minRep: number = 0, isPost: boolean = true, us: any) => {
     // upvote / downvote user 
     const voteValue = upvote + downvote
-    const ret = await genProof(identity, epkNonce, voteValue, minRep)
+    const ret = await genProof(identity, epkNonce, voteValue, minRep, us)
     if (ret === undefined) {
         console.error('genProof error, ret is undefined.')
     }
@@ -263,11 +287,11 @@ export const vote = async(identity: string, upvote: number, downvote: number, po
            transaction = data.transaction
        });
 
-    return {epk: ret.epk, transaction} 
+    return {epk: ret.epk, transaction, userState: ret.userState} 
 }
 
-export const leaveComment = async(identity: string, content: string, postId: string, epkNonce: number = 0, minRep: number = 0) => {
-    const ret = await genProof(identity, epkNonce, config.DEFAULT_COMMENT_KARMA, minRep)
+export const leaveComment = async(identity: string, content: string, postId: string, epkNonce: number = 0, minRep: number = 0, us: any) => {
+    const ret = await genProof(identity, epkNonce, config.DEFAULT_COMMENT_KARMA, minRep, us)
 
     if (ret === undefined) {
         console.error('genProof error, ret is undefined.')
@@ -298,7 +322,7 @@ export const leaveComment = async(identity: string, content: string, postId: str
             commentId = data.commentId
         });
     
-    return {transaction, commentId, currentEpoch: ret.currentEpoch, epk: ret.epk}
+    return {transaction, commentId, currentEpoch: ret.currentEpoch, epk: ret.epk, userState: ret.userState}
 }
 
 export const getNextEpochTime = async () => {
@@ -313,7 +337,7 @@ export const getNextEpochTime = async () => {
     return ret
 }
 
-export const userStateTransition = async (identity: string) => {
+export const userStateTransition = async (identity: string, us: any) => {
     const {userState} = await getUserState(identity);
     const results = await userState.genUserStateTransitionProofs();
 

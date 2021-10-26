@@ -93,7 +93,7 @@ const SignUp = () => {
         // get userstate related functions will check if user has signed up, if no, save in local storage, every refresh of page will check it again. //
         const ret = await getEpochKeys(identity);
         const currentRep = ret.userState.getRepByAttester(ret.attesterId);
-        await getAirdrop(identity);
+        await getAirdrop(identity, ret.userState);
 
         setPageStatus(Constants.PageStatus.None);
         setUser({ 
@@ -101,7 +101,8 @@ const SignUp = () => {
             epoch_keys: ret.epks, 
             reputation: Number(currentRep.posRep) - Number(currentRep.negRep), 
             current_epoch: currentEpoch, 
-            isConfirmed: ret.hasSignedUp 
+            isConfirmed: ret.hasSignedUp,
+            userState: ret.userState,
         });
 
         const nextET = await getNextEpochTime();
