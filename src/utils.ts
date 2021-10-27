@@ -95,9 +95,17 @@ export const getAirdrop = async (identity: string, us: any) => {
     }
     const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
     const attesterId = await unirepSocialContract.attesterId();
-    const results = await userState.genUserSignUpProof(BigInt(attesterId));
-    console.log(results)
-
+    let results: any;
+    try {
+        results = await userState.genUserSignUpProof(BigInt(attesterId));
+        console.log(results)
+    } catch (e) {
+        const ret = await getUserState(identity);
+        userState = ret.userState;
+        results = await userState.genUserSignUpProof(BigInt(attesterId));
+        console.log(results)
+    }
+    
     const formattedProof = formatProofForVerifierContract(results.proof)
     const encodedProof = base64url.encode(JSON.stringify(formattedProof))
     const encodedPublicSignals = base64url.encode(JSON.stringify(results.publicSignals))
