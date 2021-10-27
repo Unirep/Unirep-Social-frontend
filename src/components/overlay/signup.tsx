@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { WebContext } from '../../context/WebContext';
 import * as Constants from '../../constants';
 import { FaTwitter } from 'react-icons/fa';
-import { checkInvitationCode, userSignUp, getEpochKeys, getNextEpochTime, getAirdrop } from '../../utils';
+import { checkInvitationCode, userSignUp, getEpochKeys, getNextEpochTime, getAirdrop, getUserState } from '../../utils';
 import './overlay.scss';
 
 const SignUp = () => {
@@ -91,18 +91,19 @@ const SignUp = () => {
 
     const closeBox = async () => {
         // get userstate related functions will check if user has signed up, if no, save in local storage, every refresh of page will check it again. //
-        const ret = await getEpochKeys(identity);
-        const currentRep = ret.userState.getRepByAttester(ret.attesterId);
-        await getAirdrop(identity, ret.userState);
+        const userStateResult = await getUserState(identity);
+        const currentRep = userStateResult.userState.getRepByAttester(userStateResult.attesterId);
+        const epks = await getEpochKeys(userStateResult.id, userStateResult.currentEpoch);
+        await getAirdrop(identity, userStateResult.userState);
 
         setPageStatus(Constants.PageStatus.None);
         setUser({ 
             identity: identity, 
-            epoch_keys: ret.epks, 
+            epoch_keys: epks, 
             reputation: Number(currentRep.posRep) - Number(currentRep.negRep), 
             current_epoch: currentEpoch, 
-            isConfirmed: ret.hasSignedUp,
-            userState: ret.userState,
+            isConfirmed: userStateResult.hasSignedUp,
+            userState: userStateResult.userState,
         });
 
         const nextET = await getNextEpochTime();

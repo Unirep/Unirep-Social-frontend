@@ -21,11 +21,12 @@ const SignUp = () => {
     }
 
     const closeBox = async () => {
-        const ret = await getUserState(userInput);
+        const userStateResult = await getUserState(userInput);
         
-        if (ret.hasSignedUp) {
-            const ret = await getEpochKeys(userInput);
-            const userEpoch = ret.userState.latestTransitionedEpoch;
+        if (userStateResult.hasSignedUp) {
+            const currentRep = userStateResult.userState.getRepByAttester(userStateResult.attesterId);
+            const epks = await getEpochKeys(userStateResult.id, userStateResult.currentEpoch);
+            const userEpoch = userStateResult.userState.latestTransitionedEpoch;
 
             // if (userEpoch !== ret.currentEpoch) {
             //     console.log('user epoch is not the same as current epoch, do user state transition, ' + userEpoch + ' != ' + ret.currentEpoch);
@@ -40,21 +41,21 @@ const SignUp = () => {
             //         current_epoch: retAfterUST.toEpoch,
             //     });
             // } else {
-                const reputation = ret.userState.getRepByAttester(ret.attesterId);
+                const reputation = userStateResult.userState.getRepByAttester(userStateResult.attesterId);
                 setUser({
                     identity: userInput,
-                    epoch_keys: ret.epks,
+                    epoch_keys: epks,
                     reputation: Number(reputation.posRep) - Number(reputation.negRep),
-                    current_epoch: ret.currentEpoch,
+                    current_epoch: userStateResult.currentEpoch,
                     isConfirmed: true,
-                    userState: ret.userState,
+                    userState: userStateResult.userState,
                 });
             // }
 
             setShownPosts([...shownPosts].map(p => {
                 let isUpvoted: boolean = false, isDownvoted: boolean = false;
                 p.votes.forEach(v => {
-                    const e = ret.epks.find(_e => _e === v.epoch_key);
+                    const e = epks.find(_e => _e === v.epoch_key);
                     if (e !== undefined) {
                         if (v.upvote > 0) {
                             isUpvoted = true;
@@ -67,7 +68,7 @@ const SignUp = () => {
                 let comments = [...p.comments].map(c => {
                     let isUpvotedC: boolean = false, isDownvotedC: boolean = false;
                     c.votes.forEach(v => {
-                        const e = ret.epks.find(_e => _e === v.epoch_key);
+                        const e = epks.find(_e => _e === v.epoch_key);
                         if (e !== undefined) {
                             if (v.upvote > 0) {
                                 isUpvotedC = true;
@@ -77,11 +78,11 @@ const SignUp = () => {
                             }
                         }
                     });
-                    let isAuthorC: boolean = ret.epks.find(_e => _e === c.epoch_key) !== undefined;
+                    let isAuthorC: boolean = epks.find(_e => _e === c.epoch_key) !== undefined;
                     let newComment: Constants.Comment = {...c, isUpvoted: isUpvotedC, isDownvoted: isDownvotedC, isAuthor: isAuthorC};
                     return newComment;
                 });
-                let isAuthor: boolean = ret.epks.find(_e => _e === p.epoch_key) !== undefined;
+                let isAuthor: boolean = epks.find(_e => _e === p.epoch_key) !== undefined;
                 let newPost: Constants.Post = {...p, isUpvoted, isDownvoted, isAuthor, comments};
                 return newPost;
             }));

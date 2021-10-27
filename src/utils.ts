@@ -59,32 +59,25 @@ export const getUserState = async (identity: string) => {
     return {id, userState, numEpochKeyNoncePerEpoch, currentEpoch: Number(currentEpoch), attesterId, hasSignedUp: jsonedUserState.hasSignedUp};
 }
 
-const getEpochKey = async (epkNonce: number, id: any, epochTreeDepth: number, currentEpoch: number) => {
+const getEpochKey = async (epkNonce: number, id: any, epoch: number) => {
     const epochKey = genEpochKey(
         id.identityNullifier, 
-        currentEpoch, epkNonce, epochTreeDepth
+        epoch, epkNonce, config.circuitEpochTreeDepth
     );
 
     return epochKey.toString(16);
 }
 
-export const getEpochKeys = async (identity: string) => {
-    const { id, userState, numEpochKeyNoncePerEpoch, currentEpoch, attesterId, hasSignedUp } = await getUserState(identity);
-    const us: any = userState;
-
-    const epochTreeDepth = (JSON.parse(userState.toJSON())).unirepState.epochTreeDepth;
-
+export const getEpochKeys = async (id: any, epoch: number) => {
     let epks: string[] = []
  
-    if (hasSignedUp) {
-        for (let i = 0; i < numEpochKeyNoncePerEpoch; i++) {
-            const tmp = await getEpochKey(i, id, epochTreeDepth, currentEpoch);
-            epks = [...epks, tmp];
-        }
-        console.log(epks)
+    for (let i = 0; i < config.numEpochKeyNoncePerEpoch; i++) {
+        const tmp = await getEpochKey(i, id, epoch);
+        epks = [...epks, tmp];
     }
+    console.log(epks)
 
-    return {epks, userState: us, currentEpoch, attesterId, hasSignedUp}
+    return epks
 }
 
 export const getAirdrop = async (identity: string, us: any) => {
@@ -180,8 +173,7 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
         console.log(results)
     }    
 
-    const epochTreeDepth = (JSON.parse(userState.toJSON())).unirepState.epochTreeDepth;
-    const epk = await getEpochKey(epkNonce, id, epochTreeDepth, currentEpoch);
+    const epk = await getEpochKey(epkNonce, id, currentEpoch);
     const formattedProof = formatProofForVerifierContract(results.proof)
     const encodedProof = base64url.encode(JSON.stringify(formattedProof))
     const encodedPublicSignals = base64url.encode(JSON.stringify(results.publicSignals))

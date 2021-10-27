@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { NavLink, useHistory } from 'react-router-dom';
 import { WebContext } from '../../context/WebContext';
 import * as Constants from '../../constants';
-import { userStateTransition, getNextEpochTime, getEpochKeys, getAirdrop } from '../../utils';
+import { userStateTransition, getNextEpochTime, getEpochKeys, getAirdrop, getUserState } from '../../utils';
 import './header.scss';
 
 const Header = () => {
@@ -18,12 +18,13 @@ const Header = () => {
             const ret = await userStateTransition(user.identity, user.userState);
             console.log(ret);
             
-            const ret2 = await getEpochKeys(user.identity);
-            const rep = ret2.userState.getRepByAttester(ret2.attesterId);
+            const userStateResult = await getUserState(user.identity);
+            const epks = await getEpochKeys(userStateResult.id, userStateResult.currentEpoch);
+            const rep = userStateResult.userState.getRepByAttester(userStateResult.attesterId);
             if (ret !== undefined) {
-                setUser({...user, epoch_keys: ret2.epks, reputation: Number(rep.posRep) - Number(rep.negRep), current_epoch: ret.toEpoch, userState: ret2.userState})
+                setUser({...user, epoch_keys: epks, reputation: Number(rep.posRep) - Number(rep.negRep), current_epoch: ret.toEpoch, userState: userStateResult.userState})
             }
-            await getAirdrop(user.identity, ret2.userState);
+            await getAirdrop(user.identity, userStateResult.userState);
             const next = await getNextEpochTime();
             setNextUSTTime(next);
 
