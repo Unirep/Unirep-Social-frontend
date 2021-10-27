@@ -84,11 +84,7 @@ const PostField = ({ page }: Props) => {
                 }
                 
                 setShownPosts([newPost, ...shownPosts]);
-                if (user.userState === undefined) {
-                    setUser({...user, reputation: user.reputation - DEFAULT_POST_KARMA, userState: ret.userState})
-                } else {
-                    setUser({...user, reputation: user.reputation - DEFAULT_POST_KARMA})
-                }
+                setUser({...user, reputation: user.reputation - DEFAULT_POST_KARMA, userState: ret.userState})
 
                 init();
             } else {

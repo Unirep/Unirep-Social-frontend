@@ -150,13 +150,27 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
 
     const proveGraffiti = BigInt(0);
     const graffitiPreImage = BigInt(0);
-    const results = await userState.genProveReputationProof(
-        BigInt(attesterId), 
-        proveKarmaAmount, 
-        epkNonce, BigInt(minRep), 
-        proveGraffiti, graffitiPreImage
-    );
-    console.log(results)
+    let results: any;
+    try {
+        results = await userState.genProveReputationProof(
+            BigInt(attesterId), 
+            proveKarmaAmount, 
+            epkNonce, BigInt(minRep), 
+            proveGraffiti, graffitiPreImage
+        );
+        console.log(results)
+    } catch (e) {
+        console.log(e);
+        const ret = await getUserState(identity);
+        userState = ret.userState;
+        results = await userState.genProveReputationProof(
+            BigInt(attesterId), 
+            proveKarmaAmount, 
+            epkNonce, BigInt(minRep), 
+            proveGraffiti, graffitiPreImage
+        );
+        console.log(results)
+    }    
 
     const epochTreeDepth = (JSON.parse(userState.toJSON())).unirepState.epochTreeDepth;
     const epk = await getEpochKey(epkNonce, id, epochTreeDepth, currentEpoch);
