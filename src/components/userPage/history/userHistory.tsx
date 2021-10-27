@@ -20,7 +20,10 @@ const UserHistory = ({ histories }: Props) => {
         <div className="user-page-main-content">
             {
                 user !== null? 
-                    (Array.from(Array(user.current_epoch + 1).keys())).reverse().map(i => <HistoryList histories={getHistoryByEpoch(i)} key={i} />) 
+                    (Array.from(Array(user.current_epoch + 1).keys())).reverse().map(i => {
+                        const history = getHistoryByEpoch(i);
+                        return history.length > 0? <HistoryList histories={getHistoryByEpoch(i)} key={i} /> : <div key={i}></div>
+                    }) 
                     : <div></div>
             }
         </div>

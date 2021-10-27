@@ -26,7 +26,7 @@ const HistoryList = ({ histories }: Props) => {
                 <div className="epoch-info" onClick={switchExpansion}>
                     <div className="info">
                         <label>Epoch</label>
-                        <span>8/15/21 - 8/22/21</span>
+                        <span>{histories[0].epoch}</span>
                     </div>
                     <div className="info">
                         <label>Score</label>
