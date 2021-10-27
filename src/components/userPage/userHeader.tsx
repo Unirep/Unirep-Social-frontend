@@ -6,17 +6,18 @@ import { getRecords, getEpochKeys } from '../../utils';
 import { History, ActionType } from '../../constants';
 
 type Props = {
+    histories: History[],
     setHistories: (histories: History[]) => void
 }
 
-const UserHeader = ({ setHistories }: Props) => {
+const UserHeader = ({ histories, setHistories }: Props) => {
     const { page, switchPage } = useContext(UserPageContext);
     const { user, isLoading } = useContext(WebContext);
     const pageSwitches = [UserPageType.Posts, UserPageType.History, UserPageType.Settings];
 
     const gotoSubPage = async (p: UserPageType) => {
         if (!isLoading) {
-            if (p === UserPageType.History && user !== null && user !== undefined) {
+            if (p === UserPageType.History && user !== null && user !== undefined && histories.length === 0) {
                 let epks: string[] = [];
                 for (var i = 1; i <= user.current_epoch; i ++) {
                     const epksRet = await getEpochKeys(user.identity, i);

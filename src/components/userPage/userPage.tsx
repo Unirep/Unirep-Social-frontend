@@ -25,7 +25,7 @@ const UserPage = () => {
             <UserPageContext.Provider value={{
                     page, switchPage: setPage, 
                     isPostFieldActive, setIsPostFieldActive}}>
-                <UserHeader setHistories={(histories: History[]) => setHistories(histories)}/>
+                <UserHeader histories={histories} setHistories={(histories: History[]) => setHistories(histories)}/>
                 { page === UserPageType.Posts? <UserPosts /> : page === UserPageType.History? <UserHistory histories={histories}/> : <div></div>}
             </UserPageContext.Provider>
         </div>
