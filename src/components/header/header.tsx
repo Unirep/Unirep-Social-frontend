@@ -19,7 +19,7 @@ const Header = () => {
             console.log(ret);
             
             const userStateResult = await getUserState(user.identity);
-            const epks = await getEpochKeys(userStateResult.id, userStateResult.currentEpoch);
+            const epks = await getEpochKeys(user.identity, userStateResult.currentEpoch);
             const rep = userStateResult.userState.getRepByAttester(userStateResult.attesterId);
             if (ret !== undefined) {
                 setUser({...user, epoch_keys: epks, reputation: Number(rep.posRep) - Number(rep.negRep), current_epoch: ret.toEpoch, userState: userStateResult.userState})

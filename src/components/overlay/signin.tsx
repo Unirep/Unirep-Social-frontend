@@ -25,7 +25,7 @@ const SignUp = () => {
         
         if (userStateResult.hasSignedUp) {
             const currentRep = userStateResult.userState.getRepByAttester(userStateResult.attesterId);
-            const epks = await getEpochKeys(userStateResult.id, userStateResult.currentEpoch);
+            const epks = await getEpochKeys(userInput, userStateResult.currentEpoch);
             const userEpoch = userStateResult.userState.latestTransitionedEpoch;
 
             // if (userEpoch !== ret.currentEpoch) {

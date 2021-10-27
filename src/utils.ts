@@ -1,9 +1,10 @@
-import base64url from 'base64url'
-import { ethers } from 'ethers'
-import { genIdentity, genIdentityCommitment, serialiseIdentity, unSerialiseIdentity } from '@unirep/crypto'
-import { genUserStateFromContract, genEpochKey } from '@unirep/unirep'
+import base64url from 'base64url';
+import { ethers } from 'ethers';
+import { genIdentity, genIdentityCommitment, serialiseIdentity, unSerialiseIdentity } from '@unirep/crypto';
+import { genUserStateFromContract, genEpochKey } from '@unirep/unirep';
 import { UnirepSocialContract } from '@unirep/unirep-social';
-import * as config from './config'
+import * as config from './config';
+import { History, ActionType } from './constants';
 
 const snarkjs = require("snarkjs")
 
@@ -68,7 +69,11 @@ const getEpochKey = async (epkNonce: number, id: any, epoch: number) => {
     return epochKey.toString(16);
 }
 
-export const getEpochKeys = async (id: any, epoch: number) => {
+export const getEpochKeys = async (identity: string, epoch: number) => {
+    const encodedIdentity = identity.slice(config.identityPrefix.length);
+    const decodedIdentity = base64url.decode(encodedIdentity);
+    const id = unSerialiseIdentity(decodedIdentity);
+    
     let epks: string[] = []
  
     for (let i = 0; i < config.numEpochKeyNoncePerEpoch; i++) {
@@ -379,4 +384,29 @@ export const userStateTransition = async (identity: string, us: any) => {
     });
     
     return {transaction, toEpoch}
+}
+
+export const getRecords = async (epks: string[]) => {
+    const paramStr = epks.join('_');
+    const apiURL = makeURL(`records/${paramStr}`, {});
+    
+    let ret: History[] = [];
+    await fetch(apiURL).then(response => response.json()).then(
+        (data) => {
+            console.log(data);
+            for (var i = 0; i < data.length; i ++) {
+                const history: History = {
+                    action: data[i].action,
+                    epoch_key: data[i].from,
+                    upvote: data[i].upvote,
+                    downvote: data[i].downvote,
+                    epoch: data[i].epoch,
+                    time: Date.parse(data[i].created_at),
+                    data_id: '',
+                }
+                ret = [history, ...ret];
+            }
+        }
+    );
+    return ret;
 }

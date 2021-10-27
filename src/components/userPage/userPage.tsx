@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { WebContext } from '../../context/WebContext';
 import { UserPageContext } from '../../context/UserPageContext';
-import { UserPageType } from '../../constants';
+import { UserPageType, History } from '../../constants';
 import UserHeader from './userHeader';
 import UserPosts from './userPosts';
 import UserHistory from './history/userHistory';
@@ -12,6 +12,7 @@ const UserPage = () => {
     const [page, setPage] = useState<UserPageType>(UserPageType.Posts);
     const [isPostFieldActive, setIsPostFieldActive] = useState(false);
     const { isLoading } = useContext(WebContext);
+    const [ histories, setHistories ] = useState<History[]>([]);
 
     const closeAll = () => {
         if (!isLoading) {
@@ -24,8 +25,8 @@ const UserPage = () => {
             <UserPageContext.Provider value={{
                     page, switchPage: setPage, 
                     isPostFieldActive, setIsPostFieldActive}}>
-                <UserHeader />
-                { page === UserPageType.Posts? <UserPosts /> : page === UserPageType.History? <UserHistory /> : <div></div>}
+                <UserHeader setHistories={(histories: History[]) => setHistories(histories)}/>
+                { page === UserPageType.Posts? <UserPosts /> : page === UserPageType.History? <UserHistory histories={histories}/> : <div></div>}
             </UserPageContext.Provider>
         </div>
     );

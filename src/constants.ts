@@ -82,10 +82,10 @@ export enum DataType {
 }
 
 export enum ActionType {
-    Post,
-    Comment,
-    Vote,
-    UST,
+    Post = "Post",
+    Comment = "Comment",
+    Vote = "Vote",
+    UST = "UST",
 }
 
 export enum Page {
