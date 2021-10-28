@@ -80,7 +80,7 @@ export const getEpochKeys = async (identity: string, epoch: number) => {
         const tmp = await getEpochKey(i, id, epoch);
         epks = [...epks, tmp];
     }
-    console.log(epks)
+    // console.log(epks)
 
     return epks
 }
@@ -402,7 +402,7 @@ export const getRecords = async (epks: string[]) => {
                     downvote: data[i].downvote,
                     epoch: data[i].epoch,
                     time: Date.parse(data[i].created_at),
-                    data_id: '',
+                    data_id: data[i].data,
                 }
                 ret = [history, ...ret];
             }
