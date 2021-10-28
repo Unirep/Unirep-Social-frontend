@@ -163,6 +163,8 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
         rep = userState.getRepByAttester(attesterId);
     }
 
+    console.log(userState.toJSON(4));
+
     // find valid nonce starter
     const nonceList: BigInt[] = [];
     let nonceStarter: number = -1;
@@ -175,11 +177,9 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
     }
     if(nonceStarter == -1) {
         console.error('Error: All nullifiers are spent')
-        process.exit(0)
     }
     if((nonceStarter + proveKarmaAmount) > Number(rep.posRep) - Number(rep.negRep)){
         console.error('Error: Not enough reputation to spend')
-        process.exit(0)
     }
     for (let i = 0; i < proveKarmaAmount; i++) {
         nonceList.push( BigInt(nonceStarter + i) )
