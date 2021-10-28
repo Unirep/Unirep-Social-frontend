@@ -1,7 +1,7 @@
 import base64url from 'base64url';
 import { ethers } from 'ethers';
 import { genIdentity, genIdentityCommitment, serialiseIdentity, unSerialiseIdentity } from '@unirep/crypto';
-import { genUserStateFromContract, genEpochKey } from '@unirep/unirep';
+import { genUserStateFromContract, genEpochKey, genReputationNullifier } from '@unirep/unirep';
 import { UnirepSocialContract } from '@unirep/unirep-social';
 import * as config from './config';
 import { History, ActionType } from './constants';
@@ -154,29 +154,45 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
         console.error('no such epknonce available')
     }
 
-    const proveGraffiti = BigInt(0);
-    const graffitiPreImage = BigInt(0);
-    let results: any;
+    let rep: any;
     try {
-        results = await userState.genProveReputationProof(
-            BigInt(attesterId), 
-            proveKarmaAmount, 
-            epkNonce, BigInt(minRep), 
-            proveGraffiti, graffitiPreImage
-        );
-        console.log(results)
+        rep = userState.getRepByAttester(attesterId);
     } catch (e) {
-        console.log(e);
         const ret = await getUserState(identity);
         userState = ret.userState;
-        results = await userState.genProveReputationProof(
-            BigInt(attesterId), 
-            proveKarmaAmount, 
-            epkNonce, BigInt(minRep), 
-            proveGraffiti, graffitiPreImage
-        );
-        console.log(results)
-    }    
+        rep = userState.getRepByAttester(attesterId);
+    }
+
+    // find valid nonce starter
+    const nonceList: BigInt[] = [];
+    let nonceStarter: number = -1;
+    for (let n = 0; n < Number(rep.posRep) - Number(rep.negRep); n++) {
+        const reputationNullifier = genReputationNullifier(id.identityNullifier, currentEpoch, n, BigInt(attesterId))
+        if(!userState.nullifierExist(reputationNullifier)) {
+            nonceStarter = n
+            break
+        }
+    }
+    if(nonceStarter == -1) {
+        console.error('Error: All nullifiers are spent')
+        process.exit(0)
+    }
+    if((nonceStarter + proveKarmaAmount) > Number(rep.posRep) - Number(rep.negRep)){
+        console.error('Error: Not enough reputation to spend')
+        process.exit(0)
+    }
+    for (let i = 0; i < proveKarmaAmount; i++) {
+        nonceList.push( BigInt(nonceStarter + i) )
+    }
+    for (let i = proveKarmaAmount; i < config.maxReputationBudget ; i++) {
+        nonceList.push(BigInt(-1))
+    }
+
+    // gen proof
+    const proveGraffiti = BigInt(0);
+    const graffitiPreImage = BigInt(0);
+    const results = await userState.genProveReputationProof(BigInt(attesterId), epkNonce, minRep, proveGraffiti, graffitiPreImage, nonceList)
+    console.log(results)
 
     const epk = await getEpochKey(epkNonce, id, currentEpoch);
     const formattedProof = formatProofForVerifierContract(results.proof)

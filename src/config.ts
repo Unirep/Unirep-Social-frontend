@@ -38,6 +38,7 @@ const attestingFee = ethers.utils.parseEther("0.01")
 const numEpochKeyNoncePerEpoch = 3;
 const numAttestationsPerEpochKey = 6;
 const epochLength = 30; 
+const maxReputationBudget = 10;
 
 export {
     SERVER,
@@ -74,5 +75,6 @@ export {
     numEpochKeyNoncePerEpoch,
     numAttestationsPerEpochKey,
     epochLength,
-    globalStateTreeDepth
+    globalStateTreeDepth,
+    maxReputationBudget
 }
