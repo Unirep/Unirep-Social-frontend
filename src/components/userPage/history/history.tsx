@@ -46,7 +46,7 @@ const HistoryWidget = ({ history } : Props) => {
             {getActionWidget()}
             <div className="info">
                 <div className="epoch-key">
-                    { history.epoch_key === 'UniRep'? <img src="/images/unirep.png" /> : <Jdenticon size="16" value={history.epoch_key} />}
+                    { history.epoch_key === 'UnirepSocial'? <img src="/images/unirep.png" /> : <Jdenticon size="16" value={history.epoch_key} />}
                 </div>
                 {history.epoch_key}
             </div>

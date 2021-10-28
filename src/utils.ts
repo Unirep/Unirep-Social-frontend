@@ -236,13 +236,17 @@ export const userSignUp = async () => {
     const encodedIdentity = base64url.encode(serializedIdentity)
     console.log(config.identityPrefix + encodedIdentity)
 
+    const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
+    const currentEpoch = await unirepSocialContract.currentEpoch();
+    const epk1 = await getEpochKey(0, id, currentEpoch);
+
     const serializedIdentityCommitment = commitment.toString(16)
     const encodedIdentityCommitment = base64url.encode(serializedIdentityCommitment)
     console.log(config.identityCommitmentPrefix + encodedIdentityCommitment)
 
     // call server user sign up
     let epoch: number = 0
-    const apiURL = makeURL('signup', {commitment: config.identityCommitmentPrefix + encodedIdentityCommitment})
+    const apiURL = makeURL('signup', {commitment: config.identityCommitmentPrefix + encodedIdentityCommitment, epk: epk1})
     await fetch(apiURL)
         .then(response => response.json())
         .then(function(data){
