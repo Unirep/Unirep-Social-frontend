@@ -124,6 +124,15 @@ body {
     justify-content: center;
     align-items: center;
     display: flex;
+
+    .CircularProgressbar-path {
+      stroke: $purple1;
+    }
+
+    .CircularProgressbar-text {
+      fill: $purple2;
+      font-size: $smaller-font-size;
+    }
   }
   
   @media screen and (max-width: 400px) {

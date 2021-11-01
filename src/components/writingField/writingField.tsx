@@ -1,4 +1,6 @@
-import { useState, useContext }  from 'react';
+import { useState, useContext, useEffect }  from 'react';
+import { CircularProgressbar } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 import { WebContext } from '../../context/WebContext';
 import Dropdown from '../dropdown/dropdown';
 import { DataType, ChoiceType } from '../../constants';
@@ -25,6 +27,17 @@ const WritingField = (props: Props) => {
     const [ errorMsg, setErrorMsg ] = useState('');
     const [ isDropdown, setIsDropdown ] = useState(false);
     const [ isBlockLoading, setIsBlockLoading ] = useState(false);
+    const [percentage, setPercentage] = useState<number>(0);
+
+    useEffect(() => {
+        if (isBlockLoading) {
+            const timer = setTimeout(() => {
+                setPercentage(((percentage + 1) % 100) + 1);
+            }, 100);
+
+            return () => clearTimeout(timer);
+        }
+    }, [percentage]);
 
     const changeReputation = (event: any) => {
         if (event.target.value === '') {
@@ -58,6 +71,7 @@ const WritingField = (props: Props) => {
             setErrorMsg('Please share something in order to post');
         } else {
             setIsLoading(true);
+            setPercentage(1);
             setIsBlockLoading(true);
             props.submit(reputation, content);
         }
@@ -101,7 +115,17 @@ const WritingField = (props: Props) => {
                     "Posting will use " + defaultRep + " reputation points" : 
                     "Commenting will use " + defaultRep + " reputation points" }
             </div>
-            { isBlockLoading? <div className="loading-block">Loading...</div> : <div></div>}
+            {
+                isBlockLoading? <div className="loading-block">
+                    <div style={{width: 75, height: 75}}>
+                        <CircularProgressbar text="Loading..." value={percentage} styles={{
+                            path: {
+                                transition: 'stroke-dashoffset 0.1s ease 0s',
+                            }
+                        }}/>
+                    </div>
+                </div> : <div></div>
+            }
         </div>
     );
 }

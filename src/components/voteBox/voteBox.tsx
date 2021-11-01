@@ -1,4 +1,6 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
+import { CircularProgressbar } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 import { vote, getUserState } from '../../utils';
 import { WebContext } from '../../context/WebContext';
 import { MainPageContext } from '../../context/MainPageContext';
@@ -18,6 +20,17 @@ const VoteBox = (props: Props) => {
     const [ epkNonce, setEpkNonce ] = useState(0); 
     const [ isDropdown, setIsDropdown ] = useState(false);
     const [ isBlockLoading, setIsBlockLoading ] = useState(false);
+    const [percentage, setPercentage] = useState<number>(0);
+
+    useEffect(() => {
+        if (isBlockLoading) {
+            const timer = setTimeout(() => {
+                setPercentage(((percentage + 1) % 100) + 1);
+            }, 100);
+
+            return () => clearTimeout(timer);
+        }
+    }, [percentage]);
 
     const init = () => {
         setIsDropdown(false);
@@ -35,6 +48,7 @@ const VoteBox = (props: Props) => {
         } else {
             setIsLoading(true);
             setIsBlockLoading(true);
+            setPercentage(1);
 
             const isPost = props.data.type === DataType.Post;
             let ret: any;
@@ -127,7 +141,17 @@ const VoteBox = (props: Props) => {
                     {props.isUpvote? (<img src="/images/upvote-purple.png" />):(<img src="/images/downvote-purple.png" />)}
                     {props.isUpvote? (<p>Up Vote</p>):(<p>Down Vote</p>)}
                 </div>
-                { isBlockLoading? <div className="loading-block">Loading...</div> : <div></div>}
+                {
+                    isBlockLoading? <div className="loading-block">
+                        <div style={{width: 75, height: 75}}>
+                            <CircularProgressbar text="Loading..." value={percentage} styles={{
+                                path: {
+                                    transition: 'stroke-dashoffset 0.1s ease 0s',
+                                }
+                            }}/>
+                        </div>
+                    </div> : <div></div>
+                }
             </div>
         </div>
     );
