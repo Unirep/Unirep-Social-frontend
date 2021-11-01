@@ -376,7 +376,7 @@ export const getNextEpochTime = async () => {
     return ret
 }
 
-export const userStateTransition = async (identity: string, us: any) => {
+export const userStateTransition = async (identity: string) => {
     const {userState} = await getUserState(identity);
     const results = await userState.genUserStateTransitionProofs();
 
@@ -403,7 +403,7 @@ export const userStateTransition = async (identity: string, us: any) => {
            transaction = data.transaction
     });
     
-    return {transaction, toEpoch}
+    return {transaction, toEpoch, userState}
 }
 
 export const getRecords = async (currentEpoch: number, identity: string) => {

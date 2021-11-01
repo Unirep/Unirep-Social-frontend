@@ -40,33 +40,26 @@ const SignUp = () => {
         const userStateResult = await getUserState(userInput);
         
         if (userStateResult.hasSignedUp) {
-            const currentRep = userStateResult.userState.getRepByAttester(userStateResult.attesterId);
-            const epks = await getEpochKeys(userInput, userStateResult.currentEpoch);
             const userEpoch = userStateResult.userState.latestTransitionedEpoch;
+            let userState: any = userStateResult.userState;
 
-            // if (userEpoch !== ret.currentEpoch) {
-            //     console.log('user epoch is not the same as current epoch, do user state transition, ' + userEpoch + ' != ' + ret.currentEpoch);
-            //     const retAfterUST = await userStateTransition(userInput);
-            //     console.log(retAfterUST);
+            if (userEpoch !== userStateResult.currentEpoch) {
+                console.log('user epoch is not the same as current epoch, do user state transition, ' + userEpoch + ' != ' + userStateResult.currentEpoch);
+                const retAfterUST = await userStateTransition(userInput);
+                console.log(retAfterUST);
 
-            //     const reputation = retAfterUST.userState.getRepByAttester(ret.attesterId);
-            //     setUser({
-            //         identity: userInput,
-            //         epoch_keys: retAfterUST.epks,
-            //         reputation: Number(reputation.posRep) - Number(reputation.negRep),
-            //         current_epoch: retAfterUST.toEpoch,
-            //     });
-            // } else {
-                const reputation = userStateResult.userState.getRepByAttester(userStateResult.attesterId);
-                setUser({
-                    identity: userInput,
-                    epoch_keys: epks,
-                    reputation: Number(reputation.posRep) - Number(reputation.negRep),
-                    current_epoch: userStateResult.currentEpoch,
-                    isConfirmed: true,
-                    userState: userStateResult.userState,
-                });
-            // }
+                userState = retAfterUST.userState;
+            } 
+            const reputation = userState.getRepByAttester(userStateResult.attesterId);
+            const epks = await getEpochKeys(userInput, userStateResult.currentEpoch);
+            setUser({
+                identity: userInput,
+                epoch_keys: epks,
+                reputation: Number(reputation.posRep) - Number(reputation.negRep),
+                current_epoch: userStateResult.currentEpoch,
+                isConfirmed: true,
+                userState,
+            });
 
             setShownPosts([...shownPosts].map(p => {
                 let isUpvoted: boolean = false, isDownvoted: boolean = false;

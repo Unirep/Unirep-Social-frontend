@@ -15,7 +15,7 @@ const Header = () => {
         if (user !== null) {
             setIsUSTing(true);
             setIsLoading(true);
-            const ret = await userStateTransition(user.identity, user.userState);
+            const ret = await userStateTransition(user.identity);
             console.log(ret);
             
             const userStateResult = await getUserState(user.identity);
