@@ -52,9 +52,16 @@ const SignUp = () => {
             } 
             const reputation = userState.getRepByAttester(userStateResult.attesterId);
             const epks = await getEpochKeys(userInput, userStateResult.currentEpoch);
+
+            let allEpks: string[] = [...epks];
+            for (var i = userStateResult.currentEpoch; i > 0; i --) {
+                const oldEpks = await getEpochKeys(userInput, i);
+                allEpks = [...allEpks, ...oldEpks];
+            }
             setUser({
                 identity: userInput,
                 epoch_keys: epks,
+                all_epoch_keys: allEpks,
                 reputation: Number(reputation.posRep) - Number(reputation.negRep),
                 current_epoch: userStateResult.currentEpoch,
                 isConfirmed: true,

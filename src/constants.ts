@@ -12,6 +12,7 @@ export const expiredText = "You cannot vote on posts with expired epoch key."
 export interface User {
     identity: string,
     epoch_keys: string[],
+    all_epoch_keys: string[],
     reputation: number,
     current_epoch: number,
     isConfirmed: boolean,

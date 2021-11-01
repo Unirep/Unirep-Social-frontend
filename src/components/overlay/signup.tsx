@@ -110,12 +110,18 @@ const SignUp = () => {
         const userStateResult = await getUserState(identity);
         const currentRep = userStateResult.userState.getRepByAttester(userStateResult.attesterId);
         const epks = await getEpochKeys(identity, userStateResult.currentEpoch);
+        let allEpks: string[] = [...epks];
+        for (var i = userStateResult.currentEpoch; i > 0; i --) {
+            const oldEpks = await getEpochKeys(userInput, i);
+            allEpks = [...allEpks, ...oldEpks];
+        }
         await getAirdrop(identity, userStateResult.userState);
 
         setPageStatus(Constants.PageStatus.None);
         setUser({ 
             identity: identity, 
             epoch_keys: epks, 
+            all_epoch_keys: allEpks, 
             reputation: Number(currentRep.posRep) - Number(currentRep.negRep), 
             current_epoch: currentEpoch, 
             isConfirmed: userStateResult.hasSignedUp,

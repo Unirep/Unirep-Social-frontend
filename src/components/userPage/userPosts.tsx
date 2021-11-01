@@ -8,7 +8,7 @@ import { Page } from '../../constants';
 
 const UserPosts = () => {
     const { user, shownPosts } = useContext(WebContext); 
-    const userPosts = user !== null? [...shownPosts].filter((p) => user.epoch_keys.find(epk => epk === p.epoch_key) !== undefined) : shownPosts;
+    const userPosts = user !== null? [...shownPosts].filter((p) => user.all_epoch_keys.find(epk => epk === p.epoch_key) !== undefined) : shownPosts;
 
     return (
         <div className="user-page-main-content">
