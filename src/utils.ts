@@ -406,7 +406,13 @@ export const userStateTransition = async (identity: string, us: any) => {
     return {transaction, toEpoch}
 }
 
-export const getRecords = async (epks: string[]) => {
+export const getRecords = async (currentEpoch: number, identity: string) => {
+    let epks: string[] = [];
+    for (var i = 1; i <= currentEpoch; i ++) {
+        const epksRet = await getEpochKeys(identity, i);
+        epks = [...epks, ...epksRet];
+    }
+
     const paramStr = epks.join('_');
     const apiURL = makeURL(`records/${paramStr}`, {});
     
@@ -415,11 +421,12 @@ export const getRecords = async (epks: string[]) => {
         (data) => {
             console.log(data);
             for (var i = 0; i < data.length; i ++) {
+                const isVoter = epks.indexOf(data[i].from) !== -1;
                 const history: History = {
                     action: data[i].action,
                     epoch_key: data[i].from,
-                    upvote: data[i].upvote,
-                    downvote: data[i].downvote,
+                    upvote: isVoter? 0 : data[i].upvote,
+                    downvote: isVoter? (data[i].upvote + data[i].downvote) : data[i].downvote,
                     epoch: data[i].epoch,
                     time: Date.parse(data[i].created_at),
                     data_id: data[i].data,

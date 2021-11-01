@@ -18,12 +18,7 @@ const UserHeader = ({ histories, setHistories }: Props) => {
     const gotoSubPage = async (p: UserPageType) => {
         if (!isLoading) {
             if (p === UserPageType.History && user !== null && user !== undefined && histories.length === 0) {
-                let epks: string[] = [];
-                for (var i = 1; i <= user.current_epoch; i ++) {
-                    const epksRet = await getEpochKeys(user.identity, i);
-                    epks = [...epks, ...epksRet];
-                }
-                const ret = await getRecords(epks);
+                const ret = await getRecords(user.current_epoch, user.identity);
                 setHistories(ret);
             }
             switchPage(p);
