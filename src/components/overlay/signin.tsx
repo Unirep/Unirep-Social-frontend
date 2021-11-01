@@ -1,14 +1,27 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
+import { CircularProgressbar } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 import { WebContext } from '../../context/WebContext';
 import * as Constants from '../../constants';
 import { getEpochKeys, getUserState, getNextEpochTime, userStateTransition } from '../../utils';
 import './overlay.scss';
 
 const SignUp = () => {
-    const { setUser, setPageStatus, shownPosts, setShownPosts, setNextUSTTime } = useContext(WebContext);
+    const { setUser, setPageStatus, shownPosts, setShownPosts, setNextUSTTime, setIsLoading, isLoading } = useContext(WebContext);
     
     const [userInput, setUserInput] = useState<string>("");
     const [errorMsg, setErrorMsg] = useState<string>("");
+    const [percentage, setPercentage] = useState<number>(0);
+
+    useEffect(() => {
+        if (isLoading) {
+            const timer = setTimeout(() => {
+                setPercentage(((percentage + 1) % 100) + 1);
+            }, 100);
+
+            return () => clearTimeout(timer);
+        }
+    }, [percentage]);
 
     const preventCloseBox = (event: any) => {
         event.stopPropagation();
@@ -21,6 +34,9 @@ const SignUp = () => {
     }
 
     const closeBox = async () => {
+        setIsLoading(true);
+        setPercentage(1);
+
         const userStateResult = await getUserState(userInput);
         
         if (userStateResult.hasSignedUp) {
@@ -94,7 +110,8 @@ const SignUp = () => {
         } else {
             setErrorMsg('This identity hasn\'t signed up yet.')
         }
-        
+
+        setIsLoading(false);
     }
 
     return (
@@ -117,6 +134,17 @@ const SignUp = () => {
                 }
                 <div className="sign-button-purple" onClick={closeBox}>Confirm</div>
             </div>
+            {
+                isLoading? <div className="loading-cover">
+                    <div style={{width: 75, height: 75}}>
+                        <CircularProgressbar text="Loading..." value={percentage} styles={{
+                            path: {
+                                transition: 'stroke-dashoffset 0.1s ease 0s',
+                            }
+                        }}/>
+                    </div>
+                </div> : <div></div>
+            }
         </div>
     );
 }

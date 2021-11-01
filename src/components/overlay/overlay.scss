@@ -10,6 +10,7 @@
     background-color: rgba(242, 242, 242, 0.8);
 
     .signBox {
+      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -136,6 +137,28 @@
         @include myButton($width: 440px, $height: 32px, $block-color1: #fff, $radius: 20px, $color: $dark-grey);
         border: 1px solid black;
         box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.1);
+      }
+
+      .loading-cover {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(242, 242, 242, 0.8);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .CircularProgressbar-path {
+          stroke: $purple1;
+        }
+
+        .CircularProgressbar-text {
+          fill: $purple2;
+          font-size: $smaller-font-size;
+        }
       }
     }
 }

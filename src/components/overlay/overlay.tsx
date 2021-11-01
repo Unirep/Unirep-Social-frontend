@@ -5,11 +5,15 @@ import SignUp from './signup';
 import SignIn from './signin';
 
 const Overlay = () => {
-    const { pageStatus, setPageStatus } = useContext(WebContext);
+    const { pageStatus, setPageStatus, isLoading } = useContext(WebContext);
 
     const closeOverlay = () => {
-        console.log('close over lay');
-        setPageStatus(Constants.PageStatus.None);
+        if (!isLoading) {
+            console.log('close over lay');
+            setPageStatus(Constants.PageStatus.None);
+        } else {
+            console.log('something is loading, no close');
+        }        
     }
 
     return (

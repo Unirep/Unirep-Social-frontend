@@ -1,4 +1,6 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
+import { CircularProgressbar } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 import { WebContext } from '../../context/WebContext';
 import * as Constants from '../../constants';
 import { FaTwitter } from 'react-icons/fa';
@@ -6,7 +8,7 @@ import { checkInvitationCode, userSignUp, getEpochKeys, getNextEpochTime, getAir
 import './overlay.scss';
 
 const SignUp = () => {
-    const { user, setUser, setPageStatus, setNextUSTTime } = useContext(WebContext);
+    const { setUser, setPageStatus, setNextUSTTime, isLoading, setIsLoading } = useContext(WebContext);
     
     
     // step 0: sign up with twitter / others
@@ -21,6 +23,17 @@ const SignUp = () => {
     const [currentEpoch, setCurrentEpoch] = useState(0);
     const [isCopied, setIsCopied] = useState(false);
     const [isDownloaded, setIsDownloaded] = useState(false);
+    const [percentage, setPercentage] = useState<number>(0);
+
+    useEffect(() => {
+        if (isLoading) {
+            const timer = setTimeout(() => {
+                setPercentage(((percentage + 1) % 100) + 1);
+            }, 100);
+
+            return () => clearTimeout(timer);
+        }
+    }, [percentage]);
 
     const preventCloseBox = (event: any) => {
         event.stopPropagation();
@@ -91,6 +104,9 @@ const SignUp = () => {
 
     const closeBox = async () => {
         // get userstate related functions will check if user has signed up, if no, save in local storage, every refresh of page will check it again. //
+        setIsLoading(true);
+        setPercentage(1);
+
         const userStateResult = await getUserState(identity);
         const currentRep = userStateResult.userState.getRepByAttester(userStateResult.attesterId);
         const epks = await getEpochKeys(identity, userStateResult.currentEpoch);
@@ -108,6 +124,8 @@ const SignUp = () => {
 
         const nextET = await getNextEpochTime();
         setNextUSTTime(nextET);
+
+        setIsLoading(false);
     }
 
     return (
@@ -173,6 +191,17 @@ const SignUp = () => {
                     <div className="sign-button-white" onClick={previousStep}>Back</div>
                 </div> : <div>{errorMsg}</div>
             } 
+            {
+                isLoading? <div className="loading-cover">
+                    <div style={{width: 75, height: 75}}>
+                        <CircularProgressbar text="Loading..." value={percentage} styles={{
+                            path: {
+                                transition: 'stroke-dashoffset 0.1s ease 0s',
+                            }
+                        }}/>
+                    </div>
+                </div> : <div></div>
+            }
         </div>
     );
 }
