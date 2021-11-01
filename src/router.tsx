@@ -9,6 +9,7 @@ import Overlay from './components/overlay/overlay';
 import MainPage from './components/mainPage/mainPage';
 import PostPage from './components/postPage/postPage';
 import UserPage from './components/userPage/userPage';
+import HelpPage from './components/helpPage/helpPage';
 
 import { WebContext } from './context/WebContext';
 
@@ -35,6 +36,7 @@ const AppRouter = () => {
                     <Route component={MainPage} path="/" exact={true} />
                     <Route component={PostPage} path="/post/:id" />
                     <Route component={UserPage} path="/user" />
+                    <Route component={HelpPage} path="/help" />
                     <Route component={() => <Redirect to="/" />} />
                 </Switch>
 
