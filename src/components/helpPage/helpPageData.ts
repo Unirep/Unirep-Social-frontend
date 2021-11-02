@@ -46,3 +46,26 @@ export const helpData = {
         }
     }
 }
+
+export const learnData = [
+    {
+        title: 'Epoch',
+        content: 'An epoch is a duration of time; In this case, ~7 days',
+        image: 'clock.png'
+    }, 
+    {
+        title: 'Epoch Key',
+        content: 'Used to post, vote, and comment, every user receives 5 random epoch keys to use for the duration of one epoch.',
+        image: 'epoch-key.png'
+    },
+    {
+        title: 'Epoch Key',
+        content: 'Used to post, vote, and comment, every user receives 5 random epoch keys to use for the duration of one epoch.',
+        image: 'epoch-key.png'
+    },
+    {
+        title: 'Test',
+        content: 'Test something----------------------------------------------------------------------------------------------------------------',
+        image: 'arrow-up.png'
+    },
+]

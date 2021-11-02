@@ -1,4 +1,4 @@
-import { serialNumberTable } from './help';
+import { serialNumberTable } from './helpPageData';
 import HelpTitle from './helpTitle';
 
 type Props = {

@@ -70,4 +70,50 @@
     .help-border {
         border: 1px solid $light-purple;
     }
+
+    .learn-zone {
+        width: 100%;
+        margin-top: 40px;
+
+        h3 {
+            margin: 5px 15px;
+        }
+
+        .learn-block {
+            display: inline-block;
+            width: 200px;
+            height: 200px;
+            border-radius: 8px;
+            background: radial-gradient(99.12% 159.6% at 92.94% 95.93%, #E4D3FF 0%, #E5EEFF 62.33%, #EEE1FF 69.62%, #DAD7F8 81.02%);
+            padding: 10px;
+            margin: 8px;
+            vertical-align : top;
+
+            .learn-block-inner {
+                width: 100%;
+                height: 100%;
+                background-color: white;
+                padding: 8px;
+                position: relative;
+
+                .learn-title {
+                    font-size: $smaller-font-size;
+                    font-weight: 500;
+                }
+
+                .learn-content {
+                    font-size: $small-font-size;
+                }
+
+                img {
+                    width: 40px;
+                    height: 40px;
+
+                    position: absolute;
+                    bottom: 10px;
+                    right: 15px;
+                }
+            }
+        }
+    }
 }
