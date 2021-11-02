@@ -14,6 +14,7 @@
         padding: 10px;
         font-size: $smaller-font-size;
         display: flex;
+        margin-bottom: 40px;
 
         img {
             width: 24px;
@@ -27,5 +28,46 @@
             width: 100%;
             font-size: 12px;
         }
+    }
+
+    .help-list {
+        width: 100%;
+        padding: 0px 10px;
+        
+        .help-item {
+            width: 100%;
+            border-top: 1px solid $light-purple;
+
+            .help-title {
+                width: 100%;
+                padding: 15px 10px;
+                display: flex;
+                align-items: center;
+                cursor: pointer;
+    
+                &:hover {
+                    background-color: $light-purple;
+                }
+    
+                span {
+                    font-size: $smaller-font-size;
+                }
+    
+                img {
+                    margin-left: auto;
+                    width: 8px;
+                    height: 4px;
+                }
+            }
+
+            .help-content {
+                font-size: $smaller-font-size;
+                padding: 10px;
+            }
+        }
+    }
+
+    .help-border {
+        border: 1px solid $light-purple;
     }
 }

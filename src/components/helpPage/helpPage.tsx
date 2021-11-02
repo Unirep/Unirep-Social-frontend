@@ -1,5 +1,7 @@
 import React, { useContext, useState } from 'react';
+import { helpData } from './help';
 import './helpPage.scss';
+import HelpList from './helpList';
 
 const HelpPage = () => {
 
@@ -20,7 +22,7 @@ const HelpPage = () => {
                     <img src="/images/search.png" />
                     <input type="text" name="searchInput" placeholder="Search by keyword" onChange={handleSearchInput} />
                 </div>
-                <div className="help-list"></div>
+                <HelpList data={helpData} level={1} key={1} />
                 <div className="learn-zone"></div>
             </div>
             <div className="report-zone"></div>

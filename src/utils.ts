@@ -175,7 +175,7 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
             break
         }
     }
-    if(nonceStarter == -1) {
+    if(nonceStarter === -1) {
         console.error('Error: All nullifiers are spent')
     }
     if((nonceStarter + proveKarmaAmount) > Number(rep.posRep) - Number(rep.negRep)){
