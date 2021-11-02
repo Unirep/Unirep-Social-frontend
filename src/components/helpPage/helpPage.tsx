@@ -3,6 +3,7 @@ import { helpData } from './helpPageData';
 import './helpPage.scss';
 import HelpList from './helpList';
 import LearnZone from './learnZone';
+import ReportZone from './reportZone';
 
 const HelpPage = () => {
 
@@ -26,7 +27,7 @@ const HelpPage = () => {
                 <HelpList data={helpData} level={1} key={1} />
                 <LearnZone />
             </div>
-            <div className="report-zone"></div>
+            <ReportZone />
         </div>
     );
 };

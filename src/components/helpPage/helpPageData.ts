@@ -66,6 +66,6 @@ export const learnData = [
     {
         title: 'Test',
         content: 'Test something----------------------------------------------------------------------------------------------------------------',
-        image: 'arrow-up.png'
+        image: 'diamond.png'
     },
 ]
