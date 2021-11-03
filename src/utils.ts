@@ -437,3 +437,12 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
     );
     return ret;
 }
+
+export const sentReport = async (issue: string, email: string) => {
+    const apiURL = makeURL(`report`, {issue, email});
+    
+    let ret: boolean = true;
+    await fetch(apiURL).then(response => ret = (response.ok === true));
+
+    return ret;
+}

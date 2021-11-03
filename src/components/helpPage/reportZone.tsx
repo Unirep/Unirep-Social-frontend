@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { sentReport } from '../../utils';
 
 const ReportZone = () => {
     const [issue, setIssue] = useState<string>('');
@@ -18,12 +19,18 @@ const ReportZone = () => {
         setEmail(event.target.value);
     }
 
-    const submit = (event: any) => {
+    const submit = async (event: any) => {
         stopPropagation(event);
         if (issue === '') {
             setErrMsg('You have not input your issue yet.');
         } else {
             console.log(`Send report to server: ${issue} with email ${email}.`);
+            const ret = await sentReport(issue, email);
+            if (ret) {
+                window.location.reload();
+            } else {
+                setErrMsg('Send report error. Please try again.');
+            }
         }
     }
 
