@@ -1,4 +1,5 @@
 import { useState, useContext, useEffect }  from 'react';
+import { useHistory } from 'react-router-dom';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { WebContext } from '../../context/WebContext';
@@ -20,6 +21,7 @@ type Props = {
 const WritingField = (props: Props) => {
 
     const defaultRep = props.type === DataType.Post? DEFAULT_POST_KARMA : DEFAULT_COMMENT_KARMA;
+    const history = useHistory();
 
     const { user, setIsLoading } = useContext(WebContext);
     const [ reputation, setReputation ] = useState(defaultRep);
@@ -82,7 +84,7 @@ const WritingField = (props: Props) => {
             <textarea name="userInput" placeholder="Share something!" onChange={handleUserInput}></textarea>
             <div className="setting-area">
                 <div className="setting-epk">
-                    <label>Select an Epoch Key to display with your post <span>?</span></label>
+                    <label>Select an Epoch Key to display with your post <span onClick={() => history.push('/help')}>?</span></label>
                     { user !== null? 
                         <Dropdown 
                             type={ChoiceType.Epk}
