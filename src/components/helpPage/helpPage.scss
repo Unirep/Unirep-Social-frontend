@@ -148,4 +148,16 @@
         box-shadow: 0px 3px 2px 0px #0000001A;
         cursor: pointer;
     }
+
+    .error {
+        margin-top: 16px;
+        font-size: $smaller-font-size;
+        color: $error;
+
+        img {
+            width: 18px;
+            height: 18px;
+            margin-right: 11px;
+        }
+    }
 }

@@ -21,7 +21,7 @@ const LearnZone = () => {
         <div className="learn-zone">
             <h3>Learn</h3>
             {
-                learnData.map((d) => <LearnBlock data={d} />)
+                learnData.map((d, i) => <LearnBlock data={d} key={i}/>)
             }
         </div>
     );
