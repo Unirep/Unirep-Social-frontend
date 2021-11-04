@@ -22,6 +22,7 @@ const PostsList = ({ posts }: Props) => {
                         key={post.id} 
                         post={post} 
                         page={Page.Home}
+                        commentId={undefined}
                     />
                 ))
             ) : <p>No posts are available. Load other popular posts.</p>}
@@ -32,6 +33,7 @@ const PostsList = ({ posts }: Props) => {
                         key={post.id} 
                         post={post} 
                         page={Page.Home}
+                        commentId={undefined}
                     />
                 ))
             }

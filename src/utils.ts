@@ -419,7 +419,6 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
     let ret: History[] = [];
     await fetch(apiURL).then(response => response.json()).then(
         (data) => {
-            console.log(data);
             for (var i = 0; i < data.length; i ++) {
                 const isVoter = epks.indexOf(data[i].from) !== -1;
                 const history: History = {

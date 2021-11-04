@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { Location } from 'history';
 import { Page, Params } from '../../constants';
@@ -12,17 +12,13 @@ const PostPage = () => {
     const { shownPosts } = useContext(WebContext);
     const { id } = useParams<Params>();
     const location = useLocation<Location>();
+    const state = JSON.parse(JSON.stringify(location.state));
+    const commentId = state.commentId;
     const postToShow = shownPosts.find((p) => p.id === id);
 
     const [isUpVoteBoxOn, setIsUpVoteBoxOn] = useState(false);
     const [isDownVoteBoxOn, setIsDownVoteBoxOn] = useState(false);
     const [voteReceiver, setVoteReceiver] = useState<any>(null);
-
-    useEffect(() => {
-        const state = JSON.parse(JSON.stringify(location.state));
-        const commentId = state.commentId;
-        console.log(commentId);
-    }, []);
 
     const closeAll = () => {
         setIsUpVoteBoxOn(false);
@@ -43,6 +39,7 @@ const PostPage = () => {
                             <PostBlock 
                                 post={postToShow} 
                                 page={Page.Post}
+                                commentId={commentId}
                             />
                     }  
                 </div>
