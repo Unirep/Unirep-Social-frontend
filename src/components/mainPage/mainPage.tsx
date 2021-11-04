@@ -22,7 +22,7 @@ const MainPage = () => {
     useEffect(() => {
         const getPosts = async () => {
             const ret = await listAllPosts();
-            console.log(ret);
+            setShownPosts(ret);
         }
 
         getPosts();

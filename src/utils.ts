@@ -446,19 +446,20 @@ export const listAllPosts = async () => {
         return response.json();
     }).then(
         data => {
-            console.log(data);
             for (var i = 0; i < data.length; i ++) {
                 let votes: Vote[] = [];
                 let upvote: number = 0;
                 let downvote: number = 0;
-                for (var j = 0; j < data.votes.length; j ++) {
+                for (var j = 0; j < data[i].votes.length; j ++) {
+                    const posRep = Number(data[i].votes[j].posRep);
+                    const negRep = Number(data[i].votes[j].negRep);
                     const vote: Vote = {
-                        upvote: data.votes[j].posRep as number,
-                        downvote: data.votes[j].negRep as number,
-                        epoch_key: data.votes[j].voter,
+                        upvote: posRep,
+                        downvote: negRep,
+                        epoch_key: data[i].votes[j].voter,
                     }
-                    upvote += (data.votes[j].posRep as number);
-                    downvote += (data.votes[j].negRep as number);
+                    upvote += posRep;
+                    downvote += negRep;
                     votes = [...votes, vote];
                 }
 
