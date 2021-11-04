@@ -37,7 +37,7 @@ const HistoryWidget = ({ history } : Props) => {
     const gotoPage = () => { // try to use # to send comment related information
         if (history.data_id === '0') return;
         const ids = history.data_id.split('_');
-        routeHistory.push(`/post/${ids[0]}`);
+        routeHistory.push(`/post/${ids[0]}`, {commentId: ids[1]});
     }
 
     return (

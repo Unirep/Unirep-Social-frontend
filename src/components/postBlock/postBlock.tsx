@@ -113,7 +113,7 @@ const PostBlock = ({ post, page } : Props) => {
                         page === Page.Home? (
                             <div>
                                 <CommentBlock comment={post.comments[0]} page={page} />
-                                <div className="view-more-comments" onClick={() => history.push(`/post/${post.id}`)}>View more comments</div>
+                                <div className="view-more-comments" onClick={() => history.push(`/post/${post.id}`, {commentId: ''})}>View more comments</div>
                             </div>
                         ) : post.comments.map(comment => (<CommentBlock comment={comment} key={comment.id} page={page} />))
                     }
