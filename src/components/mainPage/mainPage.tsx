@@ -1,4 +1,5 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
+import { listAllPosts } from '../../utils';
 import { WebContext } from '../../context/WebContext';
 import { MainPageContext } from '../../context/MainPageContext';
 import { Page } from '../../constants';
@@ -10,13 +11,22 @@ import './mainPage.scss';
 
 const MainPage = () => {
 
-    const { shownPosts, isLoading } = useContext(WebContext);
+    const { shownPosts, setShownPosts, isLoading } = useContext(WebContext);
 
     const [isPostFieldActive, setIsPostFieldActive] = useState(false);
     const [isUpVoteBoxOn, setIsUpVoteBoxOn] = useState(false);
     const [isDownVoteBoxOn, setIsDownVoteBoxOn] = useState(false);
     const [voteReceiver, setVoteReceiver] = useState<any>(null);
     const [postTimeFilter, setPostTimeFilter] = useState(1);
+
+    useEffect(() => {
+        const getPosts = async () => {
+            const ret = await listAllPosts();
+            console.log(ret);
+        }
+
+        getPosts();
+    }, []);
 
     const loadMorePosts = () => {
         console.log("load more posts, now posts: " + shownPosts.length);

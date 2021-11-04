@@ -4,7 +4,7 @@ import { genIdentity, genIdentityCommitment, serialiseIdentity, unSerialiseIdent
 import { genUserStateFromContract, genEpochKey, genReputationNullifier } from '@unirep/unirep';
 import { UnirepSocialContract } from '@unirep/unirep-social';
 import * as config from './config';
-import { History, ActionType } from './constants';
+import { History, Post, DataType, Vote } from './constants';
 
 const snarkjs = require("snarkjs")
 
@@ -434,6 +434,57 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
             }
         }
     );
+    return ret;
+}
+
+export const listAllPosts = async () => {
+    const apiURL = makeURL(`post`, {});
+    
+    let ret: Post[] = [];
+    await fetch(apiURL).then(response => {
+        console.log(response);
+        return response.json();
+    }).then(
+        data => {
+            console.log(data);
+            for (var i = 0; i < data.length; i ++) {
+                let votes: Vote[] = [];
+                let upvote: number = 0;
+                let downvote: number = 0;
+                for (var j = 0; j < data.votes.length; j ++) {
+                    const vote: Vote = {
+                        upvote: data.votes[j].posRep as number,
+                        downvote: data.votes[j].negRep as number,
+                        epoch_key: data.votes[j].voter,
+                    }
+                    upvote += (data.votes[j].posRep as number);
+                    downvote += (data.votes[j].negRep as number);
+                    votes = [...votes, vote];
+                }
+
+                const post: Post = {
+                    type: DataType.Post,
+                    id: data[i]._id,
+                    content: data[i].content,
+                    votes,
+                    upvote,
+                    downvote,
+                    isUpvoted: false, 
+                    isDownvoted: false, 
+                    isAuthor: false,
+                    epoch_key: data[i].epochKey,
+                    username: '',
+                    post_time: Date.parse(data[i].created_at),
+                    reputation: data[i].minRep,
+                    comments: [],
+                    current_epoch: data[i].epoch,
+                }
+
+                ret = [...ret, post];
+            }
+        }
+    );
+
     return ret;
 }
 
