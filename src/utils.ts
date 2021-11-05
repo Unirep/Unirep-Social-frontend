@@ -4,7 +4,7 @@ import { genIdentity, genIdentityCommitment, serialiseIdentity, unSerialiseIdent
 import { genUserStateFromContract, genEpochKey, genReputationNullifier } from '@unirep/unirep';
 import { UnirepSocialContract } from '@unirep/unirep-social';
 import * as config from './config';
-import { History, Post, DataType, Vote } from './constants';
+import { History, Post, DataType, Vote, Comment } from './constants';
 
 const snarkjs = require("snarkjs")
 
@@ -437,6 +437,85 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
     return ret;
 }
 
+const convertDataToVotes = (data: any, epks: string[]) => {
+    let votes: Vote[] = [];
+    let upvote: number = 0;
+    let downvote: number = 0;
+    let isUpvoted: boolean = false;
+    let isDownvoted: boolean = false;
+    for (var i = 0; i < data.length; i ++) {
+        const posRep = Number(data[i].posRep);
+        const negRep = Number(data[i].negRep);
+        const vote: Vote = {
+            upvote: posRep,
+            downvote: negRep,
+            epoch_key: data[i].voter,
+        }
+        if (epks.indexOf(vote.epoch_key) !== -1) {
+            isUpvoted = vote.upvote !== 0;
+            isDownvoted = vote.downvote !== 0;
+        }
+        upvote += posRep;
+        downvote += negRep;
+        votes = [...votes, vote];
+    }
+
+    return {votes, upvote, downvote, isUpvoted, isDownvoted};
+}
+
+const convertDataToPosts = (data: any, epks: string[]) => {
+    let ret: Post[] = [];
+    for (var i = 0; i < data.length; i ++) {
+        const {votes, upvote, downvote, isUpvoted, isDownvoted} = convertDataToVotes(data[i].votes, epks); 
+
+        let comments: Comment[] = [];
+        if (data[i].comments._id !== undefined) {
+            const votesRet= convertDataToVotes(data[i].comments.votes, epks);
+            const comment = {
+                type: DataType.Comment,
+                id: data[i].comments._id,
+                post_id: data[i]._id,
+                content: data[i].comments.content,
+                votes: votesRet.votes,
+                upvote: votesRet.upvote,
+                downvote: votesRet.downvote,
+                isUpvoted: votesRet.isUpvoted,
+                isDownvoted: votesRet.isDownvoted,
+                epoch_key: data[i].comments.epochKey,
+                username: '',
+                post_time: Date.parse(data[i].comments.created_at),
+                reputation: data[i].comments.minRep,
+                isAuthor: epks.indexOf(data[i].comments.epochKey) !== -1,
+                current_epoch: data[i].comments.epoch
+            }
+            comments = [comment];
+        }
+        
+
+        const post: Post = {
+            type: DataType.Post,
+            id: data[i]._id,
+            content: data[i].content,
+            votes,
+            upvote,
+            downvote,
+            isUpvoted, 
+            isDownvoted, 
+            isAuthor: epks.indexOf(data[i].epochKey) !== -1,
+            epoch_key: data[i].epochKey,
+            username: '',
+            post_time: Date.parse(data[i].created_at),
+            reputation: data[i].minRep,
+            comments,
+            current_epoch: data[i].epoch,
+        }
+
+        ret = [...ret, post];
+    }
+
+    return ret;
+}
+
 export const listAllPosts = async (epks: string[]) => {
     const apiURL = makeURL(`post`, {});
     
@@ -446,50 +525,7 @@ export const listAllPosts = async (epks: string[]) => {
         return response.json();
     }).then(
         data => {
-            for (var i = 0; i < data.length; i ++) {
-                let votes: Vote[] = [];
-                let upvote: number = 0;
-                let downvote: number = 0;
-                let isUpvoted: boolean = false;
-                let isDownvoted: boolean = false;
-                let isAuthor: boolean = false;
-                for (var j = 0; j < data[i].votes.length; j ++) {
-                    const posRep = Number(data[i].votes[j].posRep);
-                    const negRep = Number(data[i].votes[j].negRep);
-                    const vote: Vote = {
-                        upvote: posRep,
-                        downvote: negRep,
-                        epoch_key: data[i].votes[j].voter,
-                    }
-                    if (epks.indexOf(vote.epoch_key) !== -1) {
-                        isUpvoted = vote.upvote !== 0;
-                        isDownvoted = vote.downvote !== 0;
-                    }
-                    upvote += posRep;
-                    downvote += negRep;
-                    votes = [...votes, vote];
-                }
-
-                const post: Post = {
-                    type: DataType.Post,
-                    id: data[i]._id,
-                    content: data[i].content,
-                    votes,
-                    upvote,
-                    downvote,
-                    isUpvoted, 
-                    isDownvoted, 
-                    isAuthor: epks.indexOf(data[i].epochKey) !== -1,
-                    epoch_key: data[i].epochKey,
-                    username: '',
-                    post_time: Date.parse(data[i].created_at),
-                    reputation: data[i].minRep,
-                    comments: [],
-                    current_epoch: data[i].epoch,
-                }
-
-                ret = [...ret, post];
-            }
+            ret = convertDataToPosts(data, epks);
         }
     );
 
