@@ -437,7 +437,7 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
     return ret;
 }
 
-export const listAllPosts = async () => {
+export const listAllPosts = async (epks: string[]) => {
     const apiURL = makeURL(`post`, {});
     
     let ret: Post[] = [];
@@ -450,6 +450,9 @@ export const listAllPosts = async () => {
                 let votes: Vote[] = [];
                 let upvote: number = 0;
                 let downvote: number = 0;
+                let isUpvoted: boolean = false;
+                let isDownvoted: boolean = false;
+                let isAuthor: boolean = false;
                 for (var j = 0; j < data[i].votes.length; j ++) {
                     const posRep = Number(data[i].votes[j].posRep);
                     const negRep = Number(data[i].votes[j].negRep);
@@ -457,6 +460,10 @@ export const listAllPosts = async () => {
                         upvote: posRep,
                         downvote: negRep,
                         epoch_key: data[i].votes[j].voter,
+                    }
+                    if (epks.indexOf(vote.epoch_key) !== -1) {
+                        isUpvoted = vote.upvote !== 0;
+                        isDownvoted = vote.downvote !== 0;
                     }
                     upvote += posRep;
                     downvote += negRep;
@@ -470,9 +477,9 @@ export const listAllPosts = async () => {
                     votes,
                     upvote,
                     downvote,
-                    isUpvoted: false, 
-                    isDownvoted: false, 
-                    isAuthor: false,
+                    isUpvoted, 
+                    isDownvoted, 
+                    isAuthor: epks.indexOf(data[i].epochKey) !== -1,
                     epoch_key: data[i].epochKey,
                     username: '',
                     post_time: Date.parse(data[i].created_at),

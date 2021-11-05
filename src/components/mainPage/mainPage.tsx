@@ -11,7 +11,7 @@ import './mainPage.scss';
 
 const MainPage = () => {
 
-    const { shownPosts, setShownPosts, isLoading } = useContext(WebContext);
+    const { shownPosts, setShownPosts, isLoading, user } = useContext(WebContext);
 
     const [isPostFieldActive, setIsPostFieldActive] = useState(false);
     const [isUpVoteBoxOn, setIsUpVoteBoxOn] = useState(false);
@@ -21,7 +21,7 @@ const MainPage = () => {
 
     useEffect(() => {
         const getPosts = async () => {
-            const ret = await listAllPosts();
+            const ret = await listAllPosts(user? user.epoch_keys : []);
             setShownPosts(ret);
         }
 
