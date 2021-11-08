@@ -3,7 +3,7 @@ import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { WebContext } from '../../context/WebContext';
 import * as Constants from '../../constants';
-import { getEpochKeys, getUserState, getNextEpochTime, userStateTransition } from '../../utils';
+import { getEpochKeys, getUserState, getNextEpochTime, userStateTransition, hasSignedUp } from '../../utils';
 import './overlay.scss';
 
 const SignUp = () => {
@@ -37,9 +37,12 @@ const SignUp = () => {
         setIsLoading(true);
         setPercentage(1);
 
-        const userStateResult = await getUserState(userInput);
+        const userSignUpResult = await hasSignedUp(userInput);
         
-        if (userStateResult.hasSignedUp) {
+        if(userSignUpResult == undefined) {
+            setErrorMsg('Incorrect Identity format.')
+        } else if (userSignUpResult.hasSignedUp) {
+            const userStateResult = await getUserState(userInput);
             const userEpoch = userStateResult.userState.latestTransitionedEpoch;
             let userState: any = userStateResult.userState;
 

@@ -35,6 +35,49 @@ const verifyProof = async (circuitName: string, proof: any, publicSignals: any) 
 };
 /* circuit functions */
 
+export const getCurrentEpoch = async () => {
+    const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
+    const unirepContract = await unirepSocialContract.getUnirep()
+    const currentEpoch = await unirepContract.currentEpoch()
+    return Number(currentEpoch)
+}
+
+export const hasSignedUp = async (identity: string) => {
+    const provider = new ethers.providers.JsonRpcProvider(config.DEFAULT_ETH_PROVIDER)
+    const unirepSocialContract = new ethers.Contract(
+        config.UNIREP_SOCIAL,
+        config.UNIREP_SOCIAL_ABI,
+        provider,
+    )
+
+    const encodedIdentity = identity.slice(config.identityPrefix.length);
+    const decodedIdentity = base64url.decode(encodedIdentity);
+    
+    let commitment
+    try {
+        const id = unSerialiseIdentity(decodedIdentity);
+        commitment = genIdentityCommitment(id);
+    } catch(e) {
+        console.log('Incorrect Identity format\n', e)
+        return
+    }
+
+    const signUpFilter = unirepSocialContract.filters.UserSignedUp(null, commitment)
+    const signUpEvents =  await unirepSocialContract.queryFilter(signUpFilter, config.DEFAULT_START_BLOCK)
+
+    if(signUpEvents.length == 1) {
+        return {
+            hasSignedUp: true, 
+            signedUpEpoch: Number(signUpEvents[0]?.args?._epoch)
+        }
+    }
+
+    return {
+        hasSignedUp: false, 
+        signedUpEpoch: 0
+    }
+}
+
 export const getUserState = async (identity: string) => {
     const provider = new ethers.providers.JsonRpcProvider(config.DEFAULT_ETH_PROVIDER)
     const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
