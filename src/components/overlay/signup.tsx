@@ -198,7 +198,7 @@ const SignUp = () => {
                 </div> : <div>{errorMsg}</div>
             } 
             {
-                isLoading? <div className="loading-cover">
+                isLoading? <div className="loading-block">
                     <div style={{width: 75, height: 75}}>
                         <CircularProgressbar text="Loading..." value={percentage} styles={{
                             path: {

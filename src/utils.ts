@@ -140,6 +140,8 @@ export const getAirdrop = async (identity: string, us: any) => {
     try {
         results = await userState.genUserSignUpProof(BigInt(attesterId));
         console.log(results)
+        console.log('---userState---');
+        console.log(userState.toJSON());
     } catch (e) {
         const ret = await getUserState(identity);
         userState = ret.userState;
