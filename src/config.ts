@@ -1,4 +1,5 @@
 import { ethers } from 'ethers'
+import UnirepSocial from "../node_modules/@unirep/unirep-social/artifacts/contracts/UnirepSocial.sol/UnirepSocial.json"
 
 const identityPrefix = 'Unirep.identity.'
 const identityCommitmentPrefix = 'Unirep.identityCommitment.'
@@ -24,6 +25,7 @@ const DEFAULT_AIRDROPPED_KARMA = 30
 
 const UNIREP = '0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6'
 const UNIREP_SOCIAL = '0x8A791620dd6260079BF849Dc5567aDC3F2FdC318'
+const UNIREP_SOCIAL_ABI = UnirepSocial.abi
 
 const circuitGlobalStateTreeDepth = 4;
 const circuitUserStateTreeDepth = 4;
@@ -63,6 +65,7 @@ export {
     DEFAULT_AIRDROPPED_KARMA,
     UNIREP,
     UNIREP_SOCIAL,
+    UNIREP_SOCIAL_ABI,
     circuitGlobalStateTreeDepth,
     circuitUserStateTreeDepth,
     circuitEpochTreeDepth,
