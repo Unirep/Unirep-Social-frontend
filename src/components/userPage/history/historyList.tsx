@@ -5,16 +5,13 @@ import HistoryWidget from './history';
 
 type Props = {
     histories: History[],
+    netGain: number,
+    score: number
 }
 
-const HistoryList = ({ histories }: Props) => {
+const HistoryList = ({ histories, netGain, score }: Props) => {
     const { user } = useContext(WebContext);
     const [expanded, setExpanded] = useState(false);
-    const [netGain, setNetGain] = useState(() => { 
-        let ret: number = 0;
-        histories.forEach(h => ret = ret + h.upvote - h.downvote);
-        return ret;
-    });
 
     const switchExpansion = () => {
         setExpanded(!expanded);
@@ -30,7 +27,7 @@ const HistoryList = ({ histories }: Props) => {
                     </div>
                     <div className="info">
                         <label>Score</label>
-                        <span>{user?.reputation}</span>
+                        <span>{score}</span>
                     </div>
                     <div className="info">
                         <label>Net Gain</label>

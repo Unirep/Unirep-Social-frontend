@@ -460,6 +460,7 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
 
     const paramStr = epks.join('_');
     const apiURL = makeURL(`records/${paramStr}`, {});
+    console.log(apiURL);
     
     let ret: History[] = [];
     await fetch(apiURL).then(response => response.json()).then(
