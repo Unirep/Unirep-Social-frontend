@@ -53,10 +53,10 @@ const VoteBox = (props: Props) => {
             const isPost = props.data.type === DataType.Post;
             let ret: any;
             if (props.isUpvote) {
-                ret = await vote(user.identity, givenAmount, 0, props.data.id, props.data.epoch_key, epkNonce, 0, isPost, user.userState);
+                ret = await vote(user.identity, givenAmount, 0, props.data.id, props.data.epoch_key, epkNonce, 0, isPost, user.spent, user.userState);
                 console.log('upvote ret: ' + JSON.stringify(ret))
             } else {
-                ret = await vote(user.identity, 0, givenAmount, props.data.id, props.data.epoch_key, epkNonce, 0, isPost, user.userState);
+                ret = await vote(user.identity, 0, givenAmount, props.data.id, props.data.epoch_key, epkNonce, 0, isPost, user.spent, user.userState);
                 console.log('downvote ret: ' + JSON.stringify(ret))
             }
 

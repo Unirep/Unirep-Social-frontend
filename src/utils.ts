@@ -175,7 +175,7 @@ export const getAirdrop = async (identity: string, us: any) => {
     return { transaction, userState }
 }
 
-const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount: number, minRep: number = 0, us: any) => {
+const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount: number, minRep: number = 0, us: any, spent: number = -1) => {
     let userState: any = us;
     let currentEpoch: number;
     let numEpochKeyNoncePerEpoch: number;
@@ -212,14 +212,14 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
 
     // find valid nonce starter
     const nonceList: BigInt[] = [];
-    let nonceStarter: number = -1;
-    for (let n = 0; n < Number(rep.posRep) - Number(rep.negRep); n++) {
-        const reputationNullifier = genReputationNullifier(id.identityNullifier, currentEpoch, n, BigInt(attesterId))
-        if(!userState.nullifierExist(reputationNullifier)) {
-            nonceStarter = n
-            break
-        }
-    }
+    let nonceStarter: number = spent;
+    // for (let n = 0; n < Number(rep.posRep) - Number(rep.negRep); n++) {
+    //     const reputationNullifier = genReputationNullifier(id.identityNullifier, currentEpoch, n, BigInt(attesterId))
+    //     if(!userState.nullifierExist(reputationNullifier)) {
+    //         nonceStarter = n
+    //         break
+    //     }
+    // }
     if(nonceStarter === -1) {
         console.error('Error: All nullifiers are spent')
     }
@@ -303,8 +303,8 @@ export const userSignUp = async () => {
 }
 
 
-export const publishPost = async (content: string, epkNonce: number, identity: string, minRep: number = 0, us: any) => {
-    const ret = await genProof(identity, epkNonce, config.DEFAULT_POST_KARMA, minRep, us)
+export const publishPost = async (content: string, epkNonce: number, identity: string, minRep: number = 0, spent: number = 0, us: any) => {
+    const ret = await genProof(identity, epkNonce, config.DEFAULT_POST_KARMA, minRep, us, spent)
 
     if (ret === undefined) {
         console.error('genProof error, ret is undefined.')
@@ -337,10 +337,10 @@ export const publishPost = async (content: string, epkNonce: number, identity: s
     return {transaction, postId, currentEpoch: ret.currentEpoch, epk: ret.epk, userState: ret.userState}
 }
 
-export const vote = async(identity: string, upvote: number, downvote: number, postId: string, receiver: string, epkNonce: number = 0, minRep: number = 0, isPost: boolean = true, us: any) => {
+export const vote = async(identity: string, upvote: number, downvote: number, postId: string, receiver: string, epkNonce: number = 0, minRep: number = 0, isPost: boolean = true, spent: number = 0, us: any) => {
     // upvote / downvote user 
     const voteValue = upvote + downvote
-    const ret = await genProof(identity, epkNonce, voteValue, minRep, us)
+    const ret = await genProof(identity, epkNonce, voteValue, minRep, us, spent)
     if (ret === undefined) {
         console.error('genProof error, ret is undefined.')
     }
@@ -374,8 +374,8 @@ export const vote = async(identity: string, upvote: number, downvote: number, po
     return {epk: ret.epk, transaction, userState: ret.userState} 
 }
 
-export const leaveComment = async(identity: string, content: string, postId: string, epkNonce: number = 0, minRep: number = 0, us: any) => {
-    const ret = await genProof(identity, epkNonce, config.DEFAULT_COMMENT_KARMA, minRep, us)
+export const leaveComment = async(identity: string, content: string, postId: string, epkNonce: number = 0, minRep: number = 0, spent: number = 0, us: any) => {
+    const ret = await genProof(identity, epkNonce, config.DEFAULT_COMMENT_KARMA, minRep, us, spent)
 
     if (ret === undefined) {
         console.error('genProof error, ret is undefined.')

@@ -63,7 +63,7 @@ const PostField = ({ page }: Props) => {
         } else if (content.length === 0) {
             console.error('not enter anything yet.');
         } else {
-            const ret = await publishPost(content, epkNonce, user.identity, reputation, user.userState); // content, epkNonce, identity, minRep
+            const ret = await publishPost(content, epkNonce, user.identity, reputation, user.spent, user.userState); // content, epkNonce, identity, minRep
             if (ret !== undefined) {
                 const newPost: Post = {
                     type: DataType.Post,

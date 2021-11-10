@@ -25,7 +25,7 @@ const CommentField = (props: Props) => {
         } else if (content.length === 0) {
             console.error('nothing happened, no input.')
         } else {
-            const ret = await leaveComment(user.identity, content, props.post.id, epkNonce, reputation, user.userState)
+            const ret = await leaveComment(user.identity, content, props.post.id, epkNonce, reputation, user.spent, user.userState)
             if (ret !== undefined) {
                 let c: Comment = {
                     type: DataType.Comment,
