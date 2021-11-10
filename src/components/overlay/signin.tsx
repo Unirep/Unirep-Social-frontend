@@ -3,7 +3,7 @@ import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { WebContext } from '../../context/WebContext';
 import * as Constants from '../../constants';
-import { getEpochKeys, getUserState, getNextEpochTime, userStateTransition, hasSignedUp } from '../../utils';
+import { getEpochKeys, getUserState, getNextEpochTime, userStateTransition, hasSignedUp, getEpochSpent } from '../../utils';
 import './overlay.scss';
 
 const SignUp = () => {
@@ -55,6 +55,7 @@ const SignUp = () => {
             } 
             const reputation = userState.getRepByAttester(userStateResult.attesterId);
             const epks = await getEpochKeys(userInput, userStateResult.currentEpoch);
+            const spent = await getEpochSpent(epks);
 
             let allEpks: string[] = [...epks];
             for (var i = userStateResult.currentEpoch; i > 0; i --) {
@@ -68,6 +69,7 @@ const SignUp = () => {
                 reputation: Number(reputation.posRep) - Number(reputation.negRep),
                 current_epoch: userStateResult.currentEpoch,
                 isConfirmed: true,
+                spent,
                 userState,
             });
 

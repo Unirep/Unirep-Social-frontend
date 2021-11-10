@@ -99,7 +99,7 @@ const WritingField = (props: Props) => {
                 <div className="setting-reputation">
                     <label>{"Enter a reputation score " + defaultRep + " or greather (optional)"} <span>?</span></label>
                     <br/>
-                    <textarea name="repInput" placeholder={"MAX " + user?.reputation} onChange={changeReputation}></textarea>
+                    <textarea name="repInput" placeholder={user === null? '' : `MAX ${user.reputation - user.spent}`} onChange={changeReputation}></textarea>
                 </div>
             </div>
             {

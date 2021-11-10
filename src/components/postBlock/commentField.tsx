@@ -49,7 +49,7 @@ const CommentField = (props: Props) => {
                 let p = {...props.post, comments};
 
                 setShownPosts([p, ...filteredPosts]);
-                setUser({...user, reputation: user.reputation - DEFAULT_COMMENT_KARMA, userState: ret.userState})
+                setUser({...user, spent: user.spent + DEFAULT_COMMENT_KARMA, userState: ret.userState})
             
                 setIsLoading(false);
 

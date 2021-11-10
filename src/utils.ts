@@ -460,7 +460,6 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
 
     const paramStr = epks.join('_');
     const apiURL = makeURL(`records/${paramStr}`, {});
-    console.log(apiURL);
     
     let ret: History[] = [];
     await fetch(apiURL).then(response => response.json()).then(
@@ -480,6 +479,24 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
             }
         }
     );
+    return ret;
+}
+
+export const getEpochSpent = async (epks: string[]) => {
+    const paramStr = epks.join('_');
+    const apiURL = makeURL(`records/${paramStr}`, {spentonly: true});
+    console.log(apiURL);
+
+    let ret: number = 0;
+    await fetch(apiURL).then(response => response.json()).then(
+        data => {
+            console.log(data);
+            for (var i = 0; i < data.length; i ++) {
+                ret = ret + data[i].spent;
+            }
+        }
+    );
+
     return ret;
 }
 

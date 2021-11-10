@@ -16,6 +16,7 @@ export interface User {
     reputation: number,
     current_epoch: number,
     isConfirmed: boolean,
+    spent: number,
     userState: any,
 }
 

@@ -125,6 +125,7 @@ const SignUp = () => {
             reputation: Number(currentRep.posRep) - Number(currentRep.negRep), 
             current_epoch: currentEpoch, 
             isConfirmed: userStateResult.hasSignedUp,
+            spent: 0,
             userState: userStateResult.userState,
         });
 

@@ -22,7 +22,7 @@ const Header = () => {
             const epks = await getEpochKeys(user.identity, userStateResult.currentEpoch);
             const rep = userStateResult.userState.getRepByAttester(userStateResult.attesterId);
             if (ret !== undefined) {
-                setUser({...user, epoch_keys: epks, reputation: Number(rep.posRep) - Number(rep.negRep), current_epoch: ret.toEpoch, userState: userStateResult.userState})
+                setUser({...user, epoch_keys: epks, reputation: Number(rep.posRep) - Number(rep.negRep), current_epoch: ret.toEpoch, userState: userStateResult.userState, spent: 0})
             }
             await getAirdrop(user.identity, userStateResult.userState);
             const next = await getNextEpochTime();
@@ -123,7 +123,7 @@ const Header = () => {
                 <div className="navButtons">
                     <div className={isLoading? "lightPurpleButton disabled" : "lightPurpleButton"} onClick={gotoUserPage}>
                         <img src="/images/user-purple.png" />
-                        <span>{user.reputation}</span>
+                        <span>{user.reputation - user.spent}</span>
                     </div>
                     <div className={isLoading? "whiteButton disabled" : "whiteButton"} onClick={logout}>Log out</div>
                 </div> :
