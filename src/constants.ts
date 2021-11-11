@@ -107,6 +107,20 @@ export enum UserPageType {
     Settings = "Settings",
 }
 
+export enum QueryType {
+    most = 'most',
+    fewest = 'fewest',
+    newest = 'newest', 
+    oldest ='oldest',
+    popularity = 'popularity',
+    time = 'time',
+    reputation = 'reputation',
+    votes = 'votes',
+    upvotes = 'upvotes',
+    comments = 'comments',
+    posts = 'posts'
+}
+
 export interface Params {
     id: string,
 }

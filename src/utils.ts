@@ -526,69 +526,95 @@ const convertDataToVotes = (data: any, epks: string[]) => {
     return {votes, upvote, downvote, isUpvoted, isDownvoted};
 }
 
-const convertDataToPosts = (data: any, epks: string[]) => {
-    let ret: Post[] = [];
-    for (var i = 0; i < data.length; i ++) {
-        const {votes, upvote, downvote, isUpvoted, isDownvoted} = convertDataToVotes(data[i].votes, epks); 
+const convertDataToPost = (data: any, epks: string[]) => {
+    
+    const {votes, upvote, downvote, isUpvoted, isDownvoted} = convertDataToVotes(data.votes, epks); 
 
-        let comments: Comment[] = [];
-        if (data[i].comments._id !== undefined) {
-            const votesRet= convertDataToVotes(data[i].comments.votes, epks);
-            const comment = {
-                type: DataType.Comment,
-                id: data[i].comments._id,
-                post_id: data[i]._id,
-                content: data[i].comments.content,
-                votes: votesRet.votes,
-                upvote: votesRet.upvote,
-                downvote: votesRet.downvote,
-                isUpvoted: votesRet.isUpvoted,
-                isDownvoted: votesRet.isDownvoted,
-                epoch_key: data[i].comments.epochKey,
-                username: '',
-                post_time: Date.parse(data[i].comments.created_at),
-                reputation: data[i].comments.minRep,
-                isAuthor: epks.indexOf(data[i].comments.epochKey) !== -1,
-                current_epoch: data[i].comments.epoch
-            }
-            comments = [comment];
-        }
-        
-
-        const post: Post = {
-            type: DataType.Post,
-            id: data[i]._id,
-            content: data[i].content,
-            votes,
-            upvote,
-            downvote,
-            isUpvoted, 
-            isDownvoted, 
-            isAuthor: epks.indexOf(data[i].epochKey) !== -1,
-            epoch_key: data[i].epochKey,
+    let comments: Comment[] = [];
+    for (var i = 0; i < data.comments.length; i ++) {
+        const votesRet= convertDataToVotes(data.comments[i].votes, epks);
+        const comment = {
+            type: DataType.Comment,
+            id: data.comments[i]._id,
+            post_id: data._id,
+            content: data.comments[i].content,
+            votes: votesRet.votes,
+            upvote: votesRet.upvote,
+            downvote: votesRet.downvote,
+            isUpvoted: votesRet.isUpvoted,
+            isDownvoted: votesRet.isDownvoted,
+            epoch_key: data.comments[i].epochKey,
             username: '',
-            post_time: Date.parse(data[i].created_at),
-            reputation: data[i].minRep,
-            comments,
-            current_epoch: data[i].epoch,
+            post_time: Date.parse(data.comments[i].created_at),
+            reputation: data.comments[i].minRep,
+            isAuthor: epks.indexOf(data.comments[i].epochKey) !== -1,
+            current_epoch: data.comments[i].epoch
         }
+        comments = [...comments, comment];
+    }
+    
 
-        ret = [...ret, post];
+    const post: Post = {
+        type: DataType.Post,
+        id: data._id,
+        content: data.content,
+        votes,
+        upvote,
+        downvote,
+        isUpvoted, 
+        isDownvoted, 
+        isAuthor: epks.indexOf(data.epochKey) !== -1,
+        epoch_key: data.epochKey,
+        username: '',
+        post_time: Date.parse(data.created_at),
+        reputation: data.minRep,
+        comments,
+        current_epoch: data.epoch,
     }
 
-    return ret;
+    return post;
 }
 
 export const listAllPosts = async (epks: string[]) => {
     const apiURL = makeURL(`post`, {});
     
     let ret: Post[] = [];
-    await fetch(apiURL).then(response => {
-        console.log(response);
-        return response.json();
-    }).then(
+    await fetch(apiURL).then(response => response.json()).then(
         data => {
-            ret = convertDataToPosts(data, epks);
+            console.log(data);
+            for (var i = 0; i < data.length; i ++) {
+                const post = convertDataToPost(data[i], epks);
+                ret = [...ret, post];
+            }
+        }
+    );
+
+    return ret;
+}
+
+export const getPostById = async (epks: string[], postid: string) => {
+    const apiURL = makeURL(`post/${postid}`, {});
+    let ret: any;
+    await fetch(apiURL).then(response => response.json()).then(
+        data => {
+            console.log(data);
+            ret = convertDataToPost(data, epks);
+        }
+    );
+    return ret;
+}
+
+export const getPostsByQuery = async (epks: string[], maintype: string, subtype: string, start: number, end: number, lastRead: string = '0') => {
+    const apiURL = makeURL(`post`, {maintype, subtype, start, end, lastRead});
+
+    let ret: Post[] = [];
+    await fetch(apiURL).then(response => response.json()).then(
+        data => {
+            console.log(data);
+            for (var i = 0; i < data.length; i ++) {
+                const post = convertDataToPost(data[i], epks);
+                ret = [...ret, post];
+            }
         }
     );
 

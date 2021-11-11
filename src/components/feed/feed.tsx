@@ -2,23 +2,24 @@ import { useState, useContext } from 'react';
 import { WebContext } from '../../context/WebContext';
 import { MainPageContext } from '../../context/MainPageContext';
 import Dropdown from '../dropdown/dropdown';
-import { ChoiceType, Post, getDaysByString, diffDays } from '../../constants';
+import { ChoiceType, Post, getDaysByString, diffDays, QueryType } from '../../constants';
+import { getPostsByQuery } from '../../utils';
 import './feed.scss';
 
 const popularChoices = [
-    ['most', 'fewest'],
-    ['comments', 'reputation', 'votes', 'up votes'],
+    [QueryType.most, QueryType.fewest],
+    [QueryType.comments, QueryType.reputation, QueryType.votes, QueryType.upvotes],
     ['today', 'this week', 'this month', 'this year', 'all time']
 ];
 
 const timeChoices = [
-    ['newest', 'oldest'],
-    ['comments', 'posts']
+    [QueryType.newest, QueryType.oldest],
+    [QueryType.comments, QueryType.posts]
 ];
 
 const Feed = () => {
     
-    const { shownPosts, setShownPosts } = useContext(WebContext);
+    const { shownPosts, setShownPosts, user } = useContext(WebContext);
     const { setPostTimeFilter } = useContext(MainPageContext);
 
     const [isTime, setIsTime] = useState(false);
@@ -33,63 +34,84 @@ const Feed = () => {
         }
     }
 
-    const sort = (feed: any) => {
-        let sortedPosts: Post[] = shownPosts;
-        if (isTime) { /// sort by time
-            if (feed[1] === 1) { /// sort by posts
-                if (feed[0] == 0) {
-                    sortedPosts = [...shownPosts].sort((a, b) => a.post_time > b.post_time? -1 : 1);
-                } else {
-                    sortedPosts = [...shownPosts].sort((a, b) => a.post_time < b.post_time? -1 : 1);
-                }
-            } else { /// sort by comments
-                if (feed[0] === 0) {
-                    sortedPosts = [...shownPosts].sort((a, b) => 
-                        (a.comments.length > 0? a.comments[0].post_time:a.post_time) > 
-                        (b.comments.length > 0? b.comments[0].post_time:b.post_time)? -1 : 1);
-                } else {
-                    sortedPosts = [...shownPosts].sort((a, b) => 
-                        (a.comments.length > 0? a.comments[0].post_time:a.post_time) < 
-                        (b.comments.length > 0? b.comments[0].post_time:b.post_time)? -1 : 1);
-                }
+    const sort = async (feed: any) => {
+        const end = Date.now();
+        let start: number = 0;
+        if (!isTime) {
+            if (feed[2] === 0) { // today
+                start = end - 24 * 60 * 60 * 1000;
+            } else if (feed[2] === 1) { // this week
+                start = end - 7 * 24 * 60 * 60 * 1000;
+            } else if (feed[2] === 2) { // this month
+                start = end - 30 * 24 * 60 * 60 * 1000;
+            } else if (feed[2] === 3) { // this year
+                start = end - 365 * 24 * 60 * 60 * 1000;
+            } else if (feed[2] === 4) { // all time
+                start = 0;
             }
-        } else { /// sort by popularity
-            // get posts in right time, then sort that part, then sort the remaining according to time
-            const restrictDays = getDaysByString(popularChoices[2][feed[2]]) as number;
-            setPostTimeFilter(restrictDays);
-            const today = Date.now();
-            const filteredPosts = shownPosts.filter((p) => diffDays(today, p.post_time) <= restrictDays);
-            const otherPosts = shownPosts.filter((p) => diffDays(today, p.post_time) > restrictDays);
-            otherPosts.sort((a, b) => a.post_time > b.post_time? -1 : 1);
-
-            if (feed[1] === 0) { /// sort by comments count
-                if (feed[0] === 0) {
-                    filteredPosts.sort((a, b) => a.comments.length > b.comments.length? -1 : 1);
-                } else {
-                    filteredPosts.sort((a, b) => a.comments.length < b.comments.length? -1 : 1);
-                }
-            } else if (feed[1] === 1) { /// sort by rep
-                if (feed[0] === 0) {
-                    filteredPosts.sort((a, b) => a.reputation > b.reputation? -1 : 1);
-                } else {
-                    filteredPosts.sort((a, b) => a.reputation < b.reputation? -1 : 1);
-                }
-            } else if (feed[1] === 2) { /// sort by vote count
-                if (feed[0] === 0) {
-                    filteredPosts.sort((a, b) => a.votes.length > b.votes.length? -1 : 1);
-                } else {
-                    filteredPosts.sort((a, b) => a.votes.length < b.votes.length? -1 : 1);
-                }
-            } else { /// sort by up vote
-                if (feed[0] === 0) {
-                    filteredPosts.sort((a, b) => a.upvote > b.upvote? -1 : 1);
-                } else {                
-                    filteredPosts.sort((a, b) => a.upvote < b.upvote? -1 : 1);
-                }
-            }
-
-            sortedPosts = [...filteredPosts, ...otherPosts];
         }
+        const sortedPosts = await getPostsByQuery(
+            user === null? [] : user.epoch_keys, 
+            isTime? QueryType.time : QueryType.popularity, 
+            isTime? timeChoices[1][feed[1]] : popularChoices[1][feed[1]],
+            start,
+            end
+        );
+        // if (isTime) { /// sort by time
+        //     if (feed[1] === 1) { /// sort by posts
+        //         if (feed[0] == 0) {
+        //             sortedPosts = [...shownPosts].sort((a, b) => a.post_time > b.post_time? -1 : 1);
+        //         } else {
+        //             sortedPosts = [...shownPosts].sort((a, b) => a.post_time < b.post_time? -1 : 1);
+        //         }
+        //     } else { /// sort by comments
+        //         if (feed[0] === 0) {
+        //             sortedPosts = [...shownPosts].sort((a, b) => 
+        //                 (a.comments.length > 0? a.comments[0].post_time:a.post_time) > 
+        //                 (b.comments.length > 0? b.comments[0].post_time:b.post_time)? -1 : 1);
+        //         } else {
+        //             sortedPosts = [...shownPosts].sort((a, b) => 
+        //                 (a.comments.length > 0? a.comments[0].post_time:a.post_time) < 
+        //                 (b.comments.length > 0? b.comments[0].post_time:b.post_time)? -1 : 1);
+        //         }
+        //     }
+        // } else { /// sort by popularity
+        //     // get posts in right time, then sort that part, then sort the remaining according to time
+        //     const restrictDays = getDaysByString(popularChoices[2][feed[2]]) as number;
+        //     setPostTimeFilter(restrictDays);
+        //     const today = Date.now();
+        //     const filteredPosts = shownPosts.filter((p) => diffDays(today, p.post_time) <= restrictDays);
+        //     const otherPosts = shownPosts.filter((p) => diffDays(today, p.post_time) > restrictDays);
+        //     otherPosts.sort((a, b) => a.post_time > b.post_time? -1 : 1);
+
+        //     if (feed[1] === 0) { /// sort by comments count
+        //         if (feed[0] === 0) {
+        //             filteredPosts.sort((a, b) => a.comments.length > b.comments.length? -1 : 1);
+        //         } else {
+        //             filteredPosts.sort((a, b) => a.comments.length < b.comments.length? -1 : 1);
+        //         }
+        //     } else if (feed[1] === 1) { /// sort by rep
+        //         if (feed[0] === 0) {
+        //             filteredPosts.sort((a, b) => a.reputation > b.reputation? -1 : 1);
+        //         } else {
+        //             filteredPosts.sort((a, b) => a.reputation < b.reputation? -1 : 1);
+        //         }
+        //     } else if (feed[1] === 2) { /// sort by vote count
+        //         if (feed[0] === 0) {
+        //             filteredPosts.sort((a, b) => a.votes.length > b.votes.length? -1 : 1);
+        //         } else {
+        //             filteredPosts.sort((a, b) => a.votes.length < b.votes.length? -1 : 1);
+        //         }
+        //     } else { /// sort by up vote
+        //         if (feed[0] === 0) {
+        //             filteredPosts.sort((a, b) => a.upvote > b.upvote? -1 : 1);
+        //         } else {                
+        //             filteredPosts.sort((a, b) => a.upvote < b.upvote? -1 : 1);
+        //         }
+        //     }
+
+        //     sortedPosts = [...filteredPosts, ...otherPosts];
+        // }
         setShownPosts(sortedPosts);
     }
 
