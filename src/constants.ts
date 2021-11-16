@@ -72,6 +72,13 @@ export interface History {
     data_id: string,
 }
 
+export type FeedChoices = {
+    query0: QueryType, // popularity or time
+    query1: QueryType, // pos or neg
+    query2: QueryType, // main type
+    query3: QueryType  // period
+}
+
 export enum PageStatus {
     None,
     SignUp,
@@ -118,7 +125,12 @@ export enum QueryType {
     votes = 'votes',
     upvotes = 'upvotes',
     comments = 'comments',
-    posts = 'posts'
+    posts = 'posts',
+    today = 'today',
+    this_week = 'this week',
+    this_month = 'this month',
+    this_year = 'this year',
+    all_time = 'all time'
 }
 
 export interface Params {

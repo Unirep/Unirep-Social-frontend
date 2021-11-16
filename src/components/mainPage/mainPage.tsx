@@ -1,8 +1,8 @@
 import { useContext, useState, useEffect } from 'react';
-import { listAllPosts } from '../../utils';
+import { getPostsByQuery } from '../../utils';
 import { WebContext } from '../../context/WebContext';
 import { MainPageContext } from '../../context/MainPageContext';
-import { Page } from '../../constants';
+import { Page, QueryType, FeedChoices } from '../../constants';
 import PostsList from '../postsList/postsList';
 import PostField from '../postField/postField';
 import VoteBox from '../voteBox/voteBox';
@@ -18,15 +18,45 @@ const MainPage = () => {
     const [isDownVoteBoxOn, setIsDownVoteBoxOn] = useState(false);
     const [voteReceiver, setVoteReceiver] = useState<any>(null);
     const [postTimeFilter, setPostTimeFilter] = useState(1);
+    const [feedChoices, setFeedChoices] = useState<FeedChoices>({
+        query0: QueryType.popularity, 
+        query1: QueryType.most, 
+        query2: QueryType.votes, 
+        query3: QueryType.today
+    });
 
     useEffect(() => {
         const getPosts = async () => {
-            const ret = await listAllPosts(user? user.epoch_keys : []);
-            setShownPosts(ret);
+            const end = Date.now();
+            let start: number = 0;
+            const isTime = feedChoices.query0 === QueryType.time;
+            if (!isTime) {
+                if (feedChoices.query3 === QueryType.today) {
+                    start = end - 24 * 60 * 60 * 1000;
+                } else if (feedChoices.query2 === QueryType.this_week) { // this week
+                    start = end - 7 * 24 * 60 * 60 * 1000;
+                } else if (feedChoices.query3 === QueryType.this_month) { // this month
+                    start = end - 30 * 24 * 60 * 60 * 1000;
+                } else if (feedChoices.query3 === QueryType.this_year) { // this year
+                    start = end - 365 * 24 * 60 * 60 * 1000;
+                } else if (feedChoices.query3 === QueryType.all_time) { // all time
+                    start = 0;
+                }
+            }
+
+            const sortedPosts = await getPostsByQuery(
+                user === null? [] : user.epoch_keys, 
+                feedChoices.query0,
+                feedChoices.query1, 
+                feedChoices.query2,
+                start,
+                end
+            );
+            setShownPosts(sortedPosts);
         }
 
         getPosts();
-    }, []);
+    }, [feedChoices]);
 
     const loadMorePosts = () => {
         console.log("load more posts, now posts: " + shownPosts.length);
@@ -51,7 +81,7 @@ const MainPage = () => {
                     postTimeFilter, setPostTimeFilter}}>
                 <div className="main-content">
                     <PostField page={Page.Home}/>
-                    <Feed />
+                    <Feed feedChoices={feedChoices} setFeedChoices={setFeedChoices} />
                     <div className="post-list"><PostsList posts={shownPosts} /></div>
                     <div className="main-page-button" onClick={loadMorePosts}>Load More Posts</div>
                 </div>

@@ -2,14 +2,14 @@ import { useState, useContext } from 'react';
 import { WebContext } from '../../context/WebContext';
 import { MainPageContext } from '../../context/MainPageContext';
 import Dropdown from '../dropdown/dropdown';
-import { ChoiceType, Post, getDaysByString, diffDays, QueryType } from '../../constants';
+import { ChoiceType, QueryType, FeedChoices } from '../../constants';
 import { getPostsByQuery } from '../../utils';
 import './feed.scss';
 
 const popularChoices = [
     [QueryType.most, QueryType.fewest],
     [QueryType.comments, QueryType.reputation, QueryType.votes, QueryType.upvotes],
-    ['today', 'this week', 'this month', 'this year', 'all time']
+    [QueryType.today, QueryType.this_week, QueryType.this_month, QueryType.this_year, QueryType.all_time]
 ];
 
 const timeChoices = [
@@ -17,10 +17,15 @@ const timeChoices = [
     [QueryType.comments, QueryType.posts]
 ];
 
-const Feed = () => {
+type Props = {
+    feedChoices: FeedChoices,
+    setFeedChoices: (input: FeedChoices) => void,
+}
+
+const Feed = ({feedChoices, setFeedChoices}: Props) => {
     
-    const { shownPosts, setShownPosts, user } = useContext(WebContext);
-    const { setPostTimeFilter } = useContext(MainPageContext);
+    // const { shownPosts, setShownPosts, user } = useContext(WebContext);
+    // const { setPostTimeFilter } = useContext(MainPageContext);
 
     const [isTime, setIsTime] = useState(false);
     const [popularFeed, setPopularFeed] = useState([0, 2, 0]);
@@ -28,36 +33,38 @@ const Feed = () => {
 
     const onToggleSwitch = (event: any) => {
         if (event.target.checked === true) {
-            setIsTime(true);
+            setFeedChoices({
+                ...feedChoices, // not changing query3 since no period
+                query0: QueryType.time,
+                query1: QueryType.newest,
+                query2: QueryType.posts,
+            });
         } else {
-            setIsTime(false);
+            setFeedChoices({
+                query0: QueryType.time,
+                query1: QueryType.most,
+                query2: QueryType.votes,
+                query3: QueryType.today,
+            });
         }
     }
 
-    const sort = async (feed: any) => {
-        const end = Date.now();
-        let start: number = 0;
-        if (!isTime) {
-            if (feed[2] === 0) { // today
-                start = end - 24 * 60 * 60 * 1000;
-            } else if (feed[2] === 1) { // this week
-                start = end - 7 * 24 * 60 * 60 * 1000;
-            } else if (feed[2] === 2) { // this month
-                start = end - 30 * 24 * 60 * 60 * 1000;
-            } else if (feed[2] === 3) { // this year
-                start = end - 365 * 24 * 60 * 60 * 1000;
-            } else if (feed[2] === 4) { // all time
-                start = 0;
-            }
+    const onChangeFeed = async (feed: any) => {
+        if (feedChoices.query0 === QueryType.popularity) {
+            setFeedChoices({
+                query0: QueryType.popularity,
+                query1: popularChoices[0][feed[0]],
+                query2: popularChoices[1][feed[1]],
+                query3: popularChoices[2][feed[2]],
+            });
+        } else if (feedChoices.query0 === QueryType.time) {
+            setFeedChoices({
+                ...feedChoices, // not changing query3 since no period
+                query0: QueryType.time,
+                query1: timeChoices[0][feed[0]],
+                query2: timeChoices[1][feed[1]],
+            });
         }
-        const sortedPosts = await getPostsByQuery(
-            user === null? [] : user.epoch_keys, 
-            isTime? timeChoices[0][feed[0]] : popularChoices[0][feed[0]],
-            isTime? QueryType.time : QueryType.popularity, 
-            isTime? timeChoices[1][feed[1]] : popularChoices[1][feed[1]],
-            start,
-            end
-        );
         // if (isTime) { /// sort by time
         //     if (feed[1] === 1) { /// sort by posts
         //         if (feed[0] == 0) {
@@ -113,19 +120,19 @@ const Feed = () => {
 
         //     sortedPosts = [...filteredPosts, ...otherPosts];
         // }
-        setShownPosts(sortedPosts);
+        // setShownPosts(sortedPosts);
     }
 
     const onTapPopularFeed = (rowIndex: number, chosenIndex: number) => {
         const newPopularFeed = [...popularFeed].map((originalIndex, n) => n === rowIndex? chosenIndex : originalIndex);
         setPopularFeed(newPopularFeed);
-        sort(newPopularFeed);
+        onChangeFeed(newPopularFeed);
     }
 
     const onTapTimeFeed = (rowIndex: number, chosenIndex: number) => {
         const newTimeFeed = [...timeFeed].map((originalIndex, n) => n === rowIndex? chosenIndex : originalIndex);
         setTimeFeed(newTimeFeed);
-        sort(newTimeFeed);
+        onChangeFeed(newTimeFeed);
     }
 
     return (
