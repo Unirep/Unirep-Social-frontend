@@ -52,6 +52,7 @@ const Feed = () => {
         }
         const sortedPosts = await getPostsByQuery(
             user === null? [] : user.epoch_keys, 
+            isTime? timeChoices[0][feed[0]] : popularChoices[0][feed[0]],
             isTime? QueryType.time : QueryType.popularity, 
             isTime? timeChoices[1][feed[1]] : popularChoices[1][feed[1]],
             start,
