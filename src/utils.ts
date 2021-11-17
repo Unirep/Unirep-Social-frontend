@@ -606,6 +606,7 @@ export const getPostById = async (epks: string[], postid: string) => {
 
 export const getPostsByQuery = async (epks: string[], sort: string, maintype: string, subtype: string, start: number, end: number, lastRead: string = '0') => {
     const apiURL = makeURL(`post`, {sort, maintype, subtype, start, end, lastRead});
+    console.log(apiURL);
 
     let ret: Post[] = [];
     await fetch(apiURL).then(response => response.json()).then(

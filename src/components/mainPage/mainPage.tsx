@@ -46,9 +46,9 @@ const MainPage = () => {
 
             const sortedPosts = await getPostsByQuery(
                 user === null? [] : user.epoch_keys, 
-                feedChoices.query0,
-                feedChoices.query1, 
-                feedChoices.query2,
+                feedChoices.query1, // sort
+                feedChoices.query0, // maintype
+                feedChoices.query2, // subtype
                 start,
                 end
             );

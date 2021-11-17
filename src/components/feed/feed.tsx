@@ -39,6 +39,7 @@ const Feed = ({feedChoices, setFeedChoices}: Props) => {
                 query1: QueryType.newest,
                 query2: QueryType.posts,
             });
+            setIsTime(true);
         } else {
             setFeedChoices({
                 query0: QueryType.time,
@@ -46,6 +47,7 @@ const Feed = ({feedChoices, setFeedChoices}: Props) => {
                 query2: QueryType.votes,
                 query3: QueryType.today,
             });
+            setIsTime(false);
         }
     }
 
@@ -65,62 +67,6 @@ const Feed = ({feedChoices, setFeedChoices}: Props) => {
                 query2: timeChoices[1][feed[1]],
             });
         }
-        // if (isTime) { /// sort by time
-        //     if (feed[1] === 1) { /// sort by posts
-        //         if (feed[0] == 0) {
-        //             sortedPosts = [...shownPosts].sort((a, b) => a.post_time > b.post_time? -1 : 1);
-        //         } else {
-        //             sortedPosts = [...shownPosts].sort((a, b) => a.post_time < b.post_time? -1 : 1);
-        //         }
-        //     } else { /// sort by comments
-        //         if (feed[0] === 0) {
-        //             sortedPosts = [...shownPosts].sort((a, b) => 
-        //                 (a.comments.length > 0? a.comments[0].post_time:a.post_time) > 
-        //                 (b.comments.length > 0? b.comments[0].post_time:b.post_time)? -1 : 1);
-        //         } else {
-        //             sortedPosts = [...shownPosts].sort((a, b) => 
-        //                 (a.comments.length > 0? a.comments[0].post_time:a.post_time) < 
-        //                 (b.comments.length > 0? b.comments[0].post_time:b.post_time)? -1 : 1);
-        //         }
-        //     }
-        // } else { /// sort by popularity
-        //     // get posts in right time, then sort that part, then sort the remaining according to time
-        //     const restrictDays = getDaysByString(popularChoices[2][feed[2]]) as number;
-        //     setPostTimeFilter(restrictDays);
-        //     const today = Date.now();
-        //     const filteredPosts = shownPosts.filter((p) => diffDays(today, p.post_time) <= restrictDays);
-        //     const otherPosts = shownPosts.filter((p) => diffDays(today, p.post_time) > restrictDays);
-        //     otherPosts.sort((a, b) => a.post_time > b.post_time? -1 : 1);
-
-        //     if (feed[1] === 0) { /// sort by comments count
-        //         if (feed[0] === 0) {
-        //             filteredPosts.sort((a, b) => a.comments.length > b.comments.length? -1 : 1);
-        //         } else {
-        //             filteredPosts.sort((a, b) => a.comments.length < b.comments.length? -1 : 1);
-        //         }
-        //     } else if (feed[1] === 1) { /// sort by rep
-        //         if (feed[0] === 0) {
-        //             filteredPosts.sort((a, b) => a.reputation > b.reputation? -1 : 1);
-        //         } else {
-        //             filteredPosts.sort((a, b) => a.reputation < b.reputation? -1 : 1);
-        //         }
-        //     } else if (feed[1] === 2) { /// sort by vote count
-        //         if (feed[0] === 0) {
-        //             filteredPosts.sort((a, b) => a.votes.length > b.votes.length? -1 : 1);
-        //         } else {
-        //             filteredPosts.sort((a, b) => a.votes.length < b.votes.length? -1 : 1);
-        //         }
-        //     } else { /// sort by up vote
-        //         if (feed[0] === 0) {
-        //             filteredPosts.sort((a, b) => a.upvote > b.upvote? -1 : 1);
-        //         } else {                
-        //             filteredPosts.sort((a, b) => a.upvote < b.upvote? -1 : 1);
-        //         }
-        //     }
-
-        //     sortedPosts = [...filteredPosts, ...otherPosts];
-        // }
-        // setShownPosts(sortedPosts);
     }
 
     const onTapPopularFeed = (rowIndex: number, chosenIndex: number) => {
