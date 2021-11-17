@@ -42,7 +42,7 @@ const Feed = ({feedChoices, setFeedChoices}: Props) => {
             setIsTime(true);
         } else {
             setFeedChoices({
-                query0: QueryType.time,
+                query0: QueryType.popularity,
                 query1: QueryType.most,
                 query2: QueryType.votes,
                 query3: QueryType.today,
