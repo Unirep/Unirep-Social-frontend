@@ -17,7 +17,6 @@ const MainPage = () => {
     const [isUpVoteBoxOn, setIsUpVoteBoxOn] = useState(false);
     const [isDownVoteBoxOn, setIsDownVoteBoxOn] = useState(false);
     const [voteReceiver, setVoteReceiver] = useState<any>(null);
-    const [postTimeFilter, setPostTimeFilter] = useState(1);
     const [feedChoices, setFeedChoices] = useState<FeedChoices>({
         query0: QueryType.popularity, 
         query1: QueryType.most, 
@@ -62,6 +61,14 @@ const MainPage = () => {
         console.log("load more posts, now posts: " + shownPosts.length);
     }
 
+    const getQueryPeriod = () => {
+        if (feedChoices.query3 === QueryType.today) return 1;
+        else if (feedChoices.query3 === QueryType.this_week) return 7;
+        else if (feedChoices.query3 === QueryType.this_month) return 30;
+        else if (feedChoices.query3 === QueryType.this_year) return 365;
+        else return 100000000;
+    }
+
     const closeAll = () => {
         if (!isLoading) {
             setIsPostFieldActive(false);
@@ -77,12 +84,11 @@ const MainPage = () => {
                     isPostFieldActive, setIsPostFieldActive,
                     isMainPageUpVoteBoxOn: isUpVoteBoxOn, setIsMainPageUpVoteBoxOn: setIsUpVoteBoxOn, 
                     isMainPageDownVoteBoxOn: isDownVoteBoxOn, setIsMainPageDownVoteBoxOn: setIsDownVoteBoxOn,
-                    mainPageVoteReceiver: voteReceiver, setMainPageVoteReceiver: setVoteReceiver,
-                    postTimeFilter, setPostTimeFilter}}>
+                    mainPageVoteReceiver: voteReceiver, setMainPageVoteReceiver: setVoteReceiver}}>
                 <div className="main-content">
                     <PostField page={Page.Home}/>
                     <Feed feedChoices={feedChoices} setFeedChoices={setFeedChoices} />
-                    <div className="post-list"><PostsList posts={shownPosts} /></div>
+                    <div className="post-list"><PostsList posts={shownPosts} timeFilter={feedChoices.query0 === QueryType.popularity? getQueryPeriod() : 100000000} /></div>
                     <div className="main-page-button" onClick={loadMorePosts}>Load More Posts</div>
                 </div>
                 { voteReceiver !== null?

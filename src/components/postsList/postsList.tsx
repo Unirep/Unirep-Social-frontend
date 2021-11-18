@@ -2,17 +2,16 @@ import { useContext } from 'react';
 
 import PostBlock from '../postBlock/postBlock';
 import { Post, Page, diffDays } from '../../constants';
-import { MainPageContext } from '../../context/MainPageContext';
 import './postsList.scss';
 
 type Props = {
     posts: Post[],
+    timeFilter: number,
 }
 
-const PostsList = ({ posts }: Props) => {
-    const { postTimeFilter } = useContext(MainPageContext);
-    const chosenPosts = posts.filter(post => diffDays(post.post_time, Date.now()) <= postTimeFilter);
-    const otherPosts = posts.filter(post => diffDays(post.post_time, Date.now()) > postTimeFilter)
+const PostsList = ({ posts, timeFilter }: Props) => {
+    const chosenPosts = posts.filter(post => diffDays(post.post_time, Date.now()) <= timeFilter);
+    const otherPosts = posts.filter(post => diffDays(post.post_time, Date.now()) > timeFilter)
 
     return (
         <div>

@@ -54,12 +54,20 @@ const UserPosts = () => {
         getPosts();
     }, [feedChoices]);
 
+    const getQueryPeriod = () => {
+        if (feedChoices.query3 === QueryType.today) return 1;
+        else if (feedChoices.query3 === QueryType.this_week) return 7;
+        else if (feedChoices.query3 === QueryType.this_month) return 30;
+        else if (feedChoices.query3 === QueryType.this_year) return 365;
+        else return 100000000;
+    }
+
     return (
         <div className="user-page-main-content">
             <PostField page={Page.User} />
             <h3>My Posts</h3>
             <Feed feedChoices={feedChoices} setFeedChoices={setFeedChoices} />
-            <div className="post-list"><PostsList posts={userPosts} /></div>
+            <div className="post-list"><PostsList posts={userPosts} timeFilter={feedChoices.query0 === QueryType.popularity? getQueryPeriod() : 100000000} /></div>
         </div>
     );
 }
