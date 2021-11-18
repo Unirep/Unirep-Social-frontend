@@ -59,8 +59,12 @@ const MainPage = () => {
     }
 
     const loadMorePosts = () => {
-        console.log("load more posts, now posts: " + shownPosts.length + ', last read: ' + shownPosts[shownPosts.length-1].id);
-        getPosts(shownPosts[shownPosts.length-1].id);
+        console.log("load more posts, now posts: " + shownPosts.length);
+        if (shownPosts.length > 0) {
+            getPosts(shownPosts[shownPosts.length-1].id);
+        } else {
+            getPosts();
+        }
     }
 
     useEffect(() => {

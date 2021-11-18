@@ -17,42 +17,42 @@ const UserPosts = () => {
         query3: QueryType.today
     });
 
-    useEffect(() => {
-        const getPosts = async () => {
-            const end = Date.now();
-            let start: number = 0;
-            const isTime = feedChoices.query0 === QueryType.time;
-            if (!isTime) {
-                if (feedChoices.query3 === QueryType.today) {
-                    start = end - 24 * 60 * 60 * 1000;
-                } else if (feedChoices.query2 === QueryType.this_week) { // this week
-                    start = end - 7 * 24 * 60 * 60 * 1000;
-                } else if (feedChoices.query3 === QueryType.this_month) { // this month
-                    start = end - 30 * 24 * 60 * 60 * 1000;
-                } else if (feedChoices.query3 === QueryType.this_year) { // this year
-                    start = end - 365 * 24 * 60 * 60 * 1000;
-                } else if (feedChoices.query3 === QueryType.all_time) { // all time
-                    start = 0;
-                }
+    const getPosts = async (lastRead: string = '0') => {
+        const end = Date.now();
+        let start: number = 0;
+        const isTime = feedChoices.query0 === QueryType.time;
+        if (!isTime) {
+            if (feedChoices.query3 === QueryType.today) {
+                start = end - 24 * 60 * 60 * 1000;
+            } else if (feedChoices.query2 === QueryType.this_week) { // this week
+                start = end - 7 * 24 * 60 * 60 * 1000;
+            } else if (feedChoices.query3 === QueryType.this_month) { // this month
+                start = end - 30 * 24 * 60 * 60 * 1000;
+            } else if (feedChoices.query3 === QueryType.this_year) { // this year
+                start = end - 365 * 24 * 60 * 60 * 1000;
+            } else if (feedChoices.query3 === QueryType.all_time) { // all time
+                start = 0;
             }
-
-            let sortedPosts: Post[] = shownPosts;
-            if (user !== null) {
-                sortedPosts = (await getPostsByQuery(
-                    user === null? [] : user.epoch_keys, 
-                    feedChoices.query0,
-                    feedChoices.query1, 
-                    feedChoices.query2,
-                    start,
-                    end
-                )).filter((p) => user.all_epoch_keys.find(epk => epk === p.epoch_key) !== undefined);
-            }
-        
-            setShownPosts(sortedPosts);
         }
 
-        getPosts();
-    }, [feedChoices]);
+        let sortedPosts: Post[] = shownPosts;
+        if (user !== null) {
+            sortedPosts = (await getPostsByQuery(
+                user === null? [] : user.epoch_keys, 
+                feedChoices.query0,
+                feedChoices.query1, 
+                feedChoices.query2,
+                start,
+                end
+            )).filter((p) => user.all_epoch_keys.find(epk => epk === p.epoch_key) !== undefined);
+        }
+    
+        if (lastRead === '0') {
+            setShownPosts(sortedPosts);
+        } else {
+            setShownPosts([...shownPosts, ...sortedPosts]);
+        }
+    }
 
     const getQueryPeriod = () => {
         if (feedChoices.query3 === QueryType.today) return 1;
@@ -64,7 +64,16 @@ const UserPosts = () => {
 
     const loadMorePosts = () => {
         console.log("load more posts, now posts: " + shownPosts.length);
+        if (shownPosts.length > 0) {
+            getPosts(shownPosts[shownPosts.length-1].id);
+        } else {
+            getPosts();
+        }
     }
+
+    useEffect(() => {
+        getPosts();
+    }, [feedChoices]);
 
     return (
         <div className="user-page-main-content">
