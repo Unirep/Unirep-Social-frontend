@@ -24,42 +24,48 @@ const MainPage = () => {
         query3: QueryType.today
     });
 
-    useEffect(() => {
-        const getPosts = async () => {
-            const end = Date.now();
-            let start: number = 0;
-            const isTime = feedChoices.query0 === QueryType.time;
-            if (!isTime) {
-                if (feedChoices.query3 === QueryType.today) {
-                    start = end - 24 * 60 * 60 * 1000;
-                } else if (feedChoices.query2 === QueryType.this_week) { // this week
-                    start = end - 7 * 24 * 60 * 60 * 1000;
-                } else if (feedChoices.query3 === QueryType.this_month) { // this month
-                    start = end - 30 * 24 * 60 * 60 * 1000;
-                } else if (feedChoices.query3 === QueryType.this_year) { // this year
-                    start = end - 365 * 24 * 60 * 60 * 1000;
-                } else if (feedChoices.query3 === QueryType.all_time) { // all time
-                    start = 0;
-                }
+    const getPosts = async (lastRead: string = '0') => {
+        const end = Date.now();
+        let start: number = 0;
+        const isTime = feedChoices.query0 === QueryType.time;
+        if (!isTime) {
+            if (feedChoices.query3 === QueryType.today) {
+                start = end - 24 * 60 * 60 * 1000;
+            } else if (feedChoices.query2 === QueryType.this_week) { // this week
+                start = end - 7 * 24 * 60 * 60 * 1000;
+            } else if (feedChoices.query3 === QueryType.this_month) { // this month
+                start = end - 30 * 24 * 60 * 60 * 1000;
+            } else if (feedChoices.query3 === QueryType.this_year) { // this year
+                start = end - 365 * 24 * 60 * 60 * 1000;
+            } else if (feedChoices.query3 === QueryType.all_time) { // all time
+                start = 0;
             }
-
-            const sortedPosts = await getPostsByQuery(
-                user === null? [] : user.epoch_keys, 
-                feedChoices.query1, // sort
-                feedChoices.query0, // maintype
-                feedChoices.query2, // subtype
-                start,
-                end
-            );
-            setShownPosts(sortedPosts);
         }
 
-        getPosts();
-    }, [feedChoices]);
+        const sortedPosts = await getPostsByQuery(
+            user === null? [] : user.epoch_keys, 
+            feedChoices.query1, // sort
+            feedChoices.query0, // maintype
+            feedChoices.query2, // subtype
+            start,
+            end,
+            lastRead
+        );
+        if (lastRead === '0') {
+            setShownPosts(sortedPosts);
+        } else {
+            setShownPosts([...shownPosts, ...sortedPosts]);
+        }
+    }
 
     const loadMorePosts = () => {
-        console.log("load more posts, now posts: " + shownPosts.length);
+        console.log("load more posts, now posts: " + shownPosts.length + ', last read: ' + shownPosts[shownPosts.length-1].id);
+        getPosts(shownPosts[shownPosts.length-1].id);
     }
+
+    useEffect(() => {
+        getPosts();
+    }, [feedChoices]);
 
     const getQueryPeriod = () => {
         if (feedChoices.query3 === QueryType.today) return 1;
@@ -88,8 +94,7 @@ const MainPage = () => {
                 <div className="main-content">
                     <PostField page={Page.Home}/>
                     <Feed feedChoices={feedChoices} setFeedChoices={setFeedChoices} />
-                    <div className="post-list"><PostsList posts={shownPosts} timeFilter={feedChoices.query0 === QueryType.popularity? getQueryPeriod() : 100000000} /></div>
-                    <div className="main-page-button" onClick={loadMorePosts}>Load More Posts</div>
+                    <div className="post-list"><PostsList posts={shownPosts} timeFilter={feedChoices.query0 === QueryType.popularity? getQueryPeriod() : 100000000} loadMorePosts={loadMorePosts} /></div>
                 </div>
                 { voteReceiver !== null?
                     (isUpVoteBoxOn? <VoteBox isUpvote={true} data={voteReceiver} /> : 

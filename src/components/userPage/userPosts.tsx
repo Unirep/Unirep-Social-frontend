@@ -62,12 +62,16 @@ const UserPosts = () => {
         else return 100000000;
     }
 
+    const loadMorePosts = () => {
+        console.log("load more posts, now posts: " + shownPosts.length);
+    }
+
     return (
         <div className="user-page-main-content">
             <PostField page={Page.User} />
             <h3>My Posts</h3>
             <Feed feedChoices={feedChoices} setFeedChoices={setFeedChoices} />
-            <div className="post-list"><PostsList posts={userPosts} timeFilter={feedChoices.query0 === QueryType.popularity? getQueryPeriod() : 100000000} /></div>
+            <div className="post-list"><PostsList posts={userPosts} timeFilter={feedChoices.query0 === QueryType.popularity? getQueryPeriod() : 100000000} loadMorePosts={loadMorePosts} /></div>
         </div>
     );
 }
