@@ -15,7 +15,7 @@ const PostPage = () => {
     const location = useLocation<Location>();
     const state = JSON.parse(JSON.stringify(location.state));
     const commentId = state.commentId;
-    const [postToShow, setPostToShow] = useState();
+    const [postToShow, setPostToShow] = useState<Post|undefined>();
 
     const [isUpVoteBoxOn, setIsUpVoteBoxOn] = useState(false);
     const [isDownVoteBoxOn, setIsDownVoteBoxOn] = useState(false);
