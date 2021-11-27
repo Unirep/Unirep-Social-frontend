@@ -33,88 +33,158 @@ const SignUp = () => {
         setErrorMsg('');
     }
 
+    // const closeBox = async () => {
+    //     setIsLoading(true);
+    //     setPercentage(1);
+
+    //     const userSignUpResult = await hasSignedUp(userInput);
+        
+    //     if(userSignUpResult == undefined) {
+    //         setErrorMsg('Incorrect Identity format.')
+    //     } else if (userSignUpResult.hasSignedUp) {
+    //         const userStateResult = await getUserState(userInput);
+    //         const userEpoch = userStateResult.userState.latestTransitionedEpoch;
+    //         let userState: any = userStateResult.userState;
+
+    //         if (userEpoch !== userStateResult.currentEpoch) {
+    //             console.log('user epoch is not the same as current epoch, do user state transition, ' + userEpoch + ' != ' + userStateResult.currentEpoch);
+    //             const retAfterUST = await userStateTransition(userInput);
+    //             console.log(retAfterUST);
+
+    //             userState = retAfterUST.userState;
+    //         } 
+    //         const reputation = userState.getRepByAttester(userStateResult.attesterId);
+    //         const epks = await getEpochKeys(userInput, userStateResult.currentEpoch);
+    //         const spent = await getEpochSpent(epks);
+
+    //         let allEpks: string[] = [...epks];
+    //         for (var i = userStateResult.currentEpoch; i > 0; i --) {
+    //             const oldEpks = await getEpochKeys(userInput, i);
+    //             allEpks = [...allEpks, ...oldEpks];
+    //         }
+    //         setUser({
+    //             identity: userInput,
+    //             epoch_keys: epks,
+    //             all_epoch_keys: allEpks,
+    //             reputation: Number(reputation.posRep) - Number(reputation.negRep),
+    //             current_epoch: userStateResult.currentEpoch,
+    //             isConfirmed: true,
+    //             spent,
+    //             userState,
+    //         });
+
+    //         setShownPosts([...shownPosts].map(p => {
+    //             let isUpvoted: boolean = false, isDownvoted: boolean = false;
+    //             p.votes.forEach(v => {
+    //                 const e = epks.find(_e => _e === v.epoch_key);
+    //                 if (e !== undefined) {
+    //                     if (v.upvote > 0) {
+    //                         isUpvoted = true;
+    //                     }
+    //                     if (v.downvote > 0) {
+    //                         isDownvoted = true;
+    //                     }
+    //                 }
+    //             });
+    //             let comments = [...p.comments].map(c => {
+    //                 let isUpvotedC: boolean = false, isDownvotedC: boolean = false;
+    //                 c.votes.forEach(v => {
+    //                     const e = epks.find(_e => _e === v.epoch_key);
+    //                     if (e !== undefined) {
+    //                         if (v.upvote > 0) {
+    //                             isUpvotedC = true;
+    //                         }
+    //                         if (v.downvote > 0) {
+    //                             isDownvotedC = true;
+    //                         }
+    //                     }
+    //                 });
+    //                 let isAuthorC: boolean = epks.find(_e => _e === c.epoch_key) !== undefined;
+    //                 let newComment: Constants.Comment = {...c, isUpvoted: isUpvotedC, isDownvoted: isDownvotedC, isAuthor: isAuthorC};
+    //                 return newComment;
+    //             });
+    //             let isAuthor: boolean = epks.find(_e => _e === p.epoch_key) !== undefined;
+    //             let newPost: Constants.Post = {...p, isUpvoted, isDownvoted, isAuthor, comments};
+    //             return newPost;
+    //         }));
+
+    //         setPageStatus(Constants.PageStatus.None);
+
+    //         const nextET = await getNextEpochTime();
+    //         setNextUSTTime(nextET);
+    //     } else {
+    //         setErrorMsg('This identity hasn\'t signed up yet.')
+    //     }
+
+    //     setIsLoading(false);
+    // }
+
     const closeBox = async () => {
         setIsLoading(true);
         setPercentage(1);
 
-        const userSignUpResult = await hasSignedUp(userInput);
-        
-        if(userSignUpResult == undefined) {
-            setErrorMsg('Incorrect Identity format.')
-        } else if (userSignUpResult.hasSignedUp) {
-            const userStateResult = await getUserState(userInput);
-            const userEpoch = userStateResult.userState.latestTransitionedEpoch;
-            let userState: any = userStateResult.userState;
+        const currentEpoch = 1;
+        let userState: any = null;
 
-            if (userEpoch !== userStateResult.currentEpoch) {
-                console.log('user epoch is not the same as current epoch, do user state transition, ' + userEpoch + ' != ' + userStateResult.currentEpoch);
-                const retAfterUST = await userStateTransition(userInput);
-                console.log(retAfterUST);
+        const reputation = 30;
+        const epks = await getEpochKeys(userInput, currentEpoch);
+        const spent = await getEpochSpent(epks);
 
-                userState = retAfterUST.userState;
-            } 
-            const reputation = userState.getRepByAttester(userStateResult.attesterId);
-            const epks = await getEpochKeys(userInput, userStateResult.currentEpoch);
-            const spent = await getEpochSpent(epks);
+        let allEpks: string[] = [...epks];
+        for (var i = currentEpoch; i > 0; i --) {
+            const oldEpks = await getEpochKeys(userInput, i);
+            allEpks = [...allEpks, ...oldEpks];
+        }
+        setUser({
+            identity: userInput,
+            epoch_keys: epks,
+            all_epoch_keys: allEpks,
+            reputation,
+            current_epoch: currentEpoch,
+            isConfirmed: true,
+            spent,
+            userState,
+        });
 
-            let allEpks: string[] = [...epks];
-            for (var i = userStateResult.currentEpoch; i > 0; i --) {
-                const oldEpks = await getEpochKeys(userInput, i);
-                allEpks = [...allEpks, ...oldEpks];
-            }
-            setUser({
-                identity: userInput,
-                epoch_keys: epks,
-                all_epoch_keys: allEpks,
-                reputation: Number(reputation.posRep) - Number(reputation.negRep),
-                current_epoch: userStateResult.currentEpoch,
-                isConfirmed: true,
-                spent,
-                userState,
+        setShownPosts([...shownPosts].map(p => {
+            let isUpvoted: boolean = false, isDownvoted: boolean = false;
+            p.votes.forEach(v => {
+                const e = epks.find(_e => _e === v.epoch_key);
+                if (e !== undefined) {
+                    if (v.upvote > 0) {
+                        isUpvoted = true;
+                    }
+                    if (v.downvote > 0) {
+                        isDownvoted = true;
+                    }
+                }
             });
-
-            setShownPosts([...shownPosts].map(p => {
-                let isUpvoted: boolean = false, isDownvoted: boolean = false;
-                p.votes.forEach(v => {
+            let comments = [...p.comments].map(c => {
+                let isUpvotedC: boolean = false, isDownvotedC: boolean = false;
+                c.votes.forEach(v => {
                     const e = epks.find(_e => _e === v.epoch_key);
                     if (e !== undefined) {
                         if (v.upvote > 0) {
-                            isUpvoted = true;
+                            isUpvotedC = true;
                         }
                         if (v.downvote > 0) {
-                            isDownvoted = true;
+                            isDownvotedC = true;
                         }
                     }
                 });
-                let comments = [...p.comments].map(c => {
-                    let isUpvotedC: boolean = false, isDownvotedC: boolean = false;
-                    c.votes.forEach(v => {
-                        const e = epks.find(_e => _e === v.epoch_key);
-                        if (e !== undefined) {
-                            if (v.upvote > 0) {
-                                isUpvotedC = true;
-                            }
-                            if (v.downvote > 0) {
-                                isDownvotedC = true;
-                            }
-                        }
-                    });
-                    let isAuthorC: boolean = epks.find(_e => _e === c.epoch_key) !== undefined;
-                    let newComment: Constants.Comment = {...c, isUpvoted: isUpvotedC, isDownvoted: isDownvotedC, isAuthor: isAuthorC};
-                    return newComment;
-                });
-                let isAuthor: boolean = epks.find(_e => _e === p.epoch_key) !== undefined;
-                let newPost: Constants.Post = {...p, isUpvoted, isDownvoted, isAuthor, comments};
-                return newPost;
-            }));
+                let isAuthorC: boolean = epks.find(_e => _e === c.epoch_key) !== undefined;
+                let newComment: Constants.Comment = {...c, isUpvoted: isUpvotedC, isDownvoted: isDownvotedC, isAuthor: isAuthorC};
+                return newComment;
+            });
+            let isAuthor: boolean = epks.find(_e => _e === p.epoch_key) !== undefined;
+            let newPost: Constants.Post = {...p, isUpvoted, isDownvoted, isAuthor, comments};
+            return newPost;
+        }));
 
-            setPageStatus(Constants.PageStatus.None);
+        setPageStatus(Constants.PageStatus.None);
 
-            const nextET = await getNextEpochTime();
-            setNextUSTTime(nextET);
-        } else {
-            setErrorMsg('This identity hasn\'t signed up yet.')
-        }
+        const nextET = await getNextEpochTime();
+        setNextUSTTime(nextET);
 
         setIsLoading(false);
     }

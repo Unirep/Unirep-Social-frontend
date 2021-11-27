@@ -102,31 +102,64 @@ const SignUp = () => {
         }
     }
 
+    // const closeBox = async () => {
+    //     // get userstate related functions will check if user has signed up, if no, save in local storage, every refresh of page will check it again. //
+    //     setIsLoading(true);
+    //     setPercentage(1);
+
+    //     const userStateResult = await getUserState(identity);
+    //     const currentRep = userStateResult.userState.getRepByAttester(userStateResult.attesterId);
+    //     const epks = await getEpochKeys(identity, userStateResult.currentEpoch);
+    //     let allEpks: string[] = [...epks];
+    //     for (var i = userStateResult.currentEpoch; i > 0; i --) {
+    //         const oldEpks = await getEpochKeys(userInput, i);
+    //         allEpks = [...allEpks, ...oldEpks];
+    //     }
+    //     await getAirdrop(identity, userStateResult.userState);
+
+    //     setPageStatus(Constants.PageStatus.None);
+    //     setUser({ 
+    //         identity: identity, 
+    //         epoch_keys: epks, 
+    //         all_epoch_keys: allEpks, 
+    //         reputation: Number(currentRep.posRep) - Number(currentRep.negRep), 
+    //         current_epoch: currentEpoch, 
+    //         isConfirmed: userStateResult.hasSignedUp,
+    //         spent: 0,
+    //         userState: userStateResult.userState,
+    //     });
+
+    //     const nextET = await getNextEpochTime();
+    //     setNextUSTTime(nextET);
+
+    //     setIsLoading(false);
+    // }
+
     const closeBox = async () => {
         // get userstate related functions will check if user has signed up, if no, save in local storage, every refresh of page will check it again. //
         setIsLoading(true);
         setPercentage(1);
 
-        const userStateResult = await getUserState(identity);
-        const currentRep = userStateResult.userState.getRepByAttester(userStateResult.attesterId);
-        const epks = await getEpochKeys(identity, userStateResult.currentEpoch);
+        const currentRep = 30;
+        const currentEpoch = 1;
+        const epks = await getEpochKeys(identity, currentEpoch);
         let allEpks: string[] = [...epks];
-        for (var i = userStateResult.currentEpoch; i > 0; i --) {
+        for (var i = currentEpoch; i > 0; i --) {
             const oldEpks = await getEpochKeys(userInput, i);
             allEpks = [...allEpks, ...oldEpks];
         }
-        await getAirdrop(identity, userStateResult.userState);
+        await getAirdrop(identity, null);
 
         setPageStatus(Constants.PageStatus.None);
         setUser({ 
             identity: identity, 
             epoch_keys: epks, 
             all_epoch_keys: allEpks, 
-            reputation: Number(currentRep.posRep) - Number(currentRep.negRep), 
+            reputation: currentRep, 
             current_epoch: currentEpoch, 
-            isConfirmed: userStateResult.hasSignedUp,
+            isConfirmed: true,
             spent: 0,
-            userState: userStateResult.userState,
+            userState: null,
         });
 
         const nextET = await getNextEpochTime();

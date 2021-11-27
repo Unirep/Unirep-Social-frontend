@@ -498,7 +498,7 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
         epoch_key: "UnirepSocial",
         upvote: 30,
         downvote: 0,
-        epoch: 1,
+        epoch: 0,
         action: ActionType.UST,
         data_id: "0",
         time: Date.parse("2021-11-09T18:35:18.984Z")
@@ -507,7 +507,7 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
         epoch_key: "1f9cc994",
         upvote: 6,
         downvote: 0,
-        epoch: 1,
+        epoch: 0,
         action: ActionType.Vote,
         data_id: "618b95cb0eadf730d28d3b1b",
         time: Date.parse("2021-11-09T18:35:40.341Z")
@@ -516,7 +516,7 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
         epoch_key: "5320b71c",
         upvote: 0,
         downvote: 5,
-        epoch: 1,
+        epoch: 0,
         action: ActionType.Post,
         data_id: "618b95cb0eadf730d28d3b1b",
         time: Date.parse("2021-11-09T18:35:48.760Z")
