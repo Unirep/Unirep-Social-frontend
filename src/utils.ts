@@ -65,7 +65,7 @@ export const hasSignedUp = async (identity: string) => {
     const signUpFilter = unirepSocialContract.filters.UserSignedUp(null, commitment)
     const signUpEvents =  await unirepSocialContract.queryFilter(signUpFilter, config.DEFAULT_START_BLOCK)
 
-    if(signUpEvents.length == 1) {
+    if(signUpEvents.length === 1) {
         return {
             hasSignedUp: true, 
             signedUpEpoch: Number(signUpEvents[0]?.args?._epoch)
@@ -91,7 +91,7 @@ export const getUserState = async (identity: string) => {
     const userState = await genUserStateFromContract(
         provider,
         unirepContract.address,
-        config.DEFAULT_START_BLOCK,
+        // config.DEFAULT_START_BLOCK,
         id,
         commitment,
     );
