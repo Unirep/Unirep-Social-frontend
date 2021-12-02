@@ -1,7 +1,7 @@
 import base64url from 'base64url';
 import { ethers } from 'ethers';
 import { genIdentity, genIdentityCommitment, serialiseIdentity, unSerialiseIdentity } from '@unirep/crypto';
-import { genUserStateFromContract, genEpochKey, genReputationNullifier } from '@unirep/unirep';
+import { genUserStateFromContract, genEpochKey, genReputationNullifier, genUserStateFromParams } from '@unirep/unirep';
 import { UnirepSocialContract } from '@unirep/unirep-social';
 import * as config from './config';
 import { History, Post, DataType, Vote, Comment } from './constants';
@@ -78,7 +78,7 @@ export const hasSignedUp = async (identity: string) => {
     }
 }
 
-export const getUserState = async (identity: string) => {
+export const getUserState = async (identity: string, us?: any, update?: boolean) => {
     const provider = new ethers.providers.JsonRpcProvider(config.DEFAULT_ETH_PROVIDER)
     const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
     const unirepContract = await unirepSocialContract.getUnirep();
@@ -87,20 +87,43 @@ export const getUserState = async (identity: string) => {
     const decodedIdentity = base64url.decode(encodedIdentity);
     const id = unSerialiseIdentity(decodedIdentity);
     const commitment = genIdentityCommitment(id);
+    let userState
+    console.log('us')
+    console.log(us, update)
+    if(us === undefined || us === null) {
+        console.log('gen user state from begining')
+        userState = await genUserStateFromContract(
+            provider,
+            unirepContract.address,
+            id,
+            commitment,
+        )
+    } else {
+        if(update === false) {
+            console.log('gen user state from stored us')
+            userState = genUserStateFromParams(
+                id,
+                commitment,
+                JSON.parse(us),
+            )
+        } else {
+            console.log('update user state from stored us')
+            userState = await genUserStateFromContract(
+                provider,
+                unirepContract.address,
+                id,
+                commitment,
+                JSON.parse(us),
+            );
+        }
+    }
     
-    const userState = await genUserStateFromContract(
-        provider,
-        unirepContract.address,
-        // config.DEFAULT_START_BLOCK,
-        id,
-        commitment,
-    );
     const numEpochKeyNoncePerEpoch = await unirepContract.numEpochKeyNoncePerEpoch();
     const currentEpoch = await unirepSocialContract.currentEpoch();
     const attesterId = await unirepSocialContract.attesterId();
     const jsonedUserState = JSON.parse(userState.toJSON());
 
-    return {id, userState, numEpochKeyNoncePerEpoch, currentEpoch: Number(currentEpoch), attesterId, hasSignedUp: jsonedUserState.hasSignedUp};
+    return {id, userState: userState, numEpochKeyNoncePerEpoch, currentEpoch: Number(currentEpoch), attesterId, hasSignedUp: jsonedUserState.hasSignedUp};
 }
 
 const getEpochKey = async (epkNonce: number, id: any, epoch: number) => {
@@ -131,7 +154,7 @@ export const getEpochKeys = async (identity: string, epoch: number) => {
 export const getAirdrop = async (identity: string, us: any) => {
     let userState: any = us;
     if (userState === null || userState === undefined) {
-        const ret = await getUserState(identity);
+        const ret = await getUserState(identity, us, false);
         userState = ret.userState;
     }
     const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
@@ -143,7 +166,7 @@ export const getAirdrop = async (identity: string, us: any) => {
         console.log('---userState---');
         console.log(userState.toJSON());
     } catch (e) {
-        const ret = await getUserState(identity);
+        const ret = await getUserState(identity, us, true);
         userState = ret.userState;
         results = await userState.genUserSignUpProof(BigInt(attesterId));
         console.log(results)
@@ -181,7 +204,10 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
     let numEpochKeyNoncePerEpoch: number;
     let attesterId: number;
     if (userState === null || userState === undefined) {
-        const ret = await getUserState(identity);
+        const ret = await getUserState(identity, us, true);
+        userState = ret.userState;
+    } else {
+        const ret = await getUserState(identity, us, false);
         userState = ret.userState;
     }
     const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
@@ -421,8 +447,8 @@ export const getNextEpochTime = async () => {
     return ret
 }
 
-export const userStateTransition = async (identity: string) => {
-    const {userState} = await getUserState(identity);
+export const userStateTransition = async (identity: string, us: any) => {
+    const {userState} = await getUserState(identity, us);
     const results = await userState.genUserStateTransitionProofs();
 
     const fromEpoch = userState.latestTransitionedEpoch;
@@ -492,7 +518,7 @@ export const getEpochSpent = async (epks: string[]) => {
         data => {
             console.log(data);
             for (var i = 0; i < data.length; i ++) {
-                ret = ret + data[i].spent;
+                ret = ret + data[i]?.spent;
             }
         }
     );

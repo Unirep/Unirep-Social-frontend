@@ -126,7 +126,7 @@ const SignUp = () => {
             current_epoch: currentEpoch, 
             isConfirmed: userStateResult.hasSignedUp,
             spent: 0,
-            userState: userStateResult.userState,
+            userState: userStateResult.userState.toJSON(),
         });
 
         const nextET = await getNextEpochTime();

@@ -84,7 +84,7 @@ const PostField = ({ page }: Props) => {
                 }
                 
                 setShownPosts([newPost, ...shownPosts]);
-                setUser({...user, spent: user.spent + DEFAULT_POST_KARMA, userState: ret.userState})
+                setUser({...user, spent: user.spent + DEFAULT_POST_KARMA, userState: ret.userState.toJSON()})
 
                 init();
             } else {

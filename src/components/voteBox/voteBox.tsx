@@ -95,7 +95,7 @@ const VoteBox = (props: Props) => {
                 }
             }
             
-            setUser({...user, spent: user.spent + givenAmount, userState: ret.userState});
+            setUser({...user, spent: user.spent + givenAmount, userState: ret.userState.toJSON()});
             init();
         }
     }

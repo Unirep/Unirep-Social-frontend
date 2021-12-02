@@ -15,14 +15,14 @@ const Header = () => {
         if (user !== null) {
             setIsUSTing(true);
             setIsLoading(true);
-            const ret = await userStateTransition(user.identity);
+            const ret = await userStateTransition(user.identity, user.userState);
             console.log(ret);
             
-            const userStateResult = await getUserState(user.identity);
+            const userStateResult = await getUserState(user.identity, user.userState, true);
             const epks = await getEpochKeys(user.identity, userStateResult.currentEpoch);
             const rep = userStateResult.userState.getRepByAttester(userStateResult.attesterId);
             if (ret !== undefined) {
-                setUser({...user, epoch_keys: epks, reputation: Number(rep.posRep) - Number(rep.negRep), current_epoch: ret.toEpoch, userState: userStateResult.userState, spent: 0})
+                setUser({...user, epoch_keys: epks, reputation: Number(rep.posRep) - Number(rep.negRep), current_epoch: ret.toEpoch, spent: 0, userState: userStateResult.userState.toJSON()})
             }
             await getAirdrop(user.identity, userStateResult.userState);
             const next = await getNextEpochTime();

@@ -7,7 +7,7 @@ import { getEpochKeys, getUserState, getNextEpochTime, userStateTransition, hasS
 import './overlay.scss';
 
 const SignUp = () => {
-    const { setUser, setPageStatus, shownPosts, setShownPosts, setNextUSTTime, setIsLoading, isLoading } = useContext(WebContext);
+    const { user, setUser, setPageStatus, shownPosts, setShownPosts, setNextUSTTime, setIsLoading, isLoading } = useContext(WebContext);
     
     const [userInput, setUserInput] = useState<string>("");
     const [errorMsg, setErrorMsg] = useState<string>("");
@@ -39,16 +39,16 @@ const SignUp = () => {
 
         const userSignUpResult = await hasSignedUp(userInput);
         
-        if(userSignUpResult == undefined) {
+        if(userSignUpResult === undefined) {
             setErrorMsg('Incorrect Identity format.')
         } else if (userSignUpResult.hasSignedUp) {
-            const userStateResult = await getUserState(userInput);
+            const userStateResult = await getUserState(userInput, user?.userState);
             const userEpoch = userStateResult.userState.latestTransitionedEpoch;
             let userState: any = userStateResult.userState;
 
             if (userEpoch !== userStateResult.currentEpoch) {
                 console.log('user epoch is not the same as current epoch, do user state transition, ' + userEpoch + ' != ' + userStateResult.currentEpoch);
-                const retAfterUST = await userStateTransition(userInput);
+                const retAfterUST = await userStateTransition(userInput, userState.toJSON);
                 console.log(retAfterUST);
 
                 userState = retAfterUST.userState;
@@ -69,8 +69,8 @@ const SignUp = () => {
                 reputation: Number(reputation.posRep) - Number(reputation.negRep),
                 current_epoch: userStateResult.currentEpoch,
                 isConfirmed: true,
-                spent,
-                userState,
+                spent: spent,
+                userState: userState.toJSON(),
             });
 
             setShownPosts([...shownPosts].map(p => {
