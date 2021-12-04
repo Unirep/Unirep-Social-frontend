@@ -108,7 +108,7 @@ const SignUp = () => {
         setPercentage(1);
 
         const userStateResult = await getUserState(identity);
-        const currentRep = userStateResult.userState.getRepByAttester(userStateResult.attesterId);
+        const currentRep = userStateResult.userState.getRepByAttester(BigInt(userStateResult.attesterId));
         const epks = await getEpochKeys(identity, userStateResult.currentEpoch);
         let allEpks: string[] = [...epks];
         for (var i = userStateResult.currentEpoch; i > 0; i --) {

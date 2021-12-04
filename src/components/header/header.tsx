@@ -20,7 +20,7 @@ const Header = () => {
             
             const userStateResult = await getUserState(user.identity, user.userState, true);
             const epks = await getEpochKeys(user.identity, userStateResult.currentEpoch);
-            const rep = userStateResult.userState.getRepByAttester(userStateResult.attesterId);
+            const rep = userStateResult.userState.getRepByAttester(BigInt(userStateResult.attesterId));
             if (ret !== undefined) {
                 setUser({...user, epoch_keys: epks, reputation: Number(rep.posRep) - Number(rep.negRep), current_epoch: ret.toEpoch, spent: 0, userState: userStateResult.userState.toJSON()})
             }

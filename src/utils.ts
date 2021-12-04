@@ -5,6 +5,7 @@ import { genUserStateFromContract, genEpochKey, genReputationNullifier, genUserS
 import { UnirepSocialContract } from '@unirep/unirep-social';
 import * as config from './config';
 import { History, Post, DataType, Vote, Comment } from './constants';
+import { UNIREP_SOCIAL_ATTESTER_ID } from './config';
 
 const snarkjs = require("snarkjs")
 
@@ -79,49 +80,42 @@ export const hasSignedUp = async (identity: string) => {
 }
 
 export const getUserState = async (identity: string, us?: any, update?: boolean) => {
-    const provider = new ethers.providers.JsonRpcProvider(config.DEFAULT_ETH_PROVIDER)
-    const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
-    const unirepContract = await unirepSocialContract.getUnirep();
-
     const encodedIdentity = identity.slice(config.identityPrefix.length);
     const decodedIdentity = base64url.decode(encodedIdentity);
     const id = unSerialiseIdentity(decodedIdentity);
     const commitment = genIdentityCommitment(id);
     let userState
-    console.log('us')
-    console.log(us, update)
-    if(us === undefined || us === null) {
-        console.log('gen user state from begining')
+    const startTime = new Date().getTime()
+    if((us === undefined || us === null) && update === false) {
+        console.log('gen user state from stored us')
+        userState = genUserStateFromParams(
+            id,
+            commitment,
+            JSON.parse(us),
+        )
+        const endTime = new Date().getTime()
+        console.log(`Gen us time: ${endTime - startTime} ms (${Math.floor((endTime - startTime) / 1000)} s)`)
+    } else {
+        const provider = new ethers.providers.JsonRpcProvider(config.DEFAULT_ETH_PROVIDER)
+        const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
+        const unirepContract = await unirepSocialContract.getUnirep();
+        const parsedUserState = us !== undefined ? JSON.parse(us) : us
+        console.log('update user state from stored us')
         userState = await genUserStateFromContract(
             provider,
             unirepContract.address,
             id,
             commitment,
-        )
-    } else {
-        if(update === false) {
-            console.log('gen user state from stored us')
-            userState = genUserStateFromParams(
-                id,
-                commitment,
-                JSON.parse(us),
-            )
-        } else {
-            console.log('update user state from stored us')
-            userState = await genUserStateFromContract(
-                provider,
-                unirepContract.address,
-                id,
-                commitment,
-                JSON.parse(us),
-            );
-        }
+            parsedUserState,
+        );
+        const endTime = new Date().getTime()
+        console.log(`Gen us time: ${endTime - startTime} ms (${Math.floor((endTime - startTime) / 1000)} s)`)
     }
     
-    const numEpochKeyNoncePerEpoch = await unirepContract.numEpochKeyNoncePerEpoch();
-    const currentEpoch = await unirepSocialContract.currentEpoch();
-    const attesterId = await unirepSocialContract.attesterId();
+    const numEpochKeyNoncePerEpoch = config.numEpochKeyNoncePerEpoch;
+    const attesterId = UNIREP_SOCIAL_ATTESTER_ID;
     const jsonedUserState = JSON.parse(userState.toJSON());
+    const currentEpoch = userState.getUnirepStateCurrentEpoch()
 
     return {id, userState: userState, numEpochKeyNoncePerEpoch, currentEpoch: Number(currentEpoch), attesterId, hasSignedUp: jsonedUserState.hasSignedUp};
 }
@@ -157,8 +151,7 @@ export const getAirdrop = async (identity: string, us: any) => {
         const ret = await getUserState(identity, us, false);
         userState = ret.userState;
     }
-    const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
-    const attesterId = await unirepSocialContract.attesterId();
+    const attesterId = UNIREP_SOCIAL_ATTESTER_ID;
     let results: any;
     try {
         results = await userState.genUserSignUpProof(BigInt(attesterId));
@@ -219,7 +212,7 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
 
     numEpochKeyNoncePerEpoch = await unirepContract.numEpochKeyNoncePerEpoch();
     currentEpoch = Number(await unirepSocialContract.currentEpoch());
-    attesterId = await unirepSocialContract.attesterId();
+    attesterId = UNIREP_SOCIAL_ATTESTER_ID;
 
     if (epkNonce >= numEpochKeyNoncePerEpoch) {
         console.error('no such epknonce available')
@@ -260,10 +253,13 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
     }
 
     // gen proof
+    const startTime = new Date().getTime()
     const proveGraffiti = BigInt(0);
     const graffitiPreImage = BigInt(0);
     const results = await userState.genProveReputationProof(BigInt(attesterId), epkNonce, minRep, proveGraffiti, graffitiPreImage, nonceList)
     console.log(results)
+    const endTime = new Date().getTime()
+    console.log(`Gen proof time: ${endTime - startTime} ms (${Math.floor((endTime - startTime) / 1000)} s)`)
 
     const epk = await getEpochKey(epkNonce, id, currentEpoch);
     const formattedProof = formatProofForVerifierContract(results.proof)
