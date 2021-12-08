@@ -83,14 +83,12 @@ export const getUserState = async (identity: string, us?: any, update?: boolean)
     const encodedIdentity = identity.slice(config.identityPrefix.length);
     const decodedIdentity = base64url.decode(encodedIdentity);
     const id = unSerialiseIdentity(decodedIdentity);
-    const commitment = genIdentityCommitment(id);
     let userState
     const startTime = new Date().getTime()
     if((us === undefined || us === null) && update === false) {
         console.log('gen user state from stored us')
         userState = genUserStateFromParams(
             id,
-            commitment,
             JSON.parse(us),
         )
         const endTime = new Date().getTime()
@@ -105,7 +103,6 @@ export const getUserState = async (identity: string, us?: any, update?: boolean)
             provider,
             unirepContract.address,
             id,
-            commitment,
             parsedUserState,
         );
         const endTime = new Date().getTime()
