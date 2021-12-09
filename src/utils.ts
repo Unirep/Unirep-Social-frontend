@@ -1,11 +1,11 @@
 import base64url from 'base64url';
 import { ethers } from 'ethers';
+import { getUnirepContract } from '@unirep/contracts';
 import { genIdentity, genIdentityCommitment, serialiseIdentity, unSerialiseIdentity } from '@unirep/crypto';
-import { genUserStateFromContract, genEpochKey, genReputationNullifier, genUserStateFromParams } from '@unirep/unirep';
+import { genUserStateFromContract, genEpochKey, genUserStateFromParams } from '@unirep/unirep';
 import { UnirepSocialContract } from '@unirep/unirep-social';
 import * as config from './config';
 import { History, Post, DataType, Vote, Comment } from './constants';
-import { UNIREP_SOCIAL_ATTESTER_ID } from './config';
 
 const snarkjs = require("snarkjs")
 
@@ -45,11 +45,7 @@ export const getCurrentEpoch = async () => {
 
 export const hasSignedUp = async (identity: string) => {
     const provider = new ethers.providers.JsonRpcProvider(config.DEFAULT_ETH_PROVIDER)
-    const unirepSocialContract = new ethers.Contract(
-        config.UNIREP_SOCIAL,
-        config.UNIREP_SOCIAL_ABI,
-        provider,
-    )
+    const unirepContract = getUnirepContract(config.UNIREP, provider)
 
     const encodedIdentity = identity.slice(config.identityPrefix.length);
     const decodedIdentity = base64url.decode(encodedIdentity);
@@ -63,19 +59,10 @@ export const hasSignedUp = async (identity: string) => {
         return
     }
 
-    const signUpFilter = unirepSocialContract.filters.UserSignedUp(null, commitment)
-    const signUpEvents =  await unirepSocialContract.queryFilter(signUpFilter, config.DEFAULT_START_BLOCK)
-
-    if(signUpEvents.length === 1) {
-        return {
-            hasSignedUp: true, 
-            signedUpEpoch: Number(signUpEvents[0]?.args?._epoch)
-        }
-    }
-
+    // If user has signed up in Unirep
+    const hasUserSignUp = await unirepContract.hasUserSignedUp(commitment)
     return {
-        hasSignedUp: false, 
-        signedUpEpoch: 0
+        hasSignedUp: hasUserSignUp, 
     }
 }
 
@@ -110,7 +97,7 @@ export const getUserState = async (identity: string, us?: any, update?: boolean)
     }
     
     const numEpochKeyNoncePerEpoch = config.numEpochKeyNoncePerEpoch;
-    const attesterId = UNIREP_SOCIAL_ATTESTER_ID;
+    const attesterId = config.UNIREP_SOCIAL_ATTESTER_ID;
     const jsonedUserState = JSON.parse(userState.toJSON());
     const currentEpoch = userState.getUnirepStateCurrentEpoch()
 
@@ -142,13 +129,13 @@ export const getEpochKeys = async (identity: string, epoch: number) => {
     return epks
 }
 
-export const getAirdrop = async (identity: string, us: any) => {
+const genAirdropProof = async (identity: string, us: any) => {
     let userState: any = us;
     if (userState === null || userState === undefined) {
         const ret = await getUserState(identity, us, false);
         userState = ret.userState;
     }
-    const attesterId = UNIREP_SOCIAL_ATTESTER_ID;
+    const attesterId = config.UNIREP_SOCIAL_ATTESTER_ID;
     let results: any;
     try {
         results = await userState.genUserSignUpProof(BigInt(attesterId));
@@ -167,11 +154,44 @@ export const getAirdrop = async (identity: string, us: any) => {
     const encodedPublicSignals = base64url.encode(JSON.stringify(results.publicSignals))
     const signUpProof = config.signUpProofPrefix + encodedProof
     const signUpPublicSignals = config.signUpPublicSignalsPrefix + encodedPublicSignals
+
+    return {
+        proof: signUpProof,
+        publicSignals: signUpPublicSignals,
+        userState: userState,
+    }
+}
+
+export const signUpUnirepUser = async (identity: string, us: any) => {
+    const { proof, publicSignals, userState } = await genAirdropProof(identity, us);
+    
+    const apiURL = makeURL('signup', {})
+    const data = {
+        proof: proof, 
+        publicSignals: publicSignals,
+    }
+    const stringifiedData = JSON.stringify(data)
+    let transaction: string = ''
+    await fetch(apiURL, {
+            headers: header,
+            body: stringifiedData,
+            method: 'POST',
+        }).then(response => response.json())
+        .then(function(data){
+            console.log(JSON.stringify(data))
+            transaction = data.transaction
+        });
+
+    return { transaction, userState }
+}
+
+export const getAirdrop = async (identity: string, us: any) => {
+    const { proof, publicSignals, userState } = await genAirdropProof(identity, us);
     
     const apiURL = makeURL('airdrop', {})
     const data = {
-        proof: signUpProof, 
-        publicSignals: signUpPublicSignals,
+        proof: proof, 
+        publicSignals: publicSignals,
     }
     const stringifiedData = JSON.stringify(data)
     let transaction: string = ''
@@ -209,7 +229,7 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
 
     numEpochKeyNoncePerEpoch = await unirepContract.numEpochKeyNoncePerEpoch();
     currentEpoch = Number(await unirepSocialContract.currentEpoch());
-    attesterId = UNIREP_SOCIAL_ATTESTER_ID;
+    attesterId = config.UNIREP_SOCIAL_ATTESTER_ID;
 
     if (epkNonce >= numEpochKeyNoncePerEpoch) {
         console.error('no such epknonce available')
