@@ -6,26 +6,30 @@
 $main-font-color: #000;
 $background-color: #FFFFFF;
 
-$purple1: #9B51E0;
-$purple2: #BC2FEE;
-$light-purple: #F9F5FF;
-$grey: #F2F2F2;
-$dark-grey: #4F4F4F;
-$grey1: #E0E0E0;
-$grey2: #828282;
-$lighter-grey: #BDBDBD;
-$green: #27AE60;
-$yellow: #F7C223;
-$error: #EB5757;
-
-$large-font-size: 32px;
-$big-font-size: 24px;
-$bigger-font-size: 18px;
-$body-font-size: 16px;
-$smaller-font-size: 14px;
-$small-font-size: 12px;
-$smallest-font-size: 10px;
+$white: #FDFDFD;
+$black: #0B0B0B;
+$grey-800: #333333;
+$grey-700: #4F4F4F;
+$grey-400: #828282;
+$grey-300: #BDBDBD;
+$grey-200: #E0E0E0;
+$grey-100: #F2F2F2;
 // color //
+
+// font-size //
+$title-xl3: 96px;
+$title-xl2: 72px;
+$title-xl: 56px;
+$title-lg: 48px;
+$title-md: 32px;
+$title-sm: 24px;
+$text-lg: 20px;
+$text-md: 18px;
+$text-base: 16px;
+$text-sm: 14px;
+$text-xs: 12px;
+$text-xxs: 10px;
+// font-size //
 
 // widgets //
 @mixin myButton(
