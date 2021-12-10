@@ -112,10 +112,11 @@ body {
   }
 
   .default-gesture {
-    width: 100%;
     height: auto;
-    margin-top: 70px;
-    background-color: transparent;
+    margin: 70px 104px;
+    background-color: $grey-100;
+    display: flex;
+    flex-direction: row;
   } 
 
   .loading-block {

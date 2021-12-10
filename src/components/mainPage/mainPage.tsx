@@ -100,6 +100,9 @@ const MainPage = () => {
                     <Feed feedChoices={feedChoices} setFeedChoices={setFeedChoices} />
                     <div className="post-list"><PostsList posts={shownPosts} timeFilter={feedChoices.query0 === QueryType.popularity? getQueryPeriod() : 100000000} loadMorePosts={loadMorePosts} /></div>
                 </div>
+                <div className="side-content">
+                    side side
+                </div>
                 { voteReceiver !== null?
                     (isUpVoteBoxOn? <VoteBox isUpvote={true} data={voteReceiver} /> : 
                     isDownVoteBoxOn? <VoteBox isUpvote={false} data={voteReceiver} /> : <div></div>) : <div></div>

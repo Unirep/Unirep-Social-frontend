@@ -1,7 +1,7 @@
 @import '../../styles.scss';
 
 .main-content {
-  width: 50%;
+  flex: 6;
   margin: 50px auto 100px auto;
   padding-top: 40px;
   flex-direction: column;
@@ -9,8 +9,13 @@
   align-items: center;
 }
 
+.side-content {
+  flex: 3;
+  background-color: $grey-700;
+}
+
 .margin-box {
-  flex-grow: 100;
+  flex: 1;
 }
 
 .main {
