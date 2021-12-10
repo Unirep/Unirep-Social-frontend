@@ -12,24 +12,24 @@
     .divider {
       width: 100%;
       height: 1px;
-      background-color: $grey1;
+      background-color: $grey-700;
       margin: 0 auto;
     }
 
     .datetime-text {
-      color: $grey2;
-      font-size: $small-font-size;
+      color: $grey-400;
+      font-size: $text-sm;
       margin-right: 10px;
     }
 
     .etherscan {
-      color: $grey2;
-      font-size: $small-font-size;
+      color: $grey-300;
+      font-size: $text-sm;
       margin-right: auto;
       cursor: pointer;
 
       &:hover {
-        color: $purple1;
+        color: $grey-200;
       }
 
       & > img {
@@ -88,8 +88,8 @@
       }
   
       .voter-text {
-        font-size: $small-font-size;
-        color: $dark-grey;
+        font-size: $text-sm;
+        color: $grey-800;
         line-height: 24px;
         vertical-align: middle;
         margin-left: 10px;
@@ -119,7 +119,7 @@
   
         background-color: white;
         border-radius: 4px;
-        font-size: $small-font-size;
+        font-size: $text-sm;
   
         & > span {
           margin-left: 10px;
@@ -145,7 +145,7 @@
       position: relative;
   
       .comment-btn {
-        @include myButton(138px, 32px, $radius: 4px, $border: 1px, $border-color: $dark-grey, $font-size: $smaller-font-size);
+        @include myButton(138px, 32px, $radius: 4px, $border: 1px, $border-color: $grey-800, $font-size: $text-sm);
         margin-left: 0px;
         box-shadow: 0px 3px 2px rgba(0, 0, 0, 0.1);
   
@@ -173,7 +173,7 @@
         margin-top: -1px;
         padding: 8px;
         background-color: white;
-        border: 1px solid $dark-grey;
+        border: 1px solid $grey-800;
         border-radius: 0px 4px 4px 4px;
         box-shadow: 0px 3px 2px rgba(0, 0, 0, 0.1);
       }
@@ -187,7 +187,7 @@
         padding: 10px;
         background-color: rgba(51, 51, 51, 0.8);
         border-radius: 4px;
-        font-size: $small-font-size;
+        font-size: $text-sm;
         color: white;
       }
     }
@@ -197,7 +197,7 @@
   
       .comment {
         border-radius: 8px;
-        border: 1px solid $grey1;
+        border: 1px solid $grey-700;
         padding: 10px 20px;
         background-color: white;
         margin: 10px 0px;
@@ -219,7 +219,7 @@
   
       .view-more-comments {
         margin: 17px 27px;
-        font-size: $body-font-size;
+        font-size: $text-base;
         cursor: pointer;
       }
     }

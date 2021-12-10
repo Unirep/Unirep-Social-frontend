@@ -15,15 +15,15 @@
         outline: none;
         resize: none;
 
-        font-size: $small-font-size;
+        font-size: $text-sm;
         font-weight: 400;
         padding: 7px 16px;
     }
 
     .error {
         width: 100%;
-        font-size: $small-font-size;
-        color: $error;
+        font-size: $text-sm;
+        color: $grey-300;
         text-align: center;
         margin: 12.5px auto;
 
@@ -38,7 +38,7 @@
         width: 100%;
         margin: 10px auto 0px auto;
         text-align: center;
-        font-size: $smaller-font-size;
+        font-size: $text-sm;
     }
 
     .submit-btn {
@@ -46,7 +46,7 @@
         height: 32px;
         line-height: 32px;
         color: #fff;
-        background-color: $purple1;
+        background-color: $grey-300;
         border-radius: 20px;
         box-shadow: 0px 3px 2px rgba(0, 0, 0, 0.1);
         text-align: center;
@@ -64,15 +64,15 @@
         padding: 8px 16px;
 
         label {
-            font-size: $smallest-font-size;
-            color: $dark-grey;
+            font-size: $text-sm;
+            color: $grey-800;
             cursor: pointer;
             margin-top: 8px;
             margin-bottom: 8px;
 
             span {
                 color: #BDBDBD;
-                font-size: $smallest-font-size;
+                font-size: $text-sm;
                 font-weight: bold;
             }
         }
@@ -80,7 +80,7 @@
         .divider {
             width: 100%;
             height: 1px;
-            background-color: $grey1;
+            background-color: $grey-300;
             margin: 0 auto;
         }
 

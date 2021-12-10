@@ -7,12 +7,12 @@
     top: 50px;
     text-align: center;
     vertical-align: middle;
-    font-size: $small-font-size;
+    font-size: $text-sm;
     z-index: 2;
     background: radial-gradient(99.12% 159.6% at 92.94% 95.93%, rgba(228, 211, 255, 0.8) 0%, rgba(229, 238, 255, 0.8) 62.33%, rgba(238, 225, 255, 0.8) 69.62%, rgba(218, 215, 248, 0.8) 81.02%);
   
     .vote-box {
-      @include popupBox(275px, 330px, $border-width: 1px, $border-color: $purple1);
+      @include popupBox(275px, 330px, $border-width: 1px, $border-color: $grey-300);
       padding: 36px;
       position: relative;
     }
@@ -25,10 +25,10 @@
       width: 130px;
       height: 30px;
       margin: 0px auto;
-      border: 1px solid $purple1;
+      border: 1px solid $grey-300;
       border-radius: 20px;
-      color: $purple1;
-      font-size: $body-font-size;
+      color: $grey-300;
+      font-size: $text-base;
       display: flex;
       flex-direction: row;
       justify-content: center;
@@ -52,7 +52,7 @@
       padding: 8px;
       text-align: center;
       outline: none;
-      border: 1px solid $purple2;
+      border: 1px solid $grey-300;
       // border-image-source: radial-gradient(99.12% 159.6% at 92.94% 95.93%, #E4D3FF 0%, #E5EEFF 62.33%, #EEE1FF 69.62%, #DAD7F8 81.02%);
       background-color:transparent;
       box-shadow: 0px 4px 4px 0px #69637040 inset;

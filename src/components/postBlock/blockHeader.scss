@@ -21,7 +21,7 @@
 
     .epk {
       flex: 14;
-      color: $purple1;
+      color: $grey-300;
     }
 
     .vote-button-box {
@@ -30,9 +30,9 @@
       position: relative;
 
       .vote {
-        @include myButton(79px, 24px, $radius: 20px, $font-size: $small-font-size);
+        @include myButton(79px, 24px, $radius: 20px, $font-size: $text-sm);
         width: 100%;
-        border: 1px solid $dark-grey;
+        border: 1px solid $grey-800;
         box-shadow: 0px 3px 2px rgba(0, 0, 0, 0.1);
   
         img {
@@ -43,8 +43,8 @@
       }
   
       .vote-purple {
-        color: $purple1;
-        border: 1px solid $purple1;
+        color: $grey-300;
+        border: 1px solid $grey-300;
         cursor: not-allowed !important;
       }
   
@@ -61,7 +61,7 @@
         padding: 10px;
         background-color: rgba(51, 51, 51, 0.8);
         border-radius: 4px;
-        font-size: $small-font-size;
+        font-size: $text-sm;
         color: white;
       }
     }

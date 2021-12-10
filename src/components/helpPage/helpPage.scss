@@ -10,9 +10,9 @@
 
     .search-bar {
         width: 100%;
-        border-bottom: 1px solid $purple1;
+        border-bottom: 1px solid $grey-300;
         padding: 10px;
-        font-size: $smaller-font-size;
+        font-size: $text-sm;
         display: flex;
         margin-bottom: 40px;
 
@@ -36,7 +36,7 @@
         
         .help-item {
             width: 100%;
-            border-top: 1px solid $light-purple;
+            border-top: 1px solid $grey-200;
 
             .help-title {
                 width: 100%;
@@ -46,11 +46,11 @@
                 cursor: pointer;
     
                 &:hover {
-                    background-color: $light-purple;
+                    background-color: $grey-200;
                 }
     
                 span {
-                    font-size: $smaller-font-size;
+                    font-size: $text-sm;
                 }
     
                 img {
@@ -61,14 +61,14 @@
             }
 
             .help-content {
-                font-size: $smaller-font-size;
+                font-size: $text-sm;
                 padding: 10px;
             }
         }
     }
 
     .help-border {
-        border: 1px solid $light-purple;
+        border: 1px solid $grey-200;
     }
 
     .learn-zone {
@@ -97,12 +97,12 @@
                 position: relative;
 
                 .learn-title {
-                    font-size: $smaller-font-size;
+                    font-size: $text-sm;
                     font-weight: 500;
                 }
 
                 .learn-content {
-                    font-size: $small-font-size;
+                    font-size: $text-sm;
                 }
 
                 img {
@@ -119,21 +119,21 @@
 .report-zone {
     width: 100%;
     height: 400px;
-    background-color: $light-purple;
+    background-color: $grey-200;
     padding: 80px;
     text-align: center;
 
     p {
-        font-size: $smaller-font-size;
+        font-size: $text-sm;
     }
 
     textarea {
         width: 60%;
         margin-top: 16px;
-        font-size: $smaller-font-size;
-        color: $grey2;
+        font-size: $text-sm;
+        color: $grey-400;
         padding: 8px;
-        border-color: $grey1;
+        border-color: $grey-700;
         border-radius: 4px;
     }
 
@@ -143,7 +143,7 @@
         margin: 25px auto;
         padding: 5px;
         border-radius: 20px;
-        background-color: $purple1;
+        background-color: $grey-700;
         color: white;
         box-shadow: 0px 3px 2px 0px #0000001A;
         cursor: pointer;
@@ -151,8 +151,8 @@
 
     .error {
         margin-top: 16px;
-        font-size: $smaller-font-size;
-        color: $error;
+        font-size: $text-sm;
+        color: $grey-200;
 
         img {
             width: 18px;

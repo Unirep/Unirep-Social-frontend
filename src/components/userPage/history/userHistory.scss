@@ -22,8 +22,8 @@
                 align-items: flex-start;
 
                 label {
-                    color: $grey2;
-                    font-size: $body-font-size;
+                    color: $grey-400;
+                    font-size: $text-base;
                     margin-right: 16px;
                 }
 
@@ -50,8 +50,8 @@
         }
 
         .list-title {
-            color: $grey2;
-            font-size: $smaller-font-size;
+            color: $grey-400;
+            font-size: $text-sm;
             margin-bottom: 15px;
         }
 
@@ -65,7 +65,7 @@
 
             .info {
                 flex: 1;
-                font-size: $smaller-font-size;
+                font-size: $text-sm;
                 padding: 15px 0px;
 
                 img {

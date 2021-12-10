@@ -36,7 +36,7 @@ $text-xxs: 10px;
   $width:0, $height:0, $radius:0, $border: 0,
   $color:$main-font-color, $block-color1:#FFF, $block-color2:#FFF, $border-color: #FFF,
   $margin-horizontal: 5px, 
-  $font-size:$body-font-size, $font-weight:400, $text-align:center) {
+  $font-size:$text-base, $font-weight:400, $text-align:center) {
   
   @if $width > 0 { width:$width; }
   @if $height > 0 { height:$height; }
@@ -76,7 +76,7 @@ $text-xxs: 10px;
   width: $size;
   height: $size;
   border-radius: $size * 0.5;
-  border: 1px solid $lighter-grey;
+  border: 1px solid $grey-200;
   background-color: white;
   line-height: $size * 0.9;
   padding-left: 2.5px;
@@ -84,30 +84,30 @@ $text-xxs: 10px;
 }
 
 @mixin disabled() {
-  background-color: $grey1;
+  background-color: $grey-400;
   cursor: not-allowed;
 }
 // widgets//
 
 body {
-    background: $background-color;
+    background: $white;
     font-family: sans-serif;
-    color: $main-font-color;
+    color: $grey-700;
     letter-spacing: 0;
     padding: 5px;
     min-height: 100vh;
   }
   
   h1 {
-    font-size: $large-font-size;
+    font-size: $title-lg;
   }
 
   h2 {
-    font-size: $big-font-size;
+    font-size: $title-md;
   }
 
   h3 {
-    font-size: $bigger-font-size;
+    font-size: $title-sm;
     font-weight: 700;
   }
 
@@ -132,12 +132,12 @@ body {
     display: flex;
 
     .CircularProgressbar-path {
-      stroke: $purple1;
+      stroke: $grey-700;
     }
 
     .CircularProgressbar-text {
-      fill: $purple2;
-      font-size: $smaller-font-size;
+      fill: $grey-100;
+      font-size: $text-base;
     }
   }
   

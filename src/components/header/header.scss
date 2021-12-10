@@ -19,14 +19,14 @@ header {
     .navLinks {
       flex: 1;
       text-transform: uppercase;
-      font-size: $big-font-size;
+      font-size: $text-lg;
       font-weight: 700;
       
       .link:link,
       .link:visited {
         padding: 5px 10px;
         margin: 1rem;
-        color: $main-font-color;
+        color: $black;
         text-decoration: none;
         text-transform: uppercase;
         border-bottom: 2px solid transparent;
@@ -84,15 +84,15 @@ header {
       padding-right: 10px;
 
       .purpleButton {
-        @include myButton(99px, 32px, $color: #FFF, $block-color1: $purple2, $block-color2: $purple1, $radius: 20px);
+        @include myButton(99px, 32px, $color: #FFF, $block-color1: $grey-300, $block-color2: $grey-700, $radius: 20px);
       }
 
       .whiteButton {
-        @include myButton(99px, 32px, $color: $purple1, $radius: 20px, $border: 2px, $border-color: $purple1);
+        @include myButton(99px, 32px, $color: $grey-300, $radius: 20px, $border: 2px, $border-color: $grey-300);
       }
 
       .lightPurpleButton {
-        @include myButton(99px, 32px, $color: $purple1, $block-color1: $light-purple, $radius: 20px, $border: 2px, $border-color: $purple1);
+        @include myButton(99px, 32px, $color: $grey-300, $block-color1: $grey-100, $radius: 20px, $border: 2px, $border-color: $grey-300);
         display: flex;
         align-items: center;
         justify-content: center;
