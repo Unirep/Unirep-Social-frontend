@@ -229,6 +229,7 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
 
     numEpochKeyNoncePerEpoch = await unirepContract.numEpochKeyNoncePerEpoch();
     currentEpoch = Number(await unirepSocialContract.currentEpoch());
+    const epk = await getEpochKey(epkNonce, id, currentEpoch);
     attesterId = config.UNIREP_SOCIAL_ATTESTER_ID;
 
     if (epkNonce >= numEpochKeyNoncePerEpoch) {
@@ -273,12 +274,18 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
     const startTime = new Date().getTime()
     const proveGraffiti = BigInt(0);
     const graffitiPreImage = BigInt(0);
-    const results = await userState.genProveReputationProof(BigInt(attesterId), epkNonce, minRep, proveGraffiti, graffitiPreImage, nonceList)
+    let results
+    try {
+        results = await userState.genProveReputationProof(BigInt(attesterId), epkNonce, minRep, proveGraffiti, graffitiPreImage, nonceList)
+    } catch (e) {
+        console.log(e)
+        return undefined
+    }
+    
     console.log(results)
     const endTime = new Date().getTime()
     console.log(`Gen proof time: ${endTime - startTime} ms (${Math.floor((endTime - startTime) / 1000)} s)`)
 
-    const epk = await getEpochKey(epkNonce, id, currentEpoch);
     const formattedProof = formatProofForVerifierContract(results.proof)
     const encodedProof = base64url.encode(JSON.stringify(formattedProof))
     const encodedPublicSignals = base64url.encode(JSON.stringify(results.publicSignals))
@@ -347,6 +354,7 @@ export const publishPost = async (content: string, epkNonce: number, identity: s
 
     if (ret === undefined) {
         console.error('genProof error, ret is undefined.')
+        return
     }
 
      // to backend: proof, publicSignals, content
@@ -382,6 +390,7 @@ export const vote = async(identity: string, upvote: number, downvote: number, po
     const ret = await genProof(identity, epkNonce, voteValue, minRep, us, spent)
     if (ret === undefined) {
         console.error('genProof error, ret is undefined.')
+        return
     }
 
     // send publicsignals, proof, voted post id, receiver epoch key, graffiti to backend  
@@ -418,6 +427,7 @@ export const leaveComment = async(identity: string, content: string, postId: str
 
     if (ret === undefined) {
         console.error('genProof error, ret is undefined.')
+        return
     }
 
      // to backend: proof, publicSignals, content

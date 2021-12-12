@@ -6,7 +6,7 @@ import { WebContext } from '../../context/WebContext';
 import Dropdown from '../dropdown/dropdown';
 import { DataType, ChoiceType } from '../../constants';
 import './writingField.scss';
-import { DEFAULT_POST_KARMA, DEFAULT_COMMENT_KARMA } from '../../config';
+import * as config from '../../config';
 
 
 type Props = {
@@ -20,7 +20,7 @@ type Props = {
 
 const WritingField = (props: Props) => {
 
-    const defaultRep = props.type === DataType.Post? DEFAULT_POST_KARMA : DEFAULT_COMMENT_KARMA;
+    const defaultRep = props.type === DataType.Post? config.DEFAULT_POST_KARMA : config.DEFAULT_COMMENT_KARMA;
     const history = useHistory();
 
     const { user, setIsLoading } = useContext(WebContext);
@@ -63,19 +63,22 @@ const WritingField = (props: Props) => {
     const submit = () => {
         if (user === null) {
             setErrorMsg('Please sign up or sign in');
-        } else if (isNaN(reputation)) {
-            setErrorMsg('Please input reputation in number');
-        } else if (user.reputation < defaultRep) {
-            setErrorMsg('Sorry. You don\'t have enough reputation to perform post action.');
-        } else if (reputation < defaultRep || reputation > user.reputation) {
-            setErrorMsg('Please input reputation between ' + defaultRep + ' and ' + user.reputation);
-        } else if (content.length === 0) {
-            setErrorMsg('Please share something in order to post');
         } else {
-            setIsLoading(true);
-            setPercentage(1);
-            setIsBlockLoading(true);
-            props.submit(reputation, content);
+            const availableRep = user.reputation - user.spent
+            if (isNaN(reputation)) {
+                setErrorMsg('Please input reputation in number');
+            } else if (availableRep < defaultRep) {
+                setErrorMsg('Sorry. You don\'t have enough reputation to perform post action.');
+            } else if (reputation < defaultRep || reputation > availableRep ) {
+                setErrorMsg('Please input reputation between ' + defaultRep + ' and ' + availableRep);
+            } else if (content.length === 0) {
+                setErrorMsg('Please share something in order to post');
+            } else {
+                setIsLoading(true);
+                setPercentage(1);
+                setIsBlockLoading(true);
+                props.submit(reputation, content);
+            }
         }
     }
 
