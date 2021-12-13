@@ -92,7 +92,7 @@ const MainPage = () => {
                     mainPageVoteReceiver: voteReceiver, setMainPageVoteReceiver: setVoteReceiver}}>
                 <div className="margin-box"></div>
                 <div className="main-content">
-                    <PostField page={Page.Home}/>
+                    <div className="create-post">Create post</div>
                     <Feed feedChoice={feedChoice} setFeedChoice={setFeedChoice} />
                     <div className="post-list">
                         <PostsList 
