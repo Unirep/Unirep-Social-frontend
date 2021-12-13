@@ -57,7 +57,7 @@ const PostField = ({ page }: Props) => {
         }  
     }
 
-    const submitPost = async (reputation: number, content: string) => {
+    const submitPost = async (reputation: number, content: string, title: string = "unknown title") => {
         if (user === null) {
             console.log('not login yet.');
         } else if (content.length === 0) {
@@ -68,6 +68,7 @@ const PostField = ({ page }: Props) => {
                 const newPost: Post = {
                     type: DataType.Post,
                     id: ret.postId,
+                    title: title,
                     content,
                     votes: [],
                     upvote: 0,

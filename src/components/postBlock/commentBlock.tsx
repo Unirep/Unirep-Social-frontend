@@ -1,4 +1,4 @@
-import BlockHeader from './blockHeader';
+// import BlockButton from './blockButton';
 import { Comment, Page } from '../../constants';
 import dateformat from 'dateformat';
 
@@ -12,7 +12,6 @@ const CommentBlock = ({comment, page}: Props) => {
 
     return (
         <div className="comment">
-            <BlockHeader data={comment} page={page} />
             <div className="divider" />
             <div className="comment-block-info">
                 <div className="datetime-text">{date}</div>

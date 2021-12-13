@@ -602,6 +602,7 @@ const convertDataToPost = (data: any, epks: string[]) => {
     const post: Post = {
         type: DataType.Post,
         id: data._id,
+        title: data.title,
         content: data.content,
         votes,
         upvote,
@@ -682,6 +683,7 @@ const c1: Comment = {
 const p1: Post = {
     type: DataType.Post,
     id: "618b8f2c0eadf730d28d3ac1",
+    title: 'p1 title is unknown',
     content: "Post 1",
     votes: [v1],
     upvote: 1,
@@ -700,6 +702,7 @@ const p1: Post = {
 const p2: Post = {
     type: DataType.Post,
     id: "618b95cb0eadf730d28d3b1b",
+    title: 'p2 title is also unknown',
     content: "Post 2: my post",
     votes: [v2, v3],
     upvote: 6,

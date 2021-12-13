@@ -47,6 +47,7 @@ export interface Comment {
 export interface Post {
     type: DataType,
     id: string,
+    title: string,
     content: string,
     votes: Vote[],
     upvote: number,
@@ -60,6 +61,16 @@ export interface Post {
     comments: Comment[],
     isAuthor: boolean,
     current_epoch: number,
+}
+
+export enum ButtonType {
+    Comments = "comments",
+    Boost = "boost",
+    Squash = "squash",
+    Share = "share",
+    Post = "post",
+    Activity = "activity",
+    Save = "save",
 }
 
 export interface History {

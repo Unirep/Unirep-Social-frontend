@@ -35,9 +35,9 @@
         font-size: $text-base;
       }
 
-      .signup-with-twitter {
-        @include myButton(300px, 45px, $block-color1:#1DA1F2, $radius:5px, $color:#fff, $font-size: $text-lg);
-      }
+      // .signup-with-twitter {
+      //   // @include myButton(300px, 45px, $block-color1:#1DA1F2, $radius:5px, $color:#fff, $font-size: $text-lg);
+      // }
 
       .sign-message {
         width: 440px;
@@ -123,18 +123,18 @@
       }
 
       .sign-button-purple {
-        @include myButton($width: 440px, $height: 32px, $color: #fff, $block-color1: $grey-200, $radius: 20px);
+        // @include myButton($width: 440px, $height: 32px, $color: #fff, $block-color1: $grey-200, $radius: 20px);
         box-shadow: 0px 3px 2px rgba(0, 0, 0, 0.1);
         margin-bottom: 16px;
       }
 
       .sign-button-grey {
-        @include myButton($width: 440px, $height: 32px, $color: $grey-400, $block-color1: $grey-700, $radius: 20px);
+        @include myButton($width: 440px, $height: 32px, $color: $grey-400, $block-color: $grey-700, $radius: 20px);
         margin-bottom: 16px;
       }
 
       .sign-button-white {
-        @include myButton($width: 440px, $height: 32px, $block-color1: #fff, $radius: 20px, $color: $grey-800);
+        @include myButton($width: 440px, $height: 32px, $block-color: $white, $radius: 20px, $color: $grey-800);
         border: 1px solid black;
         box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.1);
       }

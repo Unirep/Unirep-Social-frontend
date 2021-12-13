@@ -2,41 +2,104 @@
 
 .post-block {
     width: 100%;
-    background-image: linear-gradient(180.55deg, rgba(249, 245, 255, 0) 73.13%, #F9F5FF 99.52%), radial-gradient(99.12% 159.6% at 92.94% 95.93%, #E4D3FF 0%, #E5EEFF 62.33%, #EEE1FF 69.62%, #DAD7F8 81.02%);
+    background-color: $white;
     border-radius: 8px;
+    border: 8px solid $grey-100;
     display: block;
     flex-direction: row;
-    padding: 8px;
-    margin: 10px auto;
+    margin: 24px 0px;
+
+    .block-header {
+      width: 100%;
+      height: 56px;
+      padding: 24px 32px 16px;
+      display: flex;
+      flex-direction: row;
+
+      p {
+        font-size: $text-xs;
+        color: $grey-700;
+
+        img {
+          width: 16px;
+          height: 16px;
+        }
+      }
+
+      .user {
+        margin-right: auto;
+        display: flex;
+      }
+
+      .date {
+        margin-right: 8px;
+      }
+
+      .etherscan {
+        cursor: pointer;
+
+        &:hover {
+          color: $grey-400;
+        }
+      }
+    }
+
+    .block-content {
+      width: 100%;
+      padding: 24px 24px 32px;
+      color: $black;
+
+      .title {
+        font-size: $title-sm;
+        font-weight: 600;
+        margin-bottom: 16px;
+      }
+
+      .content {
+        font-size: $text-base;
+      }
+    }
   
     .divider {
       width: 100%;
       height: 1px;
-      background-color: $grey-700;
+      background-color: $grey-200;
       margin: 0 auto;
     }
+
+    .block-buttons {
+      display: flex;
+      flex-direction: row;
+      padding: 16px 24px;
+
+      .block-button {
+        @include myButton($height: 44px, $radius: 4px, $color: $grey-700, $font-size: $text-sm);
+        padding: 10px 8px;
+        width: 140px;
+        margin-right: auto;
+        justify-content: flex-start;
+  
+        img {
+          width: 24px;
+          height: 24px;
+          margin-right: 8px;
+        }     
+        
+        &:hover {
+          background-color: $grey-100;
+        }
+      }
+
+      .share {
+        width: 88px;
+      }
+    }
+    
 
     .datetime-text {
       color: $grey-400;
       font-size: $text-sm;
       margin-right: 10px;
-    }
-
-    .etherscan {
-      color: $grey-300;
-      font-size: $text-sm;
-      margin-right: auto;
-      cursor: pointer;
-
-      &:hover {
-        color: $grey-200;
-      }
-
-      & > img {
-        width: 16px;
-        height: 16px;
-        margin-left: 5px;
-      }
     }
   
     .post-block-main {

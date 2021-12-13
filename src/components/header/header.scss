@@ -88,25 +88,25 @@ header {
       padding-right: 10px;
 
       .blackButton {
-        @include myButton(186px, 46px, $color: #FFF, $block-color1: $black, $radius: 8px);
+        @include myButton(186px, 46px, $color: #FFF, $block-color: $black, $radius: 8px);
       }
 
       .whiteButton {
         @include myButton(83px, 46px, $color: $black, $radius: 8px, $border: 2px, $border-color: $black);
       }
 
-      .lightPurpleButton {
-        @include myButton(99px, 32px, $color: $grey-300, $block-color1: $grey-100, $radius: 20px, $border: 2px, $border-color: $grey-300);
-        display: flex;
-        align-items: center;
-        justify-content: center;
+      // .lightPurpleButton {
+      //   @include myButton(99px, 32px, $color: $grey-300, $block-color1: $grey-100, $radius: 20px, $border: 2px, $border-color: $grey-300);
+      //   display: flex;
+      //   align-items: center;
+      //   justify-content: center;
 
-        img {
-          width: 12px;
-          height: 15px;
-          margin-right: 15px;
-        }
-      }
+      //   img {
+      //     width: 12px;
+      //     height: 15px;
+      //     margin-right: 15px;
+      //   }
+      // }
 
       .disabled {
         @include disabled;

@@ -34,18 +34,22 @@ $text-xxs: 10px;
 // widgets //
 @mixin myButton(
   $width:0, $height:0, $radius:0, $border: 0,
-  $color:$main-font-color, $block-color1:#FFF, $block-color2:#FFF, $border-color: #FFF,
+  $color:$main-font-color, $block-color: $white, $border-color: $white,
   $margin-horizontal: 5px, 
   $font-size:$text-base, $font-weight:400, $text-align:center) {
   
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
   @if $width > 0 { width:$width; }
   @if $height > 0 { height:$height; }
   border-radius: $radius;
   @if $border > 0 { border: $border solid $border-color }
 
   color: $color;
-  @if $block-color2 == #FFF { background-color: $block-color1; }
-  @else { background: linear-gradient($block-color1, $block-color2); }
+  background-color: $block-color;
 
   margin-left: $margin-horizontal;
   margin-right: $margin-horizontal;
@@ -113,8 +117,7 @@ body {
 
   .default-gesture {
     height: auto;
-    margin: 70px 104px;
-    background-color: $grey-100;
+    margin-top: 104px;
     display: flex;
     flex-direction: row;
   } 
@@ -144,7 +147,7 @@ body {
 
   .main-content {
     flex: 7;
-    margin: 50px auto 100px auto;
+    margin: 0px 104px 100px 104px;
     padding-top: 40px;
     flex-direction: column;
     justify-content: center;
