@@ -10,41 +10,36 @@ import { getPostsByQuery } from '../../utils';
 const UserPosts = () => {
     const { user, shownPosts, setShownPosts } = useContext(WebContext); 
     const userPosts = user !== null? [...shownPosts].filter((p) => user.all_epoch_keys.find(epk => epk === p.epoch_key) !== undefined) : shownPosts;
-    const [feedChoices, setFeedChoices] = useState<FeedChoices>({
-        query0: QueryType.popularity, 
-        query1: QueryType.most, 
-        query2: QueryType.votes, 
-        query3: QueryType.today
-    });
+    const [feedChoice, setFeedChoice] = useState<QueryType>(QueryType.New);
 
     const getPosts = async (lastRead: string = '0') => {
         const end = Date.now();
         let start: number = 0;
-        const isTime = feedChoices.query0 === QueryType.time;
-        if (!isTime) {
-            if (feedChoices.query3 === QueryType.today) {
-                start = end - 24 * 60 * 60 * 1000;
-            } else if (feedChoices.query2 === QueryType.this_week) { // this week
-                start = end - 7 * 24 * 60 * 60 * 1000;
-            } else if (feedChoices.query3 === QueryType.this_month) { // this month
-                start = end - 30 * 24 * 60 * 60 * 1000;
-            } else if (feedChoices.query3 === QueryType.this_year) { // this year
-                start = end - 365 * 24 * 60 * 60 * 1000;
-            } else if (feedChoices.query3 === QueryType.all_time) { // all time
-                start = 0;
-            }
-        }
+        // const isTime = feedChoices.query0 === QueryType.time;
+        // if (!isTime) {
+        //     if (feedChoices.query3 === QueryType.today) {
+        //         start = end - 24 * 60 * 60 * 1000;
+        //     } else if (feedChoices.query2 === QueryType.this_week) { // this week
+        //         start = end - 7 * 24 * 60 * 60 * 1000;
+        //     } else if (feedChoices.query3 === QueryType.this_month) { // this month
+        //         start = end - 30 * 24 * 60 * 60 * 1000;
+        //     } else if (feedChoices.query3 === QueryType.this_year) { // this year
+        //         start = end - 365 * 24 * 60 * 60 * 1000;
+        //     } else if (feedChoices.query3 === QueryType.all_time) { // all time
+        //         start = 0;
+        //     }
+        // }
 
         let sortedPosts: Post[] = shownPosts;
         if (user !== null) {
-            sortedPosts = (await getPostsByQuery(
-                user === null? [] : user.epoch_keys, 
-                feedChoices.query0,
-                feedChoices.query1, 
-                feedChoices.query2,
-                start,
-                end
-            )).filter((p) => user.all_epoch_keys.find(epk => epk === p.epoch_key) !== undefined);
+            // sortedPosts = (await getPostsByQuery(
+            //     user === null? [] : user.epoch_keys, 
+            //     feedChoice.query0,
+            //     feedChoice.query1, 
+            //     feedChoice.query2,
+            //     start,
+            //     end
+            // )).filter((p) => user.all_epoch_keys.find(epk => epk === p.epoch_key) !== undefined);
         }
     
         if (lastRead === '0') {
@@ -55,11 +50,11 @@ const UserPosts = () => {
     }
 
     const getQueryPeriod = () => {
-        if (feedChoices.query3 === QueryType.today) return 1;
-        else if (feedChoices.query3 === QueryType.this_week) return 7;
-        else if (feedChoices.query3 === QueryType.this_month) return 30;
-        else if (feedChoices.query3 === QueryType.this_year) return 365;
-        else return 100000000;
+        // if (feedChoice.query3 === QueryType.today) return 1;
+        // else if (feedChoice.query3 === QueryType.this_week) return 7;
+        // else if (feedChoice.query3 === QueryType.this_month) return 30;
+        // else if (feedChoice.query3 === QueryType.this_year) return 365;
+        // else return 100000000;
     }
 
     const loadMorePosts = () => {
@@ -73,14 +68,20 @@ const UserPosts = () => {
 
     useEffect(() => {
         getPosts();
-    }, [feedChoices]);
+    }, [feedChoice]);
 
     return (
         <div className="user-page-main-content">
             <PostField page={Page.User} />
             <h3>My Posts</h3>
-            <Feed feedChoices={feedChoices} setFeedChoices={setFeedChoices} />
-            <div className="post-list"><PostsList posts={userPosts} timeFilter={feedChoices.query0 === QueryType.popularity? getQueryPeriod() : 100000000} loadMorePosts={loadMorePosts} /></div>
+            <Feed feedChoice={feedChoice} setFeedChoice={setFeedChoice} />
+            <div className="post-list">
+                <PostsList 
+                    posts={userPosts} 
+                    // timeFilter={feedChoice.query0 === QueryType.popularity? getQueryPeriod() : 100000000} 
+                    timeFilter={100000000}
+                    loadMorePosts={loadMorePosts} />
+            </div>
         </div>
     );
 }

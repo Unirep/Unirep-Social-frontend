@@ -126,22 +126,10 @@ export enum UserPageType {
 }
 
 export enum QueryType {
-    most = 'most',
-    fewest = 'fewest',
-    newest = 'newest', 
-    oldest ='oldest',
-    popularity = 'popularity',
-    time = 'time',
-    reputation = 'reputation',
-    votes = 'votes',
-    upvotes = 'upvotes',
-    comments = 'comments',
-    posts = 'posts',
-    today = 'today',
-    this_week = 'this week',
-    this_month = 'this month',
-    this_year = 'this year',
-    all_time = 'all time'
+    New = 'new',
+    Boost = 'boost',
+    Comments = 'comments',
+    Squash = 'squash'
 }
 
 export interface Params {

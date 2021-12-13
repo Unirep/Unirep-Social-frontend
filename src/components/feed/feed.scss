@@ -2,6 +2,32 @@
 
 .feed-row {
     display: flex;
+
+    .feed-choice {
+      @include myButton($height: 40px, $radius: 4px, $font-size: $text-md, $font-weight: 600);
+      padding: 8px 16px;
+
+      &:hover {
+        background-color: $grey-100;
+      }
+
+      img {
+        width: 24px;
+        height: 24px;
+        margin-right: 8px;
+      }
+    }
+
+    .chosen {
+      background-color: $grey-100;
+    }
+
+    .divider {
+      background-color: $grey-200;
+      width: 1px;
+      height: 40px;
+      margin: 0px 8px;
+    }
   
     .toggle-switch {
   

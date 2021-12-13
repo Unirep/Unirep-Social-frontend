@@ -17,45 +17,40 @@ const MainPage = () => {
     const [isUpVoteBoxOn, setIsUpVoteBoxOn] = useState(false);
     const [isDownVoteBoxOn, setIsDownVoteBoxOn] = useState(false);
     const [voteReceiver, setVoteReceiver] = useState<any>(null);
-    const [feedChoices, setFeedChoices] = useState<FeedChoices>({
-        query0: QueryType.popularity, 
-        query1: QueryType.most, 
-        query2: QueryType.votes, 
-        query3: QueryType.today
-    });
+    const [feedChoice, setFeedChoice] = useState<QueryType>(QueryType.New);
 
     const getPosts = async (lastRead: string = '0') => {
-        const end = Date.now();
-        let start: number = 0;
-        const isTime = feedChoices.query0 === QueryType.time;
-        if (!isTime) {
-            if (feedChoices.query3 === QueryType.today) {
-                start = end - 24 * 60 * 60 * 1000;
-            } else if (feedChoices.query2 === QueryType.this_week) { // this week
-                start = end - 7 * 24 * 60 * 60 * 1000;
-            } else if (feedChoices.query3 === QueryType.this_month) { // this month
-                start = end - 30 * 24 * 60 * 60 * 1000;
-            } else if (feedChoices.query3 === QueryType.this_year) { // this year
-                start = end - 365 * 24 * 60 * 60 * 1000;
-            } else if (feedChoices.query3 === QueryType.all_time) { // all time
-                start = 0;
-            }
-        }
+        // const end = Date.now();
+        // let start: number = 0;
+        // const isTime = feedChoices.query0 === QueryType.time;
+        // if (!isTime) {
+        //     if (feedChoices.query3 === QueryType.today) {
+        //         start = end - 24 * 60 * 60 * 1000;
+        //     } else if (feedChoices.query2 === QueryType.this_week) { // this week
+        //         start = end - 7 * 24 * 60 * 60 * 1000;
+        //     } else if (feedChoices.query3 === QueryType.this_month) { // this month
+        //         start = end - 30 * 24 * 60 * 60 * 1000;
+        //     } else if (feedChoices.query3 === QueryType.this_year) { // this year
+        //         start = end - 365 * 24 * 60 * 60 * 1000;
+        //     } else if (feedChoices.query3 === QueryType.all_time) { // all time
+        //         start = 0;
+        //     }
+        // }
 
-        const sortedPosts = await getPostsByQuery(
-            user === null? [] : user.epoch_keys, 
-            feedChoices.query1, // sort
-            feedChoices.query0, // maintype
-            feedChoices.query2, // subtype
-            start,
-            end,
-            lastRead
-        );
-        if (lastRead === '0') {
-            setShownPosts(sortedPosts);
-        } else {
-            setShownPosts([...shownPosts, ...sortedPosts]);
-        }
+        // const sortedPosts = await getPostsByQuery(
+        //     user === null? [] : user.epoch_keys, 
+        //     feedChoices.query1, // sort
+        //     feedChoices.query0, // maintype
+        //     feedChoices.query2, // subtype
+        //     start,
+        //     end,
+        //     lastRead
+        // );
+        // if (lastRead === '0') {
+        //     setShownPosts(sortedPosts);
+        // } else {
+        //     setShownPosts([...shownPosts, ...sortedPosts]);
+        // }
     }
 
     const loadMorePosts = () => {
@@ -67,16 +62,16 @@ const MainPage = () => {
         }
     }
 
-    useEffect(() => {
-        getPosts();
-    }, [feedChoices]);
+    // useEffect(() => {
+    //     getPosts();
+    // }, [feedChoices]);
 
     const getQueryPeriod = () => {
-        if (feedChoices.query3 === QueryType.today) return 1;
-        else if (feedChoices.query3 === QueryType.this_week) return 7;
-        else if (feedChoices.query3 === QueryType.this_month) return 30;
-        else if (feedChoices.query3 === QueryType.this_year) return 365;
-        else return 100000000;
+        // if (feedChoices.query3 === QueryType.today) return 1;
+        // else if (feedChoices.query3 === QueryType.this_week) return 7;
+        // else if (feedChoices.query3 === QueryType.this_month) return 30;
+        // else if (feedChoices.query3 === QueryType.this_year) return 365;
+        // else return 100000000;
     }
 
     const closeAll = () => {
@@ -98,8 +93,15 @@ const MainPage = () => {
                 <div className="margin-box"></div>
                 <div className="main-content">
                     <PostField page={Page.Home}/>
-                    <Feed feedChoices={feedChoices} setFeedChoices={setFeedChoices} />
-                    <div className="post-list"><PostsList posts={shownPosts} timeFilter={feedChoices.query0 === QueryType.popularity? getQueryPeriod() : 100000000} loadMorePosts={loadMorePosts} /></div>
+                    <Feed feedChoice={feedChoice} setFeedChoice={setFeedChoice} />
+                    <div className="post-list">
+                        <PostsList 
+                            posts={shownPosts} 
+                            // timeFilter={feedChoices.query0 === QueryType.popularity? getQueryPeriod() : 100000000} 
+                            loadMorePosts={loadMorePosts} 
+                            timeFilter={100000000}
+                        />
+                    </div>
                 </div>
                 <div className="side-content">
                     side side
