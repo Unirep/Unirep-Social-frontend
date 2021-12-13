@@ -84,6 +84,11 @@
           height: 24px;
           margin-right: 8px;
         }     
+
+        .count {
+          font-weight: 600;
+          margin-right: 2px;
+        }
         
         &:hover {
           background-color: $grey-100;
@@ -94,6 +99,8 @@
         width: 88px;
       }
     }
+
+    // below are old data
     
 
     .datetime-text {

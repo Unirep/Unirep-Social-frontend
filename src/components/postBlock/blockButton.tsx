@@ -7,9 +7,10 @@ import { PostPageContext } from '../../context/PostPageContext';
 
 type Props = {
     type: ButtonType
+    count: number
 }
 
-const BlockButton = ({ type }: Props) => {
+const BlockButton = ({ type, count }: Props) => {
     
     const { user, isLoading } = useContext(WebContext);
     const { setIsMainPageUpVoteBoxOn, setIsMainPageDownVoteBoxOn, setMainPageVoteReceiver } = useContext(MainPageContext);
@@ -98,6 +99,10 @@ const BlockButton = ({ type }: Props) => {
     return (
         <div className={type === ButtonType.Share? "block-button share" : "block-button"} onMouseEnter={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}>
             <img src={`/images/${type}${isHover? '-fill' : ''}.png`} />
+            {   
+                type !== ButtonType.Share? 
+                    <span className="count">{count}</span> : <span></span>
+            }
             <span>{type.charAt(0).toUpperCase() + type.slice(1)}</span>
         </div>
     );

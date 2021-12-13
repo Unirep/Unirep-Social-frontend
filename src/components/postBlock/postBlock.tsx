@@ -86,10 +86,10 @@ const PostBlock = ({ post, page, commentId } : Props) => {
             </div>
             <div className="divider"></div>
             <div className="block-buttons">
-                <BlockButton type={ButtonType.Comments} />
-                <BlockButton type={ButtonType.Boost} />
-                <BlockButton type={ButtonType.Squash} />
-                <BlockButton type={ButtonType.Share} />
+                <BlockButton type={ButtonType.Comments} count={post.comments.length} />
+                <BlockButton type={ButtonType.Boost} count={post.upvote} />
+                <BlockButton type={ButtonType.Squash} count={post.downvote} />
+                <BlockButton type={ButtonType.Share} count={0} />
             </div>
         </div>
         // <div className="post-block">
