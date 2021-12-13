@@ -109,7 +109,7 @@ const Header = () => {
         <header>
             <div className="navLinks">
                 <NavLink to="/" className="link" activeClassName="active" exact>
-                    UNIREP SOCIAL
+                    <img src="/images/unirep-title.png" />
                 </NavLink>
             </div>
             {/* <div className="search-bar">
@@ -118,18 +118,18 @@ const Header = () => {
                     <input type="text" name="searchInput" placeholder="Search by keyword, user names or epoch key" onChange={handleSearchInput} />
                 </form>
             </div> */}
-            <div className="timer">{countdownText}</div>
+            {/* <div className="timer">{countdownText}</div> */}
             {user && user.identity? 
                 <div className="navButtons">
-                    <div className={isLoading? "lightPurpleButton disabled" : "lightPurpleButton"} onClick={gotoUserPage}>
+                    <div className={isLoading? "whiteButton disabled" : "whiteButton"} onClick={gotoUserPage}>
                         <img src="/images/user-purple.png" />
                         <span>{user.reputation - user.spent}</span>
                     </div>
                     <div className={isLoading? "whiteButton disabled" : "whiteButton"} onClick={logout}>Log out</div>
                 </div> :
                 <div className="navButtons">
-                    <div className="purpleButton" onClick={signUp}> Sign Up</div>
-                    <div className="whiteButton" onClick={signIn}> Sign In</div>
+                    <div className="whiteButton" onClick={signIn}>Sign in</div>
+                    <div className="blackButton" onClick={signUp}>Join</div>
                 </div>
                 
             }   

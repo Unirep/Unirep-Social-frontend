@@ -95,6 +95,7 @@ const MainPage = () => {
                     isMainPageUpVoteBoxOn: isUpVoteBoxOn, setIsMainPageUpVoteBoxOn: setIsUpVoteBoxOn, 
                     isMainPageDownVoteBoxOn: isDownVoteBoxOn, setIsMainPageDownVoteBoxOn: setIsDownVoteBoxOn,
                     mainPageVoteReceiver: voteReceiver, setMainPageVoteReceiver: setVoteReceiver}}>
+                <div className="margin-box"></div>
                 <div className="main-content">
                     <PostField page={Page.Home}/>
                     <Feed feedChoices={feedChoices} setFeedChoices={setFeedChoices} />
@@ -103,6 +104,7 @@ const MainPage = () => {
                 <div className="side-content">
                     side side
                 </div>
+                <div className="margin-box"></div>
                 { voteReceiver !== null?
                     (isUpVoteBoxOn? <VoteBox isUpvote={true} data={voteReceiver} /> : 
                     isDownVoteBoxOn? <VoteBox isUpvote={false} data={voteReceiver} /> : <div></div>) : <div></div>
