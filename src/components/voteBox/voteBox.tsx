@@ -21,6 +21,9 @@ const VoteBox = (props: Props) => {
     const [ isDropdown, setIsDropdown ] = useState(false);
     const [ isBlockLoading, setIsBlockLoading ] = useState(false);
     const [percentage, setPercentage] = useState<number>(0);
+    let availablePoints = 0
+    if(user?.reputation !== undefined && user?.spent !== undefined)
+        availablePoints = user.reputation - user.spent
 
     useEffect(() => {
         if (isBlockLoading) {
@@ -126,7 +129,7 @@ const VoteBox = (props: Props) => {
     return (
         <div className="vote-overlay">
             <div className="vote-box" onClick={preventClose}>
-                <h3>{user?.reputation} Points Available</h3>
+                <h3>{availablePoints} Points Available</h3>
                 <div className="vote-margin"></div>
                 <p>Enter an amount up to 10 to give to @{props.data.epoch_key}</p>
                 <div className="vote-margin"></div>
