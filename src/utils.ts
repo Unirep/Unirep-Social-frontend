@@ -5,7 +5,7 @@ import { genIdentity, genIdentityCommitment, serialiseIdentity, unSerialiseIdent
 import { genUserStateFromContract, genEpochKey, genUserStateFromParams } from '@unirep/unirep';
 import { UnirepSocialContract } from '@unirep/unirep-social';
 import * as config from './config';
-import { History, Post, DataType, Vote, Comment } from './constants';
+import { History, Post, DataType, Vote, Comment, ActionType } from './constants';
 
 const snarkjs = require("snarkjs")
 
@@ -64,6 +64,31 @@ export const hasSignedUp = async (identity: string) => {
     return {
         hasSignedUp: hasUserSignUp, 
     }
+}
+
+const hasSignedUpInUnirepSocial = async (identity: string) => {
+    const ethProvider = config.DEFAULT_ETH_PROVIDER
+    const provider = new ethers.providers.JsonRpcProvider(ethProvider)
+    const unirepSocial = new ethers.Contract(
+        config.UNIREP_SOCIAL,
+        config.UNIREP_SOCIAL_ABI,
+        provider,
+    )
+    const encodedIdentity = identity.slice(config.identityPrefix.length);
+    const decodedIdentity = base64url.decode(encodedIdentity);
+    
+    let commitment
+    try {
+        const id = unSerialiseIdentity(decodedIdentity);
+        commitment = genIdentityCommitment(id);
+    } catch(e) {
+        console.log('Incorrect Identity format\n', e)
+        return {epoch: 0, hasSignedUp: false}
+    }
+    const userSignUpFilter = unirepSocial.filters.UserSignedUp(null, commitment)
+    const userSignUpEvent = await unirepSocial.queryFilter(userSignUpFilter)
+    if(userSignUpEvent.length === 1) return { epoch: userSignUpEvent[0]?.args?._epoch, hasSignedUp: true}
+    return {epoch: 0, hasSignedUp: false}
 }
 
 export const getUserState = async (identity: string, us?: any, update?: boolean) => {
@@ -162,30 +187,32 @@ const genAirdropProof = async (identity: string, us: any) => {
     }
 }
 
-export const signUpUnirepUser = async (identity: string, us: any) => {
-    const { proof, publicSignals, userState } = await genAirdropProof(identity, us);
+// export const signUpUnirepUser = async (identity: string, us: any) => {
+//     const { proof, publicSignals, userState } = await genAirdropProof(identity, us);
     
-    const apiURL = makeURL('signup', {})
-    const data = {
-        proof: proof, 
-        publicSignals: publicSignals,
-    }
-    const stringifiedData = JSON.stringify(data)
-    let transaction: string = ''
-    await fetch(apiURL, {
-            headers: header,
-            body: stringifiedData,
-            method: 'POST',
-        }).then(response => response.json())
-        .then(function(data){
-            console.log(JSON.stringify(data))
-            transaction = data.transaction
-        });
+//     const apiURL = makeURL('signup', {})
+//     const data = {
+//         proof: proof, 
+//         publicSignals: publicSignals,
+//     }
+//     const stringifiedData = JSON.stringify(data)
+//     let transaction: string = ''
+//     await fetch(apiURL, {
+//             headers: header,
+//             body: stringifiedData,
+//             method: 'POST',
+//         }).then(response => response.json())
+//         .then(function(data){
+//             console.log(JSON.stringify(data))
+//             transaction = data.transaction
+//         });
 
-    return { transaction, userState }
-}
+//     return { transaction, userState }
+// }
 
 export const getAirdrop = async (identity: string, us: any) => {
+    let error
+    let transaction: string = ''
     const { proof, publicSignals, userState } = await genAirdropProof(identity, us);
     
     const apiURL = makeURL('airdrop', {})
@@ -194,7 +221,6 @@ export const getAirdrop = async (identity: string, us: any) => {
         publicSignals: publicSignals,
     }
     const stringifiedData = JSON.stringify(data)
-    let transaction: string = ''
     await fetch(apiURL, {
             headers: header,
             body: stringifiedData,
@@ -202,10 +228,11 @@ export const getAirdrop = async (identity: string, us: any) => {
         }).then(response => response.json())
         .then(function(data){
             console.log(JSON.stringify(data))
+            error = data.error
             transaction = data.transaction
         });
 
-    return { transaction, userState }
+    return { error, transaction, userState }
 }
 
 const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount: number, minRep: number = 0, us: any, spent: number = -1) => {
@@ -465,10 +492,16 @@ export const leaveComment = async(identity: string, content: string, postId: str
 }
 
 export const updateUserState = async (identity: string, us?: any) => {
+    let airdropRet
     const ret = await getUserState(identity, us, true)
+    if(ret.currentEpoch !== ret.userState.latestTransitionedEpoch) {
+        const transitionRet = await userStateTransition(identity, ret.userState.toJSON());
+        const userStateResult = await getUserState(identity, transitionRet.userState.toJSON(), true);
+        airdropRet = await getAirdrop(identity, userStateResult.userState);
+    }
     const epks = await getEpochKeys(identity, ret.currentEpoch);
     const spent = await getEpochSpent(epks);
-    return { userState: ret.userState, spent: spent };
+    return { error: airdropRet?.error, userState: ret.userState, spent: spent };
 }
 
 export const getNextEpochTime = async () => {
@@ -484,7 +517,7 @@ export const getNextEpochTime = async () => {
 }
 
 export const userStateTransition = async (identity: string, us: any) => {
-    const {userState} = await getUserState(identity, us);
+    const {userState} = await getUserState(identity);
     const results = await userState.genUserStateTransitionProofs();
 
     const fromEpoch = userState.latestTransitionedEpoch;
@@ -515,6 +548,7 @@ export const userStateTransition = async (identity: string, us: any) => {
 
 export const getRecords = async (currentEpoch: number, identity: string) => {
     let epks: string[] = [];
+    const { epoch, hasSignedUp } = await hasSignedUpInUnirepSocial(identity)
     for (var i = 1; i <= currentEpoch; i ++) {
         const epksRet = await getEpochKeys(identity, i);
         epks = [...epks, ...epksRet];
@@ -524,6 +558,19 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
     const apiURL = makeURL(`records/${paramStr}`, {});
     
     let ret: History[] = [];
+    if(hasSignedUp) {
+        const signUpAirdrop: History = {
+            action: ActionType.UST,
+            epoch_key: 'SignUp Airdrop',
+            upvote: config.DEFAULT_AIRDROPPED_KARMA,
+            downvote: 0,
+            epoch: Number(epoch),
+            time: Date.now(), // because it is not saved in DB
+            data_id: '',
+        }
+        ret = [signUpAirdrop, ...ret];
+    }
+    
     await fetch(apiURL).then(response => response.json()).then(
         (data) => {
             for (var i = 0; i < data.length; i ++) {

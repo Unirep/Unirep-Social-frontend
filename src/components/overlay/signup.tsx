@@ -115,7 +115,10 @@ const SignUp = () => {
             const oldEpks = await getEpochKeys(userInput, i);
             allEpks = [...allEpks, ...oldEpks];
         }
-        await getAirdrop(identity, userStateResult.userState);
+        const {error} = await getAirdrop(identity, userStateResult.userState);
+        if(error !== undefined) {
+            console.error(error)
+        }
 
         setPageStatus(Constants.PageStatus.None);
         setUser({ 

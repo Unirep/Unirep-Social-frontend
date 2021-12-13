@@ -3,7 +3,7 @@ import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { WebContext } from '../../context/WebContext';
 import * as Constants from '../../constants';
-import { getEpochKeys, getUserState, getNextEpochTime, userStateTransition, hasSignedUp, getEpochSpent, signUpUnirepUser } from '../../utils';
+import { getEpochKeys, getUserState, getNextEpochTime, userStateTransition, hasSignedUp, getEpochSpent, getAirdrop } from '../../utils';
 import './overlay.scss';
 
 const SignUp = () => {
@@ -48,17 +48,26 @@ const SignUp = () => {
 
             if (userEpoch !== userStateResult.currentEpoch) {
                 console.log('user epoch is not the same as current epoch, do user state transition, ' + userEpoch + ' != ' + userStateResult.currentEpoch);
-                const retAfterUST = await userStateTransition(userInput, userState.toJSON);
-                console.log(retAfterUST);
+                const retBeforeUST = await userStateTransition(userInput, userState.toJSON());
+                const retAfterUST = await getUserState(userInput, retBeforeUST.userState.toJSON(), true)
 
                 userState = retAfterUST.userState;
             } 
+            try {
+                console.log('get airdrop')
+                await getAirdrop(userInput, userState.toJSON());
+                const next = await getNextEpochTime();
+                setNextUSTTime(next);
+            } catch (e) {
+                console.log('airdrop error: ', e)
+            }
+            
             const reputation = userState.getRepByAttester(userStateResult.attesterId);
             console.log('has signed up flag', reputation.signUp)
-            if(reputation.signUp === BigInt(0)) {
-                await signUpUnirepUser(userInput, userStateResult.userState)
-                console.log('rep will be airdrop next epoch')
-            }
+            // if(reputation.signUp === BigInt(0)) {
+            //     await signUpUnirepUser(userInput, userStateResult.userState)
+            //     console.log('rep will be airdrop next epoch')
+            // }
             const epks = await getEpochKeys(userInput, userStateResult.currentEpoch);
             const spent = await getEpochSpent(epks);
 
