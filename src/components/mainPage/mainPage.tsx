@@ -4,7 +4,7 @@ import { WebContext } from '../../context/WebContext';
 import { MainPageContext } from '../../context/MainPageContext';
 import { Page, QueryType, FeedChoices } from '../../constants';
 import PostsList from '../postsList/postsList';
-import PostField from '../postField/postField';
+import Banner from './banner';
 import VoteBox from '../voteBox/voteBox';
 import Feed from '../feed/feed';
 import './mainPage.scss';
@@ -84,34 +84,37 @@ const MainPage = () => {
     }
 
     return (
-        <div className="default-gesture" onClick={closeAll}>
-            <MainPageContext.Provider value={{
-                    isPostFieldActive, setIsPostFieldActive,
-                    isMainPageUpVoteBoxOn: isUpVoteBoxOn, setIsMainPageUpVoteBoxOn: setIsUpVoteBoxOn, 
-                    isMainPageDownVoteBoxOn: isDownVoteBoxOn, setIsMainPageDownVoteBoxOn: setIsDownVoteBoxOn,
-                    mainPageVoteReceiver: voteReceiver, setMainPageVoteReceiver: setVoteReceiver}}>
-                <div className="margin-box"></div>
-                <div className="main-content">
-                    <div className="create-post">Create post</div>
-                    <Feed feedChoice={feedChoice} setFeedChoice={setFeedChoice} />
-                    <div className="post-list">
-                        <PostsList 
-                            posts={shownPosts} 
-                            // timeFilter={feedChoices.query0 === QueryType.popularity? getQueryPeriod() : 100000000} 
-                            loadMorePosts={loadMorePosts} 
-                            timeFilter={100000000}
-                        />
+        <div className="wrapper">
+            <Banner />
+            <div className="default-gesture" onClick={closeAll}>
+                <MainPageContext.Provider value={{
+                        isPostFieldActive, setIsPostFieldActive,
+                        isMainPageUpVoteBoxOn: isUpVoteBoxOn, setIsMainPageUpVoteBoxOn: setIsUpVoteBoxOn, 
+                        isMainPageDownVoteBoxOn: isDownVoteBoxOn, setIsMainPageDownVoteBoxOn: setIsDownVoteBoxOn,
+                        mainPageVoteReceiver: voteReceiver, setMainPageVoteReceiver: setVoteReceiver}}>
+                    <div className="margin-box"></div>
+                    <div className="main-content">
+                        <div className="create-post">Create post</div>
+                        <Feed feedChoice={feedChoice} setFeedChoice={setFeedChoice} />
+                        <div className="post-list">
+                            <PostsList 
+                                posts={shownPosts} 
+                                // timeFilter={feedChoices.query0 === QueryType.popularity? getQueryPeriod() : 100000000} 
+                                loadMorePosts={loadMorePosts} 
+                                timeFilter={100000000}
+                            />
+                        </div>
                     </div>
-                </div>
-                <div className="side-content">
-                    side side
-                </div>
-                <div className="margin-box"></div>
-                { voteReceiver !== null?
-                    (isUpVoteBoxOn? <VoteBox isUpvote={true} data={voteReceiver} /> : 
-                    isDownVoteBoxOn? <VoteBox isUpvote={false} data={voteReceiver} /> : <div></div>) : <div></div>
-                }
-            </MainPageContext.Provider>
+                    <div className="side-content">
+                        side side
+                    </div>
+                    <div className="margin-box"></div>
+                    { voteReceiver !== null?
+                        (isUpVoteBoxOn? <VoteBox isUpvote={true} data={voteReceiver} /> : 
+                        isDownVoteBoxOn? <VoteBox isUpvote={false} data={voteReceiver} /> : <div></div>) : <div></div>
+                    }
+                </MainPageContext.Provider>
+            </div>
         </div>
     );
 };
