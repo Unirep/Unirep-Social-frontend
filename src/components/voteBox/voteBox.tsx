@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import { vote } from '../../utils';
+import { updateUserState, vote } from '../../utils';
 import { WebContext } from '../../context/WebContext';
 import { MainPageContext } from '../../context/MainPageContext';
 import { Post, Vote, Comment, DataType, ChoiceType } from '../../constants';
@@ -59,10 +59,13 @@ const VoteBox = (props: Props) => {
                 ret = await vote(user.identity, 0, givenAmount, props.data.id, props.data.epoch_key, epkNonce, 0, isPost, user.spent, user.userState);
                 console.log('downvote ret: ' + JSON.stringify(ret))
             }
-            if(ret === undefined) {
+            if(ret.error !== undefined) {
                 // should set error message here
-                console.error('vote failed');
+                console.error(ret.error);
                 init();
+                const { userState, spent } = await updateUserState(user.identity, user.userState)
+                setUser({...user, spent: spent, userState: userState.toJSON()})
+                return
             }
 
             const newVote: Vote = {

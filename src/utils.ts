@@ -350,11 +350,14 @@ export const userSignUp = async () => {
 
 
 export const publishPost = async (content: string, epkNonce: number, identity: string, minRep: number = 0, spent: number = 0, us: any) => {
+    let error
+    let transaction: string = ''
+    let postId: string = ''
     const ret = await genProof(identity, epkNonce, config.DEFAULT_POST_KARMA, minRep, us, spent)
 
     if (ret === undefined) {
-        console.error('genProof error, ret is undefined.')
-        return
+        error = 'genProof error, ret is undefined.'
+        return {error, transaction, postId, currentEpoch: 0, epk: '', userState: undefined}
     }
 
      // to backend: proof, publicSignals, content
@@ -368,8 +371,6 @@ export const publishPost = async (content: string, epkNonce: number, identity: s
      const stringifiedData = JSON.stringify(data)
      console.log('before publish post api: ' + stringifiedData)
      
-     let transaction: string = ''
-     let postId: string = ''
      await fetch(apiURL, {
          headers: header,
          body: stringifiedData,
@@ -377,20 +378,23 @@ export const publishPost = async (content: string, epkNonce: number, identity: s
      }).then(response => response.json())
         .then(function(data){
             console.log(JSON.stringify(data))
+            error = data.error
             transaction = data.transaction
             postId = data.postId
         });
     
-    return {transaction, postId, currentEpoch: ret.currentEpoch, epk: ret.epk, userState: ret.userState}
+    return {error, transaction, postId, currentEpoch: ret.currentEpoch, epk: ret.epk, userState: ret.userState}
 }
 
 export const vote = async(identity: string, upvote: number, downvote: number, postId: string, receiver: string, epkNonce: number = 0, minRep: number = 0, isPost: boolean = true, spent: number = 0, us: any) => {
+    let error
+    let transaction: string = ''
     // upvote / downvote user 
     const voteValue = upvote + downvote
     const ret = await genProof(identity, epkNonce, voteValue, minRep, us, spent)
     if (ret === undefined) {
-        console.error('genProof error, ret is undefined.')
-        return
+        error = 'genProof error, ret is undefined.'
+        return {error, epk: '', transaction: undefined, userState: undefined} 
     }
 
     // send publicsignals, proof, voted post id, receiver epoch key, graffiti to backend  
@@ -408,7 +412,6 @@ export const vote = async(identity: string, upvote: number, downvote: number, po
     const stringifiedData = JSON.stringify(data);
     console.log('before vote api: ' + stringifiedData)
     
-    let transaction: string = ''
     await fetch(apiURL, {
         headers: header,
         body: stringifiedData,
@@ -416,18 +419,22 @@ export const vote = async(identity: string, upvote: number, downvote: number, po
     }).then(response => response.json())
        .then(function(data){
            console.log(JSON.stringify(data))
+           error = data.error
            transaction = data.transaction
        });
 
-    return {epk: ret.epk, transaction, userState: ret.userState} 
+    return {error, epk: ret.epk, transaction, userState: ret.userState} 
 }
 
 export const leaveComment = async(identity: string, content: string, postId: string, epkNonce: number = 0, minRep: number = 0, spent: number = 0, us: any) => {
+    let error
+    let transaction: string = ''
+    let commentId: string = ''
     const ret = await genProof(identity, epkNonce, config.DEFAULT_COMMENT_KARMA, minRep, us, spent)
 
     if (ret === undefined) {
-        console.error('genProof error, ret is undefined.')
-        return
+        error = 'genProof error, ret is undefined.'
+        return {error, transaction, commentId, currentEpoch: 0, epk: '', userState: undefined}
     }
 
      // to backend: proof, publicSignals, content
@@ -442,8 +449,6 @@ export const leaveComment = async(identity: string, content: string, postId: str
      const stringifiedData = JSON.stringify(data)
      console.log('before leave comment api: ' + stringifiedData)
      
-     let transaction: string = ''
-     let commentId: string = ''
      await fetch(apiURL, {
          headers: header,
          body: stringifiedData,
@@ -451,11 +456,19 @@ export const leaveComment = async(identity: string, content: string, postId: str
      }).then(response => response.json())
         .then(function(data){
             console.log(JSON.stringify(data))
+            error = data.error
             transaction = data.transaction
             commentId = data.commentId
         });
     
-    return {transaction, commentId, currentEpoch: ret.currentEpoch, epk: ret.epk, userState: ret.userState}
+    return {error, transaction, commentId, currentEpoch: ret.currentEpoch, epk: ret.epk, userState: ret.userState}
+}
+
+export const updateUserState = async (identity: string, us?: any) => {
+    const ret = await getUserState(identity, us, true)
+    const epks = await getEpochKeys(identity, ret.currentEpoch);
+    const spent = await getEpochSpent(epks);
+    return { userState: ret.userState, spent: spent };
 }
 
 export const getNextEpochTime = async () => {
