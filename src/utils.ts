@@ -43,10 +43,7 @@ export const getCurrentEpoch = async () => {
     return Number(currentEpoch)
 }
 
-export const hasSignedUp = async (identity: string) => {
-    const provider = new ethers.providers.JsonRpcProvider(config.DEFAULT_ETH_PROVIDER)
-    const unirepContract = getUnirepContract(config.UNIREP, provider)
-
+const decodeIdentity = (identity: string) => {
     const encodedIdentity = identity.slice(config.identityPrefix.length);
     const decodedIdentity = base64url.decode(encodedIdentity);
     
@@ -54,10 +51,18 @@ export const hasSignedUp = async (identity: string) => {
     try {
         const id = unSerialiseIdentity(decodedIdentity);
         commitment = genIdentityCommitment(id);
+        return { id, commitment, identityNullifier:  id.identityNullifier}
     } catch(e) {
         console.log('Incorrect Identity format\n', e)
-        return
+        return { id: BigInt(0), commitment: BigInt(0), identityNullifier: undefined }
     }
+}
+
+export const hasSignedUp = async (identity: string) => {
+    const provider = new ethers.providers.JsonRpcProvider(config.DEFAULT_ETH_PROVIDER)
+    const unirepContract = getUnirepContract(config.UNIREP, provider)
+
+    const { commitment } = decodeIdentity(identity)
 
     // If user has signed up in Unirep
     const hasUserSignUp = await unirepContract.hasUserSignedUp(commitment)
@@ -66,7 +71,7 @@ export const hasSignedUp = async (identity: string) => {
     }
 }
 
-const hasSignedUpInUnirepSocial = async (identity: string) => {
+const hasSignedUpInUnirepSocial = async (identityCommitment: BigInt) => {
     const ethProvider = config.DEFAULT_ETH_PROVIDER
     const provider = new ethers.providers.JsonRpcProvider(ethProvider)
     const unirepSocial = new ethers.Contract(
@@ -74,27 +79,14 @@ const hasSignedUpInUnirepSocial = async (identity: string) => {
         config.UNIREP_SOCIAL_ABI,
         provider,
     )
-    const encodedIdentity = identity.slice(config.identityPrefix.length);
-    const decodedIdentity = base64url.decode(encodedIdentity);
-    
-    let commitment
-    try {
-        const id = unSerialiseIdentity(decodedIdentity);
-        commitment = genIdentityCommitment(id);
-    } catch(e) {
-        console.log('Incorrect Identity format\n', e)
-        return {epoch: 0, hasSignedUp: false}
-    }
-    const userSignUpFilter = unirepSocial.filters.UserSignedUp(null, commitment)
+    const userSignUpFilter = unirepSocial.filters.UserSignedUp(null, identityCommitment)
     const userSignUpEvent = await unirepSocial.queryFilter(userSignUpFilter)
     if(userSignUpEvent.length === 1) return { epoch: userSignUpEvent[0]?.args?._epoch, hasSignedUp: true}
     return {epoch: 0, hasSignedUp: false}
 }
 
 export const getUserState = async (identity: string, us?: any, update?: boolean) => {
-    const encodedIdentity = identity.slice(config.identityPrefix.length);
-    const decodedIdentity = base64url.decode(encodedIdentity);
-    const id = unSerialiseIdentity(decodedIdentity);
+    const { id }  = decodeIdentity(identity);
     let userState
     const startTime = new Date().getTime()
     if((us === undefined || us === null) && update === false) {
@@ -129,9 +121,9 @@ export const getUserState = async (identity: string, us?: any, update?: boolean)
     return {id, userState: userState, numEpochKeyNoncePerEpoch, currentEpoch: Number(currentEpoch), attesterId, hasSignedUp: jsonedUserState.hasSignedUp};
 }
 
-const getEpochKey = async (epkNonce: number, id: any, epoch: number) => {
+const getEpochKey = async (epkNonce: number, identityNullifier: any, epoch: number) => {
     const epochKey = genEpochKey(
-        id.identityNullifier, 
+        identityNullifier, 
         epoch, epkNonce, config.circuitEpochTreeDepth
     );
 
@@ -139,14 +131,11 @@ const getEpochKey = async (epkNonce: number, id: any, epoch: number) => {
 }
 
 export const getEpochKeys = async (identity: string, epoch: number) => {
-    const encodedIdentity = identity.slice(config.identityPrefix.length);
-    const decodedIdentity = base64url.decode(encodedIdentity);
-    const id = unSerialiseIdentity(decodedIdentity);
-    
+    const { identityNullifier } = decodeIdentity(identity)
     let epks: string[] = []
  
     for (let i = 0; i < config.numEpochKeyNoncePerEpoch; i++) {
-        const tmp = await getEpochKey(i, id, epoch);
+        const tmp = await getEpochKey(i, identityNullifier, epoch);
         epks = [...epks, tmp];
     }
     // console.log(epks)
@@ -249,14 +238,11 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
     }
     const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
     const unirepContract = await unirepSocialContract.getUnirep();
-
-    const encodedIdentity = identity.slice(config.identityPrefix.length);
-    const decodedIdentity = base64url.decode(encodedIdentity);
-    const id = unSerialiseIdentity(decodedIdentity);
+    const { identityNullifier } = decodeIdentity(identity);
 
     numEpochKeyNoncePerEpoch = await unirepContract.numEpochKeyNoncePerEpoch();
     currentEpoch = Number(await unirepSocialContract.currentEpoch());
-    const epk = await getEpochKey(epkNonce, id, currentEpoch);
+    const epk = await getEpochKey(epkNonce, identityNullifier, currentEpoch);
     attesterId = config.UNIREP_SOCIAL_ATTESTER_ID;
 
     if (epkNonce >= numEpochKeyNoncePerEpoch) {
@@ -356,7 +342,7 @@ export const userSignUp = async () => {
 
     const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
     const currentEpoch = await unirepSocialContract.currentEpoch();
-    const epk1 = await getEpochKey(0, id, currentEpoch);
+    const epk1 = await getEpochKey(0, id.identityNullifier, currentEpoch);
 
     const serializedIdentityCommitment = commitment.toString(16)
     const encodedIdentityCommitment = base64url.encode(serializedIdentityCommitment)
@@ -547,29 +533,34 @@ export const userStateTransition = async (identity: string, us: any) => {
 }
 
 export const getRecords = async (currentEpoch: number, identity: string) => {
+    const { commitment } = decodeIdentity(identity)
     let epks: string[] = [];
-    const { epoch, hasSignedUp } = await hasSignedUpInUnirepSocial(identity)
     for (var i = 1; i <= currentEpoch; i ++) {
         const epksRet = await getEpochKeys(identity, i);
         epks = [...epks, ...epksRet];
     }
 
+    const commitmentAPIURL = makeURL(`records`, {commitment})
     const paramStr = epks.join('_');
     const apiURL = makeURL(`records/${paramStr}`, {});
     
     let ret: History[] = [];
-    if(hasSignedUp) {
-        const signUpAirdrop: History = {
-            action: ActionType.UST,
-            epoch_key: 'SignUp Airdrop',
-            upvote: config.DEFAULT_AIRDROPPED_KARMA,
-            downvote: 0,
-            epoch: Number(epoch),
-            time: Date.now(), // because it is not saved in DB
-            data_id: '',
+
+    await fetch(commitmentAPIURL).then(response => response.json()).then(
+        (data) => {
+            if(data.length === 0) return
+            const history: History = {
+                action: ActionType.UST,
+                epoch_key: 'SignUp Airdrop',
+                upvote: config.DEFAULT_AIRDROPPED_KARMA,
+                downvote: 0,
+                epoch: data[0].epoch,
+                time: Date.parse(data[0].created_at),
+                data_id: '',
+            }
+            ret = [history, ...ret];
         }
-        ret = [signUpAirdrop, ...ret];
-    }
+    );
     
     await fetch(apiURL).then(response => response.json()).then(
         (data) => {
