@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import { vote, getUserState } from '../../utils';
+import { updateUserState, vote } from '../../utils';
 import { WebContext } from '../../context/WebContext';
 import { MainPageContext } from '../../context/MainPageContext';
 import { Post, Vote, Comment, DataType, ChoiceType } from '../../constants';
@@ -21,6 +21,9 @@ const VoteBox = (props: Props) => {
     const [ isDropdown, setIsDropdown ] = useState(false);
     const [ isBlockLoading, setIsBlockLoading ] = useState(false);
     const [percentage, setPercentage] = useState<number>(0);
+    let availablePoints = 0
+    if(user?.reputation !== undefined && user?.spent !== undefined)
+        availablePoints = user.reputation - user.spent
 
     useEffect(() => {
         if (isBlockLoading) {
@@ -59,6 +62,14 @@ const VoteBox = (props: Props) => {
                 ret = await vote(user.identity, 0, givenAmount, props.data.id, props.data.epoch_key, epkNonce, 0, isPost, user.spent, user.userState);
                 console.log('downvote ret: ' + JSON.stringify(ret))
             }
+            if(ret.error !== undefined) {
+                // should set error message here
+                console.error(ret.error);
+                init();
+                const { userState, spent } = await updateUserState(user.identity, user.userState)
+                setUser({...user, spent: spent, userState: userState.toJSON()})
+                return
+            }
 
             const newVote: Vote = {
                 upvote: props.isUpvote? givenAmount:0,
@@ -95,7 +106,7 @@ const VoteBox = (props: Props) => {
                 }
             }
             
-            setUser({...user, spent: user.spent + givenAmount, userState: ret.userState});
+            setUser({...user, spent: user.spent + givenAmount, userState: ret?.userState.toJSON()});
             init();
         }
     }
@@ -118,7 +129,7 @@ const VoteBox = (props: Props) => {
     return (
         <div className="vote-overlay">
             <div className="vote-box" onClick={preventClose}>
-                <h3>{user?.reputation} Points Available</h3>
+                <h3>{availablePoints} Points Available</h3>
                 <div className="vote-margin"></div>
                 <p>Enter an amount up to 10 to give to @{props.data.epoch_key}</p>
                 <div className="vote-margin"></div>

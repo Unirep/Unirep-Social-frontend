@@ -3,11 +3,11 @@ import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { WebContext } from '../../context/WebContext';
 import * as Constants from '../../constants';
-import { getEpochKeys, getUserState, getNextEpochTime, userStateTransition, hasSignedUp, getEpochSpent } from '../../utils';
+import { getEpochKeys, getUserState, getNextEpochTime, userStateTransition, hasSignedUp, getEpochSpent, getAirdrop } from '../../utils';
 import './overlay.scss';
 
 const SignUp = () => {
-    const { setUser, setPageStatus, shownPosts, setShownPosts, setNextUSTTime, setIsLoading, isLoading } = useContext(WebContext);
+    const { user, setUser, setPageStatus, shownPosts, setShownPosts, setNextUSTTime, setIsLoading, isLoading } = useContext(WebContext);
     
     const [userInput, setUserInput] = useState<string>("");
     const [errorMsg, setErrorMsg] = useState<string>("");
@@ -39,21 +39,35 @@ const SignUp = () => {
 
         const userSignUpResult = await hasSignedUp(userInput);
         
-        if(userSignUpResult == undefined) {
+        if(userSignUpResult === undefined) {
             setErrorMsg('Incorrect Identity format.')
         } else if (userSignUpResult.hasSignedUp) {
-            const userStateResult = await getUserState(userInput);
+            const userStateResult = await getUserState(userInput, user?.userState);
             const userEpoch = userStateResult.userState.latestTransitionedEpoch;
             let userState: any = userStateResult.userState;
 
             if (userEpoch !== userStateResult.currentEpoch) {
                 console.log('user epoch is not the same as current epoch, do user state transition, ' + userEpoch + ' != ' + userStateResult.currentEpoch);
-                const retAfterUST = await userStateTransition(userInput);
-                console.log(retAfterUST);
+                const retBeforeUST = await userStateTransition(userInput, userState.toJSON());
+                const retAfterUST = await getUserState(userInput, retBeforeUST.userState.toJSON(), true)
 
                 userState = retAfterUST.userState;
             } 
+            try {
+                console.log('get airdrop')
+                await getAirdrop(userInput, userState.toJSON());
+                const next = await getNextEpochTime();
+                setNextUSTTime(next);
+            } catch (e) {
+                console.log('airdrop error: ', e)
+            }
+            
             const reputation = userState.getRepByAttester(userStateResult.attesterId);
+            console.log('has signed up flag', reputation.signUp)
+            // if(reputation.signUp === BigInt(0)) {
+            //     await signUpUnirepUser(userInput, userStateResult.userState)
+            //     console.log('rep will be airdrop next epoch')
+            // }
             const epks = await getEpochKeys(userInput, userStateResult.currentEpoch);
             const spent = await getEpochSpent(epks);
 
@@ -69,8 +83,8 @@ const SignUp = () => {
                 reputation: Number(reputation.posRep) - Number(reputation.negRep),
                 current_epoch: userStateResult.currentEpoch,
                 isConfirmed: true,
-                spent,
-                userState,
+                spent: spent,
+                userState: userState.toJSON(),
             });
 
             setShownPosts([...shownPosts].map(p => {

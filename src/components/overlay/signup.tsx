@@ -108,14 +108,17 @@ const SignUp = () => {
         setPercentage(1);
 
         const userStateResult = await getUserState(identity);
-        const currentRep = userStateResult.userState.getRepByAttester(userStateResult.attesterId);
+        const currentRep = userStateResult.userState.getRepByAttester(BigInt(userStateResult.attesterId));
         const epks = await getEpochKeys(identity, userStateResult.currentEpoch);
         let allEpks: string[] = [...epks];
         for (var i = userStateResult.currentEpoch; i > 0; i --) {
             const oldEpks = await getEpochKeys(userInput, i);
             allEpks = [...allEpks, ...oldEpks];
         }
-        await getAirdrop(identity, userStateResult.userState);
+        const {error} = await getAirdrop(identity, userStateResult.userState);
+        if(error !== undefined) {
+            console.error(error)
+        }
 
         setPageStatus(Constants.PageStatus.None);
         setUser({ 
@@ -126,7 +129,7 @@ const SignUp = () => {
             current_epoch: currentEpoch, 
             isConfirmed: userStateResult.hasSignedUp,
             spent: 0,
-            userState: userStateResult.userState,
+            userState: userStateResult.userState.toJSON(),
         });
 
         const nextET = await getNextEpochTime();

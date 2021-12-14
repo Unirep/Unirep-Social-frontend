@@ -1,6 +1,6 @@
 import { useState, useContext }  from 'react';
 
-import { publishPost, getUserState } from '../../utils';
+import { publishPost, getUserState, updateUserState } from '../../utils';
 import { Post, DataType, Page } from '../../constants';
 import { DEFAULT_POST_KARMA } from '../../config';
 import { WebContext } from '../../context/WebContext';
@@ -64,7 +64,7 @@ const PostField = ({ page }: Props) => {
             console.error('not enter anything yet.');
         } else {
             const ret = await publishPost(content, epkNonce, user.identity, reputation, user.spent, user.userState); // content, epkNonce, identity, minRep
-            if (ret !== undefined) {
+            if (ret.error === undefined) {
                 const newPost: Post = {
                     type: DataType.Post,
                     id: ret.postId,
@@ -84,13 +84,15 @@ const PostField = ({ page }: Props) => {
                 }
                 
                 setShownPosts([newPost, ...shownPosts]);
-                setUser({...user, spent: user.spent + DEFAULT_POST_KARMA, userState: ret.userState})
-
-                init();
+                setUser({...user, spent: user.spent + DEFAULT_POST_KARMA, userState: ret.userState.toJSON()})
             } else {
-                console.error('publish post error.');
+                console.error(ret.error);
+                // update user state
+                const { userState, spent } = await updateUserState(user.identity, user.userState)
+                setUser({...user, spent: spent, userState: userState.toJSON()})
             }
         }
+        init();
     }
 
     return (
