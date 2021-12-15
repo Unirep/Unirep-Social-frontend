@@ -81,18 +81,34 @@ const PostBlock = ({ post, page, commentId } : Props) => {
                 <p className="user">Post by {post.epoch_key} <img src="/images/lighting.png" /> </p>
                 <p className="etherscan">Etherscan <img src="/images/etherscan.png" /></p>
             </div>
-            <div className="divider"></div>
+            {page === Page.Home? <div className="divider"></div> : <div></div>}
             <div className="block-content" onClick={() => history.push(`/post/${post.id}`, {commentId: ''})}>
                 <div className="title">{post.title}</div>
                 <div className="content">{post.content.length > textLimit && page == Page.Home? post.content.slice(0, textLimit) + '...' : post.content}</div>
             </div>
-            <div className="divider"></div>
+            {page === Page.Home? <div className="divider"></div> : <div></div>}
             <div className="block-buttons">
                 <BlockButton type={ButtonType.Comments} count={post.comments.length} />
                 <BlockButton type={ButtonType.Boost} count={post.upvote} />
                 <BlockButton type={ButtonType.Squash} count={post.downvote} />
                 <BlockButton type={ButtonType.Share} count={0} />
             </div>
+            {page === Page.Home? <div></div> : 
+                <div className="comment">
+                    <div className="comment-block">
+                        <textarea placeholder="What's your thought?" />
+                    </div>
+                    <div className="divider"></div>
+                    {post.comments.length > 0? 
+                        <div className="comments-list">
+
+                        </div> : <div className="no-comments">
+                            <img src="/images/glasses.png" />
+                            <p>It's empty here.<br/>People just being shy, no comment yet.</p>
+                        </div>
+                    }
+                    
+                </div>}
         </div>
         // <div className="post-block">
         //     <BlockHeader 
