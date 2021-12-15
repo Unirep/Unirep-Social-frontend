@@ -680,6 +680,24 @@ const c1: Comment = {
     current_epoch: 1
 };
 
+const c2: Comment = {
+    type: DataType.Comment,
+    id: "618b95dd0eadf730d28d3b3b",
+    post_id: "618b8f2c0eadf730d28d3ac1",
+    content: "try comment 222222222222222222222222222222222222222222222222222222222222222222222222",
+    votes: [],
+    upvote: 1,
+    downvote: 0,
+    isUpvoted: false,
+    isDownvoted: false,
+    epoch_key: "487a4930",
+    username: '',
+    post_time: 1636537821434,
+    reputation: 4,
+    isAuthor: false,
+    current_epoch: 1
+};
+
 const p1: Post = {
     type: DataType.Post,
     id: "618b8f2c0eadf730d28d3ac1",
@@ -695,7 +713,7 @@ const p1: Post = {
     username: '',
     post_time: 1636536108193,
     reputation: 5,
-    comments: [c1],
+    comments: [c1, c2],
     current_epoch: 1
 };
 

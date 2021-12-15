@@ -101,7 +101,14 @@ const PostBlock = ({ post, page, commentId } : Props) => {
                     <div className="divider"></div>
                     {post.comments.length > 0? 
                         <div className="comments-list">
-
+                            {
+                                post.comments.map((c, i) => 
+                                    <div>
+                                        <CommentBlock page={page} comment={c} />
+                                        {i < post.comments.length-1? <div className="divider"></div> : <div></div>}
+                                    </div>
+                                )
+                            }
                         </div> : <div className="no-comments">
                             <img src="/images/glasses.png" />
                             <p>It's empty here.<br/>People just being shy, no comment yet.</p>
