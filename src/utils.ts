@@ -684,7 +684,7 @@ const p1: Post = {
     type: DataType.Post,
     id: "618b8f2c0eadf730d28d3ac1",
     title: 'p1 title is unknown',
-    content: "Post 1",
+    content: "Post 1, 123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890",
     votes: [v1],
     upvote: 1,
     downvote: 0,
@@ -738,23 +738,27 @@ export const getPostById = async (epks: string[], postid: string) => {
     }
 }
 
-export const getPostsByQuery = async (epks: string[], sort: string, maintype: string, subtype: string, start: number, end: number, lastRead: string = '0') => {
-    // const apiURL = makeURL(`post`, {sort, maintype, subtype, start, end, lastRead});
-    // console.log(apiURL);
+// export const getPostsByQuery = async (epks: string[], sort: string, maintype: string, subtype: string, start: number, end: number, lastRead: string = '0') => {
+//     // const apiURL = makeURL(`post`, {sort, maintype, subtype, start, end, lastRead});
+//     // console.log(apiURL);
 
-    // let ret: Post[] = [];
-    // await fetch(apiURL).then(response => response.json()).then(
-    //     data => {
-    //         console.log(data);
-    //         for (var i = 0; i < data.length; i ++) {
-    //             const post = convertDataToPost(data[i], epks);
-    //             ret = [...ret, post];
-    //         }
-    //     }
-    // );
+//     // let ret: Post[] = [];
+//     // await fetch(apiURL).then(response => response.json()).then(
+//     //     data => {
+//     //         console.log(data);
+//     //         for (var i = 0; i < data.length; i ++) {
+//     //             const post = convertDataToPost(data[i], epks);
+//     //             ret = [...ret, post];
+//     //         }
+//     //     }
+//     // );
 
-    // return ret;
+//     // return ret;
 
+//     return [p1, p2];
+// }
+
+export const getPostsByQuery = async () => {
     return [p1, p2];
 }
 

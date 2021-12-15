@@ -48,15 +48,22 @@
       width: 100%;
       padding: 24px 24px 32px;
       color: $black;
+      cursor: pointer;
+
+      &:hover {
+        background-color: $grey-100;
+      }
 
       .title {
         font-size: $title-sm;
         font-weight: 600;
         margin-bottom: 16px;
+        word-wrap: break-word;
       }
 
       .content {
         font-size: $text-base;
+        word-wrap: break-word;
       }
     }
   

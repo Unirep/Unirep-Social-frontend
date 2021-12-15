@@ -32,6 +32,8 @@ const PostBlock = ({ post, page, commentId } : Props) => {
     const [ isVotersListOn, setIsVotersListOn ] = useState(false);
     const shownVoters = 4;
 
+    const textLimit = 240;
+
     useEffect(() => {
         if (commentId !== undefined) {
             console.log(commentId);
@@ -80,9 +82,9 @@ const PostBlock = ({ post, page, commentId } : Props) => {
                 <p className="etherscan">Etherscan <img src="/images/etherscan.png" /></p>
             </div>
             <div className="divider"></div>
-            <div className="block-content">
+            <div className="block-content" onClick={() => history.push(`/post/${post.id}`, {commentId: ''})}>
                 <div className="title">{post.title}</div>
-                <div className="content">{post.content}</div>
+                <div className="content">{post.content.length > textLimit && page == Page.Home? post.content.slice(0, textLimit) + '...' : post.content}</div>
             </div>
             <div className="divider"></div>
             <div className="block-buttons">

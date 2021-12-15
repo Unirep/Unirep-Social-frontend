@@ -37,20 +37,12 @@ const MainPage = () => {
         //     }
         // }
 
-        // const sortedPosts = await getPostsByQuery(
-        //     user === null? [] : user.epoch_keys, 
-        //     feedChoices.query1, // sort
-        //     feedChoices.query0, // maintype
-        //     feedChoices.query2, // subtype
-        //     start,
-        //     end,
-        //     lastRead
-        // );
-        // if (lastRead === '0') {
-        //     setShownPosts(sortedPosts);
-        // } else {
-        //     setShownPosts([...shownPosts, ...sortedPosts]);
-        // }
+        const sortedPosts = await getPostsByQuery();
+        if (lastRead === '0') {
+            setShownPosts(sortedPosts);
+        } else {
+            setShownPosts([...shownPosts, ...sortedPosts]);
+        }
     }
 
     const loadMorePosts = () => {
@@ -62,9 +54,9 @@ const MainPage = () => {
         }
     }
 
-    // useEffect(() => {
-    //     getPosts();
-    // }, [feedChoices]);
+    useEffect(() => {
+        getPosts();
+    }, [feedChoice]);
 
     const getQueryPeriod = () => {
         // if (feedChoices.query3 === QueryType.today) return 1;
