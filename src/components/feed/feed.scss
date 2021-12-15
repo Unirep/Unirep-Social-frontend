@@ -2,6 +2,7 @@
 
 .feed-row {
     display: flex;
+    margin: 32px 0px;
 
     .feed-choice {
       @include myButton($height: 40px, $radius: 4px, $font-size: $text-md, $font-weight: 600);

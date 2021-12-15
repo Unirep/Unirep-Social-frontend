@@ -3,6 +3,7 @@ import { getPostsByQuery } from '../../utils';
 import { WebContext } from '../../context/WebContext';
 import { MainPageContext } from '../../context/MainPageContext';
 import { Page, QueryType, FeedChoices } from '../../constants';
+import SideColumn from '../sideColumn/sideColumn';
 import PostsList from '../postsList/postsList';
 import Banner from './banner';
 import VoteBox from '../voteBox/voteBox';
@@ -98,7 +99,7 @@ const MainPage = () => {
                         </div>
                     </div>
                     <div className="side-content">
-                        side side
+                        <SideColumn />
                     </div>
                     <div className="margin-box"></div>
                     { voteReceiver !== null?

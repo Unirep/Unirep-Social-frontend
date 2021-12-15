@@ -117,67 +117,6 @@ const PostBlock = ({ post, page, commentId } : Props) => {
                     
                 </div>}
         </div>
-        // <div className="post-block">
-        //     <BlockHeader 
-        //         data={post}
-        //         page={page}
-        //     />
-        //     <div className="post-block-main">
-        //         <div className="post-block-info">
-        //             <div className="datetime-text">{date}</div>
-        //             <div className="datetime-text">|</div>
-        //             <div className="etherscan"> 
-        //                 <span>Etherscan</span>
-        //                 <img src="/images/etherscan.png" />
-        //             </div>
-        //             <div className="post-share">
-        //                 <img src="/images/share.png" />
-        //             </div>
-        //         </div>
-        //         <div className="post-text">{post.content}</div>
-        //     </div>
-
-        //     <div className='post-voters' onClick={switchVotersList}>
-        //         {
-        //             post.votes.slice(0, shownVoters).map((vote, index) => (
-        //                 <div className="voter" key={vote.epoch_key + '-' + index}><Jdenticon size="19" value={vote.epoch_key} /></div>
-        //             ))
-        //         }
-        //         {
-        //             post.votes.length > shownVoters? <div className="voter-text">+{post.votes.length - shownVoters}</div> : <div></div>
-        //         }
-        //         <div className="voter-text voter-more">{isVotersListOn? "hide" : "show"}</div>
-        //     </div>
-        //     { isVotersListOn? 
-        //         <VotersList votes={post.votes}/> : <div></div>
-        //     }
-        //     <div className="comment-block">
-        //         <div className={showComment? "comment-btn without-bottom" : user && !isLoading? "comment-btn" : "comment-btn disabled"} 
-        //             onClick={user && !isLoading? switchComment : ()=>{}} 
-        //             onMouseOver={onHover} onMouseLeave={onLeave}>
-        //             <img src="/images/comment.png"/>
-        //             <span>Comment</span>
-        //         </div>
-        //         { showComment? 
-        //             <CommentField post={post} closeComment={() => setShowComment(false)} page={page}/> : <div></div>
-        //         }
-        //         { isHover? <div className="hover-box">{hoverText}</div>:<div></div>}
-        //     </div>
-        //     { post.comments.length > 0? 
-        //         <div className="comments-list">
-        //             {
-        //                 page === Page.Home? (
-        //                     <div>
-        //                         <CommentBlock comment={post.comments[0]} page={page} />
-        //                         <div className="view-more-comments" onClick={() => history.push(`/post/${post.id}`, {commentId: ''})}>View more comments</div>
-        //                     </div>
-        //                 ) : post.comments.map(comment => comment.id === commentId? 
-        //                     (<div ref={gotoComment} key={comment.id}><CommentBlock comment={comment} page={page} /></div>) :
-        //                     (<CommentBlock comment={comment} key={comment.id} page={page} />))
-        //             }
-        //         </div> : <div></div>
-        //     }
-        // </div>
     );
 };
 
