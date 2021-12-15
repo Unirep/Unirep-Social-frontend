@@ -1,0 +1,97 @@
+@import '../../styles.scss';
+
+.login-page {
+    position: fixed;
+    top: 0;
+    z-index: 15;
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background-color: $black;
+
+    .left-column {
+        flex: 3;
+        height: 100%;
+        background-color: $black;
+        position: relative;
+
+        img {
+            width: 50%;
+            position: absolute;
+            top: 30%;
+            left: 25%;
+        }
+    }
+
+    .right-column {
+        flex: 4;
+        height: 100%;
+        background-color: $grey-100;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        img {
+            width: 48px;
+            height: 48px;
+            position: absolute;
+            top: 48px;
+            right: 120px;
+            cursor: pointer;
+        }
+
+
+        .info {
+            color: $black;
+            display: flex;
+            flex-direction: column;
+
+            .title {
+                font-size: $title-lg;
+                font-weight: 700;
+                line-height: 62px;
+                margin-bottom: 16px;
+            }
+
+            textarea {
+                background-color: $white;
+                border-radius: 8px;
+                width: 500px;
+                height: 136px;
+                border: none;
+                outline: none;
+                resize: none;
+                padding: 8px 16px;
+                margin: 40px 0px 16px 0px;
+            }
+
+            .sign-in-btn {
+                @include myButton($width: 500px, $height: 46px, $radius: 8px, $color: $white, $block-color: $black, $font-weight: 600, $font-size: $title-sm);
+                margin: 16px 0px 12px 0px;
+            }
+
+            .notification {
+                width: 500px;
+                border-radius: 8px;
+                background-color: $grey-200;
+                font-size: $text-sm;
+                padding: 8px;
+                margin: 12px 0px 32px 0px;
+            }
+
+            .go-to-signup {
+                font-size: $text-base;
+            }
+
+            span {
+                font-weight: 600;
+                cursor: pointer;
+            }
+        }
+    }
+}

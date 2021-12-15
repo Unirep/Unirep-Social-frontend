@@ -128,7 +128,7 @@ const Header = () => {
                     <div className={isLoading? "whiteButton disabled" : "whiteButton"} onClick={logout}>Log out</div>
                 </div> :
                 <div className="navButtons">
-                    <div className="whiteButton" onClick={signIn}>Sign in</div>
+                    <div className="whiteButton" onClick={() => history.push('/login')}>Sign in</div>
                     <div className="blackButton" onClick={signUp}>Join</div>
                 </div>
                 

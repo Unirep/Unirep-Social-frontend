@@ -10,6 +10,7 @@ import MainPage from './components/mainPage/mainPage';
 import PostPage from './components/postPage/postPage';
 import UserPage from './components/userPage/userPage';
 import HelpPage from './components/helpPage/helpPage';
+import LoginPage from './components/loginPage/loginPage';
 
 import { WebContext } from './context/WebContext';
 
@@ -37,6 +38,7 @@ const AppRouter = () => {
                     <Route component={PostPage} path="/post/:id" />
                     <Route component={UserPage} path="/user" />
                     <Route component={HelpPage} path="/help" />
+                    <Route component={LoginPage} path="/login" />
                     <Route component={() => <Redirect to="/" />} />
                 </Switch>
 
