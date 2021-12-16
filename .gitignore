@@ -5,6 +5,7 @@
 
 # build
 build/
+nohup.out
 
 # artifacts
 artifacts/
