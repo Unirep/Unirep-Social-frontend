@@ -129,7 +129,7 @@ const Header = () => {
                 </div> :
                 <div className="navButtons">
                     <div className="whiteButton" onClick={() => history.push('/login')}>Sign in</div>
-                    <div className="blackButton" onClick={signUp}>Join</div>
+                    <div className="blackButton" onClick={() => history.push('/signup')}>Join</div>
                 </div>
                 
             }   
