@@ -42,8 +42,10 @@ const SignupPage = () => {
             // if exists, get identity and commitment
             setStep(1);
         } else if (step === 1) {
-            navigator.clipboard.writeText(identity);
-            setStep(2);
+            if (isDownloaded) {
+                navigator.clipboard.writeText(identity);
+                setStep(2);
+            }
         } else if (step === 2) {
             setStep(3);
         } else if (step === 3) {
@@ -93,13 +95,28 @@ const SignupPage = () => {
                 <div className="info">
                     <div className="title">{title[step]}</div>
                     <p>{content[step]}</p>
-                    <textarea className={step === 0? '' : 'larger'} onChange={handleInput} value={step === 0? invitationCode : step === 1? identity : step === 2? userEnterIdentity : ''} />
                     {
-                        step === 1? 
-                            <div className="buttons">
-                                <div className="half-btn" onClick={downloadPrivateKey}>Download</div>
-                                <div className="margin"></div>
-                                <div className="half-btn" onClick={nextStep}>Copy</div>
+                        step === 3? 
+                            <div></div> : 
+                            <textarea 
+                                className={step === 0? '' : 'larger'} 
+                                onChange={handleInput} 
+                                value={step === 0? invitationCode : step === 1? identity : step === 2? userEnterIdentity : ''} 
+                            />
+                    }
+                    {
+                        step === 1?
+                            <div className="row-with-step">
+                                <div className="buttons">
+                                    <div className={isDownloaded? "half-btn disabled" : "half-btn"} onClick={downloadPrivateKey}>Download</div>
+                                    <div className="margin"></div>
+                                    <div className={isDownloaded? "half-btn" : "half-btn disabled"} onClick={nextStep}>Copy</div>
+                                </div>
+                                <div className="step">
+                                    <div className={isDownloaded? "number disabled" : "number"}>1</div>
+                                    <div className={isDownloaded? "line" : "line disabled"}></div>
+                                    <div className={isDownloaded? "number" : "number disabled"}>2</div>
+                                </div>
                             </div> : <div className="main-btn" onClick={nextStep}>{mainButton[step]}</div>
                     }
                     <div className="added-info">Need an invitation code? <span>Request here</span></div>
