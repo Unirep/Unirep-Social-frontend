@@ -19,7 +19,7 @@ const SignupPage = () => {
         "Join us",
         "Great to have you here!",
         "Let's confirm the ownership.",
-        "Nice!"
+        "🎉  NICE. "
     ];
 
     const content = [

@@ -10,6 +10,7 @@ const SideColumn = () => {
     return (
         <div>
             <DefaultWidget />
+            <div className="back-to-top" onClick={() => window.scrollTo(0, 0)}>Back to top</div>
         </div>
     );
 }

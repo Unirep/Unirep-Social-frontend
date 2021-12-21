@@ -114,6 +114,7 @@
 
                     .disabled {
                         background-color: $grey-400;
+                        cursor: not-allowed;
                     }
 
                     .line {
@@ -137,6 +138,7 @@
 
                     .disabled {
                         background-color: $grey-400;
+                        cursor: not-allowed;
                     }
     
                     .margin {
