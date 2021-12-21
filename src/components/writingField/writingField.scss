@@ -2,102 +2,223 @@
 
 .writing-field {
     width: 100%;
-    padding: 10px 8px 16px 8px;
-    background-image: radial-gradient(99.12% 159.6% at 92.94% 95.93%, #E4D3FF 0%, #E5EEFF 62.33%, #EEE1FF 69.62%, #DAD7F8 81.02%);
-    border-radius: 8px;
-    position: relative;
+
+    input[type="text"] {
+        width: 100%;
+        height: 68px;
+        background-color: $grey-100;
+        border-radius: 8px;
+        border: 1px solid $grey-200;
+        outline: none; 
+        padding: 16px;
+        margin-top: 32px;
+        font-size: $title-sm;
+        font-weight: 700;
+
+        &::-webkit-input-placeholder {
+            color: $grey-300;
+            font-size: $title-sm;
+            font-weight: 700;
+          }
+
+          &::-moz-placeholder {
+            color: $grey-300;
+            font-size: $title-sm;
+            font-weight: 700;
+        }
+    }
 
     textarea {
         width: 100%;
-        height: 32px;
-        border-radius: 4px;
-        border: 1px solid #E0E0E0;
+        height: 251px;
+        margin-top: 16px;
+        padding: 8px 16px;
+        border-radius: 8px;
+        border: 1px solid $grey-200;
+        background-color: $grey-100;
+        color: $black;
+        font-size: $text-base;
+        line-height: 22px;
         outline: none;
-        resize: none;
-
-        font-size: $text-sm;
-        font-weight: 400;
-        padding: 7px 16px;
     }
 
-    .error {
+    .info-row {
         width: 100%;
-        font-size: $text-sm;
-        color: $grey-300;
-        text-align: center;
-        margin: 12.5px auto;
+        display: flex;
+        flex-direction: row;
+        margin-top: 40px;
 
-        img {
-          width: 18px;
-          height: 18px;
-          margin-right: 11px;
+        .element {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+
+            .name {
+                color: $grey-700;
+                font-size: $text-sm;
+                font-weight: 600;
+                
+                img {
+                    width: 16px;
+                    height: 16px;
+                    margin-left: 4px;
+                }
+            }
+
+            .epks {
+                display: flex;
+                flex-direction: row;
+                align-items: flex-start;
+                margin-top: 16px;
+
+                .epk {
+                    @include myButton($height: 32px, $font-size: $text-sm, $color: $black, $radius: 8px, $border: 1px, $border-color: $black, $margin-horizontal: 0px);
+                    margin-right: 8px;
+                    padding: 7px 16px;
+                }
+
+                .chosen {
+                    background-color: $black;
+                    color: $white;
+                }
+            }
+
+            .rep-chooser {
+                display: flex;
+                flex-direction: row;
+                margin-top: 16px;
+                align-items: center;
+
+                input[type="range"] {
+                    width: 278px;
+                    height: 8px;
+                }
+
+                input[type="text"] {
+                    width: 48px;
+                    height: 32px;
+                    outline: none;
+                    background-color: $grey-100;
+                    border: 1px solid $grey-200;
+                    border-radius: 8px;
+                    color: $black;
+                    margin: 0px 16px;
+                    font-size: $text-base;
+                    font-weight: 400;
+                    text-align: center;
+                    padding: 0px;
+                }
+            }
         }
-      }
-
-    .note {
-        width: 100%;
-        margin: 10px auto 0px auto;
-        text-align: center;
-        font-size: $text-sm;
     }
 
     .submit-btn {
         width: 100%;
-        height: 32px;
-        line-height: 32px;
-        color: #fff;
-        background-color: $grey-300;
-        border-radius: 20px;
-        box-shadow: 0px 3px 2px rgba(0, 0, 0, 0.1);
-        text-align: center;
-        vertical-align: middle;
-        cursor: pointer;
-    }
-
-    .setting-area {
-        position: relative;
-        height: 162px;
-        margin-top: 17px;
-        margin-bottom: 17px;
-        background-color: #fff;
-        border-radius: 8px;
-        padding: 8px 16px;
-
-        label {
-            font-size: $text-sm;
-            color: $grey-800;
-            cursor: pointer;
-            margin-top: 8px;
-            margin-bottom: 8px;
-
-            span {
-                color: #BDBDBD;
-                font-size: $text-sm;
-                font-weight: bold;
-            }
-        }
-
-        .divider {
-            width: 100%;
-            height: 1px;
-            background-color: $grey-300;
-            margin: 0 auto;
-        }
-
-        .setting-epk {
-            z-index: 7;
-            width: 515px; 
-            position: relative;
-            top: 8px;
-        }
-
-        .setting-reputation {
-            z-index: 5;
-            position: absolute;
-            bottom: 8px;
-            textarea {
-                width: 515px;
-            }
-        }
+        @include myButton($height: 58px, $radius: 8px, $block-color: $black, $color: $white, $font-weight: 700, $font-size: $text-lg, $margin-horizontal: 0px);
+        margin-top: 48px;
     }
 }
+
+// below are old version
+// .writing-field {
+//     width: 100%;
+//     padding: 10px 8px 16px 8px;
+//     background-image: radial-gradient(99.12% 159.6% at 92.94% 95.93%, #E4D3FF 0%, #E5EEFF 62.33%, #EEE1FF 69.62%, #DAD7F8 81.02%);
+//     border-radius: 8px;
+//     position: relative;
+
+//     textarea {
+//         width: 100%;
+//         height: 32px;
+//         border-radius: 4px;
+//         border: 1px solid #E0E0E0;
+//         outline: none;
+//         resize: none;
+
+//         font-size: $text-sm;
+//         font-weight: 400;
+//         padding: 7px 16px;
+//     }
+
+//     .error {
+//         width: 100%;
+//         font-size: $text-sm;
+//         color: $grey-300;
+//         text-align: center;
+//         margin: 12.5px auto;
+
+//         img {
+//           width: 18px;
+//           height: 18px;
+//           margin-right: 11px;
+//         }
+//       }
+
+//     .note {
+//         width: 100%;
+//         margin: 10px auto 0px auto;
+//         text-align: center;
+//         font-size: $text-sm;
+//     }
+
+//     .submit-btn {
+//         width: 100%;
+//         height: 32px;
+//         line-height: 32px;
+//         color: #fff;
+//         background-color: $grey-300;
+//         border-radius: 20px;
+//         box-shadow: 0px 3px 2px rgba(0, 0, 0, 0.1);
+//         text-align: center;
+//         vertical-align: middle;
+//         cursor: pointer;
+//     }
+
+//     .setting-area {
+//         position: relative;
+//         height: 162px;
+//         margin-top: 17px;
+//         margin-bottom: 17px;
+//         background-color: #fff;
+//         border-radius: 8px;
+//         padding: 8px 16px;
+
+//         label {
+//             font-size: $text-sm;
+//             color: $grey-800;
+//             cursor: pointer;
+//             margin-top: 8px;
+//             margin-bottom: 8px;
+
+//             span {
+//                 color: #BDBDBD;
+//                 font-size: $text-sm;
+//                 font-weight: bold;
+//             }
+//         }
+
+//         .divider {
+//             width: 100%;
+//             height: 1px;
+//             background-color: $grey-300;
+//             margin: 0 auto;
+//         }
+
+//         .setting-epk {
+//             z-index: 7;
+//             width: 515px; 
+//             position: relative;
+//             top: 8px;
+//         }
+
+//         .setting-reputation {
+//             z-index: 5;
+//             position: absolute;
+//             bottom: 8px;
+//             textarea {
+//                 width: 515px;
+//             }
+//         }
+//     }
+// }

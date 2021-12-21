@@ -11,9 +11,7 @@ import { DEFAULT_POST_KARMA, DEFAULT_COMMENT_KARMA } from '../../config';
 
 type Props = {
     type: DataType,
-    epkNonce: number,
-    changeEpk: (epkNonce: number) => void,
-    submit: (rep: number, content: string) => void,
+    submit: (title: string, content: string, epkNonce: number, reputation: number) => void,
     submitBtnName: string,
     onClick: (event: any) => void,
 }
@@ -25,8 +23,10 @@ const WritingField = (props: Props) => {
 
     const { user, setIsLoading } = useContext(WebContext);
     const [ reputation, setReputation ] = useState(defaultRep);
-    const [ content, setContent ] = useState('');
-    const [ errorMsg, setErrorMsg ] = useState('');
+    const [ title, setTitle ] = useState<string>('');
+    const [ content, setContent ] = useState<string>('');
+    const [ epkNonce, setEpkNonce ] = useState<number>(0);
+    const [ errorMsg, setErrorMsg ] = useState<string>('');
     const [ isDropdown, setIsDropdown ] = useState(false);
     const [ isBlockLoading, setIsBlockLoading ] = useState(false);
     const [percentage, setPercentage] = useState<number>(0);
@@ -55,9 +55,17 @@ const WritingField = (props: Props) => {
         setIsDropdown(false);
     }
 
-    const handleUserInput = (event: any) => {
+    const handleTitleInput = (event: any) => {
+        setTitle(event.target.value);
+    }
+
+    const handleContentInput = (event: any) => {
         setContent(event.target.value);
         setErrorMsg('');
+    }
+
+    const handleRepInput = (event: any) => {
+        setReputation(event.target.value);
     }
 
     const submit = () => {
@@ -75,13 +83,44 @@ const WritingField = (props: Props) => {
             setIsLoading(true);
             setPercentage(1);
             setIsBlockLoading(true);
-            props.submit(reputation, content);
+            props.submit(title, content, epkNonce, reputation);
         }
     }
 
     return (
         <div className="writing-field" onClick={onClickField}>
-            <textarea name="userInput" placeholder="Share something!" onChange={handleUserInput}></textarea>
+            <input type="text" placeholder="Give an eye-catching title" onChange={handleTitleInput}/>
+            <textarea onChange={handleContentInput}/>
+            <div className="info-row">
+                <div className="element">
+                    <div className="name">Post as <img src="/images/info.png"/></div>
+                    <div className="epks">
+                        { user === null? 
+                            <div>somethings wrong...</div> : 
+                            user.epoch_keys.map((epk, i) => 
+                                <div className={i === epkNonce? "epk chosen" : "epk"} onClick={() => setEpkNonce(i)}>
+                                    {epk}
+                                </div>
+                            )
+                        }
+                    </div>
+                </div>
+                <div className="element">
+                    <div className="name">My Rep show off <img src="/images/info.png"/></div>
+                    <div className="rep-chooser">
+                        <input type="range" 
+                            min={defaultRep} 
+                            max={user? user.reputation : defaultRep} 
+                            defaultValue={defaultRep}
+                            onChange={handleRepInput}
+                            value={reputation}
+                        />
+                        <input type="text" value={reputation} onChange={handleRepInput}/>
+                    </div>
+                </div>
+            </div>
+            <div className="submit-btn">{props.submitBtnName}</div>
+            {/* <textarea name="userInput" placeholder="Share something!" onChange={handleUserInput}></textarea>
             <div className="setting-area">
                 <div className="setting-epk">
                     <label>Select an Epoch Key to display with your post <span onClick={() => history.push('/help')}>?</span></label>
@@ -127,7 +166,7 @@ const WritingField = (props: Props) => {
                         }}/>
                     </div>
                 </div> : <div></div>
-            }
+            } */}
         </div>
     );
 }

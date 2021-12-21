@@ -19,7 +19,7 @@ const CommentField = (props: Props) => {
         event.stopPropagation();
     }
 
-    const submitComment = async (reputation: number, content: string) => {
+    const submitComment = async (title: string="", content: string, epkNonce: number, reputation: number)=> {
         if (user === null) {
             console.error('user not login!');
         } else if (content.length === 0) {
@@ -67,9 +67,7 @@ const CommentField = (props: Props) => {
     return (
         <div className="comment-field">
             <WritingField
-                type={DataType.Comment} 
-                epkNonce={epkNonce}
-                changeEpk={setEpk}
+                type={DataType.Comment}
                 submit={submitComment} 
                 submitBtnName="Comment"
                 onClick={preventPropagation}

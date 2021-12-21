@@ -57,7 +57,7 @@ const PostField = ({ page }: Props) => {
         }  
     }
 
-    const submitPost = async (reputation: number, content: string, title: string = "unknown title") => {
+    const submitPost = async (title: string = "unknown title", content: string, epkNonce: number, reputation: number) => {
         if (user === null) {
             console.log('not login yet.');
         } else if (content.length === 0) {
@@ -98,9 +98,7 @@ const PostField = ({ page }: Props) => {
         <div className="post-field">
             {(page === Page.Home? isMainPagePostFieldActive : isUserPagePostFieldActive) && user && user.identity ?
                 <WritingField 
-                    type={DataType.Post} 
-                    epkNonce={epkNonce}
-                    changeEpk={changeEpk}
+                    type={DataType.Post}
                     submit={submitPost} 
                     submitBtnName="Post"
                     onClick={preventPropagation}

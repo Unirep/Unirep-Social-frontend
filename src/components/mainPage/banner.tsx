@@ -1,5 +1,8 @@
+type Props = {
+    closeBanner: () => void
+}
 
-const Banner = () => {
+const Banner = ({ closeBanner }: Props) => {
     return (
         <div className="banner-row">
             <div className="banner">
@@ -10,7 +13,7 @@ const Banner = () => {
                     <div className="banner-button">How it work?</div>
                     <div className="banner-button">Join now</div>
                 </div>
-                <div className="banner-close"><img src="/images/close.png" /></div>
+                <div className="banner-close" onClick={closeBanner}><img src="/images/close.png" /></div>
             </div>
         </div>
     );

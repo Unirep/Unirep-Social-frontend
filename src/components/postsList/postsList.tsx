@@ -12,7 +12,7 @@ type Props = {
 
 const PostsList = ({ posts, timeFilter, loadMorePosts }: Props) => {
     const chosenPosts = posts.filter(post => diffDays(post.post_time, Date.now()) <= timeFilter);
-    const otherPosts = posts.filter(post => diffDays(post.post_time, Date.now()) > timeFilter)
+    // const otherPosts = posts.filter(post => diffDays(post.post_time, Date.now()) > timeFilter)
 
     return (
         <div>
@@ -25,8 +25,12 @@ const PostsList = ({ posts, timeFilter, loadMorePosts }: Props) => {
                         commentId={undefined}
                     />
                 ))
-            ) : <p>No posts are available. Load other popular posts.</p>}
-            { chosenPosts.length > 0? <div className="split-text">- End of available posts. Load other popular posts. -</div> : <div></div>}
+            ) : <div className="no-posts">
+                    <img src="/images/glasses.png" />
+                    <p>It's empty here.<br />People just being shy, no post yet.</p>
+                </div>
+            }
+            {/* { chosenPosts.length > 0? <div className="split-text">- End of available posts. Load other popular posts. -</div> : <div></div>}
             {
                 otherPosts.map((post, i) => (
                     <PostBlock 
@@ -36,7 +40,7 @@ const PostsList = ({ posts, timeFilter, loadMorePosts }: Props) => {
                         commentId={undefined}
                     />
                 ))
-            }
+            } */}
             <div className="load-more-button" onClick={loadMorePosts}>Load more posts</div>
         </div>
     );

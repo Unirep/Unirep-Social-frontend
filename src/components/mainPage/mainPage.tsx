@@ -1,4 +1,6 @@
 import { useContext, useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
+
 import { getPostsByQuery } from '../../utils';
 import { WebContext } from '../../context/WebContext';
 import { MainPageContext } from '../../context/MainPageContext';
@@ -12,6 +14,8 @@ import './mainPage.scss';
 
 const MainPage = () => {
 
+    const history = useHistory();
+
     const { shownPosts, setShownPosts, isLoading, user } = useContext(WebContext);
 
     const [isPostFieldActive, setIsPostFieldActive] = useState(false);
@@ -19,6 +23,7 @@ const MainPage = () => {
     const [isDownVoteBoxOn, setIsDownVoteBoxOn] = useState(false);
     const [voteReceiver, setVoteReceiver] = useState<any>(null);
     const [feedChoice, setFeedChoice] = useState<QueryType>(QueryType.New);
+    const [showBanner, setShowBanner] = useState<Boolean>(true);
 
     const getPosts = async (lastRead: string = '0') => {
         // const end = Date.now();
@@ -67,6 +72,12 @@ const MainPage = () => {
         // else return 100000000;
     }
 
+    const gotoNewPost = () => {
+        if (user !== null){
+            history.push('/new');
+        }
+    }
+
     const closeAll = () => {
         if (!isLoading) {
             setIsPostFieldActive(false);
@@ -78,7 +89,7 @@ const MainPage = () => {
 
     return (
         <div className="wrapper">
-            <Banner />
+            {showBanner? <Banner closeBanner={() => setShowBanner(false)}/> : <div></div>}
             <div className="default-gesture" onClick={closeAll}>
                 <MainPageContext.Provider value={{
                         isPostFieldActive, setIsPostFieldActive,
@@ -87,7 +98,7 @@ const MainPage = () => {
                         mainPageVoteReceiver: voteReceiver, setMainPageVoteReceiver: setVoteReceiver}}>
                     <div className="margin-box"></div>
                     <div className="main-content">
-                        <div className="create-post">Create post</div>
+                        <div className="create-post" onClick={gotoNewPost}>{user === null? 'You must join or login to create post' : 'Create post'}</div>
                         <Feed feedChoice={feedChoice} setFeedChoice={setFeedChoice} />
                         <div className="post-list">
                             <PostsList 

@@ -19,4 +19,20 @@
         background-color: $white;
         cursor: pointer;
     }
+
+    .no-posts {
+        width: 100%;
+        margin-top: 50px;
+        text-align: center;
+
+        img {
+            width: 140px;
+            height: 140px;
+        }
+
+        p {
+           font-size: $text-xs;
+           color: $grey-700; 
+        }
+    }
 }
