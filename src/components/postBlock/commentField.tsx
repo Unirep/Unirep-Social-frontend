@@ -58,7 +58,7 @@ const CommentField = (props: Props) => {
                 console.error(ret.error);
                 setIsLoading(false);
                 const { userState, spent } = await updateUserState(user.identity, user.userState)
-                setUser({...user, spent: spent, userState: userState.toJSON()})
+                setUser({...user, spent: spent, userState: userState})
                 props.closeComment();
             }
         }

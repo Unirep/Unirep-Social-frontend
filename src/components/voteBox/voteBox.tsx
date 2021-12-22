@@ -4,6 +4,7 @@ import 'react-circular-progressbar/dist/styles.css';
 import { updateUserState, vote } from '../../utils';
 import { WebContext } from '../../context/WebContext';
 import { MainPageContext } from '../../context/MainPageContext';
+import { PostPageContext } from '../../context/PostPageContext';
 import { Post, Vote, Comment, DataType, ChoiceType } from '../../constants';
 import Dropdown from '../dropdown/dropdown';
 import './voteBox.scss';
@@ -11,11 +12,13 @@ import './voteBox.scss';
 type Props = {
     isUpvote: boolean,
     data: Post|Comment,
+    setPostToShow: (post: any) => void,
 }
 const VoteBox = (props: Props) => {
 
     const { user, setUser, shownPosts, setShownPosts, setIsLoading } = useContext(WebContext);
-    const { setIsMainPageUpVoteBoxOn: setIsUpVoteBoxOn, setIsMainPageDownVoteBoxOn: setIsDownVoteBoxOn, setMainPageVoteReceiver: setVoteReceiver } = useContext(MainPageContext);
+    const { setIsMainPageUpVoteBoxOn, setIsMainPageDownVoteBoxOn, setMainPageVoteReceiver } = useContext(MainPageContext);
+    const { setIsPostPageUpVoteBoxOn, setIsPostPageDownVoteBoxOn, setPostPageVoteReceiver } = useContext(PostPageContext);
     const [ givenAmount, setGivenAmount ] = useState<undefined|number>(1);
     const [ epkNonce, setEpkNonce ] = useState(0); 
     const [ isDropdown, setIsDropdown ] = useState(false);
@@ -38,9 +41,12 @@ const VoteBox = (props: Props) => {
     const init = () => {
         setIsDropdown(false);
         setIsLoading(false);
-        setVoteReceiver(null);
-        setIsUpVoteBoxOn(false);
-        setIsDownVoteBoxOn(false);
+        setMainPageVoteReceiver(null);
+        setPostPageVoteReceiver(null);
+        setIsMainPageUpVoteBoxOn(false);
+        setIsPostPageUpVoteBoxOn(false);
+        setIsMainPageDownVoteBoxOn(false);
+        setIsPostPageDownVoteBoxOn(false);
     }
 
     const doVote = async () => {
@@ -87,6 +93,7 @@ const VoteBox = (props: Props) => {
                     votes: v
                 };
                 setShownPosts([p, ...filteredPosts]);
+                props.setPostToShow(p);
             } else if (props.data.type === DataType.Comment) {
                 const selectedPost = shownPosts.find((p) => p.id === (props.data as Comment).post_id);
                 if (selectedPost === undefined) {
@@ -103,6 +110,7 @@ const VoteBox = (props: Props) => {
                     };
                     let p: Post = {...selectedPost, comments: [c, ...filteredComment]}
                     setShownPosts([p, ...filteredPosts]);
+                    props.setPostToShow(p);
                 }
             }
             

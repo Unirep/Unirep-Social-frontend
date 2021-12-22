@@ -22,7 +22,7 @@ const UserHistory = ({ histories }: Props) => {
         <div className="user-page-main-content">
             {
                 user !== null? 
-                    (Array.from(Array(user.current_epoch).keys())).map(i => {
+                    (Array.from(Array(user.current_epoch+1).keys())).map(i => {
                         const history = getHistoryByEpoch(i);
                         let netGain: number = 0;
                         history.forEach(h => netGain = netGain + h.upvote - h.downvote);

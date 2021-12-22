@@ -54,8 +54,8 @@ const PostPage = () => {
                     }  
                 </div>
                 { voteReceiver !== null?
-                        (isUpVoteBoxOn? <VoteBox isUpvote={true} data={voteReceiver} /> : 
-                        isDownVoteBoxOn? <VoteBox isUpvote={false} data={voteReceiver} /> : <div></div>) : <div></div>
+                        (isUpVoteBoxOn? <VoteBox isUpvote={true} data={voteReceiver} setPostToShow={setPostToShow} /> : 
+                        isDownVoteBoxOn? <VoteBox isUpvote={false} data={voteReceiver} setPostToShow={setPostToShow} /> : <div></div>) : <div></div>
                 }
             </PostPageContext.Provider>
         </div>

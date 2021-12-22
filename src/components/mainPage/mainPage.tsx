@@ -101,8 +101,8 @@ const MainPage = () => {
                     <div className="post-list"><PostsList posts={shownPosts} timeFilter={feedChoices.query0 === QueryType.popularity? getQueryPeriod() : 100000000} loadMorePosts={loadMorePosts} /></div>
                 </div>
                 { voteReceiver !== null?
-                    (isUpVoteBoxOn? <VoteBox isUpvote={true} data={voteReceiver} /> : 
-                    isDownVoteBoxOn? <VoteBox isUpvote={false} data={voteReceiver} /> : <div></div>) : <div></div>
+                    (isUpVoteBoxOn? <VoteBox isUpvote={true} data={voteReceiver} setPostToShow={() => {}} /> : 
+                    isDownVoteBoxOn? <VoteBox isUpvote={false} data={voteReceiver} setPostToShow={() => {}} /> : <div></div>) : <div></div>
                 }
             </MainPageContext.Provider>
         </div>

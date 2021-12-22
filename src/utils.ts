@@ -489,7 +489,7 @@ export const leaveComment = async(identity: string, content: string, postId: str
 
 export const updateUserState = async (identity: string, us?: any) => {
     let airdropRet
-    const ret = await getUserState(identity, us, true)
+    const ret = await getUserState(identity, us, true);
     if(ret.currentEpoch !== ret.userState.latestTransitionedEpoch) {
         const transitionRet = await userStateTransition(identity, ret.userState.toJSON());
         const userStateResult = await getUserState(identity, transitionRet.userState.toJSON(), true);
