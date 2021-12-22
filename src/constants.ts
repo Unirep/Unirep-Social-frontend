@@ -60,6 +60,7 @@ export interface Post {
     comments: Comment[],
     isAuthor: boolean,
     current_epoch: number,
+    tx: string,
 }
 
 export interface History {

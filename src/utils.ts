@@ -680,6 +680,7 @@ const convertDataToPost = (data: any, epks: string[]) => {
         reputation: data.minRep,
         comments,
         current_epoch: data.epoch,
+        tx: data.transactionHash
     }
 
     return post;

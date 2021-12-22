@@ -72,6 +72,11 @@ const PostBlock = ({ post, page, commentId } : Props) => {
         setHoverText('');
     }
 
+    const gotoEtherScan = () => {
+        // https://goerli.etherscan.io/tx/0xac65f67fcecd1deb929ed2c22a3adb2cfcc43e34f643493ba15069523bf5cbaf
+
+    }
+
     return (
         <div className="post-block">
             <BlockHeader 
@@ -82,10 +87,10 @@ const PostBlock = ({ post, page, commentId } : Props) => {
                 <div className="post-block-info">
                     <div className="datetime-text">{date}</div>
                     <div className="datetime-text">|</div>
-                    <div className="etherscan"> 
+                    <a className="etherscan" target="_blank" href={`https://goerli.etherscan.io/tx/${post.tx}`}> 
                         <span>Etherscan</span>
                         <img src="/images/etherscan.png" />
-                    </div>
+                    </a>
                     <div className="post-share">
                         <img src="/images/share.png" />
                     </div>
