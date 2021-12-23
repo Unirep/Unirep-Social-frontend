@@ -1,19 +1,26 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { useHistory } from 'react-router-dom';
 
 import './newPage.scss';
+import { WebContext } from '../../context/WebContext';
 import WritingField from '../writingField/writingField';
 import SideColumn from '../sideColumn/sideColumn';
 import { DataType } from '../../constants';
 
 const NewPage = () => {
+    const history = useHistory();
+    const { setIsLoading } = useContext(WebContext);
+
     const [epkNonce, setEpkNonce] = useState<number>(0);
 
     const preventPropagation = (event: any) => {
         event.stopPropagation();
     }
 
-    const submit = () => {
+    const submit = (title: string, content: string, epkNonce: number, reputation: number) => {
         console.log('submit post');
+        setIsLoading(false);
+        history.push('/');
     }
 
     return (

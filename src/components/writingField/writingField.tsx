@@ -111,7 +111,6 @@ const WritingField = (props: Props) => {
                         <input type="range" 
                             min={defaultRep} 
                             max={user? user.reputation : defaultRep} 
-                            defaultValue={defaultRep}
                             onChange={handleRepInput}
                             value={reputation}
                         />
@@ -119,7 +118,7 @@ const WritingField = (props: Props) => {
                     </div>
                 </div>
             </div>
-            <div className="submit-btn">{props.submitBtnName}</div>
+            <div className="submit-btn" onClick={submit}>{props.submitBtnName}</div>
             {/* <textarea name="userInput" placeholder="Share something!" onChange={handleUserInput}></textarea>
             <div className="setting-area">
                 <div className="setting-epk">
