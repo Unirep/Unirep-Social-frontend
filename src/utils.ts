@@ -299,7 +299,7 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
     const graffitiPreImage = BigInt(0);
     let results
     try {
-        results = await userState.genProveReputationProof(BigInt(attesterId), epkNonce, minRep, proveGraffiti, graffitiPreImage, nonceList)
+        results = await userState.genProveReputationProof(BigInt(attesterId), epkNonce, BigInt(minRep), proveGraffiti, graffitiPreImage, nonceList)
     } catch (e) {
         console.log(e)
         return undefined
