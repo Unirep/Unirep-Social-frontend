@@ -658,7 +658,8 @@ const convertDataToPost = (data: any, epks: string[]) => {
             post_time: Date.parse(data.comments[i].created_at),
             reputation: data.comments[i].minRep,
             isAuthor: epks.indexOf(data.comments[i].epochKey) !== -1,
-            current_epoch: data.comments[i].epoch
+            current_epoch: data.comments[i].epoch,
+            tx: data.comments[i].transactionHash,
         }
         comments = [...comments, comment];
     }

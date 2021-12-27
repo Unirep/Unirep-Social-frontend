@@ -42,6 +42,7 @@ export interface Comment {
     reputation: number,
     isAuthor: boolean,
     current_epoch: number,
+    tx: string,
 }
 
 export interface Post {

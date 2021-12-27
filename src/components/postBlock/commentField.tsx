@@ -43,6 +43,7 @@ const CommentField = (props: Props) => {
                     reputation: +reputation,
                     isAuthor: true,
                     current_epoch: ret.currentEpoch,
+                    tx: ret.transaction,
                 };
                 const filteredPosts = shownPosts.filter((p) => p.id != props.post?.id)
                 let comments = props.post.comments.length > 0? [c, ...props.post.comments] : [c];
