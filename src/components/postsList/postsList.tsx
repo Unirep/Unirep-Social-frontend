@@ -23,6 +23,7 @@ const PostsList = ({ posts, timeFilter, loadMorePosts }: Props) => {
                         post={post} 
                         page={Page.Home}
                         commentId={undefined}
+                        setPostToShow={() => {}}
                     />
                 ))
             ) : <p>No posts are available. Load other popular posts.</p>}
@@ -34,6 +35,7 @@ const PostsList = ({ posts, timeFilter, loadMorePosts }: Props) => {
                         post={post} 
                         page={Page.Home}
                         commentId={undefined}
+                        setPostToShow={() => {}}
                     />
                 ))
             }

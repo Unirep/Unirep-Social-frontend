@@ -17,10 +17,10 @@ const CommentBlock = ({comment, page}: Props) => {
             <div className="comment-block-info">
                 <div className="datetime-text">{date}</div>
                 <div className="datetime-text">|</div>
-                <div className="etherscan"> 
+                <a className="etherscan" target="_blank" href={`https://goerli.etherscan.io/tx/${comment.tx}`}> 
                     <span>Etherscan</span>
                     <img src="/images/etherscan.png" />
-                </div>
+                </a>
             </div>
             <p>{comment.content}</p>
         </div>

@@ -15,10 +15,11 @@ import './postBlock.scss';
 type Props = {
     post: Post,
     page: Page,
-    commentId: string | undefined
+    commentId: string | undefined,
+    setPostToShow: (p: any) => void
 }
 
-const PostBlock = ({ post, page, commentId } : Props) => {
+const PostBlock = ({ post, page, commentId, setPostToShow }: Props) => {
 
     const history = useHistory();
     const { isLoading, user } = useContext(WebContext);
@@ -120,7 +121,7 @@ const PostBlock = ({ post, page, commentId } : Props) => {
                     <span>Comment</span>
                 </div>
                 { showComment? 
-                    <CommentField post={post} closeComment={() => setShowComment(false)} page={page}/> : <div></div>
+                    <CommentField post={post} setPostToShow={setPostToShow} closeComment={() => setShowComment(false)} page={page}/> : <div></div>
                 }
                 { isHover? <div className="hover-box">{hoverText}</div>:<div></div>}
             </div>

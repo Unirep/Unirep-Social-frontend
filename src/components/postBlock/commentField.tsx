@@ -9,6 +9,7 @@ type Props = {
     post: Post,
     closeComment: () => void,
     page: Page,
+    setPostToShow: (p: any) => void,
 }
 
 const CommentField = (props: Props) => {
@@ -43,11 +44,13 @@ const CommentField = (props: Props) => {
                     reputation: +reputation,
                     isAuthor: true,
                     current_epoch: ret.currentEpoch,
+                    tx: ret.transaction,
                 };
                 const filteredPosts = shownPosts.filter((p) => p.id != props.post?.id)
                 let comments = props.post.comments.length > 0? [c, ...props.post.comments] : [c];
                 let p = {...props.post, comments};
 
+                props.setPostToShow(p);
                 setShownPosts([p, ...filteredPosts]);
                 setUser({...user, spent: user.spent + DEFAULT_COMMENT_KARMA, userState: ret.userState.toJSON()})
             

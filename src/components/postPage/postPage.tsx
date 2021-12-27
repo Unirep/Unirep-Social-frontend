@@ -50,6 +50,7 @@ const PostPage = () => {
                                 post={postToShow} 
                                 page={Page.Post}
                                 commentId={commentId}
+                                setPostToShow={setPostToShow}
                             />
                     }  
                 </div>
