@@ -61,7 +61,7 @@ const SignUp = () => {
 
     const copyPrivateKey = (event: any) => {
         event.stopPropagation();
-        navigator.clipboard.writeText(identity);
+        // navigator.clipboard.writeText(identity);
         setIsCopied(true);
     }
 
@@ -152,7 +152,7 @@ const SignUp = () => {
                 step === 0?
                 <div className="signup-with">
                     <div className="sign-message">
-                        UnirRep is an invite only social community. Enter your 8 character invitation code below.
+                        UniRep is an invite only social community. Enter your 8 character invitation code below.
                     </div>
                     <input name="invitationCode" placeholder="Invite code" onChange={handleInvitationCode} />
                     <div className="sign-button-purple" onClick={submitInvitationCode}>Sign Up</div>
