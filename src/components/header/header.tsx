@@ -95,6 +95,12 @@ const Header = () => {
         }
     }
 
+    const gotoNewPage = () => {
+        if (!isLoading) {
+            history.push(`/new`);
+        }
+    }
+
     const gotoUserPage = () => {
         if (!isLoading) {
             history.push(`/user`);
@@ -121,11 +127,14 @@ const Header = () => {
             {/* <div className="timer">{countdownText}</div> */}
             {user && user.identity? 
                 <div className="navButtons">
-                    <div className={isLoading? "whiteButton disabled" : "whiteButton"} onClick={gotoUserPage}>
+                    {/* <div className={isLoading? "whiteButton disabled" : "whiteButton"} onClick={gotoUserPage}>
                         <img src="/images/user-purple.png" />
                         <span>{user.reputation - user.spent}</span>
                     </div>
-                    <div className={isLoading? "whiteButton disabled" : "whiteButton"} onClick={logout}>Log out</div>
+                    <div className={isLoading? "whiteButton disabled" : "whiteButton"} onClick={logout}>Log out</div> */}
+                    <img src="/images/newpost.png" onClick={gotoNewPage} />
+                    <img src="/images/user.png" onClick={gotoUserPage} />
+                    <img src="/images/menu.png"/>
                 </div> :
                 <div className="navButtons">
                     <div className="whiteButton" onClick={() => history.push('/login')}>Sign in</div>

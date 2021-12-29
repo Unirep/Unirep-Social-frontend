@@ -87,6 +87,12 @@ header {
       display: flex;
       padding-right: 10px;
 
+      img {
+        height: 45px;
+        margin-left: 45px;
+        cursor: pointer;
+      }
+
       .blackButton {
         @include myButton(186px, 46px, $color: #FFF, $block-color: $black, $radius: 8px);
       }
