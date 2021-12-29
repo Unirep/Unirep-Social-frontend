@@ -18,7 +18,7 @@ const Choice = ( {name, gotoPage}: Props) => {
 const DefaultWidget = () => {
 
     return (
-        <div className="default-widget">
+        <div className="default-widget widget">
             <Choice name="How it works" gotoPage="/"/>
             <div className="choice-margin"></div>
             <Choice name="FAQ" gotoPage="/"/>
