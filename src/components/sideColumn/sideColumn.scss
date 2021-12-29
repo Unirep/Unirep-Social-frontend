@@ -92,6 +92,25 @@
     }
 }
 
+.reminder-widget {
+    border-radius: 8px;
+    border: 1px solid $grey-200;
+    padding: 24px;
+
+    h3 {
+        font-size: $title-sm;
+        font-weight: 600;
+        color: $black;
+    }
+
+    .divider {
+        width: 100%;
+        height: 1px;
+        background-color: $grey-200;
+        margin: 16px 0px;
+    }
+}
+
 .back-to-top {
     position: fixed;
     bottom: 20px;
