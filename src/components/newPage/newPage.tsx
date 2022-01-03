@@ -5,7 +5,7 @@ import './newPage.scss';
 import { WebContext } from '../../context/WebContext';
 import WritingField from '../writingField/writingField';
 import SideColumn from '../sideColumn/sideColumn';
-import { DataType } from '../../constants';
+import { DataType, Page } from '../../constants';
 
 const NewPage = () => {
     const history = useHistory();
@@ -26,6 +26,7 @@ const NewPage = () => {
     return (
         <div className="wrapper">
             <div className="default-gesture">
+                <div className="margin-box"></div>
                 <div className="main-content">
                     <h3>Create post</h3>
                     <WritingField
@@ -36,8 +37,9 @@ const NewPage = () => {
                     />
                 </div>
                 <div className="side-content">
-                    <SideColumn />
+                    <SideColumn page={Page.New} />
                 </div>
+                <div className="margin-box"></div>
             </div>
         </div>
     );

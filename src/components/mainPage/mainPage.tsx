@@ -110,7 +110,7 @@ const MainPage = () => {
                         </div>
                     </div>
                     <div className="side-content">
-                        <SideColumn />
+                        <SideColumn page={Page.Home} />
                     </div>
                     <div className="margin-box"></div>
                     { voteReceiver !== null?

@@ -5,6 +5,17 @@
     width: 100%;
 }
 
+.setting {
+    display: flex;
+    flex-direction: row;
+
+    img {
+        width: 28px;
+        margin-left: auto;
+        cursor: pointer;
+    }
+}
+
 .default-widget {
     height: 176px;
     border-radius: 8px;

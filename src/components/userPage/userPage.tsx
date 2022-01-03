@@ -1,8 +1,9 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { getRecords } from '../../utils';
 import { WebContext } from '../../context/WebContext';
+import SideColumn from '../sideColumn/sideColumn';
 import { UserPageContext } from '../../context/UserPageContext';
-import { UserPageType, History, ActionType } from '../../constants';
+import { UserPageType, History, ActionType, Page } from '../../constants';
 import UserHeader from './userHeader';
 import UserPosts from './userPosts';
 import UserHistory from './history/userHistory';
@@ -102,6 +103,7 @@ const UserPage = () => {
                 }
                 { user !== null? 
                     <div className="side-content">
+                        <SideColumn page={Page.User}/>
                     </div> : <div></div>
                 }
                 
