@@ -493,9 +493,10 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
     // );
     // return ret;
 
-    
+    // airdrop
     const h1: History = {
-        epoch_key: "UnirepSocial",
+        from: "UnirepSocial",
+        to: "13832dc0",
         upvote: 30,
         downvote: 0,
         epoch: 0,
@@ -503,8 +504,10 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
         data_id: "0",
         time: Date.parse("2021-11-09T18:35:18.984Z")
     };
+    // other upvote me
     const h2: History = {
-        epoch_key: "1f9cc994",
+        from: "1f9cc994",
+        to: "13832dc0",
         upvote: 6,
         downvote: 0,
         epoch: 0,
@@ -512,8 +515,10 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
         data_id: "618b95cb0eadf730d28d3b1b",
         time: Date.parse("2021-11-09T18:35:40.341Z")
     };
+    // me post
     const h3: History = {
-        epoch_key: "5320b71c",
+        from: "13832dc0",
+        to: "13832dc0",
         upvote: 0,
         downvote: 5,
         epoch: 0,
@@ -521,8 +526,30 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
         data_id: "618b95cb0eadf730d28d3b1b",
         time: Date.parse("2021-11-09T18:35:48.760Z")
     };
-    
-    return [h1, h2, h3];
+    // other downvote me
+    const h4: History = {
+        from: "1f9cc994",
+        to: "13832dc0",
+        upvote: 0,
+        downvote: 2,
+        epoch: 0,
+        action: ActionType.Vote,
+        data_id: "618b95cb0eadf730d28d3b1b",
+        time: Date.parse("2021-11-09T18:35:40.341Z")
+    };
+    // me comment
+    const h5: History = {
+        from: "13832dc0",
+        to: "13832dc0",
+        upvote: 0,
+        downvote: 3,
+        epoch: 0,
+        action: ActionType.Vote,
+        data_id: "618b95cb0eadf730d28d3b1b",
+        time: Date.parse("2021-11-09T18:35:40.341Z")
+    };
+
+    return [h1, h2, h3, h4, h5];
 }
 
 export const getEpochSpent = async (epks: string[]) => {

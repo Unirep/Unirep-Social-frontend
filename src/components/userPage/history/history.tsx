@@ -46,9 +46,9 @@ const HistoryWidget = ({ history } : Props) => {
             {getActionWidget()}
             <div className="info">
                 <div className="epoch-key">
-                    { history.epoch_key === 'UnirepSocial'? <img src="/images/unirep.png" /> : <Jdenticon size="16" value={history.epoch_key} />}
+                    { history.from === 'UnirepSocial'? <img src="/images/unirep.png" /> : <Jdenticon size="16" value={history.from} />}
                 </div>
-                {history.epoch_key}
+                {history.from}
             </div>
             <div className="info">
                 { history.upvote > 0? <img src="/images/upvote-purple.png"/> : <img src="/images/downvote.png" />}

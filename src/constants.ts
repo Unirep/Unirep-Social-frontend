@@ -75,7 +75,8 @@ export enum ButtonType {
 
 export interface History {
     action: ActionType,
-    epoch_key: string,
+    from: string,
+    to: string,
     upvote: number, 
     downvote: number,
     epoch: number,
