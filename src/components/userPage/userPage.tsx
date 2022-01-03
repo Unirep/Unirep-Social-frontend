@@ -33,12 +33,15 @@ const UserPage = () => {
                 ret.forEach(h => {
                     const isReceived = user.all_epoch_keys.indexOf(h.from) === -1;
                     if (isReceived) {
+                        // right stuff
                         if (h.action === ActionType.UST) {
                             r[0] += h.upvote;
                         } else if (h.action === ActionType.Vote) {
                             r[1] += h.upvote;
                             r[2] += h.downvote;
                         }
+                    } else {
+                        // left stuff
                     }
                 });
                 setReceived(r);
@@ -103,7 +106,7 @@ const UserPage = () => {
                 }
                 { user !== null? 
                     <div className="side-content">
-                        <SideColumn page={Page.User}/>
+                        <SideColumn page={Page.User} />
                     </div> : <div></div>
                 }
                 

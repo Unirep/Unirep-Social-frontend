@@ -5,6 +5,7 @@ import { WebContext } from '../../context/WebContext';
 import DefaultWidget from './defaultWidget';
 import UserInfoWidget from './userInfoWidget';
 import ReminderWidget from './reminderWidget';
+import PostsWidget from './postsWidget';
 import { Page } from '../../constants';
 
 type Props = {
@@ -25,6 +26,7 @@ const SideColumn = ( { page }: Props) => {
             {page === Page.User? <div className="setting widget"><img src="/images/setting.png" onClick={gotoSetting} /></div> : <div></div>}
             {user !== null && page !== Page.User? <UserInfoWidget /> : <div></div>}
             {user !== null && page === Page.New? <ReminderWidget /> : <div></div>}
+            {user !== null && page === Page.User? <PostsWidget /> : <div></div>}
             <DefaultWidget />
             <div className="back-to-top" onClick={() => window.scrollTo(0, 0)}>Back to top</div>
         </div>

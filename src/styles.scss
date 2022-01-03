@@ -140,6 +140,7 @@ body {
 
   .wrapper {
     margin-top: 104px;
+    width: 100vw;
   }
 
   .default-gesture {
@@ -147,6 +148,8 @@ body {
     display: flex;
     flex-direction: row;
     padding: 0px 104px;
+    width: 100vw;
+    box-sizing: border-box;
   } 
 
   .main-content {
