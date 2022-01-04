@@ -256,3 +256,55 @@
 .user-page-content {
     margin-top: 24px;
 }
+
+.activity-widget {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    border-radius: 8px;
+    border: 8px solid $grey-100;
+
+    .main {
+        flex: 11;
+
+        .header {
+            width: 100%;
+            border-bottom: 1px solid $grey-100;
+            font-size: $text-xs;
+            color: $grey-700;
+            display: flex;
+            flex-direction: row;
+            padding: 16px 24px;
+    
+            p {
+                margin-right: auto;
+                margin-bottom: 0px;
+            }
+    
+            .etherscan {
+                cursor: pointer;
+    
+                img {
+                    margin-left: 6px;
+                    width: 13px;
+                    height: 13px;
+                }
+            }
+        }
+    
+        .who {
+            width: 100%;
+            padding: 16px 24px;
+            font-size: $text-xs;
+            color: $grey-700;
+            
+            img {
+                width: 16px;
+            }
+        }
+    }
+
+    .side {
+        flex: 3;
+    }    
+}

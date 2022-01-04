@@ -1,4 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
+import dateformat from 'dateformat';
+
 import { getRecords } from '../../utils';
 import { WebContext } from '../../context/WebContext';
 import SideColumn from '../sideColumn/sideColumn';
@@ -6,11 +8,51 @@ import { UserPageContext } from '../../context/UserPageContext';
 import { History, ActionType, Page, QueryType, Post, Comment } from '../../constants';
 import PostsList from '../postsList/postsList';
 import CommentsList from '../postsList/commentsList';
-
-import UserHeader from './userHeader';
-import UserPosts from './userPosts';
-import UserHistory from './history/userHistory';
 import './userPage.scss';
+
+type Props = {
+    history: History,
+    isReceived: boolean,
+    data: any,
+}
+
+type Info = {
+    who: string,
+    action: string,
+}
+
+const ActivityWidget = ({ history, isReceived, data }: Props) => {
+    const [date, setDate] = useState<string>(dateformat(new Date(history.time), "dd/mm/yyyy hh:MM TT"));
+    const [info, setInfo] = useState<Info>(() => {
+        if (history.action === ActionType.Post) {
+            return {who: 'I (' + history.from + ')', action: 'created a post'}
+        } else if (history.action === ActionType.Comment) {
+            return {who: 'I (' + history.from + ')', action: 'commented on a post'}
+        } else if (history.action === ActionType.UST) {
+            return {who: 'UniRep Social', action: 'Epoch Rep drop'}
+        } else {
+            if (isReceived) {
+                return {who: history.from, action: history.upvote > 0? 'boosted this post' : 'squashed this post'};
+            } else {
+                return {who: 'I (' + history.from + ')', action: history.upvote > 0? 'boosted this post' : 'squashed this post'};
+            }
+        }
+    });
+
+    return (
+        <div className="activity-widget">
+            <div className="main">
+                <div className="header">
+                    <p>{date}</p>
+                    <div className="etherscan">Etherscan <img src="/images/etherscan.png" /></div>
+                </div>
+                <div className="who">
+                    {info.who} <img src="/images/lighting.png" /> {info.action}
+                </div>
+            </div>
+        </div>
+    );
+}
 
 enum Tag {
     Posts = "Posts",
@@ -212,7 +254,18 @@ const UserPage = () => {
                                         comments={myComments}
                                         page={Page.User}
                                         loadMoreComments={() => {}}
-                                    /> : <div></div>
+                                    /> : <div>
+                                        {
+                                            histories.map((h, i) => 
+                                                <ActivityWidget 
+                                                    key={i} 
+                                                    history={h}
+                                                    isReceived={user.all_epoch_keys.indexOf(h.from) === -1}
+                                                    data={[]}
+                                                />
+                                            )
+                                        }
+                                    </div>
                             }   
                         </div>
                     </div> : <div></div> 
