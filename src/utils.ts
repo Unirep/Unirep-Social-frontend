@@ -721,7 +721,7 @@ const c2: Comment = {
     username: '',
     post_time: 1636537821434,
     reputation: 4,
-    isAuthor: false,
+    isAuthor: true,
     current_epoch: 1
 };
 

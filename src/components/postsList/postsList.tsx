@@ -15,7 +15,7 @@ const PostsList = ({ posts, timeFilter, loadMorePosts }: Props) => {
     // const otherPosts = posts.filter(post => diffDays(post.post_time, Date.now()) > timeFilter)
 
     return (
-        <div>
+        <div className="post-list">
             {chosenPosts.length > 0? (
                 chosenPosts.map((post, i) => (
                     <PostBlock 

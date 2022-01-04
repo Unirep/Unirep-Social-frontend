@@ -18,6 +18,8 @@
         text-align: center;
         background-color: $white;
         cursor: pointer;
+        border: 1px solid $black;
+        border-radius: 8px;
     }
 
     .no-posts {

@@ -3,7 +3,10 @@ import { getRecords } from '../../utils';
 import { WebContext } from '../../context/WebContext';
 import SideColumn from '../sideColumn/sideColumn';
 import { UserPageContext } from '../../context/UserPageContext';
-import { UserPageType, History, ActionType, Page, QueryType } from '../../constants';
+import { History, ActionType, Page, QueryType, Post, Comment } from '../../constants';
+import PostsList from '../postsList/postsList';
+import CommentsList from '../postsList/commentsList';
+
 import UserHeader from './userHeader';
 import UserPosts from './userPosts';
 import UserHistory from './history/userHistory';
@@ -16,21 +19,39 @@ enum Tag {
 }
 
 const UserPage = () => {
-
-    const [page, setPage] = useState<UserPageType>(UserPageType.Posts);
-    const [isPostFieldActive, setIsPostFieldActive] = useState(false);
-    const { isLoading, user } = useContext(WebContext);
+    const { isLoading, user, shownPosts } = useContext(WebContext);
     const [ histories, setHistories ] = useState<History[]>([]);
     const [ received, setReceived ] = useState<number[]>([0, 0, 0]); // airdrop, boost, squash
     const [ tag, setTag ] = useState<Tag>(Tag.Posts);
     const [ sort, setSort ] = useState<QueryType>(QueryType.Boost);
     const [ isDropdown, setIsDropdown ] = useState<boolean>(false);
+    const [ myPosts, setMyPosts ] = useState<Post[]>(() =>{
+        let posts: Post[] = [];
+        for (var i = 0; i < shownPosts.length; i ++) {
+            const p = shownPosts[i];
+            console.log('this post is posted by ' + p.epoch_key + ', is author: ' + p.isAuthor);
+            if (p.isAuthor) {
+                posts = [...posts, p];
+            }
+        }
+        return posts;
+    });
 
+    const [ myComments, setMyComments ] = useState<Comment[]>(() => {
+        let comments: Comment[] = [];
+        for (var i = 0; i < shownPosts.length; i ++) {
+            for (var j = 0; j < shownPosts[i].comments.length; j ++) {
+                if (shownPosts[i].comments[j].isAuthor) {
+                    comments = [...comments, shownPosts[i].comments[j]];
+                }
+            }
+            console.log(comments.length);
+        }
+        return comments;
+    });
 
     const closeAll = () => {
-        if (!isLoading) {
-            setIsPostFieldActive(false);
-        }
+        if (!isLoading) {}
     }
 
     useEffect (() => {
@@ -59,7 +80,7 @@ const UserPage = () => {
         }
 
         getHistory();
-        
+
     }, []);
 
     const switchDropdown = () => {
@@ -150,7 +171,19 @@ const UserPage = () => {
                             </div>
                         </div> 
                         <div className="user-page-content">
-                        
+                            {
+                                tag === Tag.Posts? 
+                                    <PostsList 
+                                        posts={myPosts}
+                                        timeFilter={10000000000}
+                                        loadMorePosts={() => {}}
+                                    /> : tag === Tag.Comments?
+                                    <CommentsList 
+                                        comments={myComments}
+                                        page={Page.User}
+                                        loadMoreComments={() => {}}
+                                    /> : <div></div>
+                            }   
                         </div>
                     </div> : <div></div> 
                 }

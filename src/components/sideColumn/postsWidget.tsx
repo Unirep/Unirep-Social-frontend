@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { WebContext } from '../../context/WebContext';
 import { Post } from '../../constants';
 
@@ -14,7 +14,7 @@ const RankingBlock = ({ post, ranking, hasUnderline }: Props) => {
             <div className="ranking-block-header">
                 <div className="ranking">
                     <img src="/images/boost-fill.png" />
-                    {`#${ranking}${post.isAuthor? ', by you':''}`}
+                    {`#${ranking+1}${post.isAuthor? ', by you':''}`}
                 </div>
                 <div className="boost">
                     {post.upvote}
@@ -25,42 +25,42 @@ const RankingBlock = ({ post, ranking, hasUnderline }: Props) => {
     );
 }
 
+type RankedPost = {
+    post: Post,
+    rank: number
+}
+
 const PostsWidget = () => {
     const { shownPosts } = useContext(WebContext);
-
-    const setPostsRanking = () => {
-        let posts: Post[] = [];
-        let ranking: number[] = [];
+    const [ posts, setPosts ] = useState<RankedPost[]>(() => {
+        let posts: RankedPost[] = [];
 
         const sortedPosts = shownPosts.sort((a, b) => a.upvote > b.upvote? -1 : 1);
         let hasUserPost: boolean = false;
         sortedPosts.forEach((post, i) => {
             if (i < 3) {
                 console.log('i < 3, add post! ' + i);
-                posts = [...posts, post];
-                ranking = [...ranking, i+1];
+                const p = {post, rank: i}
+                posts = [...posts, p];
             } else {
                 console.log('i >= 3, check post!');
                 console.log(i);
                 if (!hasUserPost && post.isAuthor) {
-                    posts = [...posts, post];
-                    ranking = [...ranking, i+1];
+                    const p = {post, rank: i}
+                    posts = [...posts, p];
                 }
             }
             hasUserPost = hasUserPost || post.isAuthor;
         });
 
-        return {posts, ranking};
-    }
-
-    // top3 and 1 your most popular post, if yours is in the top3 or you don't have post, then only 3 posts or less.
-    const { posts, ranking } = setPostsRanking();
+        return posts;
+    });  // top3 and 1 your most popular post, if yours is in the top3 or you don't have post, then only 3 posts or less.
 
     return (
         <div className="posts-widget widget">
             <h3>Post ranking</h3>
             {
-                posts.map((post, i) => <RankingBlock post={post} ranking={ranking[i]} hasUnderline={i < posts.length-1} key={i} />)
+                posts.map((post, i) => <RankingBlock post={post.post} ranking={post.rank} hasUnderline={i < posts.length-1} key={i} />)
             }
         </div>
     );

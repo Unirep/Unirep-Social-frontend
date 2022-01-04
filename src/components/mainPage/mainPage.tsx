@@ -100,7 +100,7 @@ const MainPage = () => {
                     <div className="main-content">
                         <div className="create-post" onClick={gotoNewPost}>{user === null? 'You must join or login to create post' : 'Create post'}</div>
                         <Feed feedChoice={feedChoice} setFeedChoice={setFeedChoice} />
-                        <div className="post-list">
+                        <div>
                             <PostsList 
                                 posts={shownPosts} 
                                 // timeFilter={feedChoices.query0 === QueryType.popularity? getQueryPeriod() : 100000000} 
