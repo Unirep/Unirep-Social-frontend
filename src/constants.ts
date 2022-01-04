@@ -131,7 +131,8 @@ export enum QueryType {
     New = 'new',
     Boost = 'boost',
     Comments = 'comments',
-    Squash = 'squash'
+    Squash = 'squash',
+    Rep = 'rep',
 }
 
 export interface Params {

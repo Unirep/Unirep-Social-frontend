@@ -21,10 +21,10 @@ enum Tag {
 const UserPage = () => {
     const { isLoading, user, shownPosts } = useContext(WebContext);
     const [ histories, setHistories ] = useState<History[]>([]);
-    const [ received, setReceived ] = useState<number[]>([0, 0, 0]); // airdrop, boost, squash
     const [ tag, setTag ] = useState<Tag>(Tag.Posts);
     const [ sort, setSort ] = useState<QueryType>(QueryType.Boost);
     const [ isDropdown, setIsDropdown ] = useState<boolean>(false);
+    
     const [ myPosts, setMyPosts ] = useState<Post[]>(() =>{
         let posts: Post[] = [];
         for (var i = 0; i < shownPosts.length; i ++) {
@@ -38,6 +38,7 @@ const UserPage = () => {
     });
 
     const [ myComments, setMyComments ] = useState<Comment[]>(() => {
+        console.log('set my comments');
         let comments: Comment[] = [];
         for (var i = 0; i < shownPosts.length; i ++) {
             for (var j = 0; j < shownPosts[i].comments.length; j ++) {
@@ -45,10 +46,12 @@ const UserPage = () => {
                     comments = [...comments, shownPosts[i].comments[j]];
                 }
             }
-            console.log(comments.length);
         }
         return comments;
     });
+
+    const [ received, setReceived ] = useState<number[]>([0, 0, 0]); // airdrop, boost, squash
+    const [ spent, setSpent ] = useState<number[]>([0, 0, 0, 0]); // post, comment, boost, squash
 
     const closeAll = () => {
         if (!isLoading) {}
@@ -57,10 +60,13 @@ const UserPage = () => {
     useEffect (() => {
         
         const getHistory = async () => {
+            console.log('get history');
             if (user !== null) {
                 const ret = await getRecords(user.current_epoch, user.identity);
                 setHistories(ret);
                 let r: number[] = [0, 0, 0];
+                let s: number[] = [0, 0, 0, 0];
+                
                 ret.forEach(h => {
                     const isReceived = user.all_epoch_keys.indexOf(h.from) === -1;
                     if (isReceived) {
@@ -72,10 +78,19 @@ const UserPage = () => {
                             r[2] += h.downvote;
                         }
                     } else {
-                        // left stuff
+                        if (h.action === ActionType.Post) {
+                            s[0] += h.downvote;
+                        } else if (h.action === ActionType.Comment) {
+                            s[1] += h.downvote;
+                        } else if (h.action === ActionType.Vote) {
+                            s[2] += h.upvote;
+                            s[3] += h.downvote;
+                        }
                     }
                 });
                 setReceived(r);
+                setSpent(s);
+                console.log(s);
             }
         }
 
@@ -88,6 +103,15 @@ const UserPage = () => {
             setIsDropdown(false);
         } else {
             setIsDropdown(true);
+        }
+    }
+
+    const setTagPage = (tag: Tag) => {
+        setTag(tag);
+        if (tag === Tag.Activity) {
+            setSort(QueryType.New);
+        } else {
+            setSort(QueryType.Boost);
         }
     }
 
@@ -118,8 +142,9 @@ const UserPage = () => {
                                 <div className="grey-block">
                                     <span>How I use my rep in this epoch</span><br/>
                                     <div className="rep-bar">
-                                        <div className="rep-portion" style={{"width": "10%"}}></div>
-                                        <div className="rep-portion" style={{"width": "20%"}}></div>
+                                        { 
+                                            spent.map((s, i) => <div className="rep-portion" style={{"width": `${s / user.reputation * 100}%`}} key={i}></div>)
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -148,20 +173,25 @@ const UserPage = () => {
                         </div>
                         <div className="user-page-header">
                             <div className="tags">
-                                <div className={tag === Tag.Posts? "tag underline" : "tag"} onClick={() => setTag(Tag.Posts)}>Posts</div>
+                                <div className={tag === Tag.Posts? "tag underline" : "tag"} onClick={() => setTagPage(Tag.Posts)}>Posts</div>
                                 <div className="line"></div>
-                                <div className={tag === Tag.Comments? "tag underline" : "tag"} onClick={() => setTag(Tag.Comments)}>Comments</div>
+                                <div className={tag === Tag.Comments? "tag underline" : "tag"} onClick={() => setTagPage(Tag.Comments)}>Comments</div>
                                 <div className="line"></div>
-                                <div className={tag === Tag.Activity? "tag underline" : "tag"} onClick={() => setTag(Tag.Activity)}>Activity</div>
+                                <div className={tag === Tag.Activity? "tag underline" : "tag"} onClick={() => setTagPage(Tag.Activity)}>Activity</div>
                             </div>
                             <div className={isDropdown? "dropdown isDropdown" : "dropdown"} onClick={switchDropdown}>
                                 {
                                     isDropdown? 
-                                        <div>
-                                            <div className="menu-choice" onClick={() => setSortType(QueryType.Boost)}><img src="/images/boost-fill.png"/>Boost</div>
-                                            <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src="/images/new-fill.png"/>New</div>
-                                            <div className="menu-choice" onClick={() => setSortType(QueryType.Squash)}><img src="/images/squash-fill.png"/>Squash</div>
-                                        </div> : 
+                                        tag !== Tag.Activity?
+                                            <div>
+                                                <div className="menu-choice" onClick={() => setSortType(QueryType.Boost)}><img src="/images/boost-fill.png"/>Boost</div>
+                                                <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src="/images/new-fill.png"/>New</div>
+                                                <div className="menu-choice" onClick={() => setSortType(QueryType.Squash)}><img src="/images/squash-fill.png"/>Squash</div>
+                                            </div> : 
+                                            <div>
+                                                <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src="/images/new-fill.png"/>New</div>
+                                                <div className="menu-choice" onClick={() => setSortType(QueryType.Rep)}><img src="/images/rep-fill.png"/>Rep</div>
+                                            </div> :
                                         <div className="menu-choice isChosen">
                                             <img src={`/images/${sort}-fill.png`}/>
                                             <span>{sort.charAt(0).toUpperCase() + sort.slice(1)}</span>
