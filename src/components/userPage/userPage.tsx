@@ -3,11 +3,17 @@ import { getRecords } from '../../utils';
 import { WebContext } from '../../context/WebContext';
 import SideColumn from '../sideColumn/sideColumn';
 import { UserPageContext } from '../../context/UserPageContext';
-import { UserPageType, History, ActionType, Page } from '../../constants';
+import { UserPageType, History, ActionType, Page, QueryType } from '../../constants';
 import UserHeader from './userHeader';
 import UserPosts from './userPosts';
 import UserHistory from './history/userHistory';
 import './userPage.scss';
+
+enum Tag {
+    Posts = "Posts",
+    Comments = "Comments",
+    Activity = "Activity"
+}
 
 const UserPage = () => {
 
@@ -16,6 +22,9 @@ const UserPage = () => {
     const { isLoading, user } = useContext(WebContext);
     const [ histories, setHistories ] = useState<History[]>([]);
     const [ received, setReceived ] = useState<number[]>([0, 0, 0]); // airdrop, boost, squash
+    const [ tag, setTag ] = useState<Tag>(Tag.Posts);
+    const [ sort, setSort ] = useState<QueryType>(QueryType.Boost);
+
 
     const closeAll = () => {
         if (!isLoading) {
@@ -102,6 +111,20 @@ const UserPage = () => {
                                 </div>
                             </div>
                         </div>
+                        <div className="user-page-header">
+                            <div className="tags">
+                                <div className={tag === Tag.Posts? "tag underline" : "tag"} onClick={() => setTag(Tag.Posts)}>Posts</div>
+                                <div className="line"></div>
+                                <div className={tag === Tag.Comments? "tag underline" : "tag"} onClick={() => setTag(Tag.Comments)}>Comments</div>
+                                <div className="line"></div>
+                                <div className={tag === Tag.Activity? "tag underline" : "tag"} onClick={() => setTag(Tag.Activity)}>Activity</div>
+                            </div>
+                            <div className="dropdown">
+                                <img src={`/images/${sort}-fill.png`}/>
+                                <span>{sort.charAt(0).toUpperCase() + sort.slice(1)}</span>
+                                <img src="/images/selector-down.png" />
+                            </div>
+                        </div> 
                     </div> : <div></div>
                 }
                 { user !== null? 

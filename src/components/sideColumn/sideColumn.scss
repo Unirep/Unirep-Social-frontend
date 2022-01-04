@@ -138,10 +138,10 @@
         width: 100%;
         font-size: $text-base;
         color: $grey-700;
-        display: block;
 
         .ranking-block-header {
             width: 100%;
+            min-width: 0;
             display: flex;
             flex-direction: row;
             margin-bottom: 8px;
@@ -172,6 +172,7 @@
 
         .ranking-block-content {
             min-width: 0; // really important for flex if the content overflow!
+            width: 100%;
             margin-top: 8px;
             word-wrap: break-word;
         }

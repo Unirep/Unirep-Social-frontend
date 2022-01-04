@@ -32,7 +32,7 @@ const PostsWidget = () => {
         let posts: Post[] = [];
         let ranking: number[] = [];
 
-        const sortedPosts = shownPosts.sort((a, b) => a.upvote > b.upvote? 1 : -1);
+        const sortedPosts = shownPosts.sort((a, b) => a.upvote > b.upvote? -1 : 1);
         let hasUserPost: boolean = false;
         sortedPosts.forEach((post, i) => {
             if (i < 3) {
