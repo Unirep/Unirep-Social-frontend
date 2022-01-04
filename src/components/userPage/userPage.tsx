@@ -24,6 +24,7 @@ const UserPage = () => {
     const [ received, setReceived ] = useState<number[]>([0, 0, 0]); // airdrop, boost, squash
     const [ tag, setTag ] = useState<Tag>(Tag.Posts);
     const [ sort, setSort ] = useState<QueryType>(QueryType.Boost);
+    const [ isDropdown, setIsDropdown ] = useState<boolean>(false);
 
 
     const closeAll = () => {
@@ -60,6 +61,19 @@ const UserPage = () => {
         getHistory();
         
     }, []);
+
+    const switchDropdown = () => {
+        if (isDropdown) {
+            setIsDropdown(false);
+        } else {
+            setIsDropdown(true);
+        }
+    }
+
+    const setSortType = (sort: QueryType) => {
+        setSort(sort);
+        setIsDropdown(false);
+    }
 
     return (
         <div className="wrapper">
@@ -119,13 +133,26 @@ const UserPage = () => {
                                 <div className="line"></div>
                                 <div className={tag === Tag.Activity? "tag underline" : "tag"} onClick={() => setTag(Tag.Activity)}>Activity</div>
                             </div>
-                            <div className="dropdown">
-                                <img src={`/images/${sort}-fill.png`}/>
-                                <span>{sort.charAt(0).toUpperCase() + sort.slice(1)}</span>
-                                <img src="/images/selector-down.png" />
+                            <div className={isDropdown? "dropdown isDropdown" : "dropdown"} onClick={switchDropdown}>
+                                {
+                                    isDropdown? 
+                                        <div>
+                                            <div className="menu-choice" onClick={() => setSortType(QueryType.Boost)}><img src="/images/boost-fill.png"/>Boost</div>
+                                            <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src="/images/new-fill.png"/>New</div>
+                                            <div className="menu-choice" onClick={() => setSortType(QueryType.Squash)}><img src="/images/squash-fill.png"/>Squash</div>
+                                        </div> : 
+                                        <div className="menu-choice isChosen">
+                                            <img src={`/images/${sort}-fill.png`}/>
+                                            <span>{sort.charAt(0).toUpperCase() + sort.slice(1)}</span>
+                                            <img src="/images/selector-down.png" />
+                                        </div>
+                                }
                             </div>
                         </div> 
-                    </div> : <div></div>
+                        <div className="user-page-content">
+                        
+                        </div>
+                    </div> : <div></div> 
                 }
                 { user !== null? 
                     <div className="side-content">
