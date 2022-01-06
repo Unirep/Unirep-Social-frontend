@@ -1,11 +1,12 @@
 import React, { useContext, useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 import dateformat from 'dateformat';
 
 import { getRecords } from '../../utils';
 import { WebContext } from '../../context/WebContext';
 import SideColumn from '../sideColumn/sideColumn';
 import { UserPageContext } from '../../context/UserPageContext';
-import { History, ActionType, Page, QueryType, Post, Comment } from '../../constants';
+import { History, ActionType, Page, QueryType, Post, Comment, DataType } from '../../constants';
 import PostsList from '../postsList/postsList';
 import CommentsList from '../postsList/commentsList';
 import './userPage.scss';
@@ -13,7 +14,6 @@ import './userPage.scss';
 type Props = {
     history: History,
     isReceived: boolean,
-    data: any,
 }
 
 type Info = {
@@ -21,7 +21,8 @@ type Info = {
     action: string,
 }
 
-const ActivityWidget = ({ history, isReceived, data }: Props) => {
+const ActivityWidget = ({ history, isReceived }: Props) => {
+    const { shownPosts } = useContext(WebContext);
     const [date, setDate] = useState<string>(dateformat(new Date(history.time), "dd/mm/yyyy hh:MM TT"));
     const [info, setInfo] = useState<Info>(() => {
         if (history.action === ActionType.Post) {
@@ -38,18 +39,75 @@ const ActivityWidget = ({ history, isReceived, data }: Props) => {
             }
         }
     });
+    const [data, setData] = useState(() => {
+        if (history.data_id === '0') {
+            return null;
+        }
+
+        const id = history.data_id.split('_');
+        if (id.length > 1) { // is on a comment
+            const p = shownPosts.filter(post => post.id === id[0]);
+            return (p[0].comments.filter(c => c.id === id[1]))[0];
+        } else {
+            return (shownPosts.filter(post => post.id === id[0]))[0];
+        }
+    });
+
+    const routerHistory = useHistory();
+
+    const gotoDataPage = () => {
+        if (history.data_id === '0') {
+            return;
+        }
+
+        const id = history.data_id.split('_');
+        if (id.length > 1) {
+            routerHistory.push(`/post/${id[0]}`, {commentId: id[1]});
+        } else {
+            routerHistory.push(`/post/${id[0]}`, {commentId: ''});
+        }
+    }
 
     return (
-        <div className="activity-widget">
+        <div className="activity-widget" onClick={gotoDataPage}>
+            {
+                isReceived? 
+                    <div></div> : 
+                    <div className="side">
+                        <div className="amount">{history.downvote}</div>
+                        <div className="type">
+                            <img src={history.action === ActionType.Vote? (history.upvote > 0? '/images/boost-grey.png' : '/images/squash-grey.png'): '/images/unirep-grey.png'} />
+                            Used
+                        </div>
+                    </div>
+            }
             <div className="main">
                 <div className="header">
                     <p>{date}</p>
                     <div className="etherscan">Etherscan <img src="/images/etherscan.png" /></div>
                 </div>
-                <div className="who">
-                    {info.who} <img src="/images/lighting.png" /> {info.action}
+                <div className="main-info">
+                    <div className="who">
+                        {info.who} <img src="/images/lighting.png" /> {info.action}
+                    </div>
+                    { data !== null? 
+                        <div className="data">
+                            { 'title' in data? <div className="title">{data.title}</div> : <div></div>}    
+                            <div className="content">{data.content}</div>
+                        </div> : <div></div>
+                    }
                 </div>
             </div>
+            {
+                isReceived? 
+                    <div className="side">
+                        <div className="amount">{history.action === ActionType.Vote? (history.upvote > 0? '+' + history.upvote : '-' + history.downvote) : '+' + history.upvote}</div>
+                        <div className="type">
+                            <img src={history.action === ActionType.Vote? (history.upvote > 0? '/images/boost-grey.png' : '/images/squash-grey.png'): '/images/unirep-grey.png'} />
+                            Received
+                        </div>
+                    </div> : <div></div>
+            }
         </div>
     );
 }
@@ -261,7 +319,6 @@ const UserPage = () => {
                                                     key={i} 
                                                     history={h}
                                                     isReceived={user.all_epoch_keys.indexOf(h.from) === -1}
-                                                    data={[]}
                                                 />
                                             )
                                         }

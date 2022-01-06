@@ -534,7 +534,7 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
         downvote: 2,
         epoch: 0,
         action: ActionType.Vote,
-        data_id: "618b95cb0eadf730d28d3b1b",
+        data_id: "618b8f2c0eadf730d28d3ac1_618b95dd0eadf730d28d3b3a",
         time: Date.parse("2021-11-09T18:35:40.341Z")
     };
     // me comment

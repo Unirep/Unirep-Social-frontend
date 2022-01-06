@@ -263,6 +263,7 @@
     flex-direction: row;
     border-radius: 8px;
     border: 8px solid $grey-100;
+    margin-bottom: 24px;
 
     .main {
         flex: 11;
@@ -291,20 +292,64 @@
                 }
             }
         }
-    
-        .who {
-            width: 100%;
-            padding: 16px 24px;
-            font-size: $text-xs;
-            color: $grey-700;
-            
-            img {
-                width: 16px;
+
+        .main-info {
+
+            &:hover {
+                background-color: $grey-100;
+                cursor: pointer;
             }
-        }
+
+            .who {
+                width: 100%;
+                padding: 16px 24px;
+                font-size: $text-xs;
+                color: $grey-700;
+                
+                img {
+                    width: 16px;
+                }
+            }
+    
+            .data {
+                color: $black;
+                width: 100%;
+                padding: 0px 24px 16px 24px;
+    
+                .title {
+                    font-size: $title-sm;
+                    font-weight: 600;
+                    margin-bottom: 16px;
+                }
+    
+                .content {
+                    font-size: $text-base;
+                }
+            }
+        }  
     }
 
     .side {
         flex: 3;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        .amount {
+            font-size: $text-md;
+            font-weight: 600;
+        }
+
+        .type {
+            font-size: $text-xs;
+            color: $grey-400;
+
+            img {
+                width: 16px;
+                height: 16px;
+                margin-right: 4px;
+            }
+        }
     }    
 }
