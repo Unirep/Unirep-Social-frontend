@@ -8,7 +8,7 @@ import { checkInvitationCode, userSignUp, getEpochKeys, getNextEpochTime, getAir
 import './overlay.scss';
 
 const SignUp = () => {
-    const { setUser, setPageStatus, setNextUSTTime, isLoading, setIsLoading } = useContext(WebContext);
+    const { setUser, setNextUSTTime, isLoading, setIsLoading } = useContext(WebContext);
     
     
     // step 0: sign up with twitter / others
@@ -150,7 +150,7 @@ const SignUp = () => {
         }
         await getAirdrop(identity, null);
 
-        setPageStatus(Constants.PageStatus.None);
+        // setPageStatus(Constants.PageStatus.None);
         setUser({ 
             identity: identity, 
             epoch_keys: epks, 

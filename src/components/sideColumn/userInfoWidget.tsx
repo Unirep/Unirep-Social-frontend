@@ -51,7 +51,7 @@ const UserInfoWidget = () => {
                     <div className="ust-info">
                         <p>In this epoch, my personas are <img src="/images/info.png" /></p>
                         <div className="epks">
-                            {user.epoch_keys.map(key => <div className="epk">{key}</div>)}
+                            {user.epoch_keys.map(key => <div className="epk" key={key}>{key}</div>)}
                         </div>
                         <div className="margin"></div>
                         <p>Remaining time: <img src="/images/info.png" /></p>

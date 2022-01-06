@@ -7,7 +7,7 @@ import { getEpochKeys, getUserState, getNextEpochTime, userStateTransition, hasS
 import './overlay.scss';
 
 const SignUp = () => {
-    const { setUser, setPageStatus, shownPosts, setShownPosts, setNextUSTTime, setIsLoading, isLoading } = useContext(WebContext);
+    const { setUser, shownPosts, setShownPosts, setNextUSTTime, setIsLoading, isLoading } = useContext(WebContext);
     
     const [userInput, setUserInput] = useState<string>("");
     const [errorMsg, setErrorMsg] = useState<string>("");
@@ -181,7 +181,7 @@ const SignUp = () => {
             return newPost;
         }));
 
-        setPageStatus(Constants.PageStatus.None);
+        // setPageStatus(Constants.PageStatus.None);
 
         const nextET = await getNextEpochTime();
         setNextUSTTime(nextET);

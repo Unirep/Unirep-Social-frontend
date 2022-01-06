@@ -19,20 +19,20 @@ import { WebContext } from './context/WebContext';
 const AppRouter = () => {
 
     const [user, setUser] = useLocalStorage(Constants.userKey, null);
-    const [pageStatus, setPageStatus] = useLocalStorage(Constants.pageStatusKey, Constants.PageStatus.None);
     const [shownPosts, setShownPosts] = useLocalStorage(Constants.shownPostsKey, []);
     const [nextUSTTime, setNextUSTTime] = useLocalStorage(Constants.nextUSTKey, 4789220745000);
     const [isLoading, setIsLoading] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     return (
         <BrowserRouter>
             <div>
             <WebContext.Provider value={{
-                    user, setUser, 
-                    pageStatus, setPageStatus, 
+                    user, setUser,
                     shownPosts, setShownPosts, 
                     isLoading, setIsLoading,
-                    nextUSTTime, setNextUSTTime}}>
+                    nextUSTTime, setNextUSTTime,
+                    isMenuOpen, setIsMenuOpen}}>
                 <Header />
                 
                 <Switch>
@@ -46,7 +46,7 @@ const AppRouter = () => {
                     <Route component={() => <Redirect to="/" />} />
                 </Switch>
 
-                {pageStatus !== Constants.PageStatus.None? 
+                {isMenuOpen? 
                     <Overlay /> : <div></div>
                 }
             </WebContext.Provider>

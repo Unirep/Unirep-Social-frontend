@@ -8,7 +8,7 @@ import './header.scss';
 const Header = () => {
     const history = useHistory();
     const [isUSTing, setIsUSTing] = useState(false);
-    const { user, setUser, setPageStatus, shownPosts, setShownPosts, isLoading, setIsLoading, nextUSTTime, setNextUSTTime } = useContext(WebContext);
+    const { user, setUser, shownPosts, setShownPosts, isLoading, setIsLoading, nextUSTTime, setNextUSTTime, isMenuOpen, setIsMenuOpen } = useContext(WebContext);
     const [searchInput, setSearchInput] = useState<string>("");
 
     const doUST = async () => {
@@ -67,19 +67,19 @@ const Header = () => {
         }
     );
 
-    const signUp = () => {
-        if (!isLoading) {
-            console.log('open sign up! set ' + Constants.PageStatus.SignUp);
-            setPageStatus(Constants.PageStatus.SignUp);
-        }  
-    }
+    // const signUp = () => {
+    //     if (!isLoading) {
+    //         console.log('open sign up! set ' + Constants.PageStatus.SignUp);
+    //         setPageStatus(Constants.PageStatus.SignUp);
+    //     }  
+    // }
 
-    const signIn = () => {
-        if (!isLoading) {
-            console.log('open sign in! set ' + Constants.PageStatus.SignIn);
-            setPageStatus(Constants.PageStatus.SignIn);
-        }   
-    }
+    // const signIn = () => {
+    //     if (!isLoading) {
+    //         console.log('open sign in! set ' + Constants.PageStatus.SignIn);
+    //         setPageStatus(Constants.PageStatus.SignIn);
+    //     }   
+    // }
 
     const logout = () => {
         if (!isLoading) {
@@ -104,6 +104,13 @@ const Header = () => {
     const gotoUserPage = () => {
         if (!isLoading) {
             history.push(`/user`);
+        }
+    }
+
+    const openMenu = () => {
+        if (!isMenuOpen) {
+            console.log('open menu!');
+            setIsMenuOpen(true);
         }
     }
 
@@ -134,11 +141,12 @@ const Header = () => {
                     <div className={isLoading? "whiteButton disabled" : "whiteButton"} onClick={logout}>Log out</div> */}
                     <img src="/images/newpost.png" onClick={gotoNewPage} />
                     <img src="/images/user.png" onClick={gotoUserPage} />
-                    <img src="/images/menu.png"/>
+                    <img src="/images/menu.png" onClick={openMenu} />
                 </div> :
                 <div className="navButtons">
                     <div className="whiteButton" onClick={() => history.push('/login')}>Sign in</div>
                     <div className="blackButton" onClick={() => history.push('/signup')}>Join</div>
+                    <img src="/images/menu.png" onClick={openMenu} />
                 </div>
                 
             }   
