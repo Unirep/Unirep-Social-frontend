@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { NavLink, useHistory } from 'react-router-dom';
+import { NavLink, useHistory, useLocation } from 'react-router-dom';
 import { WebContext } from '../../context/WebContext';
 import * as Constants from '../../constants';
 import { userStateTransition, getNextEpochTime, getEpochKeys, getAirdrop, getUserState } from '../../utils';
@@ -7,8 +7,9 @@ import './header.scss';
 
 const Header = () => {
     const history = useHistory();
+    const location = useLocation();
     const [isUSTing, setIsUSTing] = useState(false);
-    const { user, setUser, shownPosts, setShownPosts, isLoading, setIsLoading, nextUSTTime, setNextUSTTime, isMenuOpen, setIsMenuOpen, page, setPage } = useContext(WebContext);
+    const { user, setUser, shownPosts, setShownPosts, isLoading, setIsLoading, nextUSTTime, setNextUSTTime, isMenuOpen, setIsMenuOpen } = useContext(WebContext);
     const [searchInput, setSearchInput] = useState<string>("");
 
     const doUST = async () => {
@@ -98,14 +99,12 @@ const Header = () => {
     const gotoNewPage = () => {
         if (!isLoading) {
             history.push(`/new`);
-            setPage(Constants.Page.New);
         }
     }
 
     const gotoUserPage = () => {
         if (!isLoading) {
             history.push(`/user`);
-            setPage(Constants.Page.User);
         }
     }
 
@@ -118,7 +117,6 @@ const Header = () => {
 
     const gotoHomePage = () => {
         if (!isLoading) {
-            setPage(Constants.Page.Home);
         }
     }
 
@@ -147,8 +145,8 @@ const Header = () => {
                         <span>{user.reputation - user.spent}</span>
                     </div>
                     <div className={isLoading? "whiteButton disabled" : "whiteButton"} onClick={logout}>Log out</div> */}
-                    <div className={page === Constants.Page.New? "navBtn chosen" : "navBtn"}><img src="/images/newpost.svg" onClick={gotoNewPage} /></div>
-                    <div className={page === Constants.Page.User? "navBtn chosen" : "navBtn"}><img src="/images/user.svg" onClick={gotoUserPage} /></div>
+                    <div className={location.pathname === '/new'? "navBtn chosen" : "navBtn"}><img src="/images/newpost.svg" onClick={gotoNewPage} /></div>
+                    <div className={location.pathname === '/user'? "navBtn chosen" : "navBtn"}><img src="/images/user.svg" onClick={gotoUserPage} /></div>
                     <div className="navBtn"><img src="/images/menu.svg" onClick={openMenu} /></div>
                 </div> :
                 <div className="navButtons">
