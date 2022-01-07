@@ -13,7 +13,7 @@ const RankingBlock = ({ post, ranking, hasUnderline }: Props) => {
         <div className={hasUnderline ? "ranking-block underline" : "ranking-block"}>
             <div className="ranking-block-header">
                 <div className="ranking">
-                    <img src="/images/boost-fill.png" />
+                    <img src="/images/boost-fill.svg" />
                     {`#${ranking+1}${post.isAuthor? ', by you':''}`}
                 </div>
                 <div className="boost">

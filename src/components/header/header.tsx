@@ -122,7 +122,7 @@ const Header = () => {
         <header>
             <div className="navLinks">
                 <NavLink to="/" className="link" activeClassName="active" exact>
-                    <img src="/images/unirep-title.png" />
+                    <img src="/images/unirep-title.svg" />
                 </NavLink>
             </div>
             {/* <div className="search-bar">

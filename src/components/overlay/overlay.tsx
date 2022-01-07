@@ -38,7 +38,7 @@ const Overlay = () => {
             <div className="blur-area"></div>
             <div className="black-area">
                 <div className="close-info">
-                    <img src="/images/close.png" />
+                    <img src="/images/close.svg" />
                 </div>
                 <div className="fixed-info">
                     <p>How it work</p>

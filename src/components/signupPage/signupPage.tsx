@@ -86,11 +86,11 @@ const SignupPage = () => {
     return (
         <div className="signup-page">
             <div className="left-column">
-                <img src="/images/unirep-title-white.png" />
+                <img src="/images/unirep-title-white.svg" />
             </div>
             <div className="right-column">
                 {
-                    step === 0? <img src="/images/close.png" onClick={() => history.goBack()}/> : <div></div>
+                    step === 0? <img src="/images/close.svg" onClick={() => history.goBack()}/> : <div></div>
                 }
                 <div className="info">
                     <div className="title">{title[step]}</div>

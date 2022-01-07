@@ -93,7 +93,7 @@ const WritingField = (props: Props) => {
             <textarea onChange={handleContentInput}/>
             <div className="info-row">
                 <div className="element">
-                    <div className="name">Post as <img src="/images/info.png"/></div>
+                    <div className="name">Post as <img src="/images/info.svg"/></div>
                     <div className="epks">
                         { user === null? 
                             <div>somethings wrong...</div> : 
@@ -106,7 +106,7 @@ const WritingField = (props: Props) => {
                     </div>
                 </div>
                 <div className="element">
-                    <div className="name">My Rep show off <img src="/images/info.png"/></div>
+                    <div className="name">My Rep show off <img src="/images/info.svg"/></div>
                     <div className="rep-chooser">
                         <input type="range" 
                             min={defaultRep} 

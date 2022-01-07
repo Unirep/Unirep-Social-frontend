@@ -78,8 +78,8 @@ const PostBlock = ({ post, page, commentId } : Props) => {
         <div className="post-block">
             <div className="block-header">
                 <p className="date">{date} |</p>
-                <p className="user">Post by {post.epoch_key} <img src="/images/lighting.png" /> </p>
-                <p className="etherscan">Etherscan <img src="/images/etherscan.png" /></p>
+                <p className="user">Post by {post.epoch_key} <img src="/images/lighting.svg" /> </p>
+                <p className="etherscan">Etherscan <img src="/images/etherscan.svg" /></p>
             </div>
             {page === Page.Home? <div className="divider"></div> : <div></div>}
             <div className="block-content" onClick={() => history.push(`/post/${post.id}`, {commentId: ''})}>
@@ -110,7 +110,7 @@ const PostBlock = ({ post, page, commentId } : Props) => {
                                 )
                             }
                         </div> : <div className="no-comments">
-                            <img src="/images/glasses.png" />
+                            <img src="/images/glasses.svg" />
                             <p>It's empty here.<br/>People just being shy, no comment yet.</p>
                         </div>
                     }

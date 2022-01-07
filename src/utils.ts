@@ -126,7 +126,7 @@ export const getEpochKeys = async (identity: string, epoch: number) => {
     // console.log(epks)
 
     // return epks
-    return ["5320b71c", "12345678"];
+    return ["5320b71c", "13832dc0"];
 }
 
 export const getAirdrop = async (identity: string, us: any) => {

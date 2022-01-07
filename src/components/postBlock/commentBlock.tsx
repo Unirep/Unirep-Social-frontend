@@ -15,8 +15,8 @@ const CommentBlock = ({comment, page}: Props) => {
         <div className="comment-block">
             <div className="block-header comment-block-header no-padding">
                 <p className="date">{date} |</p>
-                <p className="user">Post by {comment.epoch_key} <img src="/images/lighting.png" /> </p>
-                <p className="etherscan">Etherscan <img src="/images/etherscan.png" /></p>
+                <p className="user">Post by {comment.epoch_key} <img src="/images/lighting.svg" /> </p>
+                <p className="etherscan">Etherscan <img src="/images/etherscan.svg" /></p>
             </div>
             <div className="block-content no-padding-horizontal">{comment.content}</div>
             <div className="block-buttons no-padding">

@@ -26,7 +26,7 @@ const PostsList = ({ posts, timeFilter, loadMorePosts }: Props) => {
                     />
                 ))
             ) : <div className="no-posts">
-                    <img src="/images/glasses.png" />
+                    <img src="/images/glasses.svg" />
                     <p>It's empty here.<br />People just being shy, no post yet.</p>
                 </div>
             }

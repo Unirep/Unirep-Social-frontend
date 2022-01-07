@@ -33,10 +33,10 @@ const LoginPage = () => {
     return (
         <div className="login-page">
             <div className="left-column">
-                <img src="/images/unirep-title-white.png" />
+                <img src="/images/unirep-title-white.svg" />
             </div>
             <div className="right-column">
-                <img src="/images/close.png" onClick={() => history.goBack()}/>
+                <img src="/images/close.svg" onClick={() => history.goBack()}/>
                 <div className="info">
                     <div className="title">Welcome back</div>
                     <p>Please paster your private key below.</p>

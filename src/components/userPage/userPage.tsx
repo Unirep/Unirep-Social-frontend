@@ -88,7 +88,7 @@ const ActivityWidget = ({ history, isReceived }: Props) => {
                 </div>
                 <div className="main-info">
                     <div className="who">
-                        {info.who} <img src="/images/lighting.png" /> {info.action}
+                        {info.who} <img src="/images/lighting.svg" /> {info.action}
                     </div>
                     { data !== null? 
                         <div className="data">
@@ -103,7 +103,7 @@ const ActivityWidget = ({ history, isReceived }: Props) => {
                     <div className="side">
                         <div className="amount">{history.action === ActionType.Vote? (history.upvote > 0? '+' + history.upvote : '-' + history.downvote) : '+' + history.upvote}</div>
                         <div className="type">
-                            <img src={history.action === ActionType.Vote? (history.upvote > 0? '/images/boost-grey.png' : '/images/squash-grey.png'): '/images/unirep-grey.png'} />
+                            <img src={history.action === ActionType.Vote? (history.upvote > 0? '/images/boost.svg' : '/images/squash.svg'): '/images/unirep.svg'} />
                             Received
                         </div>
                     </div> : <div></div>
@@ -237,7 +237,7 @@ const UserPage = () => {
                             <div className="my-reps stuff">
                                 <div className="white-block">
                                     <p>My Reps</p>
-                                    <div className="rep-info"><img src="/images/lighting-black.png" />{user.reputation}</div>
+                                    <div className="rep-info"><img src="/images/lighting.svg" />{user.reputation}</div>
                                 </div>
                                 <div className="grey-block">
                                     <span>How I use my rep in this epoch</span><br/>
@@ -257,15 +257,15 @@ const UserPage = () => {
                                 </div>
                                 <div className="white-block">
                                     <div className="received-info">
-                                        <span><img src="/images/airdrop-white.png" />System drop</span>
+                                        <span><img src="/images/unirep.svg" />System drop</span>
                                         <p>+{received[0]}</p>
                                     </div>
                                     <div className="received-info">
-                                        <span><img src="/images/boost-white.png" />Boost</span>
+                                        <span><img src="/images/boost.svg" />Boost</span>
                                         <p>+{received[1]}</p>
                                     </div>
                                     <div className="received-info">
-                                        <span><img src="/images/squash-white.png" />Squash</span>
+                                        <span><img src="/images/squash.svg" />Squash</span>
                                         <p>-{received[2]}</p>
                                     </div>
                                 </div>
@@ -284,18 +284,18 @@ const UserPage = () => {
                                     isDropdown? 
                                         tag !== Tag.Activity?
                                             <div>
-                                                <div className="menu-choice" onClick={() => setSortType(QueryType.Boost)}><img src="/images/boost-fill.png"/>Boost</div>
-                                                <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src="/images/new-fill.png"/>New</div>
-                                                <div className="menu-choice" onClick={() => setSortType(QueryType.Squash)}><img src="/images/squash-fill.png"/>Squash</div>
+                                                <div className="menu-choice" onClick={() => setSortType(QueryType.Boost)}><img src="/images/boost-fill.svg"/>Boost</div>
+                                                <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src="/images/new-fill.svg"/>New</div>
+                                                <div className="menu-choice" onClick={() => setSortType(QueryType.Squash)}><img src="/images/squash-fill.svg"/>Squash</div>
                                             </div> : 
                                             <div>
-                                                <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src="/images/new-fill.png"/>New</div>
-                                                <div className="menu-choice" onClick={() => setSortType(QueryType.Rep)}><img src="/images/rep-fill.png"/>Rep</div>
+                                                <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src="/images/new-fill.svg"/>New</div>
+                                                <div className="menu-choice" onClick={() => setSortType(QueryType.Rep)}><img src="/images/unirep-fill.svg"/>Rep</div>
                                             </div> :
                                         <div className="menu-choice isChosen">
-                                            <img src={`/images/${sort}-fill.png`}/>
+                                            <img src={`/images/${sort}-fill.svg`}/>
                                             <span>{sort.charAt(0).toUpperCase() + sort.slice(1)}</span>
-                                            <img src="/images/selector-down.png" />
+                                            <img src="/images/selector-down.svg" />
                                         </div>
                                 }
                             </div>

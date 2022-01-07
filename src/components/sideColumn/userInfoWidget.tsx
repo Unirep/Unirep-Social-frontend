@@ -46,15 +46,15 @@ const UserInfoWidget = () => {
                 <div className="user-info-widget widget">
                     <div className="rep-info">
                         <p>My Reps</p>
-                        <h3><img src="/images/lighting-black.png"/>{user.reputation}</h3>
+                        <h3><img src="/images/lighting.svg"/>{user.reputation}</h3>
                     </div>
                     <div className="ust-info">
-                        <p>In this epoch, my personas are <img src="/images/info.png" /></p>
+                        <p>In this epoch, my personas are <img src="/images/info.svg" /></p>
                         <div className="epks">
                             {user.epoch_keys.map(key => <div className="epk" key={key}>{key}</div>)}
                         </div>
                         <div className="margin"></div>
-                        <p>Remaining time: <img src="/images/info.png" /></p>
+                        <p>Remaining time: <img src="/images/info.svg" /></p>
                         <div className="countdown">{countdownText}</div>
                         <div className="margin"></div>
                         <p>Transition at:</p>

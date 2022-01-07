@@ -15,7 +15,7 @@ type choiceProps = {
 const FeedChoice = ({type, isChosen, setFeedChoice}: choiceProps) => {
     return (
         <div className={isChosen? "feed-choice chosen" : "feed-choice"} onClick={() => setFeedChoice(type)}>
-            <img src={`/images/${type}${isChosen? '-fill': ''}.png`} />
+            <img src={`/images/${type}${isChosen? '-fill': ''}.svg`} />
             <span>{type.charAt(0).toUpperCase() + type.slice(1)}</span>
         </div>
     );

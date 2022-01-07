@@ -98,7 +98,7 @@ const BlockButton = ({ type, count }: Props) => {
 
     return (
         <div className={type === ButtonType.Share? "block-button share" : "block-button"} onMouseEnter={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}>
-            <img src={`/images/${type}${isHover? '-fill' : ''}.png`} />
+            <img src={`/images/${type}${isHover? '-fill' : ''}.svg`} />
             {   
                 type !== ButtonType.Share? 
                     <span className="count">{count}</span> : <span></span>
