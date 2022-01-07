@@ -8,7 +8,7 @@ import './header.scss';
 const Header = () => {
     const history = useHistory();
     const [isUSTing, setIsUSTing] = useState(false);
-    const { user, setUser, shownPosts, setShownPosts, isLoading, setIsLoading, nextUSTTime, setNextUSTTime, isMenuOpen, setIsMenuOpen } = useContext(WebContext);
+    const { user, setUser, shownPosts, setShownPosts, isLoading, setIsLoading, nextUSTTime, setNextUSTTime, isMenuOpen, setIsMenuOpen, page, setPage } = useContext(WebContext);
     const [searchInput, setSearchInput] = useState<string>("");
 
     const doUST = async () => {
@@ -98,12 +98,14 @@ const Header = () => {
     const gotoNewPage = () => {
         if (!isLoading) {
             history.push(`/new`);
+            setPage(Constants.Page.New);
         }
     }
 
     const gotoUserPage = () => {
         if (!isLoading) {
             history.push(`/user`);
+            setPage(Constants.Page.User);
         }
     }
 
@@ -114,6 +116,12 @@ const Header = () => {
         }
     }
 
+    const gotoHomePage = () => {
+        if (!isLoading) {
+            setPage(Constants.Page.Home);
+        }
+    }
+
     const handleSearchInput = (event: any) => {
         console.log("search input : " + event.target.value);
     }
@@ -121,7 +129,7 @@ const Header = () => {
     return (
         <header>
             <div className="navLinks">
-                <NavLink to="/" className="link" activeClassName="active" exact>
+                <NavLink to="/" className="link" activeClassName="active" onClick={gotoHomePage} exact>
                     <img src="/images/unirep-title.svg" />
                 </NavLink>
             </div>
@@ -139,9 +147,9 @@ const Header = () => {
                         <span>{user.reputation - user.spent}</span>
                     </div>
                     <div className={isLoading? "whiteButton disabled" : "whiteButton"} onClick={logout}>Log out</div> */}
-                    <img src="/images/newpost.png" onClick={gotoNewPage} />
-                    <img src="/images/user.png" onClick={gotoUserPage} />
-                    <img src="/images/menu.png" onClick={openMenu} />
+                    <div className={page === Constants.Page.New? "navBtn chosen" : "navBtn"}><img src="/images/newpost.svg" onClick={gotoNewPage} /></div>
+                    <div className={page === Constants.Page.User? "navBtn chosen" : "navBtn"}><img src="/images/user.svg" onClick={gotoUserPage} /></div>
+                    <div className="navBtn"><img src="/images/menu.svg" onClick={openMenu} /></div>
                 </div> :
                 <div className="navButtons">
                     <div className="whiteButton" onClick={() => history.push('/login')}>Sign in</div>

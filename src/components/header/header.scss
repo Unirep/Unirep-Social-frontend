@@ -87,10 +87,21 @@ header {
       display: flex;
       padding-right: 10px;
 
-      img {
-        height: 45px;
-        margin-left: 45px;
+      
+
+      .navBtn {
         cursor: pointer;
+        margin-left: 45px;
+        padding-bottom: 10px;
+        border-bottom: 4px solid $white;
+
+        img {
+          height: 30px;
+        }
+      }
+
+      .chosen {
+        border-bottom: 4px solid $black;
       }
 
       .blackButton {

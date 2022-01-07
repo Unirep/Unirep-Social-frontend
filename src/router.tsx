@@ -23,6 +23,7 @@ const AppRouter = () => {
     const [nextUSTTime, setNextUSTTime] = useLocalStorage(Constants.nextUSTKey, 4789220745000);
     const [isLoading, setIsLoading] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [page, setPage] = useState(Constants.Page.Home);
 
     return (
         <BrowserRouter>
@@ -32,7 +33,8 @@ const AppRouter = () => {
                     shownPosts, setShownPosts, 
                     isLoading, setIsLoading,
                     nextUSTTime, setNextUSTTime,
-                    isMenuOpen, setIsMenuOpen}}>
+                    isMenuOpen, setIsMenuOpen,
+                    page, setPage}}>
                 <Header />
                 
                 <Switch>

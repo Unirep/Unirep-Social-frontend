@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import { Post, User } from '../constants';
+import { Post, User, Page } from '../constants';
 
 type GlobalContent = {
     user: User | null;
@@ -12,6 +12,8 @@ type GlobalContent = {
     setNextUSTTime: (value: number) => void;
     isMenuOpen: boolean;
     setIsMenuOpen: (value: boolean) => void;
+    page: Page;
+    setPage: (value: Page) => void;
 }
 
 export const WebContext = createContext<GlobalContent>({
@@ -25,4 +27,6 @@ export const WebContext = createContext<GlobalContent>({
     setNextUSTTime: () => {},
     isMenuOpen: false,
     setIsMenuOpen: () => {},
+    page: Page.Home,
+    setPage: () => {},
 });
