@@ -20,9 +20,9 @@ const CommentBlock = ({comment, page}: Props) => {
             </div>
             <div className="block-content no-padding-horizontal">{comment.content}</div>
             <div className="block-buttons no-padding">
-                <BlockButton type={ButtonType.Boost} count={comment.upvote} />
-                <BlockButton type={ButtonType.Squash} count={comment.downvote} />
-                <BlockButton type={ButtonType.Share} count={0} />
+                <BlockButton type={ButtonType.Boost} count={comment.upvote} data={comment} />
+                <BlockButton type={ButtonType.Squash} count={comment.downvote} data={comment} />
+                <BlockButton type={ButtonType.Share} count={0} data={comment} />
             </div>
         </div>
     );

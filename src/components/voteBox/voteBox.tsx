@@ -11,8 +11,9 @@ import './voteBox.scss';
 type Props = {
     isUpvote: boolean,
     data: Post|Comment,
+    closeVote: () => void,
 }
-const VoteBox = (props: Props) => {
+const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
 
     const { user, setUser, shownPosts, setShownPosts, setIsLoading } = useContext(WebContext);
     const { setIsMainPageUpVoteBoxOn: setIsUpVoteBoxOn, setIsMainPageDownVoteBoxOn: setIsDownVoteBoxOn, setMainPageVoteReceiver: setVoteReceiver } = useContext(MainPageContext);
@@ -50,44 +51,44 @@ const VoteBox = (props: Props) => {
             setIsBlockLoading(true);
             setPercentage(1);
 
-            const isPost = props.data.type === DataType.Post;
+            const isPost = data.type === DataType.Post;
             let ret: any;
-            if (props.isUpvote) {
-                ret = await vote(user.identity, givenAmount, 0, props.data.id, props.data.epoch_key, epkNonce, 0, isPost, user.spent, user.userState);
+            if (isUpvote) {
+                ret = await vote(user.identity, givenAmount, 0, data.id, data.epoch_key, epkNonce, 0, isPost, user.spent, user.userState);
                 console.log('upvote ret: ' + JSON.stringify(ret))
             } else {
-                ret = await vote(user.identity, 0, givenAmount, props.data.id, props.data.epoch_key, epkNonce, 0, isPost, user.spent, user.userState);
+                ret = await vote(user.identity, 0, givenAmount, data.id, data.epoch_key, epkNonce, 0, isPost, user.spent, user.userState);
                 console.log('downvote ret: ' + JSON.stringify(ret))
             }
 
             const newVote: Vote = {
-                upvote: props.isUpvote? givenAmount:0,
-                downvote: props.isUpvote? 0:givenAmount,
+                upvote: isUpvote? givenAmount:0,
+                downvote: isUpvote? 0:givenAmount,
                 epoch_key: user.epoch_keys[epkNonce],
             }
-            let v = [...props.data.votes, newVote];
-            if (props.data.type === DataType.Post) {
-                const filteredPosts = shownPosts.filter((p) => p.id != props.data.id)
-                let p: Post = {...(props.data as Post), 
-                    upvote: props.data.upvote + (props.isUpvote? givenAmount : 0),
-                    downvote: props.data.downvote + (props.isUpvote? 0 : givenAmount), 
-                    isUpvoted: props.isUpvote || props.data.isUpvoted, 
-                    isDownvoted: !props.isUpvote || props.data.isDownvoted, 
+            let v = [...data.votes, newVote];
+            if (data.type === DataType.Post) {
+                const filteredPosts = shownPosts.filter((p) => p.id != data.id)
+                let p: Post = {...(data as Post), 
+                    upvote: data.upvote + (isUpvote? givenAmount : 0),
+                    downvote: data.downvote + (isUpvote? 0 : givenAmount), 
+                    isUpvoted: isUpvote || data.isUpvoted, 
+                    isDownvoted: !isUpvote || data.isDownvoted, 
                     votes: v
                 };
                 setShownPosts([p, ...filteredPosts]);
-            } else if (props.data.type === DataType.Comment) {
-                const selectedPost = shownPosts.find((p) => p.id === (props.data as Comment).post_id);
+            } else if (data.type === DataType.Comment) {
+                const selectedPost = shownPosts.find((p) => p.id === (data as Comment).post_id);
                 if (selectedPost === undefined) {
                     console.error('no such post!?????');
                 } else {
-                    const filteredPosts = shownPosts.filter((p) => p.id !== (props.data as Comment).post_id);
-                    const filteredComment = selectedPost.comments.filter((c) => c.id !== props.data.id);
-                    let c: Comment = {...(props.data as Comment), 
-                        upvote: props.data.upvote + (props.isUpvote? givenAmount : 0),
-                        downvote: props.data.downvote + (props.isUpvote? 0 : givenAmount), 
-                        isUpvoted: props.isUpvote || props.data.isUpvoted, 
-                        isDownvoted: !props.isUpvote || props.data.isDownvoted, 
+                    const filteredPosts = shownPosts.filter((p) => p.id !== (data as Comment).post_id);
+                    const filteredComment = selectedPost.comments.filter((c) => c.id !== data.id);
+                    let c: Comment = {...(data as Comment), 
+                        upvote: data.upvote + (isUpvote? givenAmount : 0),
+                        downvote: data.downvote + (isUpvote? 0 : givenAmount), 
+                        isUpvoted: isUpvote || data.isUpvoted, 
+                        isDownvoted: !isUpvote || data.isDownvoted, 
                         votes: v
                     };
                     let p: Post = {...selectedPost, comments: [c, ...filteredComment]}
@@ -115,10 +116,27 @@ const VoteBox = (props: Props) => {
         setIsDropdown(false);
     }
 
+    const close = (event: any) => {
+        preventClose(event);
+        closeVote();
+    }
+
     return (
-        <div className="vote-overlay">
+        <div className="vote-overlay" onClick={close}>
             <div className="vote-box" onClick={preventClose}>
-                <h3>{user?.reputation} Points Available</h3>
+                <div className="grey-box">
+                    <div className="close">
+                        <img src="/images/close-white.svg" onClick={close} />
+                    </div>
+                    <div className="title">
+                        <img src={`/images/${isUpvote? 'boost':'squash'}-fill.svg`} />
+                        {isUpvote? "Boost":"Squash"}
+                    </div>
+                    <div className="description">
+                        Tune up the amount of Rep to {isUpvote? 'boost' : 'squash'} this post
+                    </div>
+                </div>
+                {/* <h3>{user?.reputation} Points Available</h3>
                 <div className="vote-margin"></div>
                 <p>Enter an amount up to 10 to give to @{props.data.epoch_key}</p>
                 <div className="vote-margin"></div>
@@ -151,7 +169,7 @@ const VoteBox = (props: Props) => {
                             }}/>
                         </div>
                     </div> : <div></div>
-                }
+                } */}
             </div>
         </div>
     );

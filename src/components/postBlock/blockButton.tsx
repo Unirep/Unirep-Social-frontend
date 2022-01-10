@@ -1,21 +1,23 @@
 import { useContext, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import Jdenticon from 'react-jdenticon';
 import { Post, Comment, DataType, Page, isVotedText, isAuthorText, notLoginText, loadingText, expiredText, ButtonType } from '../../constants';
 import { WebContext } from '../../context/WebContext';
-import { MainPageContext } from '../../context/MainPageContext';
-import { PostPageContext } from '../../context/PostPageContext';
+import VoteBox from '../voteBox/voteBox';
 
 type Props = {
     type: ButtonType
     count: number
+    data: Post | Comment
 }
 
-const BlockButton = ({ type, count }: Props) => {
+const BlockButton = ({ type, count, data }: Props) => {
     
+    const history = useHistory();
     const { user, isLoading } = useContext(WebContext);
-    const { setIsMainPageUpVoteBoxOn, setIsMainPageDownVoteBoxOn, setMainPageVoteReceiver } = useContext(MainPageContext);
-    const { setIsPostPageUpVoteBoxOn, setIsPostPageDownVoteBoxOn, setPostPageVoteReceiver } = useContext(PostPageContext);
 
+    const [isBoostOn, setBoostOn] = useState<boolean>(false);
+    const [isSquashOn, setSquashOn] = useState<boolean>(false);
     const [isHover, setIsHover] = useState<boolean>(false); // null, purple1, purple2, grey1, grey2
     const [hoverText, setHoverText] = useState<string>('');
     // const isSameEpoch: boolean = user?.current_epoch === data.current_epoch;
@@ -96,14 +98,37 @@ const BlockButton = ({ type, count }: Props) => {
         setHoverText('');
     }
 
+    const onClick = () => {
+        if (type === ButtonType.Comments) {
+            history.push(`/post/${data.id}`, {commentId: ''});
+        } else if (type === ButtonType.Boost) {
+            setBoostOn(true);
+        } else if (type === ButtonType.Squash) {
+            setSquashOn(true);
+        } else if (type === ButtonType.Share) {
+
+        }
+        setIsHover(false);
+    }
+
     return (
-        <div className={type === ButtonType.Share? "block-button share" : "block-button"} onMouseEnter={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}>
+        <div 
+            className={type === ButtonType.Share? "block-button share" : "block-button"} 
+            onMouseEnter={() => setIsHover(true)} 
+            onMouseLeave={() => setIsHover(false)}
+            onClick={onClick}
+        >
             <img src={`/images/${type}${isHover? '-fill' : ''}.svg`} />
             {   
                 type !== ButtonType.Share? 
                     <span className="count">{count}</span> : <span></span>
             }
             <span>{type.charAt(0).toUpperCase() + type.slice(1)}</span>
+            {
+                isBoostOn? 
+                    <VoteBox isUpvote={true} data={data} closeVote={() => setBoostOn(false)} /> : isSquashOn? 
+                    <VoteBox isUpvote={false} data={data} closeVote={() => setSquashOn(false)}  /> : <div></div>
+            }
         </div>
     );
 }
