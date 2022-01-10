@@ -89,8 +89,12 @@ const WritingField = (props: Props) => {
 
     return (
         <div className="writing-field" onClick={onClickField}>
-            <input type="text" placeholder="Give an eye-catching title" onChange={handleTitleInput}/>
-            <textarea onChange={handleContentInput}/>
+            {
+                props.type === DataType.Post? <input type="text" placeholder="Give an eye-catching title" onChange={handleTitleInput}/> : <div></div>
+            }
+            { 
+                props.type === DataType.Post? <textarea onChange={handleContentInput} /> : <textarea autoFocus onChange={handleContentInput} />
+            }
             <div className="info-row">
                 <div className="element">
                     <div className="name">Post as <img src="/images/info.svg"/></div>

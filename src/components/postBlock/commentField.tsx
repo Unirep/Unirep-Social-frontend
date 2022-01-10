@@ -69,7 +69,7 @@ const CommentField = (props: Props) => {
             <WritingField
                 type={DataType.Comment}
                 submit={submitComment} 
-                submitBtnName="Comment"
+                submitBtnName="Comment - 3 points"
                 onClick={preventPropagation}
             />
         </div>

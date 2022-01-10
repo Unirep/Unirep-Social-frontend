@@ -28,7 +28,7 @@ const PostBlock = ({ post, page, commentId } : Props) => {
     const [hoverText, setHoverText] = useState<string>('');
 
     const date = dateformat(new Date(post.post_time), "dd/mm/yyyy hh:MM TT");
-    const [ showComment, setShowComment ] = useState(false);
+    const [ showCommentField, setShowCommentField ] = useState(false);
     const [ isVotersListOn, setIsVotersListOn ] = useState(false);
     const shownVoters = 4;
 
@@ -55,7 +55,7 @@ const PostBlock = ({ post, page, commentId } : Props) => {
 
     const switchComment = () => {
         if (!isLoading) {
-            setShowComment((prevState) => !prevState);
+            setShowCommentField((prevState) => !prevState);
         }
     }
 
@@ -96,7 +96,15 @@ const PostBlock = ({ post, page, commentId } : Props) => {
             {page === Page.Home? <div></div> : 
                 <div className="comment">
                     <div className="comment-block">
-                        <textarea placeholder="What's your thought?" />
+                        {
+                            showCommentField? 
+                                <CommentField 
+                                    post={post}
+                                    page={Page.Post}
+                                    closeComment={() => setShowCommentField(false)}
+                                /> : 
+                                <textarea placeholder="What's your thought?" onClick={() => setShowCommentField(true)} />
+                        }
                     </div>
                     <div className="divider"></div>
                     {post.comments.length > 0? 
