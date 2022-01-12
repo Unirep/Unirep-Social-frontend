@@ -17,21 +17,22 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
 
     const { user, setUser, shownPosts, setShownPosts, setIsLoading } = useContext(WebContext);
     const { setIsMainPageUpVoteBoxOn: setIsUpVoteBoxOn, setIsMainPageDownVoteBoxOn: setIsDownVoteBoxOn, setMainPageVoteReceiver: setVoteReceiver } = useContext(MainPageContext);
-    const [ givenAmount, setGivenAmount ] = useState<undefined|number>(1);
+    const [ givenAmount, setGivenAmount ] = useState<number>(1);
     const [ epkNonce, setEpkNonce ] = useState(0); 
     const [ isDropdown, setIsDropdown ] = useState(false);
     const [ isBlockLoading, setIsBlockLoading ] = useState(false);
-    const [percentage, setPercentage] = useState<number>(0);
+    const [ strokeOffset, setStrokeOffset ] = useState<number>(225);
+    const [ mouseDownPos, setMouseDownPos] = useState<number[]>([]);
 
-    useEffect(() => {
-        if (isBlockLoading) {
-            const timer = setTimeout(() => {
-                setPercentage(((percentage + 1) % 100) + 1);
-            }, 100);
+    // useEffect(() => {
+    //     if (isBlockLoading) {
+    //         const timer = setTimeout(() => {
+    //             setPercentage(((percentage + 1) % 100) + 1);
+    //         }, 100);
 
-            return () => clearTimeout(timer);
-        }
-    }, [percentage]);
+    //         return () => clearTimeout(timer);
+    //     }
+    // }, [percentage]);
 
     const init = () => {
         setIsDropdown(false);
@@ -49,7 +50,7 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
         } else {
             setIsLoading(true);
             setIsBlockLoading(true);
-            setPercentage(1);
+            // setPercentage(1);
 
             const isPost = data.type === DataType.Post;
             let ret: any;
@@ -121,6 +122,44 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
         closeVote();
     }
 
+    const setInitialPos = (event: any) => {
+        let origin = document.querySelector('#origin');
+        if (origin !== null) {
+            let rect = origin.getBoundingClientRect();
+            const originX = Math.floor(rect.left);
+            const originY = Math.floor(rect.top);
+            setMouseDownPos([originX, originY, event.clientX, event.clientY]);
+        }
+    }
+
+    const clearInitialPos = () => {
+        setMouseDownPos([]);
+    }
+
+    const calcAngle = (event: any) => {
+        if (mouseDownPos.length > 0) {
+            const x_a = mouseDownPos[2] - mouseDownPos[0];
+            const y_a = mouseDownPos[3] - mouseDownPos[1];
+            const x_b = event.clientX - mouseDownPos[0];
+            const y_b = event.clientY - mouseDownPos[1];
+            const x_a_sqr = x_a * x_a;
+            const y_a_sqr = y_a * y_a;
+            const x_b_sqr = x_b * x_b;
+            const y_b_sqr = y_b * y_b;
+            
+            const cos = ((x_a * x_b) + (y_a * y_b)) / (Math.sqrt(x_a_sqr + y_a_sqr) * Math.sqrt(x_b_sqr + y_b_sqr));
+            console.log(cos);
+
+            if (cos <= 0.9) {
+                setMouseDownPos([mouseDownPos[0], mouseDownPos[1], event.clientX, event.clientY]);
+                const det = x_a * y_b - x_b * y_a;
+                const newAmount = det > 0? Math.min(givenAmount + 1, 10) : Math.max(givenAmount - 1, 1);
+                setGivenAmount(newAmount);
+                setStrokeOffset(250 - newAmount * 25);
+            }
+        }
+    }
+
     return (
         <div className="vote-overlay" onClick={close}>
             <div className="vote-box" onClick={preventClose}>
@@ -135,10 +174,18 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
                     <div className="description">
                         Tune up the amount of Rep to {isUpvote? 'boost' : 'squash'} this post
                     </div>
-                    <div className="dashboard">
-                        <svg version="1.1" xmlns="http://www.w3.org/2000/svg">
-                            <path className="grey" d="M 10 96 A 40 40 0 1 1 60 90" />
-                            {/* <path id="path2" d="M 10 100 C 10 35 118 35 118 100" /> */}
+                    <div className="dashboard" onMouseDown={setInitialPos} onMouseUp={clearInitialPos} onMouseMove={calcAngle}>
+                        <div id="origin"></div>
+                        <div className="amount">{givenAmount}</div>
+                        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" id="svg-bar">
+                            <path className="grey" d="M 16 96 A 56 56 0 1 1 112 96" />
+                            <path className="black" d="M 16 96 A 56 56 0 1 1 112 96" style={{strokeDashoffset: strokeOffset}} />
+                        </svg>
+                        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" id="svg-index" style={{transform: `rotate(${givenAmount * 25}deg)`}}>
+                            <path id="index" d="M 20 76 A 45 45 0 1 1 92 76" />
+                            <text>
+                                <textPath href="#index">|</textPath>
+                            </text>
                         </svg>
                     </div>
                 </div>

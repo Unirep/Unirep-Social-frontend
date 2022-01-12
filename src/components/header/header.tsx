@@ -152,7 +152,7 @@ const Header = () => {
                 <div className="navButtons">
                     <div className="whiteButton" onClick={() => history.push('/login')}>Sign in</div>
                     <div className="blackButton" onClick={() => history.push('/signup')}>Join</div>
-                    <img src="/images/menu.png" onClick={openMenu} />
+                    <div className="navBtn"><img src="/images/menu.svg" onClick={openMenu} /></div>
                 </div>
                 
             }   

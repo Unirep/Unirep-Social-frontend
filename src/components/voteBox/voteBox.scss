@@ -109,9 +109,15 @@
         }
 
         .dashboard {
-          svg {
+          position: relative;
+          cursor: pointer;
+
+          svg#svg-bar {
             width: 128px;
             height: 100px;
+            position: absolute;
+            top: 0px;
+            left: 98px;
 
             path {
               stroke-linecap: round;
@@ -125,7 +131,44 @@
 
             path.black {
               stroke: $grey-700;
+              stroke-dasharray: calc(56*3.142*1.4);
             }
+          }
+
+          svg#svg-index {
+            width: 104px;
+            height: 104px;
+            position: absolute;
+            top: 15px;
+            left: 110px;
+
+            path {
+              fill: transparent;
+            }
+
+            text {
+              font-size: $title-sm;
+            }
+          }
+
+          #origin {
+            position: absolute;
+            top: 70px;
+            left: 162px;
+            width: 5px;
+            height: 5px;
+            background-color: transparent;
+          }
+
+          .amount {
+            position: absolute;
+            top: 45px;
+            left: 112px;
+            width: 99px;
+            height: 52px;
+            font-size: $title-lg;
+            font-weight: 700;
+            text-align: center;
           }
         }
       }
