@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react';
 import Jdenticon from 'react-jdenticon';
-import { Post, Comment, DataType, Page, isVotedText, isAuthorText, notLoginText, loadingText, expiredText } from '../../constants';
+import { Post, Comment, DataType, Page, isVotedText, isAuthorText, notLoginText, loadingText, expiredText, offChainText } from '../../constants';
 import './blockHeader.scss';
 import { WebContext } from '../../context/WebContext';
 import { MainPageContext } from '../../context/MainPageContext';
@@ -88,6 +88,8 @@ const BlockHeader = ({ data, page }: Props) => {
                 setHoverText(isAuthorText);
             } else if (!isSameEpoch) {
                 setHoverText(expiredText);
+            } else if (data.proofIndex === 0) {
+                setHoverText(offChainText);
             }
         }
     }
@@ -106,7 +108,7 @@ const BlockHeader = ({ data, page }: Props) => {
                 {
                     data.isUpvoted? (
                         <div className="vote vote-purple" onMouseOver={() => setOnHover('purple1')} onMouseLeave={setOnLeave}><img src="/images/upvote-purple.png" />{data.upvote}</div>
-                    ) : user && !isLoading && !data.isAuthor && isSameEpoch? (
+                    ) : user && !isLoading && !data.isAuthor && isSameEpoch && data.proofIndex !== 0? (
                         <div className="vote" onClick={openUpvote}><img src="/images/upvote.png"/>{data.upvote}</div>
                     ) : (
                         <div className="vote disabled" onMouseOver={() => setOnHover('grey1')} onMouseLeave={setOnLeave}><img src="/images/upvote.png"/>{data.upvote}</div>

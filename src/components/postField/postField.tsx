@@ -81,7 +81,8 @@ const PostField = ({ page }: Props) => {
                     comments: [],
                     isAuthor: true,
                     current_epoch: ret.currentEpoch,
-                    tx: ret.transaction
+                    tx: ret.transaction,
+                    proofIndex: 0,
                 }
                 
                 setShownPosts([newPost, ...shownPosts]);
