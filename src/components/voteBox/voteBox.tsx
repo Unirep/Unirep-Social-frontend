@@ -135,6 +135,12 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
                     <div className="description">
                         Tune up the amount of Rep to {isUpvote? 'boost' : 'squash'} this post
                     </div>
+                    <div className="dashboard">
+                        <svg version="1.1" xmlns="http://www.w3.org/2000/svg">
+                            <path className="grey" d="M 10 96 A 40 40 0 1 1 60 90" />
+                            {/* <path id="path2" d="M 10 100 C 10 35 118 35 118 100" /> */}
+                        </svg>
+                    </div>
                 </div>
                 {/* <h3>{user?.reputation} Points Available</h3>
                 <div className="vote-margin"></div>

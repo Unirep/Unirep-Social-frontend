@@ -107,6 +107,27 @@
         .description {
           font-size: $text-xs;
         }
+
+        .dashboard {
+          svg {
+            width: 128px;
+            height: 100px;
+
+            path {
+              stroke-linecap: round;
+              fill: transparent;
+              stroke-width: 7;
+            }
+
+            path.grey {
+              stroke: $grey-300;
+            }
+
+            path.black {
+              stroke: $grey-700;
+            }
+          }
+        }
       }
 
       .white-box {
