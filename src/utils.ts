@@ -375,12 +375,11 @@ export const userSignUp = async () => {
 export const publishPost = async (content: string, epkNonce: number, identity: string, minRep: number = 0, spent: number = 0, us: any) => {
     let error
     let transaction: string = ''
-    let postId: string = ''
     const ret = await genProof(identity, epkNonce, config.DEFAULT_POST_KARMA, minRep, us, spent)
 
     if (ret === undefined) {
         error = 'genProof error, ret is undefined.'
-        return {error, transaction, postId, currentEpoch: 0, epk: '', userState: undefined}
+        return {error, transaction, currentEpoch: 0, epk: '', userState: undefined}
     }
 
      // to backend: proof, publicSignals, content
@@ -403,13 +402,12 @@ export const publishPost = async (content: string, epkNonce: number, identity: s
             console.log(JSON.stringify(data))
             error = data.error
             transaction = data.transaction
-            postId = data.postId
         });
     
-    return {error, transaction, postId, currentEpoch: ret.currentEpoch, epk: ret.epk, userState: ret.userState}
+    return {error, transaction, currentEpoch: ret.currentEpoch, epk: ret.epk, userState: ret.userState}
 }
 
-export const vote = async(identity: string, upvote: number, downvote: number, postId: string, receiver: string, epkNonce: number = 0, minRep: number = 0, isPost: boolean = true, spent: number = 0, us: any) => {
+export const vote = async(identity: string, upvote: number, downvote: number, dataId: string, receiver: string, epkNonce: number = 0, minRep: number = 0, isPost: boolean = true, spent: number = 0, us: any) => {
     let error
     let transaction: string = ''
     // upvote / downvote user 
@@ -429,7 +427,7 @@ export const vote = async(identity: string, upvote: number, downvote: number, po
        minRep,
        publicSignals: ret.publicSignals,
        receiver,
-       postId,
+       dataId,
        isPost
     }
     const stringifiedData = JSON.stringify(data);
@@ -645,8 +643,8 @@ const convertDataToPost = (data: any, epks: string[]) => {
         const votesRet= convertDataToVotes(data.comments[i].votes, epks);
         const comment = {
             type: DataType.Comment,
-            id: data.comments[i]._id,
-            post_id: data._id,
+            id: data.comments[i].transactionHash,
+            post_id: data.comments[i].postId,
             content: data.comments[i].content,
             votes: votesRet.votes,
             upvote: votesRet.upvote,
@@ -659,7 +657,6 @@ const convertDataToPost = (data: any, epks: string[]) => {
             reputation: data.comments[i].minRep,
             isAuthor: epks.indexOf(data.comments[i].epochKey) !== -1,
             current_epoch: data.comments[i].epoch,
-            tx: data.comments[i].transactionHash,
             proofIndex: data.comments[i].proofIndex,
         }
         comments = [...comments, comment];
@@ -668,7 +665,7 @@ const convertDataToPost = (data: any, epks: string[]) => {
 
     const post: Post = {
         type: DataType.Post,
-        id: data._id,
+        id: data.transactionHash,
         content: data.content,
         votes,
         upvote,
@@ -682,7 +679,6 @@ const convertDataToPost = (data: any, epks: string[]) => {
         reputation: data.minRep,
         comments,
         current_epoch: data.epoch,
-        tx: data.transactionHash,
         proofIndex: data.proofIndex,
     }
 

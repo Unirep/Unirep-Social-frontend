@@ -30,7 +30,7 @@ const CommentField = (props: Props) => {
             if (ret.error === undefined) {
                 let c: Comment = {
                     type: DataType.Comment,
-                    id: ret.commentId,
+                    id: ret.transaction,
                     post_id: props.post.id,
                     content,
                     votes: [],
@@ -44,7 +44,6 @@ const CommentField = (props: Props) => {
                     reputation: +reputation,
                     isAuthor: true,
                     current_epoch: ret.currentEpoch,
-                    tx: ret.transaction,
                     proofIndex: 0,
                 };
                 const filteredPosts = shownPosts.filter((p) => p.id != props.post?.id)

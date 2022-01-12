@@ -67,7 +67,7 @@ const PostField = ({ page }: Props) => {
             if (ret.error === undefined) {
                 const newPost: Post = {
                     type: DataType.Post,
-                    id: ret.postId,
+                    id: ret.transaction,
                     content,
                     votes: [],
                     upvote: 0,
@@ -81,7 +81,6 @@ const PostField = ({ page }: Props) => {
                     comments: [],
                     isAuthor: true,
                     current_epoch: ret.currentEpoch,
-                    tx: ret.transaction,
                     proofIndex: 0,
                 }
                 

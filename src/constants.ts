@@ -29,7 +29,7 @@ export interface Vote {
 
 export interface Comment {
     type: DataType,
-    id: string,
+    id: string, // === txHash
     post_id: string,
     content: string,
     votes: Vote[],
@@ -43,13 +43,12 @@ export interface Comment {
     reputation: number,
     isAuthor: boolean,
     current_epoch: number,
-    tx: string,
     proofIndex: number,
 }
 
 export interface Post {
     type: DataType,
-    id: string,
+    id: string, // === txHash
     content: string,
     votes: Vote[],
     upvote: number,
@@ -63,7 +62,6 @@ export interface Post {
     comments: Comment[],
     isAuthor: boolean,
     current_epoch: number,
-    tx: string,
     proofIndex: number,
 }
 

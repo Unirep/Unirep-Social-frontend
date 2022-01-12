@@ -88,7 +88,7 @@ const PostBlock = ({ post, page, commentId, setPostToShow }: Props) => {
                 <div className="post-block-info">
                     <div className="datetime-text">{date}</div>
                     <div className="datetime-text">|</div>
-                    <a className="etherscan" target="_blank" href={`https://goerli.etherscan.io/tx/${post.tx}`}> 
+                    <a className="etherscan" target="_blank" href={`https://goerli.etherscan.io/tx/${post.id}`}> 
                         <span>Etherscan</span>
                         <img src="/images/etherscan.png" />
                     </a>
