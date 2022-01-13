@@ -148,7 +148,7 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
             const y_b_sqr = y_b * y_b;
             
             const cos = ((x_a * x_b) + (y_a * y_b)) / (Math.sqrt(x_a_sqr + y_a_sqr) * Math.sqrt(x_b_sqr + y_b_sqr));
-            console.log(cos);
+            // console.log(cos);
 
             if (cos <= 0.9) {
                 setMouseDownPos([mouseDownPos[0], mouseDownPos[1], event.clientX, event.clientY]);
