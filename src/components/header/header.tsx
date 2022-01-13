@@ -13,10 +13,10 @@ const Header = () => {
 
     const doUST = async () => {
         if (user !== null) {
+            setIsUSTing(true);
+            setIsLoading(true);
             const currentEpoch = await getCurrentEpoch();
             if (user.current_epoch !== currentEpoch) {
-                setIsUSTing(true);
-                setIsLoading(true);
                 const ret = await userStateTransition(user.identity, user.userState);
                 console.log(ret);
                 
