@@ -295,7 +295,7 @@ const UserPage = () => {
                                         <div className="menu-choice isChosen">
                                             <img src={`/images/${sort}-fill.svg`}/>
                                             <span>{sort.charAt(0).toUpperCase() + sort.slice(1)}</span>
-                                            <img src="/images/selector-down.svg" />
+                                            <img src="/images/arrow-down.svg" />
                                         </div>
                                 }
                             </div>

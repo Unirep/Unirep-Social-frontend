@@ -21,8 +21,6 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
     const [ epkNonce, setEpkNonce ] = useState(0); 
     const [ isDropdown, setIsDropdown ] = useState(false);
     const [ isBlockLoading, setIsBlockLoading ] = useState(false);
-    const [ strokeOffset, setStrokeOffset ] = useState<number>(225);
-    const [ mouseDownPos, setMouseDownPos] = useState<number[]>([]);
 
     // useEffect(() => {
     //     if (isBlockLoading) {
@@ -106,58 +104,20 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
         event.stopPropagation();
     }
 
-    const handleUserInput = (event: any) => {
-        if (event.target.value === '' || (event.target.value <= 10 && event.target.value >= 1)) {
-            setGivenAmount(Number(event.target.value));
-        }
-    }
-
     const changeEpkNonce = (value: number) => {
         setEpkNonce(value);
         setIsDropdown(false);
     }
 
+    const changeGivenAmount = (event: any) => {
+        if (event.target.value === '' || (event.target.value <= 10 && event.target.value >= 1)) {
+            setGivenAmount(Number(event.target.value));
+        }
+    }
+
     const close = (event: any) => {
         preventClose(event);
         closeVote();
-    }
-
-    const setInitialPos = (event: any) => {
-        let origin = document.querySelector('#origin');
-        if (origin !== null) {
-            let rect = origin.getBoundingClientRect();
-            const originX = Math.floor(rect.left);
-            const originY = Math.floor(rect.top);
-            setMouseDownPos([originX, originY, event.clientX, event.clientY]);
-        }
-    }
-
-    const clearInitialPos = () => {
-        setMouseDownPos([]);
-    }
-
-    const calcAngle = (event: any) => {
-        if (mouseDownPos.length > 0) {
-            const x_a = mouseDownPos[2] - mouseDownPos[0];
-            const y_a = mouseDownPos[3] - mouseDownPos[1];
-            const x_b = event.clientX - mouseDownPos[0];
-            const y_b = event.clientY - mouseDownPos[1];
-            const x_a_sqr = x_a * x_a;
-            const y_a_sqr = y_a * y_a;
-            const x_b_sqr = x_b * x_b;
-            const y_b_sqr = y_b * y_b;
-            
-            const cos = ((x_a * x_b) + (y_a * y_b)) / (Math.sqrt(x_a_sqr + y_a_sqr) * Math.sqrt(x_b_sqr + y_b_sqr));
-            // console.log(cos);
-
-            if (cos <= 0.9) {
-                setMouseDownPos([mouseDownPos[0], mouseDownPos[1], event.clientX, event.clientY]);
-                const det = x_a * y_b - x_b * y_a;
-                const newAmount = det > 0? Math.min(givenAmount + 1, 10) : Math.max(givenAmount - 1, 1);
-                setGivenAmount(newAmount);
-                setStrokeOffset(250 - newAmount * 25);
-            }
-        }
     }
 
     return (
@@ -174,19 +134,17 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
                     <div className="description">
                         Tune up the amount of Rep to {isUpvote? 'boost' : 'squash'} this post
                     </div>
-                    <div className="dashboard" onMouseDown={setInitialPos} onMouseUp={clearInitialPos} onMouseMove={calcAngle}>
-                        <div id="origin"></div>
-                        <div className="amount">{givenAmount}</div>
-                        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" id="svg-bar">
-                            <path className="grey" d="M 16 96 A 56 56 0 1 1 112 96" />
-                            <path className="black" d="M 16 96 A 56 56 0 1 1 112 96" style={{strokeDashoffset: strokeOffset}} />
-                        </svg>
-                        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" id="svg-index" style={{transform: `rotate(${givenAmount * 25}deg)`}}>
-                            <path id="index" d="M 20 76 A 45 45 0 1 1 92 76" />
-                            <text>
-                                <textPath href="#index">|</textPath>
-                            </text>
-                        </svg>
+                    <div className="counter">
+                        <input type="number" min="1" max="10" step="1" value={givenAmount} onChange={changeGivenAmount} />
+                        <div className="counter-btns">
+                            <div className="counter-btn add" onClick={() => {setGivenAmount(givenAmount < 10? givenAmount + 1 : givenAmount)}}>
+                                <img src="/images/arrow-up.svg" />
+                            </div>
+                            <div className="counter-btn minus" onClick={() => {setGivenAmount(givenAmount > 2? givenAmount - 1 : givenAmount)}}>
+                            <img src="/images/arrow-down.svg" />
+                            </div>
+                        </div>
+                        
                     </div>
                 </div>
                 {/* <h3>{user?.reputation} Points Available</h3>
