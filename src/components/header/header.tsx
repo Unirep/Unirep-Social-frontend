@@ -12,10 +12,10 @@ const Header = () => {
     const [searchInput, setSearchInput] = useState<string>("");
 
     const doUST = async () => {
-        if (user !== null) {
+	if (user !== null) {
+            const currentEpoch = await getCurrentEpoch();
             setIsUSTing(true);
             setIsLoading(true);
-            const currentEpoch = await getCurrentEpoch();
             if (user.current_epoch !== currentEpoch) {
                 const ret = await userStateTransition(user.identity, user.userState);
                 console.log(ret);
