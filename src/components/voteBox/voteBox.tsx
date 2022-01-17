@@ -21,6 +21,28 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
     const [ epkNonce, setEpkNonce ] = useState(0); 
     const [ isDropdown, setIsDropdown ] = useState(false);
     const [ isBlockLoading, setIsBlockLoading ] = useState(false);
+    const [ isHistoriesOpen, setHistoriesOpen ] = useState(false);
+    const [ voteHistories, setVoteHistories ] = useState(() => {
+        if (data.votes.length === 0) {
+            return [];
+        } else {
+            if (user !== null) {
+                let ret: Vote[] = [];
+                for (var i = 0; i < data.votes.length; i ++) {
+                    if (isUpvote && data.votes[i].upvote > 0 || !isUpvote && data.votes[i].downvote > 0) {
+                        const e = user.epoch_keys.find(_e => _e === data.votes[i].epoch_key);
+                        if (e !== null) {
+                            ret = [...ret, data.votes[i]];
+                        
+                        }
+                    } 
+                }
+                return ret;
+            } else {
+                return [];
+            }
+        }
+    });
 
     // useEffect(() => {
     //     if (isBlockLoading) {
@@ -104,11 +126,6 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
         event.stopPropagation();
     }
 
-    const changeEpkNonce = (value: number) => {
-        setEpkNonce(value);
-        setIsDropdown(false);
-    }
-
     const changeGivenAmount = (event: any) => {
         if (event.target.value === '' || (event.target.value <= 10 && event.target.value >= 1)) {
             setGivenAmount(Number(event.target.value));
@@ -121,7 +138,9 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
     }
 
     return (
-        <div className="vote-overlay" onClick={close}>
+        <div>
+        {
+            user === null? <div></div> : <div className="vote-overlay" onClick={close}>
             <div className="vote-box" onClick={preventClose}>
                 <div className="grey-box">
                     <div className="close">
@@ -140,11 +159,37 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
                             <div className="counter-btn add" onClick={() => {setGivenAmount(givenAmount < 10? givenAmount + 1 : givenAmount)}}>
                                 <img src="/images/arrow-up.svg" />
                             </div>
-                            <div className="counter-btn minus" onClick={() => {setGivenAmount(givenAmount > 2? givenAmount - 1 : givenAmount)}}>
+                            <div className="counter-btn minus" onClick={() => {setGivenAmount(givenAmount > 1? givenAmount - 1 : givenAmount)}}>
                             <img src="/images/arrow-down.svg" />
                             </div>
                         </div>
-                        
+                    </div>
+                    <div className="epks">
+                        { user.epoch_keys.map((key, i) => 
+                            <div className={epkNonce === i? "epk chosen" : "epk"} key={key} onClick={() => setEpkNonce(i)}>{key}</div>
+                        ) }
+                    </div>
+                </div>
+                <div className="white-box">
+                    <div className="submit">Yep, Let's do it.</div>
+                    <div className="histories">
+                        <div className="main-btn" onClick={() => setHistoriesOpen(!isHistoriesOpen)}>
+                            <div className="btn-name">
+                                <p className="title">History</p>
+                                <p className="description">{`You have ${voteHistories.length > 0? '' : 'not '}${isUpvote? 'boosted':'squashed'} this before`}</p>
+                            </div>
+                            <img src={`/images/arrow-tri-${isHistoriesOpen? 'up':'down'}.svg`} />
+                        </div>
+                        { isHistoriesOpen? 
+                            <div className="histories-list">
+                                { voteHistories.map((h, i) => 
+                                    <div className="record" key={i}>
+                                        <div className="record-epk">{h.epoch_key}</div>
+                                        <span>{isUpvote? h.upvote : h.downvote}</span>
+                                        <img src={`/images/${isUpvote? 'boost' : 'squash'}-fill.svg`}/>
+                                    </div>
+                                )}
+                            </div> : <div></div>}
                     </div>
                 </div>
                 {/* <h3>{user?.reputation} Points Available</h3>
@@ -181,7 +226,9 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
                         </div>
                     </div> : <div></div>
                 } */}
+                </div>
             </div>
+        }
         </div>
     );
 }

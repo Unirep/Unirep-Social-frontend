@@ -67,7 +67,6 @@
 
     .vote-box {
       width: 372px;
-      height: 525px;
       border: 4px solid $grey-300;
       border-radius: 8px;
       margin: 10% auto;
@@ -175,10 +174,103 @@
             }
           }
         }
+        
+        .epks {
+          width: 100%;
+          display: flex;
+          flex-direction: row;
+          margin-top: 32px;
+          justify-content: center;
+
+          .epk {
+            @include myButton($height: 32px, $radius: 8px, $border: 1px, $border-color: $black, $color: $black, $font-size: $text-sm, $margin-horizontal: 4px, $block-color: $grey-100);
+            padding: 7px 16px;
+          }
+
+          .chosen {
+            background-color: $black;
+            color: $white;
+          }
+        }
       }
 
       .white-box {
+        padding: 32px;
+        width: 100%;
+        background-color: $white;
+        border-radius: 0px 0px 8px 8px;
 
+        .submit {
+          @include myButton($height: 58px, $radius: 8px, $block-color: $black, $color: $white, $font-size: $text-md, $font-weight: 600);
+          width: 100%;
+          padding: 17px auto;
+        }
+
+        .histories {
+          width: 100%;
+          margin-top: 32px;
+
+          .main-btn {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            cursor: pointer;
+
+            .btn-name {
+              margin-right: auto;
+              text-align: left;
+
+              p.title {
+                font-size: $text-base;
+                font-weight: 700;
+                line-height: 22px;
+                margin: 0;
+              } 
+              
+              p.description {
+                font-size: $text-xs;
+                line-height: 16px;
+                margin: 0;
+              }
+            }
+
+            img {
+              width: 24px;
+              height: 24px;
+            }
+          }
+
+          .histories-list {
+            max-height: 120px;
+            overflow-y: scroll;
+
+            .record {
+              display: flex;
+              flex-direction: row;
+              font-size: $text-base;
+              font-weight: 700;
+              align-items: center;
+              margin: 4px 0px;
+
+              img {
+                width: 24px;
+                height: 24px;
+                margin-left: 6px;
+              }
+
+              .record-epk {
+                border-radius: 8px;
+                padding: 7px 16px;
+                height: 32px;
+                line-height: 18px;
+                background-color: $grey-700;
+                color: $white;
+                font-size: $text-sm;
+                margin-right: auto;
+              }
+            }
+          }
+        }
       }
     }
   }
