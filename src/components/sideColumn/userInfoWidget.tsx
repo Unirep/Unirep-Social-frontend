@@ -2,6 +2,8 @@ import { useContext, useEffect, useState } from 'react';
 import dateformat from 'dateformat';
 
 import { WebContext } from '../../context/WebContext';
+import HelpWidget from '../helpWidget/helpWidget';
+import { InfoType } from '../../constants';
 
 const UserInfoWidget = () => {
     const { user, nextUSTTime } = useContext(WebContext);
@@ -49,12 +51,12 @@ const UserInfoWidget = () => {
                         <h3><img src="/images/lighting.svg"/>{user.reputation}</h3>
                     </div>
                     <div className="ust-info">
-                        <p>In this epoch, my personas are <img src="/images/info.svg" /></p>
+                        <div className="block-title">In this epoch, my personas are <HelpWidget type={InfoType.persona} /></div>
                         <div className="epks">
                             {user.epoch_keys.map(key => <div className="epk" key={key}>{key}</div>)}
                         </div>
                         <div className="margin"></div>
-                        <p>Remaining time: <img src="/images/info.svg" /></p>
+                        <div className="block-title">Remaining time: <HelpWidget type={InfoType.countdown} /></div>
                         <div className="countdown">{countdownText}</div>
                         <div className="margin"></div>
                         <p>Transition at:</p>

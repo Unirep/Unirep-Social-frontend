@@ -42,9 +42,11 @@
     border-radius: 8px;
     border: 1px solid $grey-200;
 
-    p {
+    .block-title {
         font-size: $text-sm;
         color: $grey-700;
+        display: flex;
+        flex-direction: row;
     }
 
     h3 {
@@ -70,11 +72,6 @@
 
         .margin {
             height: 24px;
-        }
-
-        img {
-            width: 15px;
-            margin-left: 10px;
         }
 
         .epks {

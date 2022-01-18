@@ -4,7 +4,8 @@ import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { WebContext } from '../../context/WebContext';
 import Dropdown from '../dropdown/dropdown';
-import { DataType, ChoiceType } from '../../constants';
+import HelpWidget from '../helpWidget/helpWidget';
+import { DataType, ChoiceType, InfoType } from '../../constants';
 import './writingField.scss';
 import { DEFAULT_POST_KARMA, DEFAULT_COMMENT_KARMA } from '../../config';
 
@@ -97,12 +98,12 @@ const WritingField = (props: Props) => {
             }
             <div className="info-row">
                 <div className="element">
-                    <div className="name">Post as <img src="/images/info.svg"/></div>
+                    <div className="name">Post as <HelpWidget type={InfoType.epk4Post} /></div>
                     <div className="epks">
                         { user === null? 
                             <div>somethings wrong...</div> : 
                             user.epoch_keys.map((epk, i) => 
-                                <div className={i === epkNonce? "epk chosen" : "epk"} onClick={() => setEpkNonce(i)}>
+                                <div className={i === epkNonce? "epk chosen" : "epk"} onClick={() => setEpkNonce(i)} key={i}>
                                     {epk}
                                 </div>
                             )
@@ -110,7 +111,7 @@ const WritingField = (props: Props) => {
                     </div>
                 </div>
                 <div className="element">
-                    <div className="name">My Rep show off <img src="/images/info.svg"/></div>
+                    <div className="name">My Rep show off <HelpWidget type={InfoType.rep} /></div>
                     <div className="rep-chooser">
                         <input type="range" 
                             min={defaultRep} 

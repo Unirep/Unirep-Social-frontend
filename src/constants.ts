@@ -73,6 +73,14 @@ export enum ButtonType {
     Save = "save",
 }
 
+export enum InfoType {
+    epk4Post = 'Select one of epoch key as the persona to post this post',
+    epk4Comment = 'Select one of epoch key as the persona to post this comment',
+    rep = 'Show off or being modest. This might influence how other people think of the content',
+    countdown = 'Not yet decide what to say',
+    persona = 'Not yet decide what to say'
+}
+
 export interface History {
     action: ActionType,
     from: string,

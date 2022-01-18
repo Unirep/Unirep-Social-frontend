@@ -68,12 +68,8 @@
                 color: $grey-700;
                 font-size: $text-sm;
                 font-weight: 600;
-                
-                img {
-                    width: 16px;
-                    height: 16px;
-                    margin-left: 4px;
-                }
+                display: flex;
+                flex-direction: row;
             }
 
             .epks {
