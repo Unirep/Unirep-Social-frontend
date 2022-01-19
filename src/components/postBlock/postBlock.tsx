@@ -112,7 +112,7 @@ const PostBlock = ({ post, page, commentId } : Props) => {
                             {
                                 post.comments.map((c, i) => 
                                     <div>
-                                        <CommentBlock page={page} comment={c} />
+                                        <CommentBlock page={page} comment={c} key={i} />
                                         {i < post.comments.length-1? <div className="divider"></div> : <div></div>}
                                     </div>
                                 )

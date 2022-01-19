@@ -115,28 +115,28 @@ body {
     font-weight: 700;
   }
 
-  .loading-block {
-    position: absolute;
-    z-index: 8;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: radial-gradient(99.12% 159.6% at 92.94% 95.93%, #E4D3FF 0%, #E5EEFF 62.33%, #EEE1FF 69.62%, #DAD7F8 81.02%);
-    text-align: center;
-    justify-content: center;
-    align-items: center;
-    display: flex;
+  // .loading-block {
+  //   position: absolute;
+  //   z-index: 8;
+  //   top: 0;
+  //   left: 0;
+  //   width: 100%;
+  //   height: 100%;
+  //   background-image: radial-gradient(99.12% 159.6% at 92.94% 95.93%, #E4D3FF 0%, #E5EEFF 62.33%, #EEE1FF 69.62%, #DAD7F8 81.02%);
+  //   text-align: center;
+  //   justify-content: center;
+  //   align-items: center;
+  //   display: flex;
 
-    .CircularProgressbar-path {
-      stroke: $grey-700;
-    }
+  //   .CircularProgressbar-path {
+  //     stroke: $grey-700;
+  //   }
 
-    .CircularProgressbar-text {
-      fill: $grey-100;
-      font-size: $text-base;
-    }
-  }
+  //   .CircularProgressbar-text {
+  //     fill: $grey-100;
+  //     font-size: $text-base;
+  //   }
+  // }
 
   .wrapper {
     margin-top: 104px;

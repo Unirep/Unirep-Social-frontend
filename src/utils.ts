@@ -379,8 +379,10 @@ export const vote = async(identity: string, upvote: number, downvote: number, po
     //    });
 
     // return {epk: ret.epk, transaction, userState: ret.userState} 
-
-    return {epk: "5320b71c", transaction: 'transaction', userState: null};
+    return await setTimeout(() => { 
+        console.log('10 seconds past'); 
+        return {epk: "5320b71c", transaction: 'transaction', userState: null};
+    }, 10000); 
 }
 
 export const leaveComment = async(identity: string, content: string, postId: string, epkNonce: number = 0, minRep: number = 0, spent: number = 0, us: any) => {
