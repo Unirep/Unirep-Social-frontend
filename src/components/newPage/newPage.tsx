@@ -5,11 +5,11 @@ import './newPage.scss';
 import { WebContext } from '../../context/WebContext';
 import WritingField from '../writingField/writingField';
 import SideColumn from '../sideColumn/sideColumn';
-import { DataType, Page } from '../../constants';
+import { DataType, Page, ActionType } from '../../constants';
 
 const NewPage = () => {
     const history = useHistory();
-    const { setIsLoading } = useContext(WebContext);
+    const { setIsLoading, setAction, user } = useContext(WebContext);
 
     const [epkNonce, setEpkNonce] = useState<number>(0);
 
@@ -19,7 +19,21 @@ const NewPage = () => {
 
     const submit = (title: string, content: string, epkNonce: number, reputation: number) => {
         console.log('submit post');
-        setIsLoading(false);
+        if (user === null) {
+            console.log('not login yet.');
+        } else if (content.length === 0) {
+            console.error('not enter anything yet.');
+        } else {
+            const actionData = {
+                content, 
+                epkNonce,
+                identity: user.identity, 
+                reputation, 
+                spent: user.spent, 
+                userState: user.userState
+            };
+            setAction({action: ActionType.Post, data: actionData})
+        }
         history.push('/');
     }
 

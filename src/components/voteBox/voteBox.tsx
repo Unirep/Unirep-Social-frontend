@@ -4,7 +4,7 @@ import 'react-circular-progressbar/dist/styles.css';
 import { vote, getUserState } from '../../utils';
 import { WebContext } from '../../context/WebContext';
 import { MainPageContext } from '../../context/MainPageContext';
-import { Post, Vote, Comment, DataType, ChoiceType } from '../../constants';
+import { Post, Vote, Comment, DataType, ChoiceType, ActionType } from '../../constants';
 import Dropdown from '../dropdown/dropdown';
 import './voteBox.scss';
 
@@ -15,7 +15,7 @@ type Props = {
 }
 const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
 
-    const { user, setUser, shownPosts, setShownPosts, setIsLoading } = useContext(WebContext);
+    const { user, setUser, shownPosts, setShownPosts, setIsLoading, setAction } = useContext(WebContext);
     const { setIsMainPageUpVoteBoxOn: setIsUpVoteBoxOn, setIsMainPageDownVoteBoxOn: setIsDownVoteBoxOn, setMainPageVoteReceiver: setVoteReceiver } = useContext(MainPageContext);
     const [ givenAmount, setGivenAmount ] = useState<number>(1);
     const [ epkNonce, setEpkNonce ] = useState(0); 
@@ -67,54 +67,67 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
         } else {
             setIsLoading(true);
             setIsBlockLoading(true);
-            // setPercentage(1);
-
-            const isPost = data.type === DataType.Post;
-            let ret: any;
-            if (isUpvote) {
-                ret = await vote(user.identity, givenAmount, 0, data.id, data.epoch_key, epkNonce, 0, isPost, user.spent, user.userState);
-                console.log('upvote ret: ' + JSON.stringify(ret))
-            } else {
-                ret = await vote(user.identity, 0, givenAmount, data.id, data.epoch_key, epkNonce, 0, isPost, user.spent, user.userState);
-                console.log('downvote ret: ' + JSON.stringify(ret))
-            }
-
-            const newVote: Vote = {
-                upvote: isUpvote? givenAmount:0,
-                downvote: isUpvote? 0:givenAmount,
-                epoch_key: user.epoch_keys[epkNonce],
-            }
-            let v = [...data.votes, newVote];
-            if (data.type === DataType.Post) {
-                const filteredPosts = shownPosts.filter((p) => p.id != data.id)
-                let p: Post = {...(data as Post), 
-                    upvote: data.upvote + (isUpvote? givenAmount : 0),
-                    downvote: data.downvote + (isUpvote? 0 : givenAmount), 
-                    isUpvoted: isUpvote || data.isUpvoted, 
-                    isDownvoted: !isUpvote || data.isDownvoted, 
-                    votes: v
-                };
-                setShownPosts([p, ...filteredPosts]);
-            } else if (data.type === DataType.Comment) {
-                const selectedPost = shownPosts.find((p) => p.id === (data as Comment).post_id);
-                if (selectedPost === undefined) {
-                    console.error('no such post!?????');
-                } else {
-                    const filteredPosts = shownPosts.filter((p) => p.id !== (data as Comment).post_id);
-                    const filteredComment = selectedPost.comments.filter((c) => c.id !== data.id);
-                    let c: Comment = {...(data as Comment), 
-                        upvote: data.upvote + (isUpvote? givenAmount : 0),
-                        downvote: data.downvote + (isUpvote? 0 : givenAmount), 
-                        isUpvoted: isUpvote || data.isUpvoted, 
-                        isDownvoted: !isUpvote || data.isDownvoted, 
-                        votes: v
-                    };
-                    let p: Post = {...selectedPost, comments: [c, ...filteredComment]}
-                    setShownPosts([p, ...filteredPosts]);
-                }
-            }
             
-            setUser({...user, spent: user.spent + givenAmount, userState: ret.userState});
+            const isPost = data.type === DataType.Post;
+            const actionData = {
+                identity: user.identity,
+                upvote: isUpvote? givenAmount : 0,
+                downvote: isUpvote? 0 : givenAmount,
+                data: data.id,
+                epk: data.epoch_key,
+                epkNonce,
+                minRep: 0,
+                isPost,
+                spent: user.spent,
+                userState: user.userState,
+            };
+            setAction({action: ActionType.Vote, data: actionData});
+
+            // let ret: any;
+            // if (isUpvote) {
+            //     ret = await vote(user.identity, givenAmount, 0, data.id, data.epoch_key, epkNonce, 0, isPost, user.spent, user.userState);
+            //     console.log('upvote ret: ' + JSON.stringify(ret))
+            // } else {
+            //     ret = await vote(user.identity, 0, givenAmount, data.id, data.epoch_key, epkNonce, 0, isPost, user.spent, user.userState);
+            //     console.log('downvote ret: ' + JSON.stringify(ret))
+            // }
+
+            // const newVote: Vote = {
+            //     upvote: isUpvote? givenAmount:0,
+            //     downvote: isUpvote? 0:givenAmount,
+            //     epoch_key: user.epoch_keys[epkNonce],
+            // }
+            // let v = [...data.votes, newVote];
+            // if (data.type === DataType.Post) {
+            //     const filteredPosts = shownPosts.filter((p) => p.id != data.id)
+            //     let p: Post = {...(data as Post), 
+            //         upvote: data.upvote + (isUpvote? givenAmount : 0),
+            //         downvote: data.downvote + (isUpvote? 0 : givenAmount), 
+            //         isUpvoted: isUpvote || data.isUpvoted, 
+            //         isDownvoted: !isUpvote || data.isDownvoted, 
+            //         votes: v
+            //     };
+            //     setShownPosts([p, ...filteredPosts]);
+            // } else if (data.type === DataType.Comment) {
+            //     const selectedPost = shownPosts.find((p) => p.id === (data as Comment).post_id);
+            //     if (selectedPost === undefined) {
+            //         console.error('no such post!?????');
+            //     } else {
+            //         const filteredPosts = shownPosts.filter((p) => p.id !== (data as Comment).post_id);
+            //         const filteredComment = selectedPost.comments.filter((c) => c.id !== data.id);
+            //         let c: Comment = {...(data as Comment), 
+            //             upvote: data.upvote + (isUpvote? givenAmount : 0),
+            //             downvote: data.downvote + (isUpvote? 0 : givenAmount), 
+            //             isUpvoted: isUpvote || data.isUpvoted, 
+            //             isDownvoted: !isUpvote || data.isDownvoted, 
+            //             votes: v
+            //         };
+            //         let p: Post = {...selectedPost, comments: [c, ...filteredComment]}
+            //         setShownPosts([p, ...filteredPosts]);
+            //     }
+            // }
+            
+            // setUser({...user, spent: user.spent + givenAmount, userState: ret.userState});
             init();
         }
     }

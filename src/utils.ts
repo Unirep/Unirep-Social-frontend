@@ -341,7 +341,10 @@ export const publishPost = async (content: string, epkNonce: number, identity: s
     //     });
     
     // return {transaction, postId, currentEpoch: ret.currentEpoch, epk: ret.epk, userState: ret.userState}
-    return {transaction: "transaction", postId: 'post_id', currentEpoch: 1, epk: "5320b71c", userState: null};
+    return await new Promise(resolve => setTimeout(() => { 
+        console.log('10 seconds past, posting...'); 
+        resolve({transaction: "618b95cb0eadf730d28d3b1b", postId: '618b95cb0eadf730d28d3b1b', currentEpoch: 1, epk: "5320b71c", userState: null});
+    }, 10000)); 
 }
 
 export const vote = async(identity: string, upvote: number, downvote: number, postId: string, receiver: string, epkNonce: number = 0, minRep: number = 0, isPost: boolean = true, spent: number = 0, us: any) => {
@@ -379,10 +382,10 @@ export const vote = async(identity: string, upvote: number, downvote: number, po
     //    });
 
     // return {epk: ret.epk, transaction, userState: ret.userState} 
-    return await setTimeout(() => { 
-        console.log('10 seconds past'); 
-        return {epk: "5320b71c", transaction: 'transaction', userState: null};
-    }, 10000); 
+    return await new Promise(resolve => setTimeout(() => { 
+        console.log('10 seconds past, voting...'); 
+        resolve({epk: "5320b71c", transaction: '618b95cb0eadf730d28d3b1b', userState: null});
+    }, 10000)); 
 }
 
 export const leaveComment = async(identity: string, content: string, postId: string, epkNonce: number = 0, minRep: number = 0, spent: number = 0, us: any) => {
@@ -418,7 +421,10 @@ export const leaveComment = async(identity: string, content: string, postId: str
     //     });
     
     // return {transaction, commentId, currentEpoch: ret.currentEpoch, epk: ret.epk, userState: ret.userState}
-    return {transaction: 'transaction', commentId: 'commentId', currentEpoch: 1, epk: '5320b71c', userState: null};
+    return await new Promise(resolve => setTimeout(() => { 
+        console.log('10 seconds past, commenting...'); 
+        resolve({transaction: '618b95cb0eadf730d28d3b1b', commentId: '618b95cb0eadf730d28d3b1b', currentEpoch: 1, epk: '5320b71c', userState: null});
+    }, 10000)); 
 }
 
 export const getNextEpochTime = async () => {

@@ -1,7 +1,7 @@
 import { useState, useContext }  from 'react';
 
 import { publishPost, getUserState } from '../../utils';
-import { Post, DataType, Page } from '../../constants';
+import { Post, DataType, Page, ActionType } from '../../constants';
 import { DEFAULT_POST_KARMA } from '../../config';
 import { WebContext } from '../../context/WebContext';
 import { MainPageContext } from '../../context/MainPageContext';
@@ -17,7 +17,7 @@ const PostField = ({ page }: Props) => {
 
     const [epkNonce, setEpkNonce] = useState(0); // maybe it should be the first available epk
 
-    const { user, setUser, shownPosts, setShownPosts, isLoading, setIsLoading } = useContext(WebContext);
+    const { user, setUser, shownPosts, setShownPosts, isLoading, setIsLoading, setAction } = useContext(WebContext);
     const { 
         isPostFieldActive: isMainPagePostFieldActive, 
         setIsPostFieldActive: setIsMainPagePostFieldActive,
@@ -63,34 +63,43 @@ const PostField = ({ page }: Props) => {
         } else if (content.length === 0) {
             console.error('not enter anything yet.');
         } else {
-            const ret = await publishPost(content, epkNonce, user.identity, reputation, user.spent, user.userState); // content, epkNonce, identity, minRep
-            if (ret !== undefined) {
-                const newPost: Post = {
-                    type: DataType.Post,
-                    id: ret.postId,
-                    title: title,
-                    content,
-                    votes: [],
-                    upvote: 0,
-                    downvote: 0,
-                    isUpvoted: false,
-                    isDownvoted: false,
-                    epoch_key: ret.epk,
-                    username: 'username',
-                    post_time: Date.now(),
-                    reputation: +reputation,
-                    comments: [],
-                    isAuthor: true,
-                    current_epoch: ret.currentEpoch
-                }
+            const actionData = {
+                content, 
+                epkNonce,
+                identity: user.identity, 
+                reputation, 
+                spent: user.spent, 
+                userState: user.userState
+            };
+            setAction({action: ActionType.Post, data: actionData})
+            // const ret = await publishPost(content, epkNonce, user.identity, reputation, user.spent, user.userState); // content, epkNonce, identity, minRep
+            // if (ret !== undefined) {
+            //     const newPost: Post = {
+            //         type: DataType.Post,
+            //         id: ret.postId,
+            //         title: title,
+            //         content,
+            //         votes: [],
+            //         upvote: 0,
+            //         downvote: 0,
+            //         isUpvoted: false,
+            //         isDownvoted: false,
+            //         epoch_key: ret.epk,
+            //         username: 'username',
+            //         post_time: Date.now(),
+            //         reputation: +reputation,
+            //         comments: [],
+            //         isAuthor: true,
+            //         current_epoch: ret.currentEpoch
+            //     }
                 
-                setShownPosts([newPost, ...shownPosts]);
-                setUser({...user, spent: user.spent + DEFAULT_POST_KARMA, userState: ret.userState})
+            //     setShownPosts([newPost, ...shownPosts]);
+            //     setUser({...user, spent: user.spent + DEFAULT_POST_KARMA, userState: ret.userState})
 
-                init();
-            } else {
-                console.error('publish post error.');
-            }
+            //     init();
+            // } else {
+            //     console.error('publish post error.');
+            // }
         }
     }
 

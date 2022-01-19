@@ -25,6 +25,7 @@ const AppRouter = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [page, setPage] = useState(Constants.Page.Home);
+    const [action, setAction] = useState<any>(null);
 
     return (
         <BrowserRouter>
@@ -35,7 +36,8 @@ const AppRouter = () => {
                     isLoading, setIsLoading,
                     nextUSTTime, setNextUSTTime,
                     isMenuOpen, setIsMenuOpen,
-                    page, setPage}}>
+                    page, setPage,
+                    action, setAction}}>
                 <Header />
                 
                 <Switch>

@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import { Post, User, Page } from '../constants';
+import { Post, User, Page, ActionType } from '../constants';
 
 type GlobalContent = {
     user: User | null;
@@ -14,6 +14,8 @@ type GlobalContent = {
     setIsMenuOpen: (value: boolean) => void;
     page: Page;
     setPage: (value: Page) => void;
+    action: any;
+    setAction: (value: any) => void;
 }
 
 export const WebContext = createContext<GlobalContent>({
@@ -29,4 +31,6 @@ export const WebContext = createContext<GlobalContent>({
     setIsMenuOpen: () => {},
     page: Page.Home,
     setPage: () => {},
+    action: null,
+    setAction: () => {},
 });
