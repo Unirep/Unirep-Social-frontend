@@ -48,7 +48,7 @@ const UserInfoWidget = () => {
                 <div className="user-info-widget widget">
                     <div className="rep-info">
                         <p>My Reps</p>
-                        <h3><img src="/images/lighting.svg"/>{user.reputation}</h3>
+                        <h3><img src="/images/lighting.svg"/>{user.reputation - user.spent}</h3>
                     </div>
                     <div className="ust-info">
                         <div className="block-title">In this epoch, my personas are <HelpWidget type={InfoType.persona} /></div>

@@ -1,9 +1,6 @@
 import { useState, useContext } from 'react';
 import { WebContext } from '../../context/WebContext';
-import { MainPageContext } from '../../context/MainPageContext';
-import Dropdown from '../dropdown/dropdown';
 import { QueryType } from '../../constants';
-import { getPostsByQuery } from '../../utils';
 import './feed.scss';
 
 type choiceProps = {

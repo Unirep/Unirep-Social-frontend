@@ -4,11 +4,10 @@ import { useHistory } from 'react-router-dom';
 import { getPostsByQuery } from '../../utils';
 import { WebContext } from '../../context/WebContext';
 import { MainPageContext } from '../../context/MainPageContext';
-import { Page, QueryType, FeedChoices } from '../../constants';
+import { Page, QueryType } from '../../constants';
 import SideColumn from '../sideColumn/sideColumn';
 import PostsList from '../postsList/postsList';
 import Banner from './banner';
-import VoteBox from '../voteBox/voteBox';
 import Feed from '../feed/feed';
 import './mainPage.scss';
 
@@ -22,33 +21,17 @@ const MainPage = () => {
     const [isUpVoteBoxOn, setIsUpVoteBoxOn] = useState(false);
     const [isDownVoteBoxOn, setIsDownVoteBoxOn] = useState(false);
     const [voteReceiver, setVoteReceiver] = useState<any>(null);
-    const [feedChoice, setFeedChoice] = useState<QueryType>(QueryType.New);
+    const [query, setQuery] = useState<QueryType>(QueryType.New);
     const [showBanner, setShowBanner] = useState<Boolean>(true);
 
     const getPosts = async (lastRead: string = '0') => {
-        // const end = Date.now();
-        // let start: number = 0;
-        // const isTime = feedChoices.query0 === QueryType.time;
-        // if (!isTime) {
-        //     if (feedChoices.query3 === QueryType.today) {
-        //         start = end - 24 * 60 * 60 * 1000;
-        //     } else if (feedChoices.query2 === QueryType.this_week) { // this week
-        //         start = end - 7 * 24 * 60 * 60 * 1000;
-        //     } else if (feedChoices.query3 === QueryType.this_month) { // this month
-        //         start = end - 30 * 24 * 60 * 60 * 1000;
-        //     } else if (feedChoices.query3 === QueryType.this_year) { // this year
-        //         start = end - 365 * 24 * 60 * 60 * 1000;
-        //     } else if (feedChoices.query3 === QueryType.all_time) { // all time
-        //         start = 0;
-        //     }
-        // }
-
-        // const sortedPosts = await getPostsByQuery();
-        // if (lastRead === '0') {
-        //     setShownPosts(sortedPosts);
-        // } else {
-        //     setShownPosts([...shownPosts, ...sortedPosts]);
-        // }
+        console.log('get posts with last read: ' + lastRead);
+        const sortedPosts = await getPostsByQuery(user? user.all_epoch_keys : [], query, lastRead);
+        if (lastRead === '0') {
+            setShownPosts(sortedPosts);
+        } else {
+            setShownPosts([...shownPosts, ...sortedPosts]);
+        }
     }
 
     const loadMorePosts = () => {
@@ -62,15 +45,7 @@ const MainPage = () => {
 
     useEffect(() => {
         getPosts();
-    }, [feedChoice]);
-
-    const getQueryPeriod = () => {
-        // if (feedChoices.query3 === QueryType.today) return 1;
-        // else if (feedChoices.query3 === QueryType.this_week) return 7;
-        // else if (feedChoices.query3 === QueryType.this_month) return 30;
-        // else if (feedChoices.query3 === QueryType.this_year) return 365;
-        // else return 100000000;
-    }
+    }, [query]);
 
     const gotoNewPost = () => {
         if (user !== null){
@@ -99,7 +74,7 @@ const MainPage = () => {
                     <div className="margin-box"></div>
                     <div className="main-content">
                         <div className="create-post" onClick={gotoNewPost}>{user === null? 'You must join or login to create post' : 'Create post'}</div>
-                        <Feed feedChoice={feedChoice} setFeedChoice={setFeedChoice} />
+                        <Feed feedChoice={query} setFeedChoice={setQuery} />
                         <div>
                             <PostsList 
                                 posts={shownPosts} 

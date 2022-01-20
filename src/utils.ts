@@ -5,7 +5,7 @@ import { genIdentity, genIdentityCommitment, serialiseIdentity, unSerialiseIdent
 import { genUserStateFromContract, genEpochKey, genUserStateFromParams } from '@unirep/unirep';
 import { UnirepSocialContract } from '@unirep/unirep-social';
 import * as config from './config';
-import { History, Post, DataType, Vote, Comment, ActionType } from './constants';
+import { History, Post, DataType, Vote, Comment, ActionType, QueryType } from './constants';
 
 const snarkjs = require("snarkjs")
 
@@ -551,44 +551,55 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
     const commitmentAPIURL = makeURL(`records`, {commitment})
     const paramStr = epks.join('_');
     const apiURL = makeURL(`records/${paramStr}`, {});
-    
-    let ret: History[] = [];
 
-    await fetch(commitmentAPIURL).then(response => response.json()).then(
-        (data) => {
-            if(data.length === 0) return
-            const history: History = {
-                action: ActionType.UST,
-                from: 'SignUp Airdrop',
-                to: '',
-                upvote: config.DEFAULT_AIRDROPPED_KARMA,
-                downvote: 0,
-                epoch: data[0].epoch,
-                time: Date.parse(data[0].created_at),
-                data_id: '',
-            }
-            ret = [history, ...ret];
-        }
-    );
-    
-    await fetch(apiURL).then(response => response.json()).then(
-        (data) => {
-            for (var i = 0; i < data.length; i ++) {
-                const isVoter = epks.indexOf(data[i].from) !== -1;
+    const getCommitment = new Promise<History>(resolve => {
+        fetch(commitmentAPIURL).then(response => response.json()).then(
+            (data) => {
+                if(data.length === 0) return;
                 const history: History = {
-                    action: data[i].action,
-                    from: data[i].from,
-                    to: '',
-                    upvote: isVoter? 0 : data[i].upvote,
-                    downvote: isVoter? (data[i].upvote + data[i].downvote) : data[i].downvote,
-                    epoch: data[i].epoch,
-                    time: Date.parse(data[i].created_at),
-                    data_id: data[i].data,
+                    action: ActionType.UST,
+                    from: 'SignUp Airdrop',
+                    to: data[0].to,
+                    upvote: config.DEFAULT_AIRDROPPED_KARMA,
+                    downvote: 0,
+                    epoch: data[0].epoch,
+                    time: Date.parse(data[0].created_at),
+                    data_id: '',
                 }
-                ret = [history, ...ret];
+                resolve(history);
             }
-        }
-    );
+        );
+    });
+
+    const getGeneralRecords = new Promise<History[]>(resolve => {
+        fetch(apiURL).then(response => response.json()).then(
+            (data) => {
+                let ret: History[] = [];
+                for (var i = 0; i < data.length; i ++) {
+                    const isVoter = epks.indexOf(data[i].from) !== -1;
+                    const history: History = {
+                        action: data[i].action,
+                        from: data[i].from,
+                        to: data[i].to,
+                        upvote: isVoter? 0 : data[i].upvote,
+                        downvote: isVoter? (data[i].upvote + data[i].downvote) : data[i].downvote,
+                        epoch: data[i].epoch,
+                        time: Date.parse(data[i].created_at),
+                        data_id: data[i].data,
+                    }
+                    ret = [history, ...ret];
+                }
+                resolve(ret);
+            }
+        );
+    });
+
+    const ret = Promise.all([
+        getCommitment, getGeneralRecords
+    ]).then(result => {
+        return [result[0]].concat(result[1]);
+    });
+
     return ret;
 }
 
@@ -597,25 +608,23 @@ export const getEpochSpent = async (epks: string[]) => {
     const apiURL = makeURL(`records/${paramStr}`, {spentonly: true});
     console.log(apiURL);
 
-    let ret: number = 0;
-    await fetch(apiURL).then(response => response.json()).then(
+    
+    return await fetch(apiURL).then(response => response.json()).then(
         data => {
+            let ret: number = 0;
             console.log(data);
             for (var i = 0; i < data.length; i ++) {
-                ret = ret + data[i]?.spent;
+                ret = ret + data[i].spent;
             }
+            return ret;
         }
     );
-
-    return ret;
 }
 
 const convertDataToVotes = (data: any, epks: string[]) => {
     let votes: Vote[] = [];
     let upvote: number = 0;
     let downvote: number = 0;
-    let isUpvoted: boolean = false;
-    let isDownvoted: boolean = false;
     for (var i = 0; i < data.length; i ++) {
         const posRep = Number(data[i].posRep);
         const negRep = Number(data[i].negRep);
@@ -624,45 +633,42 @@ const convertDataToVotes = (data: any, epks: string[]) => {
             downvote: negRep,
             epoch_key: data[i].voter,
         }
-        if (epks.indexOf(vote.epoch_key) !== -1) {
-            isUpvoted = vote.upvote !== 0;
-            isDownvoted = vote.downvote !== 0;
-        }
         upvote += posRep;
         downvote += negRep;
         votes = [...votes, vote];
     }
 
-    return {votes, upvote, downvote, isUpvoted, isDownvoted};
+    return {votes, upvote, downvote};
 }
 
-const convertDataToPost = (data: any, epks: string[]) => {
+const convertDataToPost = (data: any, epks: string[], commentsOnlyId: boolean = true) => {
     
-    const {votes, upvote, downvote, isUpvoted, isDownvoted} = convertDataToVotes(data.votes, epks); 
+    const {votes, upvote, downvote} = convertDataToVotes(data.votes, epks); 
 
     let comments: Comment[] = [];
-    for (var i = 0; i < data.comments.length; i ++) {
-        const votesRet= convertDataToVotes(data.comments[i].votes, epks);
-        const comment = {
-            type: DataType.Comment,
-            id: data.comments[i].transactionHash,
-            post_id: data.comments[i].postId,
-            content: data.comments[i].content,
-            votes: votesRet.votes,
-            upvote: votesRet.upvote,
-            downvote: votesRet.downvote,
-            isUpvoted: votesRet.isUpvoted,
-            isDownvoted: votesRet.isDownvoted,
-            epoch_key: data.comments[i].epochKey,
-            username: '',
-            post_time: Date.parse(data.comments[i].created_at),
-            reputation: data.comments[i].minRep,
-            isAuthor: epks.indexOf(data.comments[i].epochKey) !== -1,
-            current_epoch: data.comments[i].epoch,
-            proofIndex: data.comments[i].proofIndex,
+    if (!commentsOnlyId) {
+        for (var i = 0; i < data.comments.length; i ++) {
+            const votesRet= convertDataToVotes(data.comments[i].votes, epks);
+            const comment = {
+                type: DataType.Comment,
+                id: data.comments[i].transactionHash,
+                post_id: data.comments[i].postId,
+                content: data.comments[i].content,
+                votes: votesRet.votes,
+                upvote: votesRet.upvote,
+                downvote: votesRet.downvote,
+                epoch_key: data.comments[i].epochKey,
+                username: '',
+                post_time: Date.parse(data.comments[i].created_at),
+                reputation: data.comments[i].minRep,
+                isAuthor: epks.indexOf(data.comments[i].epochKey) !== -1,
+                current_epoch: data.comments[i].epoch,
+                proofIndex: data.comments[i].proofIndex,
+            }
+            comments = [...comments, comment];
         }
-        comments = [...comments, comment];
     }
+    
     
 
     const post: Post = {
@@ -672,15 +678,14 @@ const convertDataToPost = (data: any, epks: string[]) => {
         content: data.content,
         votes,
         upvote,
-        downvote,
-        isUpvoted, 
-        isDownvoted, 
+        downvote, 
         isAuthor: epks.indexOf(data.epochKey) !== -1,
         epoch_key: data.epochKey,
         username: '',
         post_time: Date.parse(data.created_at),
         reputation: data.minRep,
         comments,
+        commentsCount: data.comments.length,
         current_epoch: data.epoch,
         proofIndex: data.proofIndex,
     }
@@ -711,14 +716,14 @@ export const getPostById = async (epks: string[], postid: string) => {
     await fetch(apiURL).then(response => response.json()).then(
         data => {
             console.log(data);
-            ret = convertDataToPost(data, epks);
+            ret = convertDataToPost(data, epks, false);
         }
     );
     return ret;
 }
 
-export const getPostsByQuery = async (epks: string[], sort: string, maintype: string, subtype: string, start: number, end: number, lastRead: string = '0') => {
-    const apiURL = makeURL(`post`, {sort, maintype, subtype, start, end, lastRead});
+export const getPostsByQuery = async (epks: string[], query: QueryType, lastRead: string = '0') => {
+    const apiURL = makeURL(`post`, {query, lastRead});
     console.log(apiURL);
 
     let ret: Post[] = [];

@@ -29,8 +29,7 @@ const NewPage = () => {
                 epkNonce,
                 identity: user.identity, 
                 reputation, 
-                spent: user.spent, 
-                userState: user.userState
+                spent: user.spent
             };
             setAction({action: ActionType.Post, data: actionData})
         }

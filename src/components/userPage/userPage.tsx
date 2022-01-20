@@ -5,7 +5,6 @@ import dateformat from 'dateformat';
 import { getRecords } from '../../utils';
 import { WebContext } from '../../context/WebContext';
 import SideColumn from '../sideColumn/sideColumn';
-import { UserPageContext } from '../../context/UserPageContext';
 import { History, ActionType, Page, QueryType, Post, Comment, DataType } from '../../constants';
 import PostsList from '../postsList/postsList';
 import CommentsList from '../postsList/commentsList';
@@ -90,7 +89,7 @@ const ActivityWidget = ({ history, isReceived }: Props) => {
                     <div className="who">
                         {info.who} <img src="/images/lighting.svg" /> {info.action}
                     </div>
-                    { data !== null? 
+                    { data !== null && data !== undefined? 
                         <div className="data">
                             { 'title' in data? <div className="title">{data.title}</div> : <div></div>}    
                             <div className="content">{data.content}</div>
@@ -158,7 +157,6 @@ const UserPage = () => {
     }
 
     useEffect (() => {
-        
         const getHistory = async () => {
             console.log('get history');
             if (user !== null) {
@@ -223,12 +221,6 @@ const UserPage = () => {
     return (
         <div className="wrapper">
             <div className="default-gesture" onClick={closeAll}>
-                {/* <UserPageContext.Provider value={{
-                        page, switchPage: setPage, 
-                        isPostFieldActive, setIsPostFieldActive}}>
-                    <UserHeader histories={histories} setHistories={(histories: History[]) => setHistories(histories)}/>
-                    { page === UserPageType.Posts? <UserPosts /> : page === UserPageType.History? <UserHistory histories={histories}/> : <div></div>}
-                </UserPageContext.Provider> */}
                 <div className="margin-box"></div>
                 { user !== null? 
                     <div className="main-content">

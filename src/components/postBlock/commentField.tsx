@@ -12,8 +12,7 @@ type Props = {
 }
 
 const CommentField = (props: Props) => {
-    const [ epkNonce, setEpkNonce ] = useState(0);
-    const { user, setUser, shownPosts, setShownPosts, isLoading, setIsLoading, setAction } = useContext(WebContext);
+    const { user, isLoading, setIsLoading, setAction } = useContext(WebContext);
 
     const preventPropagation = (event: any) => {
         event.stopPropagation();
@@ -31,51 +30,11 @@ const CommentField = (props: Props) => {
                 data: props.post.id,
                 epkNonce,
                 minRep: 0,
-                spent: user.spent,
+                spent: user.spent, 
                 userState: user.userState
             };
             setAction({action: ActionType.Comment, data: actionData});
-            // const ret = await leaveComment(user.identity, content, props.post.id, epkNonce, reputation, user.spent, user.userState)
-            // if (ret !== undefined) {
-            //     let c: Comment = {
-            //         type: DataType.Comment,
-            //         id: ret.commentId,
-            //         post_id: props.post.id,
-            //         content,
-            //         votes: [],
-            //         upvote: 0,
-            //         downvote: 0,
-            //         isUpvoted: false,
-            //         isDownvoted: false,
-            //         epoch_key: user.epoch_keys[epkNonce],
-            //         username: 'username',
-            //         post_time: Date.now(),
-            //         reputation: +reputation,
-            //         isAuthor: true,
-            //         current_epoch: ret.currentEpoch,
-            //     };
-            //     const filteredPosts = shownPosts.filter((p) => p.id != props.post?.id)
-            //     let comments = props.post.comments.length > 0? [c, ...props.post.comments] : [c];
-            //     let p = {...props.post, comments};
-
-            //     setShownPosts([p, ...filteredPosts]);
-            //     setUser({...user, spent: user.spent + DEFAULT_COMMENT_KARMA, userState: ret.userState})
-            
-            //     setIsLoading(false);
-
-            //     props.closeComment();
-            // } else {
-            //     console.error(ret.error);
-            //     setIsLoading(false);
-            //     const { userState, spent } = await updateUserState(user.identity, user.userState)
-            //     setUser({...user, spent: spent, userState: userState})
-            //     props.closeComment();
-            // }
         }
-    }
-
-    const setEpk = (epk: number) => {
-        setEpkNonce(epk);
     }
 
     return (

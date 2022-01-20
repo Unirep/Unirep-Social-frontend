@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 
 import './loadingWidget.scss';
 import { WebContext } from '../../context/WebContext';
-import { publishPost, vote, leaveComment } from '../../utils';
+import { publishPost, vote, leaveComment, getEpochSpent } from '../../utils';
 import { ActionType } from '../../constants';
 
 enum LoadingState {
@@ -15,7 +15,7 @@ enum LoadingState {
 
 const LoadingWidget = () => {
     const history = useHistory();
-    const { isLoading, setIsLoading, action, setAction } = useContext(WebContext);
+    const { setIsLoading, action, setAction, user, setUser } = useContext(WebContext);
     const [ loadingState, setLoadingState ] = useState<LoadingState>(LoadingState.none);
     const [ isFlip, setFlip ] = useState<boolean>(false);
     const [ successPost, setSuccessPost ] = useState<string>('');
@@ -74,6 +74,10 @@ const LoadingWidget = () => {
                 setLoadingState(LoadingState.fail);
             } else {
                 console.log('without error.');
+                if (user !== null) {
+                    const spent = await getEpochSpent(user? user.epoch_keys : []);
+                    setUser({...user, spent});
+                }
                 setSuccessPost(data.transaction);
                 setLoadingState(LoadingState.succeed);
             }
@@ -81,7 +85,7 @@ const LoadingWidget = () => {
             setIsLoading(false);
         }
         
-        if (action !== null) {
+        if (action !== null && user !== null) {
             doAction();  
         }
     }, [action]);

@@ -13,7 +13,7 @@ const LoginPage = () => {
     const [errorMsg, setErrorMsg] = useState<string>('');
 
     useEffect(() => {
-        setErrorMsg('');
+        setErrorMsg('')
     }, [input]);
 
     const handleInput = (event: any) => {
@@ -95,11 +95,11 @@ const LoginPage = () => {
                         }
                     });
                     let isAuthorC: boolean = epks.find(_e => _e === c.epoch_key) !== undefined;
-                    let newComment: Comment = {...c, isUpvoted: isUpvotedC, isDownvoted: isDownvotedC, isAuthor: isAuthorC};
+                    let newComment: Comment = {...c, isAuthor: isAuthorC};
                     return newComment;
                 });
                 let isAuthor: boolean = epks.find(_e => _e === p.epoch_key) !== undefined;
-                let newPost: Post = {...p, isUpvoted, isDownvoted, isAuthor, comments};
+                let newPost: Post = {...p, isAuthor, comments};
                 return newPost;
             }));
 
