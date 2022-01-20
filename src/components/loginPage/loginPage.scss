@@ -70,6 +70,11 @@
                 margin: 40px 0px 16px 0px;
             }
 
+            .error {
+                font-size: $text-xs;
+                color: $red;
+            }
+
             .sign-in-btn {
                 @include myButton($width: 500px, $height: 46px, $radius: 8px, $color: $white, $block-color: $black, $font-weight: 600, $font-size: $title-sm);
                 margin: 16px 0px 12px 0px;

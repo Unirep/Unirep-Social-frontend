@@ -68,7 +68,7 @@ const SignupPage = () => {
             const userStateResult = await getUserState(identity);
             const currentRep = userStateResult.userState.getRepByAttester(BigInt(userStateResult.attesterId));
             const epks = await getEpochKeys(identity, userStateResult.currentEpoch);
-            let allEpks: string[] = [...epks];
+            let allEpks: string[] = [];
             for (var i = userStateResult.currentEpoch; i > 0; i --) {
                 const oldEpks = await getEpochKeys(identity, i);
                 allEpks = [...allEpks, ...oldEpks];

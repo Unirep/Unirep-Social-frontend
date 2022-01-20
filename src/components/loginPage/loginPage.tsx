@@ -1,5 +1,5 @@
 import { useHistory } from 'react-router-dom';
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 
 import './loginPage.scss';
 import { WebContext } from '../../context/WebContext'; 
@@ -12,6 +12,10 @@ const LoginPage = () => {
     const [input, setInput] = useState<string>('');
     const [errorMsg, setErrorMsg] = useState<string>('');
 
+    useEffect(() => {
+        setErrorMsg('');
+    }, [input]);
+
     const handleInput = (event: any) => {
         setInput(event.target.value);
     }
@@ -19,8 +23,8 @@ const LoginPage = () => {
     const login = async () => {
         const userSignUpResult = await hasSignedUp(input);
         
-        if(userSignUpResult === undefined) {
-            setErrorMsg('Incorrect Identity format.')
+        if(userSignUpResult.hasSignedUp === false) {
+            setErrorMsg('Incorrect private key. Please try again.')
         } else if (userSignUpResult.hasSignedUp) {
             const userStateResult = await getUserState(input, user?.userState);
             const userEpoch = userStateResult.userState.latestTransitionedEpoch;
@@ -48,7 +52,7 @@ const LoginPage = () => {
             const epks = await getEpochKeys(input, userStateResult.currentEpoch);
             const spent = await getEpochSpent(epks);
 
-            let allEpks: string[] = [...epks];
+            let allEpks: string[] = [];
             for (var i = userStateResult.currentEpoch; i > 0; i --) {
                 const oldEpks = await getEpochKeys(input, i);
                 allEpks = [...allEpks, ...oldEpks];
@@ -117,6 +121,9 @@ const LoginPage = () => {
                     <div className="title">Welcome back</div>
                     <p>Please paster your private key below.</p>
                     <textarea placeholder="enter your private key here." onChange={handleInput} />
+                    {
+                        errorMsg.length === 0? <div></div> : <div className="error">{errorMsg}</div>
+                    }
                     <div className="sign-in-btn" onClick={login}>Sign in</div>
                     <div className="notification">Lost your private key? Hummm... we can't help you to recover it, that's a lesson learned for you. Want to restart to earn rep points? <span>Request an invitation code here.</span></div>
                     <div className="go-to-signup">Got an invitation code? <span>Join here</span></div>
