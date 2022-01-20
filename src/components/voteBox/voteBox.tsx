@@ -1,11 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
-import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import { vote, getUserState } from '../../utils';
 import { WebContext } from '../../context/WebContext';
-import { MainPageContext } from '../../context/MainPageContext';
-import { Post, Vote, Comment, DataType, ChoiceType, ActionType } from '../../constants';
-import Dropdown from '../dropdown/dropdown';
+import { Post, Vote, Comment, DataType, ActionType } from '../../constants';
 import './voteBox.scss';
 
 type Props = {
@@ -16,7 +12,6 @@ type Props = {
 const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
 
     const { user, setUser, shownPosts, setShownPosts, setIsLoading, setAction } = useContext(WebContext);
-    const { setIsMainPageUpVoteBoxOn: setIsUpVoteBoxOn, setIsMainPageDownVoteBoxOn: setIsDownVoteBoxOn, setMainPageVoteReceiver: setVoteReceiver } = useContext(MainPageContext);
     const [ givenAmount, setGivenAmount ] = useState<number>(1);
     const [ epkNonce, setEpkNonce ] = useState(0); 
     const [ isDropdown, setIsDropdown ] = useState(false);
@@ -200,42 +195,8 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
                                     </div>
                                 )}
                             </div> : <div></div>}
-                    </div>
-                </div>
-                {/* <h3>{user?.reputation} Points Available</h3>
-                <div className="vote-margin"></div>
-                <p>Enter an amount up to 10 to give to @{props.data.epoch_key}</p>
-                <div className="vote-margin"></div>
-                <input type="number" placeholder="max 10" onChange={handleUserInput} value={givenAmount} />
-                <div className="vote-margin"></div>
-                <div className="dropdown">
-                    { user !== null? 
-                        <Dropdown 
-                            type={ChoiceType.Epk}
-                            defaultChoice={user.epoch_keys[epkNonce]}
-                            choices={user.epoch_keys}
-                            onChoose={changeEpkNonce}
-                            isDropdown={isDropdown}
-                            setIsDropdown={setIsDropdown}
-                        /> : <div></div>
-                    }
-                </div>
-                <div className="vote-margin"></div>
-                <div className="vote-button" onClick={doVote}>
-                    {props.isUpvote? (<img src="/images/upvote-purple.png" />):(<img src="/images/downvote-purple.png" />)}
-                    {props.isUpvote? (<p>Up Vote</p>):(<p>Down Vote</p>)}
-                </div>
-                {
-                    isBlockLoading? <div className="loading-block">
-                        <div style={{width: 75, height: 75}}>
-                            <CircularProgressbar text="Loading..." value={percentage} styles={{
-                                path: {
-                                    transition: 'stroke-dashoffset 0.1s ease 0s',
-                                }
-                            }}/>
                         </div>
-                    </div> : <div></div>
-                } */}
+                    </div>
                 </div>
             </div>
         }

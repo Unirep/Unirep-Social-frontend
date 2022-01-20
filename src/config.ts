@@ -12,11 +12,13 @@ const signUpPublicSignalsPrefix = 'Unirep.signUp.publicSignals.'
 
 const SERVER = 'http://localhost:3001'
 const DEFAULT_ETH_PROVIDER = 'http://localhost:8545'
+// const SERVER = 'http://3.20.204.166'
+// const DEFAULT_ETH_PROVIDER = 'https://eth-goerli.alchemyapi.io/v2/tYp-IJU_idg28iohx9gsLqhq6KRZxk7f'
 const DEFAULT_START_BLOCK = 0
 const DEFAULT_MAX_EPOCH_KEY_NONCE = 2
 const DEFAULT_NUM_ATTESTATIONS_PER_EPOCH_KEY = 6
 const DEFAULT_EPOCH_LENGTH = 30
-const DEFAULT_ATTESTING_FEE = ethers.utils.parseEther("0.01")
+const DEFAULT_ATTESTING_FEE = ethers.utils.parseEther("0")
 const DEFAULT_TREE_DEPTHS_CONFIG = 'circuit'
 const DEFAULT_POST_KARMA = 5
 const DEFAULT_COMMENT_KARMA = 3
@@ -25,7 +27,10 @@ const DEFAULT_AIRDROPPED_KARMA = 30
 
 const UNIREP = '0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6'
 const UNIREP_SOCIAL = '0x8A791620dd6260079BF849Dc5567aDC3F2FdC318'
+// const UNIREP = '0x7b06f51459E05FC2E973e2181E02A4dc0FbfA452';
+// const UNIREP_SOCIAL = '0xc7f739EbF152534d5613a8c6365DD3Cb10D6c07a';
 const UNIREP_SOCIAL_ABI = UnirepSocial.abi
+const UNIREP_SOCIAL_ATTESTER_ID = 1
 
 const circuitGlobalStateTreeDepth = 4;
 const circuitUserStateTreeDepth = 4;
@@ -36,7 +41,7 @@ const userStateTreeDepth = 4;
 const epochTreeDepth = 32;
 const nullifierTreeDepth = 128;
 const maxUsers = 2 ** globalStateTreeDepth - 1;
-const attestingFee = ethers.utils.parseEther("0.01")
+const attestingFee = ethers.utils.parseEther("0")
 const numEpochKeyNoncePerEpoch = 3;
 const numAttestationsPerEpochKey = 6;
 const epochLength = 30; 
@@ -66,6 +71,7 @@ export {
     UNIREP,
     UNIREP_SOCIAL,
     UNIREP_SOCIAL_ABI,
+    UNIREP_SOCIAL_ATTESTER_ID,
     circuitGlobalStateTreeDepth,
     circuitUserStateTreeDepth,
     circuitEpochTreeDepth,

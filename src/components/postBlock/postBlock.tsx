@@ -15,10 +15,11 @@ import './postBlock.scss';
 type Props = {
     post: Post,
     page: Page,
-    commentId: string | undefined
+    commentId: string | undefined,
+    setPostToShow: (p: any) => void
 }
 
-const PostBlock = ({ post, page, commentId } : Props) => {
+const PostBlock = ({ post, page, commentId, setPostToShow }: Props) => {
 
     const history = useHistory();
     const { isLoading, user } = useContext(WebContext);
@@ -74,12 +75,20 @@ const PostBlock = ({ post, page, commentId } : Props) => {
         setHoverText('');
     }
 
+    const gotoEtherScan = () => {
+        // https://goerli.etherscan.io/tx/0xac65f67fcecd1deb929ed2c22a3adb2cfcc43e34f643493ba15069523bf5cbaf
+
+    }
+
     return (
         <div className="post-block">
             <div className="block-header">
                 <p className="date">{date} |</p>
                 <p className="user">Post by {post.epoch_key} <img src="/images/lighting.svg" /> </p>
-                <p className="etherscan">Etherscan <img src="/images/etherscan.svg" /></p>
+                <a className="etherscan" target="_blank" href={`https://goerli.etherscan.io/tx/${post.id}`}> 
+                    <span>Etherscan</span>
+                    <img src="/images/etherscan.svg" />
+                </a>
             </div>
             {page === Page.Home? <div className="divider"></div> : <div></div>}
             <div className="block-content" onClick={() => history.push(`/post/${post.id}`, {commentId: ''})}>

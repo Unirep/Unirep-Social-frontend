@@ -101,6 +101,7 @@ const PostField = ({ page }: Props) => {
             //     console.error('publish post error.');
             // }
         }
+        init();
     }
 
     return (

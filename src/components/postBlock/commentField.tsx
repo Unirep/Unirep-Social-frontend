@@ -1,4 +1,4 @@
-import { leaveComment, getUserState } from '../../utils';
+import { leaveComment, getUserState, updateUserState } from '../../utils';
 import { WebContext } from '../../context/WebContext';
 import { useState, useContext } from 'react';
 import { Post, Comment, DataType, Page, ActionType } from '../../constants';
@@ -9,6 +9,7 @@ type Props = {
     post: Post,
     closeComment: () => void,
     page: Page,
+    setPostToShow: (p: any) => void,
 }
 
 const CommentField = (props: Props) => {
@@ -65,7 +66,11 @@ const CommentField = (props: Props) => {
 
             //     props.closeComment();
             // } else {
-            //     console.log(ret);
+            //     console.error(ret.error);
+            //     setIsLoading(false);
+            //     const { userState, spent } = await updateUserState(user.identity, user.userState)
+            //     setUser({...user, spent: spent, userState: userState})
+            //     props.closeComment();
             // }
         }
     }

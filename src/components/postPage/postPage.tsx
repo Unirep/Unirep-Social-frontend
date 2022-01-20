@@ -59,10 +59,6 @@ const PostPage = () => {
                         side side
                     </div>
                     <div className="margin-box"></div>
-                    {/* { voteReceiver !== null?
-                            (isUpVoteBoxOn? <VoteBox isUpvote={true} data={voteReceiver} /> : 
-                            isDownVoteBoxOn? <VoteBox isUpvote={false} data={voteReceiver} /> : <div></div>) : <div></div>
-                    } */}
                 </PostPageContext.Provider>
             </div>
         </div> 

@@ -8,6 +8,7 @@ export const isAuthorText = "You cannot vote on your own post or comment.";
 export const notLoginText = "Sign in to participate.";
 export const loadingText = "Some action is pending, please wait...";
 export const expiredText = "You cannot vote on posts with expired epoch key."
+export const offChainText = "This post is not able to be voted yet."
 
 export interface User {
     identity: string,
@@ -28,7 +29,7 @@ export interface Vote {
 
 export interface Comment {
     type: DataType,
-    id: string,
+    id: string, // === txHash
     post_id: string,
     content: string,
     votes: Vote[],
@@ -42,11 +43,12 @@ export interface Comment {
     reputation: number,
     isAuthor: boolean,
     current_epoch: number,
+    proofIndex: number,
 }
 
 export interface Post {
     type: DataType,
-    id: string,
+    id: string, // txHash
     title: string,
     content: string,
     votes: Vote[],
@@ -61,6 +63,7 @@ export interface Post {
     comments: Comment[],
     isAuthor: boolean,
     current_epoch: number,
+    proofIndex: number,
 }
 
 export enum ButtonType {

@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { NavLink, useHistory, useLocation } from 'react-router-dom';
 import { WebContext } from '../../context/WebContext';
 import * as Constants from '../../constants';
-import { userStateTransition, getNextEpochTime, getEpochKeys, getAirdrop, getUserState } from '../../utils';
+import { userStateTransition, getNextEpochTime, getEpochKeys, getAirdrop, getUserState, getCurrentEpoch } from '../../utils';
 import './header.scss';
 
 const Header = () => {
@@ -13,19 +13,26 @@ const Header = () => {
     const [searchInput, setSearchInput] = useState<string>("");
 
     const doUST = async () => {
-        if (user !== null) {
+	if (user !== null) {
+            const currentEpoch = await getCurrentEpoch();
             setIsUSTing(true);
             setIsLoading(true);
-            const ret = await userStateTransition(user.identity);
-            console.log(ret);
-            
-            const userStateResult = await getUserState(user.identity);
-            const epks = await getEpochKeys(user.identity, userStateResult.currentEpoch);
-            const rep = userStateResult.userState.getRepByAttester(userStateResult.attesterId);
-            if (ret !== undefined) {
-                setUser({...user, epoch_keys: epks, reputation: Number(rep.posRep) - Number(rep.negRep), current_epoch: ret.toEpoch, userState: userStateResult.userState, spent: 0})
+            if (user.current_epoch !== currentEpoch) {
+                const ret = await userStateTransition(user.identity, user.userState);
+                console.log(ret);
+                
+                const userStateResult = await getUserState(user.identity);
+                const epks = await getEpochKeys(user.identity, userStateResult.currentEpoch);
+                const rep = userStateResult.userState.getRepByAttester(BigInt(userStateResult.attesterId));
+                if (ret !== undefined) {
+                    setUser({...user, epoch_keys: epks, reputation: Number(rep.posRep) - Number(rep.negRep), current_epoch: ret.toEpoch, spent: 0, userState: userStateResult.userState.toJSON()})
+                }
+                const { error} = await getAirdrop(user.identity, userStateResult.userState);
+                if (error !== undefined) {
+                    console.error(error)
+                }
             }
-            await getAirdrop(user.identity, userStateResult.userState);
+            
             const next = await getNextEpochTime();
             setNextUSTTime(next);
 

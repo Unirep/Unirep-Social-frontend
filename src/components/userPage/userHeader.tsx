@@ -14,6 +14,9 @@ const UserHeader = ({ histories, setHistories }: Props) => {
     const { page, switchPage } = useContext(UserPageContext);
     const { user, isLoading } = useContext(WebContext);
     const pageSwitches = [UserPageType.Posts, UserPageType.History, UserPageType.Settings];
+    let availablePoints = 0
+    if(user?.reputation !== undefined && user?.spent !== undefined)
+        availablePoints = user?.reputation - user?.spent
 
     const gotoSubPage = async (p: UserPageType) => {
         if (!isLoading) {
@@ -32,7 +35,7 @@ const UserHeader = ({ histories, setHistories }: Props) => {
                     <img src="/images/user.png" />
                 </div>
                 <div className="user-reputations">
-                    <h2>{user?.reputation}</h2>
+                    <h2>{availablePoints}</h2>
                     <p>My Page</p>
                 </div>
             </div>

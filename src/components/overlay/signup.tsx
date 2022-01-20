@@ -61,7 +61,7 @@ const SignUp = () => {
 
     const copyPrivateKey = (event: any) => {
         event.stopPropagation();
-        navigator.clipboard.writeText(identity);
+        // navigator.clipboard.writeText(identity);
         setIsCopied(true);
     }
 
@@ -140,15 +140,18 @@ const SignUp = () => {
         setIsLoading(true);
         setPercentage(1);
 
-        const currentRep = 30;
-        const currentEpoch = 1;
-        const epks = await getEpochKeys(identity, currentEpoch);
+        const userStateResult = await getUserState(identity);
+        const currentRep = userStateResult.userState.getRepByAttester(BigInt(userStateResult.attesterId));
+        const epks = await getEpochKeys(identity, userStateResult.currentEpoch);
         let allEpks: string[] = [...epks];
         for (var i = currentEpoch; i > 0; i --) {
             const oldEpks = await getEpochKeys(userInput, i);
             allEpks = [...allEpks, ...oldEpks];
         }
-        await getAirdrop(identity, null);
+        const {error} = await getAirdrop(identity, userStateResult.userState);
+        if(error !== undefined) {
+            console.error(error)
+        }
 
         // setPageStatus(Constants.PageStatus.None);
         setUser({ 
@@ -159,7 +162,7 @@ const SignUp = () => {
             current_epoch: currentEpoch, 
             isConfirmed: true,
             spent: 0,
-            userState: null,
+            userState: userStateResult.userState.toJSON(),
         });
 
         const nextET = await getNextEpochTime();
@@ -182,7 +185,7 @@ const SignUp = () => {
                 step === 0?
                 <div className="signup-with">
                     <div className="sign-message">
-                        UnirRep is an invite only social community. Enter your 8 character invitation code below.
+                        UniRep is an invite only social community. Enter your 8 character invitation code below.
                     </div>
                     <input name="invitationCode" placeholder="Invite code" onChange={handleInvitationCode} />
                     <div className="sign-button-purple" onClick={submitInvitationCode}>Sign Up</div>

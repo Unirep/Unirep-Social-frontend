@@ -34,9 +34,9 @@ const UserPosts = () => {
         if (user !== null) {
             // sortedPosts = (await getPostsByQuery(
             //     user === null? [] : user.epoch_keys, 
-            //     feedChoice.query0,
-            //     feedChoice.query1, 
-            //     feedChoice.query2,
+            //     feedChoices.query1,
+            //     feedChoices.query0, 
+            //     feedChoices.query2,
             //     start,
             //     end
             // )).filter((p) => user.all_epoch_keys.find(epk => epk === p.epoch_key) !== undefined);

@@ -1,13 +1,11 @@
 import { useState, useContext, useEffect }  from 'react';
 import { useHistory } from 'react-router-dom';
-import { CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { WebContext } from '../../context/WebContext';
-import Dropdown from '../dropdown/dropdown';
 import HelpWidget from '../helpWidget/helpWidget';
-import { DataType, ChoiceType, InfoType } from '../../constants';
+import { DataType, InfoType } from '../../constants';
 import './writingField.scss';
-import { DEFAULT_POST_KARMA, DEFAULT_COMMENT_KARMA } from '../../config';
+import * as config from '../../config';
 
 
 type Props = {
@@ -19,7 +17,7 @@ type Props = {
 
 const WritingField = (props: Props) => {
 
-    const defaultRep = props.type === DataType.Post? DEFAULT_POST_KARMA : DEFAULT_COMMENT_KARMA;
+    const defaultRep = props.type === DataType.Post? config.DEFAULT_POST_KARMA : config.DEFAULT_COMMENT_KARMA;
     const history = useHistory();
 
     const { user, setIsLoading } = useContext(WebContext);
@@ -72,14 +70,6 @@ const WritingField = (props: Props) => {
     const submit = () => {
         if (user === null) {
             setErrorMsg('Please sign up or sign in');
-        } else if (isNaN(reputation)) {
-            setErrorMsg('Please input reputation in number');
-        } else if (user.reputation < defaultRep) {
-            setErrorMsg('Sorry. You don\'t have enough reputation to perform post action.');
-        } else if (reputation < defaultRep || reputation > user.reputation) {
-            setErrorMsg('Please input reputation between ' + defaultRep + ' and ' + user.reputation);
-        } else if (content.length === 0) {
-            setErrorMsg('Please share something in order to post');
         } else {
             setIsLoading(true);
             setPercentage(1);
@@ -124,53 +114,6 @@ const WritingField = (props: Props) => {
                 </div>
             </div>
             <div className="submit-btn" onClick={submit}>{props.submitBtnName}</div>
-            {/* <textarea name="userInput" placeholder="Share something!" onChange={handleUserInput}></textarea>
-            <div className="setting-area">
-                <div className="setting-epk">
-                    <label>Select an Epoch Key to display with your post <span onClick={() => history.push('/help')}>?</span></label>
-                    { user !== null? 
-                        <Dropdown 
-                            type={ChoiceType.Epk}
-                            defaultChoice={user.epoch_keys[props.epkNonce]}
-                            choices={user.epoch_keys}
-                            onChoose={props.changeEpk}
-                            isDropdown={isDropdown}
-                            setIsDropdown={setIsDropdown}
-                        /> : <div></div>
-                    }
-                </div>
-                <div className="setting-reputation">
-                    <label>{"Enter a reputation score " + defaultRep + " or greather (optional)"} <span>?</span></label>
-                    <br/>
-                    <textarea name="repInput" placeholder={user === null? '' : `MAX ${user.reputation - user.spent}`} onChange={changeReputation}></textarea>
-                </div>
-            </div>
-            {
-                errorMsg.length > 0? 
-                <div className="error">
-                    <img src="/images/warning.png" />
-                    <span>{errorMsg}</span>
-                </div> : <div></div>
-            }
-            <div className="submit-btn" onClick={submit}>
-                {props.submitBtnName}
-            </div>
-            <div className="note">
-                {props.type === DataType.Post? 
-                    "Posting will use " + defaultRep + " reputation points" : 
-                    "Commenting will use " + defaultRep + " reputation points" }
-            </div>
-            {
-                isBlockLoading? <div className="loading-block">
-                    <div style={{width: 75, height: 75}}>
-                        <CircularProgressbar text="Loading..." value={percentage} styles={{
-                            path: {
-                                transition: 'stroke-dashoffset 0.1s ease 0s',
-                            }
-                        }}/>
-                    </div>
-                </div> : <div></div>
-            } */}
         </div>
     );
 }
