@@ -50,4 +50,9 @@
             }
         }
     }
+
+    .failed {
+        background-color: #FFEBEB;
+        color: $red;
+    }
 }

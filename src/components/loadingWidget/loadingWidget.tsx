@@ -29,17 +29,21 @@ const LoadingWidget = () => {
             let error: string = '';
             let data: any = null;
 
+            const spentRet = await getEpochSpent(user? user.epoch_keys : []);
+            console.log('in the head of loading widget, spent is: ' + spentRet);
+            if (user !== null) {
+                setUser({...user, spent: spentRet});
+            }
+
             if (action.action === ActionType.Post) {
                 data = await publishPost(
                     action.data.content,
                     action.data.epkNonce,
                     action.data.identity,
                     0,
-                    action.data.spent,
+                    spentRet,
                     action.data.userState,
                 );
-                console.log(data);
-                console.log('action done.');
             } else if (action.action === ActionType.Comment) {
                 data = await leaveComment(
                     action.data.identity,
@@ -47,11 +51,9 @@ const LoadingWidget = () => {
                     action.data.data,
                     action.data.epkNonce,
                     0,
-                    action.data.spent,
+                    spentRet,
                     action.data.userState
                 );
-                console.log(data);
-                console.log('action done.');
             } else if (action.action === ActionType.Vote) {
                 data = await vote(
                     action.data.identity, 
@@ -62,23 +64,27 @@ const LoadingWidget = () => {
                     action.data.epkNonce, 
                     0, 
                     action.data.isPost, 
-                    action.data.spent, 
+                    spentRet, 
                     action.data.userState
                 );
-                console.log(data);
-                console.log('action done.');
             } 
+            console.log(data);
+            console.log('action done.');
 
-            if (error.length > 0) {
+            if (data.error !== undefined) {
                 console.log('error: ' + error);
                 setLoadingState(LoadingState.fail);
             } else {
                 console.log('without error.');
-                if (user !== null) {
-                    const spent = await getEpochSpent(user? user.epoch_keys : []);
-                    setUser({...user, spent});
+
+                if (action.action === ActionType.Post) {
+                    setSuccessPost(data.transaction);
+                } else if (action.action === ActionType.Vote) {
+                    setSuccessPost(action.data.data);
+                } else if (action.action === ActionType.Comment) {
+                    setSuccessPost(action.data.data + '_' + data.transaction);
                 }
-                setSuccessPost(data.transaction);
+                
                 setLoadingState(LoadingState.succeed);
             }
 
@@ -99,21 +105,42 @@ const LoadingWidget = () => {
     }, [isFlip]);
 
     const resetLoading = () => {
+        if (loadingState === LoadingState.loading) {
+            return;
+        }
+
         setAction(null);
         setLoadingState(LoadingState.none);
     }
 
-    const gotoPage = () => {
-        history.push(`/post/${successPost}`, {commentId: ''});
+    const gotoPage = (event: any) => {
+        event.stopPropagation();
         resetLoading();
+
+        console.log('goto page: successPost is = ' + successPost);
+        const tmp = successPost.split('_');
+        if (tmp.length > 1) {
+            if (window.location.pathname === `/post/${tmp[0]}`) {
+                history.go(0);
+            } else {
+                history.push(`/post/${tmp[0]}`, {commentId: tmp[1]});
+            }
+        } else {
+            if (window.location.pathname === `/post/${successPost}`) {
+                history.go(0);
+            } else {
+                history.push(`/post/${successPost}`, {commentId: ''});
+            }
+        }
     }
 
-    const gotoEtherscan = () => {
+    const gotoEtherscan = (event: any) => {
+        event.stopPropagation();
         resetLoading();
     }
 
     return (
-        <div className="loading-widget">
+        <div className="loading-widget" onClick={resetLoading}>
             {
                 loadingState === LoadingState.none? <div></div> : 
                     loadingState === LoadingState.loading? 
@@ -128,7 +155,10 @@ const LoadingWidget = () => {
                             <span onClick={gotoPage}>See my post</span> | <span onClick={gotoEtherscan}>Etherscan <img src="/images/etherscan-white.svg"/></span>
                         </div>
                     </div> : loadingState === LoadingState.fail?
-                    <div></div> : <div></div>
+                    <div className="loading-block failed">
+                        <img src="/images/close-red.svg" />
+                        <span>Fail.</span> 
+                    </div> : <div></div>
             }
         </div>
     );

@@ -105,7 +105,7 @@ const WritingField = (props: Props) => {
                     <div className="rep-chooser">
                         <input type="range" 
                             min={defaultRep} 
-                            max={user? user.reputation : defaultRep} 
+                            max={user? user.reputation - user.spent : defaultRep} 
                             onChange={handleRepInput}
                             value={reputation}
                         />

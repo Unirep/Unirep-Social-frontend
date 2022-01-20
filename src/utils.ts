@@ -616,6 +616,7 @@ export const getEpochSpent = async (epks: string[]) => {
             for (var i = 0; i < data.length; i ++) {
                 ret = ret + data[i].spent;
             }
+            console.log('inside get epoch spent: ' + ret);
             return ret;
         }
     );
