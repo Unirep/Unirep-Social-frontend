@@ -335,13 +335,11 @@ const header = {
 }
 
 export const checkInvitationCode = async (invitationCode: string) => {
-    // const apiURL = makeURL('genInvitationCode/' + invitationCode, {})
-    // var ret = false
-    // await fetch(apiURL)
-    //     .then(response => ret = (response.ok === true));
-    // return ret
-
-    return true;
+    const apiURL = makeURL('genInvitationCode/' + invitationCode, {})
+    var ret = false
+    await fetch(apiURL)
+        .then(response => ret = (response.ok === true));
+    return ret
 }
 
 export const userSignUp = async () => {

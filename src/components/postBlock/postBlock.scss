@@ -36,10 +36,19 @@
       }
 
       .etherscan {
-        cursor: pointer;
+        outline: none;
+        border: none;
+        font-size: $text-xs;
+        color: $grey-700;
 
         &:hover {
           color: $grey-400;
+        }
+
+        img {
+          width: 16px;
+          height: 16px;
+          margin-left: 4px;
         }
       }
     }
@@ -169,113 +178,6 @@
           text-align: center;
           font-size: $text-xs;
           color: $grey-700;
-        }
-      }
-    }
-
-    // below are old data
-    
-
-    .datetime-text {
-      color: $grey-400;
-      font-size: $text-sm;
-      margin-right: 10px;
-    }
-  
-    .post-block-main {
-      width: 100%;
-      padding: 16px;
-      margin-top: 10px;
-      margin-bottom: 10px;
-      background-color: #fff;
-      border-radius: 8px;
-  
-      .post-block-info {
-        width: 100%;
-        display: flex;
-        flex-direction: row;
-  
-        .post-share {
-          width: 20px;
-          height: 20px;
-          cursor: pointer;
-          border: 1px solid black;
-          border-radius: 10px;
-          display: block;
-          line-height: 16px;
-          text-align: center;
-          box-shadow: 0px 3px 2px rgba(0, 0, 0, 0.1);
-  
-          img {
-            width: 12.5px;
-            height: 12.5px;
-          }
-        }
-      }
-  
-      .post-text {
-        margin-top: 20px;
-      }
-    }
-  
-    .post-voters {
-      width: 100%;
-      padding: 0px 15px 8px 15px;
-      display: flex;
-      flex-direction: row;
-      cursor: pointer;
-  
-      .voter {
-        @include epkIcon(24px);
-        margin-left: -5px;
-      }
-  
-      .voter-text {
-        font-size: $text-sm;
-        color: $grey-800;
-        line-height: 24px;
-        vertical-align: middle;
-        margin-left: 10px;
-      }
-  
-      .voter-more {
-        text-decoration: underline;
-      }
-    }
-  
-    .voters-list {
-      padding: 8px 16px 16px 16px;
-      width: 100%;
-      max-height: 150px;
-      overflow-y: scroll;
-  
-      .voter {
-        width: 100%;
-        height: 30px;
-        margin-top: 8px;
-        margin-bottom: 8px;
-        padding: 10px;
-  
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-  
-        background-color: white;
-        border-radius: 4px;
-        font-size: $text-sm;
-  
-        & > span {
-          margin-left: 10px;
-          margin-right: 25px;
-        }
-  
-        & > .epk-icon {
-          @include epkIcon(18px);
-        }
-  
-        & > img {
-          width: 20px;
-          height: 10px;
         }
       }
     }

@@ -74,11 +74,16 @@
                 outline: none;
                 resize: none;
                 padding: 16px;
-                margin: 40px 0px 32px 0px;
+                margin-top: 40px;
             }
 
             .larger {
                 height: 184px;
+            }
+
+            .error {
+                font-size: $text-xs;
+                color: $red;
             }
 
             .main-btn {

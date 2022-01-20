@@ -1,9 +1,6 @@
 import React, { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import { WebContext } from '../../context/WebContext';
-import * as Constants from '../../constants';
-import SignUp from './signup';
-import SignIn from './signin';
 import './overlay.scss';
 
 const Overlay = () => {

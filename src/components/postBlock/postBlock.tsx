@@ -74,11 +74,6 @@ const PostBlock = ({ post, page, commentId }: Props) => {
         setHoverText('');
     }
 
-    const gotoEtherScan = () => {
-        // https://goerli.etherscan.io/tx/0xac65f67fcecd1deb929ed2c22a3adb2cfcc43e34f643493ba15069523bf5cbaf
-
-    }
-
     return (
         <div className="post-block">
             <div className="block-header">

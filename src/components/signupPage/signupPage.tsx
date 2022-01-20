@@ -1,5 +1,5 @@
 import { useHistory } from 'react-router-dom';
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 
 import './signupPage.scss';
 import { WebContext } from '../../context/WebContext';
@@ -37,6 +37,10 @@ const SignupPage = () => {
         "Generate"
     ];
 
+    useEffect(() => {
+        setErrorMsg('');
+    }, [step, invitationCode, userEnterIdentity]);
+
     const nextStep = async () => {
         if (step === 0) {
             // send to server to check if invitation code does exist
@@ -47,7 +51,7 @@ const SignupPage = () => {
                 setIdentity(i);
                 setStep(1);
             } else {
-                setErrorMsg("Wrong invitation code.");
+                setErrorMsg("Umm...this is not working. Try again or request a new code.");
             }
         } else if (step === 1) {
             if (isDownloaded) {
@@ -55,7 +59,11 @@ const SignupPage = () => {
                 setStep(2);
             }
         } else if (step === 2) {
-            setStep(3);
+            if (userEnterIdentity !== identity) {
+                setErrorMsg('Incorrect private key. Please try again.');
+            } else {
+                setStep(3);
+            }
         } else if (step === 3) {
             const userStateResult = await getUserState(identity);
             const currentRep = userStateResult.userState.getRepByAttester(BigInt(userStateResult.attesterId));
@@ -127,6 +135,9 @@ const SignupPage = () => {
                                 onChange={handleInput} 
                                 value={step === 0? invitationCode : step === 1? identity : step === 2? userEnterIdentity : ''} 
                             />
+                    }
+                    {
+                        errorMsg.length === 0? <div></div> : <div className="error">{errorMsg}</div>
                     }
                     {
                         step === 1?

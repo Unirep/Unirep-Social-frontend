@@ -23,7 +23,6 @@ const PostsList = ({ posts, timeFilter, loadMorePosts }: Props) => {
                         post={post} 
                         page={Page.Home}
                         commentId={undefined}
-                        setPostToShow={() => {}}
                     />
                 ))
             ) : <div className="no-posts">
