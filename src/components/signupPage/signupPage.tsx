@@ -3,17 +3,18 @@ import { useContext, useState } from 'react';
 
 import './signupPage.scss';
 import { WebContext } from '../../context/WebContext';
-import { getEpochKeys } from '../../utils';
+import { getEpochKeys, getUserState, getAirdrop, getNextEpochTime, checkInvitationCode, userSignUp} from '../../utils';
 
 const SignupPage = () => {
     const history = useHistory();
-    const { user, setUser } = useContext(WebContext);
+    const { user, setUser, setNextUSTTime } = useContext(WebContext);
     const [invitationCode, setInvitationCode] = useState<string>('');
     const [step, setStep] = useState<number>(0);
-    const [identity, setIdentity] = useState<string>('Unirep.identity.WyJlOGQ2NGU5OThhM2VmNjAxZThjZTNkNDQwOWQyZjc3MjEwOGJkMGI1NTgwODAzYjY2MDk0YTllZWExMzYxZjA2IiwiODZiYjk5ZGQ4MzA2ZGVkZDgxYTE4MzBiNmVjYmRlZjk5ZmVjYTU3M2RiNjIxMjk5NGMyMmJlMWEwMWZmMTEiLCIzMGE3M2MxMjE4ODQwNjE0MWQwYmI4NWRjZDY5ZjdhMjEzMWM1NWRkNDQzYWNmMGVhZTEwNjI2NzBjNDhmYSJd278');
+    const [identity, setIdentity] = useState<string>('');
     // const [commitment, setCommitment] = useState<string>('');
     const [isDownloaded, setIsDownloaded] = useState(false);
     const [userEnterIdentity, setUserEnterIdentity] = useState<string>('');
+    const [errorMsg, setErrorMsg] = useState<string>('');
 
     const title = [
         "Join us",
@@ -40,7 +41,14 @@ const SignupPage = () => {
         if (step === 0) {
             // send to server to check if invitation code does exist
             // if exists, get identity and commitment
-            setStep(1);
+            const ret = await checkInvitationCode(invitationCode);
+            if (ret) {
+                const {i, c, epoch} = await userSignUp();
+                setIdentity(i);
+                setStep(1);
+            } else {
+                setErrorMsg("Wrong invitation code.");
+            }
         } else if (step === 1) {
             if (isDownloaded) {
                 navigator.clipboard.writeText(identity);
@@ -49,17 +57,33 @@ const SignupPage = () => {
         } else if (step === 2) {
             setStep(3);
         } else if (step === 3) {
-            const epks = await getEpochKeys(identity, 1);
-            setUser({
-                identity, 
+            const userStateResult = await getUserState(identity);
+            const currentRep = userStateResult.userState.getRepByAttester(BigInt(userStateResult.attesterId));
+            const epks = await getEpochKeys(identity, userStateResult.currentEpoch);
+            let allEpks: string[] = [...epks];
+            for (var i = userStateResult.currentEpoch; i > 0; i --) {
+                const oldEpks = await getEpochKeys(identity, i);
+                allEpks = [...allEpks, ...oldEpks];
+            }
+            const {error} = await getAirdrop(identity, userStateResult.userState);
+            if(error !== undefined) {
+                console.error(error)
+            }
+
+            setUser({ 
+                identity: identity, 
                 epoch_keys: epks, 
-                all_epoch_keys: epks,
-                reputation: 30,
-                current_epoch: 1,
+                all_epoch_keys: allEpks, 
+                reputation: Number(currentRep.posRep) - Number(currentRep.negRep), 
+                current_epoch: userStateResult.currentEpoch, 
                 isConfirmed: true,
                 spent: 0,
-                userState: {}
+                userState: userStateResult.userState.toJSON(),
             });
+            
+            const nextET = await getNextEpochTime();
+            setNextUSTTime(nextET);
+
             history.push('/');
         }
     }

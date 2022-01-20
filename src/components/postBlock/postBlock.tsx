@@ -15,11 +15,10 @@ import './postBlock.scss';
 type Props = {
     post: Post,
     page: Page,
-    commentId: string | undefined,
-    setPostToShow: (p: any) => void
+    commentId: string | undefined
 }
 
-const PostBlock = ({ post, page, commentId, setPostToShow }: Props) => {
+const PostBlock = ({ post, page, commentId }: Props) => {
 
     const history = useHistory();
     const { isLoading, user } = useContext(WebContext);

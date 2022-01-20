@@ -43,12 +43,12 @@ const MainPage = () => {
         //     }
         // }
 
-        const sortedPosts = await getPostsByQuery();
-        if (lastRead === '0') {
-            setShownPosts(sortedPosts);
-        } else {
-            setShownPosts([...shownPosts, ...sortedPosts]);
-        }
+        // const sortedPosts = await getPostsByQuery();
+        // if (lastRead === '0') {
+        //     setShownPosts(sortedPosts);
+        // } else {
+        //     setShownPosts([...shownPosts, ...sortedPosts]);
+        // }
     }
 
     const loadMorePosts = () => {

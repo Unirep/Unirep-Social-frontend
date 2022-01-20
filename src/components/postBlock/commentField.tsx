@@ -9,7 +9,6 @@ type Props = {
     post: Post,
     closeComment: () => void,
     page: Page,
-    setPostToShow: (p: any) => void,
 }
 
 const CommentField = (props: Props) => {
