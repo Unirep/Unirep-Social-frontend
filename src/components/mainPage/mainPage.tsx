@@ -79,8 +79,7 @@ const MainPage = () => {
                             <PostsList 
                                 posts={shownPosts} 
                                 // timeFilter={feedChoices.query0 === QueryType.popularity? getQueryPeriod() : 100000000} 
-                                loadMorePosts={loadMorePosts} 
-                                timeFilter={100000000}
+                                loadMorePosts={loadMorePosts}
                             />
                         </div>
                     </div>

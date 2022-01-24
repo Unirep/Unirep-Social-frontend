@@ -3,37 +3,52 @@ import dateformat from 'dateformat';
 
 import { WebContext } from '../../context/WebContext';
 import HelpWidget from '../helpWidget/helpWidget';
-import { InfoType } from '../../constants';
+import { ActionType, InfoType } from '../../constants';
 
 const UserInfoWidget = () => {
-    const { user, nextUSTTime } = useContext(WebContext);
+    const { user, nextUSTTime, action, setAction } = useContext(WebContext);
     const [ countdownText, setCountdownText ] = useState<string>('');
+    const [ diffTime, setDiffTime ] = useState<number>(0);
     const nextUSTTimeString = dateformat(new Date(nextUSTTime), "dd/mm/yyyy hh:MM TT");
 
     const makeCountdownText = () => {
         const diff = (nextUSTTime - Date.now()) / 1000;
-        const days = Math.floor(diff / (24 * 60 * 60));
-        if (days > 0) {
-            return days + ' days';
+        setDiffTime(diff);
+
+        if (diff <= 0 && user !== null) {
+            if (action === null) {
+                const actionData = {
+                    identity: user.identity,
+                    userState: user.userState,
+                };
+                setAction({action: ActionType.UST, data: actionData});
+            }
+            
+            return 'is doing UST...';
         } else {
-            const hours = Math.floor(diff / (60 * 60));
-            if (hours > 0) {
-                return hours + ' hours';
+            const days = Math.floor(diff / (24 * 60 * 60));
+            if (days > 0) {
+                return days + ' days';
             } else {
-                const minutes = Math.floor(diff / 60);
-                if (minutes > 0) {
-                    return minutes + ' minutes';
+                const hours = Math.floor(diff / (60 * 60));
+                if (hours > 0) {
+                    return hours + ' hours';
                 } else {
-                    return diff + ' seconds';
-                }
-            } 
+                    const minutes = Math.floor(diff / 60);
+                    if (minutes > 0) {
+                        return minutes + ' minutes';
+                    } else {
+                        return Math.floor(diff) + ' seconds';
+                    }
+                } 
+            }
         }
     }
 
     useEffect(
         () => {
             makeCountdownText();
-
+            
             const timer = setTimeout(() => {
                 setCountdownText(makeCountdownText());
             }, 1000);

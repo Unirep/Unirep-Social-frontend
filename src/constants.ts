@@ -115,6 +115,7 @@ export enum ActionType {
     Comment = "Comment",
     Vote = "Vote",
     UST = "UST",
+    Signup = "Signup",
 }
 
 export enum Page {

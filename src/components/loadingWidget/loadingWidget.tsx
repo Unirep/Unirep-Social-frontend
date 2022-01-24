@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 
 import './loadingWidget.scss';
 import { WebContext } from '../../context/WebContext';
-import { publishPost, vote, leaveComment, getEpochSpent } from '../../utils';
+import { publishPost, vote, leaveComment, getEpochSpent, userStateTransition, getUserState, getEpochKeys, getAirdrop, getNextEpochTime } from '../../utils';
 import { ActionType } from '../../constants';
 
 enum LoadingState {
@@ -15,7 +15,7 @@ enum LoadingState {
 
 const LoadingWidget = () => {
     const history = useHistory();
-    const { setIsLoading, action, setAction, user, setUser } = useContext(WebContext);
+    const { setIsLoading, action, setAction, user, setUser, setNextUSTTime } = useContext(WebContext);
     const [ loadingState, setLoadingState ] = useState<LoadingState>(LoadingState.none);
     const [ isFlip, setFlip ] = useState<boolean>(false);
     const [ successPost, setSuccessPost ] = useState<string>('');
@@ -67,7 +67,9 @@ const LoadingWidget = () => {
                     spentRet, 
                     action.data.userState
                 );
-            } 
+            }  else if (action.action === ActionType.UST) {
+                data = await userStateTransition(action.data.identity, action.data.userState);
+            }
             console.log(data);
             console.log('action done.');
 
@@ -77,12 +79,35 @@ const LoadingWidget = () => {
             } else {
                 console.log('without error.');
 
-                if (action.action === ActionType.Post) {
+                if (action.action === ActionType.Post && user !== null) {
                     setSuccessPost(data.transaction);
-                } else if (action.action === ActionType.Vote) {
+                    setUser({...user, spent: user.spent+5});
+                } else if (action.action === ActionType.Vote && user !== null) {
                     setSuccessPost(action.data.data);
-                } else if (action.action === ActionType.Comment) {
+                    setUser({...user, spent: user.spent+action.data.upvote+action.data.downvote});
+                } else if (action.action === ActionType.Comment && user !== null) {
                     setSuccessPost(action.data.data + '_' + data.transaction);
+                    setUser({...user, spent: user.spent+3});
+                } else if (action.action === ActionType.UST && user !== null) {
+                    const userStateResult = await getUserState(user.identity);
+                    const epks = getEpochKeys(user.identity, userStateResult.currentEpoch);
+                    const rep = userStateResult.userState.getRepByAttester(BigInt(userStateResult.attesterId));
+                    if (data !== undefined) {
+                        setUser({...user, 
+                            epoch_keys: epks, 
+                            reputation: Number(rep.posRep) - Number(rep.negRep), 
+                            current_epoch: data.toEpoch, 
+                            spent: 0, 
+                            userState: userStateResult.userState.toJSON(),
+                            all_epoch_keys: [...user.all_epoch_keys, ...epks],
+                        })
+                    }
+                    const { error} = await getAirdrop(user.identity, userStateResult.userState);
+                    if (error !== undefined) {
+                        console.error(error)
+                    }
+                    const next = await getNextEpochTime();
+                    setNextUSTTime(next);
                 }
                 
                 setLoadingState(LoadingState.succeed);
@@ -151,9 +176,12 @@ const LoadingWidget = () => {
                     <div className="loading-block">
                         <img src="/images/checkmark.svg" />
                         <span>{action.action === ActionType.Post? 'Post is finalized': action.action === ActionType.Comment? 'Comment is finalized': action.action === ActionType.Vote? 'Succeed!' : ''}</span>
-                        <div className="info-row">
-                            <span onClick={gotoPage}>See my post</span> | <span onClick={gotoEtherscan}>Etherscan <img src="/images/etherscan-white.svg"/></span>
-                        </div>
+                        { action.action === ActionType.UST? 
+                            <div className="info-row">User State Transition done.</div> : 
+                            <div className="info-row">
+                                <span onClick={gotoPage}>See my content</span> | <span onClick={gotoEtherscan}>Etherscan <img src="/images/etherscan-white.svg"/></span>
+                            </div>
+                        } 
                     </div> : loadingState === LoadingState.fail?
                     <div className="loading-block failed">
                         <img src="/images/close-red.svg" />

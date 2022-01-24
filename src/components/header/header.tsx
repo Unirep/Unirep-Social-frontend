@@ -8,86 +8,8 @@ import './header.scss';
 const Header = () => {
     const history = useHistory();
     const location = useLocation();
-    const [isUSTing, setIsUSTing] = useState(false);
     const { user, setUser, shownPosts, setShownPosts, isLoading, setIsLoading, nextUSTTime, setNextUSTTime, isMenuOpen, setIsMenuOpen } = useContext(WebContext);
     const [searchInput, setSearchInput] = useState<string>("");
-
-    const doUST = async () => {
-	if (user !== null) {
-            const currentEpoch = await getCurrentEpoch();
-            setIsUSTing(true);
-            setIsLoading(true);
-            if (user.current_epoch !== currentEpoch) {
-                const ret = await userStateTransition(user.identity, user.userState);
-                console.log(ret);
-                
-                const userStateResult = await getUserState(user.identity);
-                const epks = getEpochKeys(user.identity, userStateResult.currentEpoch);
-                const rep = userStateResult.userState.getRepByAttester(BigInt(userStateResult.attesterId));
-                if (ret !== undefined) {
-                    setUser({...user, epoch_keys: epks, reputation: Number(rep.posRep) - Number(rep.negRep), current_epoch: ret.toEpoch, spent: 0, userState: userStateResult.userState.toJSON()})
-                }
-                const { error} = await getAirdrop(user.identity, userStateResult.userState);
-                if (error !== undefined) {
-                    console.error(error)
-                }
-            }
-            
-            const next = await getNextEpochTime();
-            setNextUSTTime(next);
-
-            setIsUSTing(false);
-            setIsLoading(false);
-        }
-        return;
-    }
-
-    const makeCountdownText = () => {
-        if (user === null) return '';
-        
-        const diff = (nextUSTTime - Date.now()) / 1000; // change to seconds instead of milliseconds
-        
-        if (diff >= 0) {
-            const days = Math.floor(diff / (60 * 60 * 24));
-            const hours = Math.floor((diff / (60 * 60)) % 24);
-            const minutes = Math.floor((diff / 60) % 60);
-            const seconds = Math.floor(diff % 60);
-            
-            const ret = days + 'd:' + hours + 'h:' + minutes + 'm:' + seconds + 's';
-            return ret;
-        } else {
-            if (!isUSTing) {
-                doUST();
-            }
-            return 'processing user state transition...' + Math.floor((Date.now() - nextUSTTime) / 1000) + 's';
-        }
-    }
-
-    const [countdownText, setCountdownText] = useState(makeCountdownText());
-
-    useEffect(
-        () => {
-            const timer = setTimeout(() => {
-                setCountdownText(makeCountdownText());
-            }, 1000);
-
-            return () => clearTimeout(timer);
-        }
-    );
-
-    // const signUp = () => {
-    //     if (!isLoading) {
-    //         console.log('open sign up! set ' + Constants.PageStatus.SignUp);
-    //         setPageStatus(Constants.PageStatus.SignUp);
-    //     }  
-    // }
-
-    // const signIn = () => {
-    //     if (!isLoading) {
-    //         console.log('open sign in! set ' + Constants.PageStatus.SignIn);
-    //         setPageStatus(Constants.PageStatus.SignIn);
-    //     }   
-    // }
 
     const logout = () => {
         if (!isLoading) {

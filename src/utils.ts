@@ -557,7 +557,7 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
             (data) => {
                 if(data.length === 0) return;
                 const history: History = {
-                    action: ActionType.UST,
+                    action: ActionType.Signup,
                     from: 'SignUp Airdrop',
                     to: data[0].to,
                     upvote: config.DEFAULT_AIRDROPPED_KARMA,
@@ -576,13 +576,12 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
             (data) => {
                 let ret: History[] = [];
                 for (var i = 0; i < data.length; i ++) {
-                    const isVoter = epks.indexOf(data[i].from) !== -1;
                     const history: History = {
                         action: data[i].action,
                         from: data[i].from,
                         to: data[i].to,
-                        upvote: isVoter? 0 : data[i].upvote,
-                        downvote: isVoter? (data[i].upvote + data[i].downvote) : data[i].downvote,
+                        upvote: data[i].upvote,
+                        downvote: data[i].downvote,
                         epoch: data[i].epoch,
                         time: Date.parse(data[i].created_at),
                         data_id: data[i].data,

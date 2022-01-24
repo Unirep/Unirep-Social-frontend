@@ -5,7 +5,7 @@ import { Page, Params, Post } from '../../constants';
 import { WebContext } from '../../context/WebContext';
 import { PostPageContext } from '../../context/PostPageContext';
 import PostBlock from '../postBlock/postBlock';
-import VoteBox from '../voteBox/voteBox';
+import SideColumn from '../sideColumn/sideColumn';
 import { getPostById } from '../../utils';
 import './postPage.scss';
 
@@ -56,7 +56,7 @@ const PostPage = () => {
                         }  
                     </div>
                     <div className="side-content">
-                        side side
+                        <SideColumn page={Page.Post} />
                     </div>
                     <div className="margin-box"></div>
                 </PostPageContext.Provider>

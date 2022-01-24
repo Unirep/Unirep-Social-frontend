@@ -12,7 +12,7 @@ import './userPage.scss';
 
 type Props = {
     history: History,
-    isReceived: boolean,
+    isSpent: boolean,
 }
 
 type Info = {
@@ -20,7 +20,7 @@ type Info = {
     action: string,
 }
 
-const ActivityWidget = ({ history, isReceived }: Props) => {
+const ActivityWidget = ({ history, isSpent }: Props) => {
     const { shownPosts } = useContext(WebContext);
     const [date, setDate] = useState<string>(dateformat(new Date(history.time), "dd/mm/yyyy hh:MM TT"));
     const [info, setInfo] = useState<Info>(() => {
@@ -30,11 +30,13 @@ const ActivityWidget = ({ history, isReceived }: Props) => {
             return {who: 'I (' + history.from + ')', action: 'commented on a post'}
         } else if (history.action === ActionType.UST) {
             return {who: 'UniRep Social', action: 'Epoch Rep drop'}
+        } else if (history.action === ActionType.Signup) {
+            return {who: 'Unirep Social', action: 'Sign Up Rep drop'}
         } else {
-            if (isReceived) {
-                return {who: history.from, action: history.upvote > 0? 'boosted this post' : 'squashed this post'};
-            } else {
+            if (isSpent) {
                 return {who: 'I (' + history.from + ')', action: history.upvote > 0? 'boosted this post' : 'squashed this post'};
+            } else {
+                return {who: history.from, action: history.upvote > 0? 'boosted this post' : 'squashed this post'};
             }
         }
     });
@@ -70,15 +72,14 @@ const ActivityWidget = ({ history, isReceived }: Props) => {
     return (
         <div className="activity-widget" onClick={gotoDataPage}>
             {
-                isReceived? 
-                    <div></div> : 
+                isSpent? 
                     <div className="side">
-                        <div className="amount">{history.downvote}</div>
+                        <div className="amount">{history.downvote + history.upvote}</div>
                         <div className="type">
                             <img src={history.action === ActionType.Vote? (history.upvote > 0? '/images/boost-grey.png' : '/images/squash-grey.png'): '/images/unirep-grey.png'} />
                             Used
                         </div>
-                    </div>
+                    </div> : <div></div>
             }
             <div className="main">
                 <div className="header">
@@ -98,14 +99,15 @@ const ActivityWidget = ({ history, isReceived }: Props) => {
                 </div>
             </div>
             {
-                isReceived? 
+                isSpent? 
+                    <div></div> :
                     <div className="side">
                         <div className="amount">{history.action === ActionType.Vote? (history.upvote > 0? '+' + history.upvote : '-' + history.downvote) : '+' + history.upvote}</div>
                         <div className="type">
                             <img src={history.action === ActionType.Vote? (history.upvote > 0? '/images/boost.svg' : '/images/squash.svg'): '/images/unirep.svg'} />
                             Received
                         </div>
-                    </div> : <div></div>
+                    </div>
             }
         </div>
     );
@@ -166,8 +168,10 @@ const UserPage = () => {
                 let s: number[] = [0, 0, 0, 0];
                 
                 ret.forEach(h => {
-                    const isReceived = user.all_epoch_keys.indexOf(h.from) === -1;
+                    const isReceived = user.epoch_keys.indexOf(h.to) !== -1;
+                    const isSpent = user.epoch_keys.indexOf(h.from) !== -1;
                     if (isReceived) {
+                        console.log(h.to + 'is receiver, is me, ' + h.upvote);
                         // right stuff
                         if (h.action === ActionType.UST) {
                             r[0] += h.upvote;
@@ -175,7 +179,10 @@ const UserPage = () => {
                             r[1] += h.upvote;
                             r[2] += h.downvote;
                         }
-                    } else {
+                    } 
+
+                    if (isSpent) {
+                        console.log(h.from + 'is giver, is me, ' + h.downvote);
                         if (h.action === ActionType.Post) {
                             s[0] += h.downvote;
                         } else if (h.action === ActionType.Comment) {
@@ -229,7 +236,7 @@ const UserPage = () => {
                             <div className="my-reps stuff">
                                 <div className="white-block">
                                     <p>My Reps</p>
-                                    <div className="rep-info"><img src="/images/lighting.svg" />{user.reputation}</div>
+                                    <div className="rep-info"><img src="/images/lighting.svg" />{user.reputation - user.spent}</div>
                                 </div>
                                 <div className="grey-block">
                                     <span>How I use my rep in this epoch</span><br/>
@@ -297,7 +304,6 @@ const UserPage = () => {
                                 tag === Tag.Posts? 
                                     <PostsList 
                                         posts={myPosts}
-                                        timeFilter={10000000000}
                                         loadMorePosts={() => {}}
                                     /> : tag === Tag.Comments?
                                     <CommentsList 
@@ -310,7 +316,7 @@ const UserPage = () => {
                                                 <ActivityWidget 
                                                     key={i} 
                                                     history={h}
-                                                    isReceived={user.all_epoch_keys.indexOf(h.from) === -1}
+                                                    isSpent={user.all_epoch_keys.indexOf(h.from) !== -1}
                                                 />
                                             )
                                         }

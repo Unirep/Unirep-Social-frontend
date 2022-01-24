@@ -25,7 +25,7 @@ const SideColumn = ( { page }: Props) => {
         <div>
             {page === Page.User? <div className="setting widget"><img src="/images/setting.svg" onClick={gotoSetting} /></div> : <div></div>}
             {user !== null && page !== Page.User? <UserInfoWidget /> : <div></div>}
-            {user !== null && page === Page.New? <ReminderWidget /> : <div></div>}
+            {user !== null && (page === Page.New || page === Page.Post)? <ReminderWidget page={page} /> : <div></div>}
             {user !== null && page === Page.User? <PostsWidget /> : <div></div>}
             <DefaultWidget />
             <div className="back-to-top" onClick={() => window.scrollTo(0, 0)}>Back to top</div>
