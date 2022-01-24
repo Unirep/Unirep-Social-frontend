@@ -121,7 +121,7 @@ export const getUserState = async (identity: string, us?: any, update?: boolean)
     return {id, userState: userState, numEpochKeyNoncePerEpoch, currentEpoch: Number(currentEpoch), attesterId, hasSignedUp: jsonedUserState.hasSignedUp};
 }
 
-const getEpochKey = async (epkNonce: number, identityNullifier: any, epoch: number) => {
+const getEpochKey = (epkNonce: number, identityNullifier: any, epoch: number) => {
     const epochKey = genEpochKey(
         identityNullifier, 
         epoch, epkNonce, config.circuitEpochTreeDepth
@@ -130,12 +130,12 @@ const getEpochKey = async (epkNonce: number, identityNullifier: any, epoch: numb
     return epochKey.toString(16);
 }
 
-export const getEpochKeys = async (identity: string, epoch: number) => {
+export const getEpochKeys = (identity: string, epoch: number) => {
     const { identityNullifier } = decodeIdentity(identity)
     let epks: string[] = []
  
     for (let i = 0; i < config.numEpochKeyNoncePerEpoch; i++) {
-        const tmp = await getEpochKey(i, identityNullifier, epoch);
+        const tmp = getEpochKey(i, identityNullifier, epoch);
         epks = [...epks, tmp];
     }
     console.log(epks)
@@ -493,7 +493,7 @@ export const updateUserState = async (identity: string, us?: any) => {
         const userStateResult = await getUserState(identity, transitionRet.userState.toJSON(), true);
         airdropRet = await getAirdrop(identity, userStateResult.userState);
     }
-    const epks = await getEpochKeys(identity, ret.currentEpoch);
+    const epks = getEpochKeys(identity, ret.currentEpoch);
     const spent = await getEpochSpent(epks);
     return { error: airdropRet?.error, userState: ret.userState, spent: spent };
 }
@@ -544,7 +544,7 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
     const { commitment } = decodeIdentity(identity)
     let epks: string[] = [];
     for (var i = 1; i <= currentEpoch; i ++) {
-        const epksRet = await getEpochKeys(identity, i);
+        const epksRet = getEpochKeys(identity, i);
         epks = [...epks, ...epksRet];
     }
 

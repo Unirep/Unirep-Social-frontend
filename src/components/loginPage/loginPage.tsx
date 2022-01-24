@@ -49,12 +49,12 @@ const LoginPage = () => {
             const reputation = userState.getRepByAttester(userStateResult.attesterId);
             console.log('has signed up flag', reputation.signUp)
             
-            const epks = await getEpochKeys(input, userStateResult.currentEpoch);
+            const epks = getEpochKeys(input, userStateResult.currentEpoch);
             const spent = await getEpochSpent(epks);
 
             let allEpks: string[] = [];
             for (var i = userStateResult.currentEpoch; i > 0; i --) {
-                const oldEpks = await getEpochKeys(input, i);
+                const oldEpks = getEpochKeys(input, i);
                 allEpks = [...allEpks, ...oldEpks];
             }
             setUser({

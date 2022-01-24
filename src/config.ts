@@ -1,4 +1,5 @@
 import { ethers } from 'ethers'
+import { circuitUserStateTreeDepth, circuitGlobalStateTreeDepth, circuitEpochTreeDepth } from '@unirep/unirep'
 import UnirepSocial from "../node_modules/@unirep/unirep-social/artifacts/contracts/UnirepSocial.sol/UnirepSocial.json"
 
 const identityPrefix = 'Unirep.identity.'
@@ -25,16 +26,13 @@ const DEFAULT_COMMENT_KARMA = 3
 const MAX_KARMA_BUDGET = 10
 const DEFAULT_AIRDROPPED_KARMA = 30
 
-const UNIREP = '0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6'
-const UNIREP_SOCIAL = '0x8A791620dd6260079BF849Dc5567aDC3F2FdC318'
+const UNIREP = '0x0165878A594ca255338adfa4d48449f69242Eb8F'
+const UNIREP_SOCIAL = '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853'
 // const UNIREP = '0x7b06f51459E05FC2E973e2181E02A4dc0FbfA452';
 // const UNIREP_SOCIAL = '0xc7f739EbF152534d5613a8c6365DD3Cb10D6c07a';
 const UNIREP_SOCIAL_ABI = UnirepSocial.abi
 const UNIREP_SOCIAL_ATTESTER_ID = 1
 
-const circuitGlobalStateTreeDepth = 4;
-const circuitUserStateTreeDepth = 4;
-const circuitEpochTreeDepth = 32;
 const circuitNullifierTreeDepth = 128;
 const globalStateTreeDepth = 4;
 const userStateTreeDepth = 4;
