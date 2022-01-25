@@ -15,6 +15,32 @@ enum Tag {
     Activity = "Activity"
 }
 
+type Props = {
+    spent: number,
+    total: number,
+    action: number,
+}
+
+const RepPortion = ({ spent, total, action } : Props) => {
+    const [isHover, setHover] = useState<boolean>(false);
+    const portionName = action === 2? 'Boost' : action === 3? 'Squash' : action === 0? 'Post' : 'Comment';
+    
+    return (
+        <div className="rep-portion" 
+            style={{width: `${spent / total * 100}%`}}
+            onMouseEnter={() => setHover(true)} 
+            onMouseOut={() => setHover(false)}>
+            {isHover? 
+                <div className="rep-description">
+                    <img src={`/images/${portionName === 'Post' || portionName === 'Comment'? 'unirep': portionName.toLowerCase()}-white.svg`} />
+                    {portionName}:
+                    <span>{spent}</span>
+                </div> : <div></div>
+            }
+        </div>
+    );
+}
+
 const UserPage = () => {
     const { isLoading, user } = useContext(WebContext);
     const [ histories, setHistories ] = useState<History[]>([]);
@@ -175,7 +201,7 @@ const UserPage = () => {
                                     <span>How I use my rep in this epoch</span><br/>
                                     <div className="rep-bar">
                                         { 
-                                            spent.map((s, i) => <div className="rep-portion" style={{"width": `${s / user.reputation * 100}%`}} key={i}></div>)
+                                            spent.map((s, i) => <RepPortion spent={s} total={user.reputation} action={i} key={i} />)
                                         }
                                     </div>
                                 </div>
