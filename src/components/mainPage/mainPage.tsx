@@ -25,8 +25,8 @@ const MainPage = () => {
     const [showBanner, setShowBanner] = useState<Boolean>(true);
 
     const getPosts = async (lastRead: string = '0') => {
-        console.log('get posts with last read: ' + lastRead);
-        const sortedPosts = await getPostsByQuery(user? user.all_epoch_keys : [], query, lastRead);
+        console.log('get posts with last read: ' + lastRead + ', query is: ' + query);
+        const sortedPosts = await getPostsByQuery(query, lastRead);
         if (lastRead === '0') {
             setShownPosts(sortedPosts);
         } else {

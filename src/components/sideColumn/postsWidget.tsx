@@ -8,13 +8,23 @@ type Props = {
     hasUnderline: boolean,
 }
 
+const isAuthor = (p: Post, epks: undefined | string[]) => {
+    if (epks !== undefined) {
+        return epks.indexOf(p.epoch_key) > -1;
+    } else {
+        return false;
+    }
+}
+
 const RankingBlock = ({ post, ranking, hasUnderline }: Props) => {
+    const { user } = useContext(WebContext);
+    
     return (
         <div className={hasUnderline ? "ranking-block underline" : "ranking-block"}>
             <div className="ranking-block-header">
                 <div className="ranking">
                     <img src="/images/boost-fill.svg" />
-                    {`#${ranking+1}${post.isAuthor? ', by you':''}`}
+                    {`#${ranking+1}${isAuthor(post, user?.all_epoch_keys)? ', by you':''}`}
                 </div>
                 <div className="boost">
                     {post.upvote}
@@ -31,7 +41,7 @@ type RankedPost = {
 }
 
 const PostsWidget = () => {
-    const { shownPosts } = useContext(WebContext);
+    const { shownPosts, user } = useContext(WebContext);
     const [ posts, setPosts ] = useState<RankedPost[]>(() => {
         let posts: RankedPost[] = [];
 
@@ -45,12 +55,12 @@ const PostsWidget = () => {
             } else {
                 console.log('i >= 3, check post!');
                 console.log(i);
-                if (!hasUserPost && post.isAuthor) {
+                if (!hasUserPost && isAuthor(post, user?.all_epoch_keys)) {
                     const p = {post, rank: i}
                     posts = [...posts, p];
                 }
             }
-            hasUserPost = hasUserPost || post.isAuthor;
+            hasUserPost = hasUserPost || isAuthor(post, user?.all_epoch_keys);
         });
 
         return posts;

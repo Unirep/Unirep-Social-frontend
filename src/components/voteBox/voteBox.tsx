@@ -39,16 +39,6 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
         }
     });
 
-    // useEffect(() => {
-    //     if (isBlockLoading) {
-    //         const timer = setTimeout(() => {
-    //             setPercentage(((percentage + 1) % 100) + 1);
-    //         }, 100);
-
-    //         return () => clearTimeout(timer);
-    //     }
-    // }, [percentage]);
-
     const init = () => {
         // setIsLoading(false);
         closeVote();

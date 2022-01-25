@@ -1,117 +1,13 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
-import dateformat from 'dateformat';
+import { useContext, useState, useEffect } from 'react';
 
-import { getRecords } from '../../utils';
+import { getPostsByQuery, getRecords, getCommentsByQuery } from '../../utils';
 import { WebContext } from '../../context/WebContext';
 import SideColumn from '../sideColumn/sideColumn';
-import { History, ActionType, Page, QueryType, Post, Comment, DataType } from '../../constants';
+import { History, ActionType, Page, QueryType, Post, Comment } from '../../constants';
+import ActivityWidget from './activityWidget';
 import PostsList from '../postsList/postsList';
 import CommentsList from '../postsList/commentsList';
 import './userPage.scss';
-
-type Props = {
-    history: History,
-    isSpent: boolean,
-}
-
-type Info = {
-    who: string,
-    action: string,
-}
-
-const ActivityWidget = ({ history, isSpent }: Props) => {
-    const { shownPosts } = useContext(WebContext);
-    const [date, setDate] = useState<string>(dateformat(new Date(history.time), "dd/mm/yyyy hh:MM TT"));
-    const [info, setInfo] = useState<Info>(() => {
-        if (history.action === ActionType.Post) {
-            return {who: 'I (' + history.from + ')', action: 'created a post'}
-        } else if (history.action === ActionType.Comment) {
-            return {who: 'I (' + history.from + ')', action: 'commented on a post'}
-        } else if (history.action === ActionType.UST) {
-            return {who: 'UniRep Social', action: 'Epoch Rep drop'}
-        } else if (history.action === ActionType.Signup) {
-            return {who: 'Unirep Social', action: 'Sign Up Rep drop'}
-        } else {
-            if (isSpent) {
-                return {who: 'I (' + history.from + ')', action: history.upvote > 0? 'boosted this post' : 'squashed this post'};
-            } else {
-                return {who: history.from, action: history.upvote > 0? 'boosted this post' : 'squashed this post'};
-            }
-        }
-    });
-    const [data, setData] = useState(() => {
-        if (history.data_id === '0') {
-            return null;
-        }
-
-        const id = history.data_id.split('_');
-        if (id.length > 1) { // is on a comment
-            const p = shownPosts.filter(post => post.id === id[0]);
-            return (p[0].comments.filter(c => c.id === id[1]))[0];
-        } else {
-            return (shownPosts.filter(post => post.id === id[0]))[0];
-        }
-    });
-
-    const routerHistory = useHistory();
-
-    const gotoDataPage = () => {
-        if (history.data_id === '0') {
-            return;
-        }
-
-        const id = history.data_id.split('_');
-        if (id.length > 1) {
-            routerHistory.push(`/post/${id[0]}`, {commentId: id[1]});
-        } else {
-            routerHistory.push(`/post/${id[0]}`, {commentId: ''});
-        }
-    }
-
-    return (
-        <div className="activity-widget" onClick={gotoDataPage}>
-            {
-                isSpent? 
-                    <div className="side">
-                        <div className="amount">{history.downvote + history.upvote}</div>
-                        <div className="type">
-                            <img src={history.action === ActionType.Vote? (history.upvote > 0? '/images/boost-grey.png' : '/images/squash-grey.png'): '/images/unirep-grey.png'} />
-                            Used
-                        </div>
-                    </div> : <div></div>
-            }
-            <div className="main">
-                <div className="header">
-                    <p>{date}</p>
-                    <div className="etherscan">Etherscan <img src="/images/etherscan.png" /></div>
-                </div>
-                <div className="main-info">
-                    <div className="who">
-                        {info.who} <img src="/images/lighting.svg" /> {info.action}
-                    </div>
-                    { data !== null && data !== undefined? 
-                        <div className="data">
-                            { 'title' in data? <div className="title">{data.title}</div> : <div></div>}    
-                            <div className="content">{data.content}</div>
-                        </div> : <div></div>
-                    }
-                </div>
-            </div>
-            {
-                isSpent? 
-                    <div></div> :
-                    <div className="side">
-                        <div className="amount">{history.action === ActionType.Vote? (history.upvote > 0? '+' + history.upvote : '-' + history.downvote) : '+' + history.upvote}</div>
-                        <div className="type">
-                            <img src={history.action === ActionType.Vote? (history.upvote > 0? '/images/boost.svg' : '/images/squash.svg'): '/images/unirep.svg'} />
-                            Received
-                        </div>
-                    </div>
-            }
-        </div>
-    );
-}
 
 enum Tag {
     Posts = "Posts",
@@ -120,36 +16,13 @@ enum Tag {
 }
 
 const UserPage = () => {
-    const { isLoading, user, shownPosts } = useContext(WebContext);
+    const { isLoading, user } = useContext(WebContext);
     const [ histories, setHistories ] = useState<History[]>([]);
     const [ tag, setTag ] = useState<Tag>(Tag.Posts);
     const [ sort, setSort ] = useState<QueryType>(QueryType.Boost);
     const [ isDropdown, setIsDropdown ] = useState<boolean>(false);
-    
-    const [ myPosts, setMyPosts ] = useState<Post[]>(() =>{
-        let posts: Post[] = [];
-        for (var i = 0; i < shownPosts.length; i ++) {
-            const p = shownPosts[i];
-            console.log('this post is posted by ' + p.epoch_key + ', is author: ' + p.isAuthor);
-            if (p.isAuthor) {
-                posts = [...posts, p];
-            }
-        }
-        return posts;
-    });
-
-    const [ myComments, setMyComments ] = useState<Comment[]>(() => {
-        console.log('set my comments');
-        let comments: Comment[] = [];
-        for (var i = 0; i < shownPosts.length; i ++) {
-            for (var j = 0; j < shownPosts[i].comments.length; j ++) {
-                if (shownPosts[i].comments[j].isAuthor) {
-                    comments = [...comments, shownPosts[i].comments[j]];
-                }
-            }
-        }
-        return comments;
-    });
+    const [ myPosts, setMyPosts ] = useState<Post[]>([]);
+    const [ myComments, setMyComments ] = useState<Comment[]>([]);
 
     const [ received, setReceived ] = useState<number[]>([0, 0, 0]); // airdrop, boost, squash
     const [ spent, setSpent ] = useState<number[]>([0, 0, 0, 0]); // post, comment, boost, squash
@@ -158,48 +31,68 @@ const UserPage = () => {
         if (!isLoading) {}
     }
 
-    useEffect (() => {
-        const getHistory = async () => {
-            console.log('get history');
-            if (user !== null) {
-                const ret = await getRecords(user.current_epoch, user.identity);
-                setHistories(ret);
-                let r: number[] = [0, 0, 0];
-                let s: number[] = [0, 0, 0, 0];
-                
-                ret.forEach(h => {
-                    const isReceived = user.epoch_keys.indexOf(h.to) !== -1;
-                    const isSpent = user.epoch_keys.indexOf(h.from) !== -1;
-                    if (isReceived) {
-                        console.log(h.to + 'is receiver, is me, ' + h.upvote);
-                        // right stuff
-                        if (h.action === ActionType.UST) {
-                            r[0] += h.upvote;
-                        } else if (h.action === ActionType.Vote) {
-                            r[1] += h.upvote;
-                            r[2] += h.downvote;
-                        }
-                    } 
+    const getUserPosts = async () => { 
+        const ret = await getPostsByQuery(sort, '0', user? user.all_epoch_keys : []);
+        setMyPosts(ret);
+        console.log(ret);
+    }
 
-                    if (isSpent) {
-                        console.log(h.from + 'is giver, is me, ' + h.downvote);
-                        if (h.action === ActionType.Post) {
-                            s[0] += h.downvote;
-                        } else if (h.action === ActionType.Comment) {
-                            s[1] += h.downvote;
-                        } else if (h.action === ActionType.Vote) {
-                            s[2] += h.upvote;
-                            s[3] += h.downvote;
-                        }
+    const getUserComments = async () => { 
+        const ret = await getCommentsByQuery(sort, '0', user? user.all_epoch_keys : []);
+        setMyComments(ret);
+        console.log(ret);
+    }
+    
+    const getUserRecords = async () => { 
+        if (user !== null) {
+            const ret = await getRecords(user.current_epoch, user.identity);
+            setHistories(ret);
+            let r: number[] = [0, 0, 0];
+            let s: number[] = [0, 0, 0, 0];
+            
+            ret.forEach(h => {
+                const isReceived = user.epoch_keys.indexOf(h.to) !== -1;
+                const isSpent = user.epoch_keys.indexOf(h.from) !== -1;
+                if (isReceived) {
+                    console.log(h.to + 'is receiver, is me, ' + h.upvote);
+                    // right stuff
+                    if (h.action === ActionType.UST) {
+                        r[0] += h.upvote;
+                    } else if (h.action === ActionType.Vote) {
+                        r[1] += h.upvote;
+                        r[2] += h.downvote;
                     }
-                });
-                setReceived(r);
-                setSpent(s);
-                console.log(s);
-            }
+                } 
+
+                if (isSpent) {
+                    console.log(h.from + 'is giver, is me, ' + h.downvote);
+                    if (h.action === ActionType.Post) {
+                        s[0] += h.downvote;
+                    } else if (h.action === ActionType.Comment) {
+                        s[1] += h.downvote;
+                    } else if (h.action === ActionType.Vote) {
+                        s[2] += h.upvote;
+                        s[3] += h.downvote;
+                    }
+                }
+            });
+            setReceived(r);
+            setSpent(s);
+            console.log(s);
+        }
+    }
+
+    useEffect (() => {
+        const getUserData = async () => {
+            console.log('get my posts');
+            await getUserPosts();
+            console.log('get my comments');
+            await getUserComments();
+            console.log('get history');
+            await getUserRecords();
         }
 
-        getHistory();
+        getUserData();
 
     }, []);
 
@@ -292,7 +185,7 @@ const UserPage = () => {
                                                 <div className="menu-choice" onClick={() => setSortType(QueryType.Rep)}><img src="/images/unirep-fill.svg"/>Rep</div>
                                             </div> :
                                         <div className="menu-choice isChosen">
-                                            <img src={`/images/${sort}-fill.svg`}/>
+                                            <img src={`/images/${sort === QueryType.Rep? 'unirep' : sort}-fill.svg`}/>
                                             <span>{sort.charAt(0).toUpperCase() + sort.slice(1)}</span>
                                             <img src="/images/arrow-down.svg" />
                                         </div>

@@ -68,41 +68,6 @@ const LoginPage = () => {
                 userState: userState.toJSON(),
             });
 
-            setShownPosts([...shownPosts].map(p => {
-                let isUpvoted: boolean = false, isDownvoted: boolean = false;
-                p.votes.forEach(v => {
-                    const e = epks.find(_e => _e === v.epoch_key);
-                    if (e !== undefined) {
-                        if (v.upvote > 0) {
-                            isUpvoted = true;
-                        }
-                        if (v.downvote > 0) {
-                            isDownvoted = true;
-                        }
-                    }
-                });
-                let comments = [...p.comments].map(c => {
-                    let isUpvotedC: boolean = false, isDownvotedC: boolean = false;
-                    c.votes.forEach(v => {
-                        const e = epks.find(_e => _e === v.epoch_key);
-                        if (e !== undefined) {
-                            if (v.upvote > 0) {
-                                isUpvotedC = true;
-                            }
-                            if (v.downvote > 0) {
-                                isDownvotedC = true;
-                            }
-                        }
-                    });
-                    let isAuthorC: boolean = epks.find(_e => _e === c.epoch_key) !== undefined;
-                    let newComment: Comment = {...c, isAuthor: isAuthorC};
-                    return newComment;
-                });
-                let isAuthor: boolean = epks.find(_e => _e === p.epoch_key) !== undefined;
-                let newPost: Post = {...p, isAuthor, comments};
-                return newPost;
-            }));
-
             const nextET = await getNextEpochTime();
             setNextUSTTime(nextET);
 

@@ -23,7 +23,7 @@ const PostPage = () => {
 
     useEffect(() => {
         const setPost = async () => {
-            const ret = await getPostById(user? user.epoch_keys : [], id);
+            const ret = await getPostById(id);
             setPostToShow(ret);
         }
 

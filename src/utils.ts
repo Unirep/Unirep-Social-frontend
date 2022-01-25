@@ -138,7 +138,7 @@ export const getEpochKeys = (identity: string, epoch: number) => {
         const tmp = getEpochKey(i, identityNullifier, epoch);
         epks = [...epks, tmp];
     }
-    console.log(epks)
+    // console.log(epks)
 
     return epks;
 }
@@ -621,7 +621,8 @@ export const getEpochSpent = async (epks: string[]) => {
     );
 }
 
-const convertDataToVotes = (data: any, epks: string[]) => {
+const convertDataToVotes = (data: any) => {
+    if (data === null || data === undefined) return {votes: [], upvote: 0, downvote: 0};
     let votes: Vote[] = [];
     let upvote: number = 0;
     let downvote: number = 0;
@@ -641,35 +642,38 @@ const convertDataToVotes = (data: any, epks: string[]) => {
     return {votes, upvote, downvote};
 }
 
-const convertDataToPost = (data: any, epks: string[], commentsOnlyId: boolean = true) => {
+const convertDataToComment = (data: any) => {
+    const {votes, upvote, downvote} = convertDataToVotes(data.votes); 
+    const comment = {
+        type: DataType.Comment,
+        id: data.transactionHash,
+        post_id: data.postId,
+        content: data.content,
+        votes,
+        upvote,
+        downvote,
+        epoch_key: data.epochKey,
+        username: '',
+        post_time: Date.parse(data.created_at),
+        reputation: data.minRep,
+        current_epoch: data.epoch,
+        proofIndex: data.proofIndex,
+    }
+
+    return comment;
+}
+
+const convertDataToPost = (data: any, commentsOnlyId: boolean = true) => {
     
-    const {votes, upvote, downvote} = convertDataToVotes(data.votes, epks); 
+    const {votes, upvote, downvote} = convertDataToVotes(data.votes); 
 
     let comments: Comment[] = [];
     if (!commentsOnlyId) {
         for (var i = 0; i < data.comments.length; i ++) {
-            const votesRet= convertDataToVotes(data.comments[i].votes, epks);
-            const comment = {
-                type: DataType.Comment,
-                id: data.comments[i].transactionHash,
-                post_id: data.comments[i].postId,
-                content: data.comments[i].content,
-                votes: votesRet.votes,
-                upvote: votesRet.upvote,
-                downvote: votesRet.downvote,
-                epoch_key: data.comments[i].epochKey,
-                username: '',
-                post_time: Date.parse(data.comments[i].created_at),
-                reputation: data.comments[i].minRep,
-                isAuthor: epks.indexOf(data.comments[i].epochKey) !== -1,
-                current_epoch: data.comments[i].epoch,
-                proofIndex: data.comments[i].proofIndex,
-            }
+            const comment = convertDataToComment(data.comments[i]);
             comments = [...comments, comment];
         }
     }
-    
-    
 
     const post: Post = {
         type: DataType.Post,
@@ -679,7 +683,6 @@ const convertDataToPost = (data: any, epks: string[], commentsOnlyId: boolean = 
         votes,
         upvote,
         downvote, 
-        isAuthor: epks.indexOf(data.epochKey) !== -1,
         epoch_key: data.epochKey,
         username: '',
         post_time: Date.parse(data.created_at),
@@ -693,7 +696,7 @@ const convertDataToPost = (data: any, epks: string[], commentsOnlyId: boolean = 
     return post;
 }
 
-export const listAllPosts = async (epks: string[]) => {
+export const listAllPosts = async () => {
     const apiURL = makeURL(`post`, {});
     
     let ret: Post[] = [];
@@ -701,7 +704,7 @@ export const listAllPosts = async (epks: string[]) => {
         data => {
             console.log(data);
             for (var i = 0; i < data.length; i ++) {
-                const post = convertDataToPost(data[i], epks);
+                const post = convertDataToPost(data[i]);
                 ret = [...ret, post];
             }
         }
@@ -710,20 +713,20 @@ export const listAllPosts = async (epks: string[]) => {
     return ret;
 }
 
-export const getPostById = async (epks: string[], postid: string) => {
+export const getPostById = async (postid: string) => {
     const apiURL = makeURL(`post/${postid}`, {});
     let ret: any;
     await fetch(apiURL).then(response => response.json()).then(
         data => {
             console.log(data);
-            ret = convertDataToPost(data, epks, false);
+            ret = convertDataToPost(data, false);
         }
     );
     return ret;
 }
 
-export const getPostsByQuery = async (epks: string[], query: QueryType, lastRead: string = '0') => {
-    const apiURL = makeURL(`post`, {query, lastRead});
+export const getPostsByQuery = async (query: QueryType, lastRead: string = '0', epks: string[] = []) => {
+    const apiURL = makeURL(`post`, {query, lastRead, epks: epks.join('_')});
     console.log(apiURL);
 
     let ret: Post[] = [];
@@ -731,8 +734,26 @@ export const getPostsByQuery = async (epks: string[], query: QueryType, lastRead
         data => {
             console.log(data);
             for (var i = 0; i < data.length; i ++) {
-                const post = convertDataToPost(data[i], epks);
+                const post = convertDataToPost(data[i]);
                 ret = [...ret, post];
+            }
+        }
+    );
+
+    return ret;
+}
+
+export const getCommentsByQuery = async (query: QueryType, lastRead: string = '0', epks: string[] = []) => {
+    const apiURL = makeURL(`comment`, {query, lastRead, epks: epks.join('_')});
+    console.log(apiURL);
+
+    let ret: Comment[] = [];
+    await fetch(apiURL).then(response => response.json()).then(
+        data => {
+            console.log(data);
+            for (var i = 0; i < data.length; i ++) {
+                const comment = convertDataToComment(data[i]);
+                ret = [...ret, comment];
             }
         }
     );

@@ -14,9 +14,8 @@ const CommentsList = ({comments, page, loadMoreComments}: Props) => {
         <div className="post-list">
             {comments.length > 0? (
                 comments.map((comment, i) => (
-                    <div className="post-block">
+                    <div className="post-block" key={comment.id}>
                         <CommentBlock 
-                            key={comment.id} 
                             comment={comment} 
                             page={page}
                         />

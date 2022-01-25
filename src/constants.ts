@@ -39,7 +39,6 @@ export interface Comment {
     username: string,
     post_time: number,
     reputation: number,
-    isAuthor: boolean,
     current_epoch: number,
     proofIndex: number,
 }
@@ -58,7 +57,6 @@ export interface Post {
     reputation: number,
     comments: Comment[],
     commentsCount: number,
-    isAuthor: boolean,
     current_epoch: number,
     proofIndex: number,
 }
