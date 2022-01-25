@@ -49,12 +49,12 @@ const PostsWidget = () => {
         let hasUserPost: boolean = false;
         sortedPosts.forEach((post, i) => {
             if (i < 3) {
-                console.log('i < 3, add post! ' + i);
+                // console.log('i < 3, add post! ' + i);
                 const p = {post, rank: i}
                 posts = [...posts, p];
             } else {
-                console.log('i >= 3, check post!');
-                console.log(i);
+                // console.log('i >= 3, check post!');
+                // console.log(i);
                 if (!hasUserPost && isAuthor(post, user?.all_epoch_keys)) {
                     const p = {post, rank: i}
                     posts = [...posts, p];

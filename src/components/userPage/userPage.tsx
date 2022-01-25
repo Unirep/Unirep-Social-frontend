@@ -31,15 +31,23 @@ const UserPage = () => {
         if (!isLoading) {}
     }
 
-    const getUserPosts = async () => { 
-        const ret = await getPostsByQuery(sort, '0', user? user.all_epoch_keys : []);
-        setMyPosts(ret);
+    const getUserPosts = async (sort: QueryType, lastRead: string = '0') => { 
+        const ret = await getPostsByQuery(sort, lastRead, user? user.all_epoch_keys : []);
+        if (lastRead !== '0') {
+            setMyPosts([...myPosts, ...ret]);
+        } else {
+            setMyPosts(ret);
+        }
         console.log(ret);
     }
 
-    const getUserComments = async () => { 
-        const ret = await getCommentsByQuery(sort, '0', user? user.all_epoch_keys : []);
-        setMyComments(ret);
+    const getUserComments = async (sort: QueryType, lastRead: string = '0') => { 
+        const ret = await getCommentsByQuery(sort, lastRead, user? user.all_epoch_keys : []);
+        if (lastRead !== '0') {
+            setMyComments([...myComments, ...ret]);
+        } else {
+            setMyComments(ret);
+        }
         console.log(ret);
     }
     
@@ -47,6 +55,7 @@ const UserPage = () => {
         if (user !== null) {
             const ret = await getRecords(user.current_epoch, user.identity);
             setHistories(ret);
+            resortRecords(QueryType.New, ret);
             let r: number[] = [0, 0, 0];
             let s: number[] = [0, 0, 0, 0];
             
@@ -54,7 +63,7 @@ const UserPage = () => {
                 const isReceived = user.epoch_keys.indexOf(h.to) !== -1;
                 const isSpent = user.epoch_keys.indexOf(h.from) !== -1;
                 if (isReceived) {
-                    console.log(h.to + 'is receiver, is me, ' + h.upvote);
+                    // console.log(h.to + 'is receiver, is me, ' + h.upvote);
                     // right stuff
                     if (h.action === ActionType.UST) {
                         r[0] += h.upvote;
@@ -65,7 +74,7 @@ const UserPage = () => {
                 } 
 
                 if (isSpent) {
-                    console.log(h.from + 'is giver, is me, ' + h.downvote);
+                    // console.log(h.from + 'is giver, is me, ' + h.downvote);
                     if (h.action === ActionType.Post) {
                         s[0] += h.downvote;
                     } else if (h.action === ActionType.Comment) {
@@ -78,16 +87,24 @@ const UserPage = () => {
             });
             setReceived(r);
             setSpent(s);
-            console.log(s);
         }
+    }
+
+    const resortRecords = (s: QueryType, hs: History[]) => {
+        if (s === QueryType.New) {
+            hs.sort((a, b) => a.time > b.time? -1 : 1);
+        } else if (s === QueryType.Rep) {
+            hs.sort((a, b) => a.upvote + a.downvote > b.upvote + b.downvote? -1 : 1);
+        }
+        setHistories(hs);
     }
 
     useEffect (() => {
         const getUserData = async () => {
             console.log('get my posts');
-            await getUserPosts();
+            await getUserPosts(sort);
             console.log('get my comments');
-            await getUserComments();
+            await getUserComments(sort);
             console.log('get history');
             await getUserRecords();
         }
@@ -113,9 +130,32 @@ const UserPage = () => {
         }
     }
 
-    const setSortType = (sort: QueryType) => {
-        setSort(sort);
+    const setSortType = async (s: QueryType) => {
+        setSort(s);
+        if (tag === Tag.Posts || tag === Tag.Comments) {
+            await getUserPosts(s);
+            await getUserComments(s);
+        } else {
+            resortRecords(s, histories);
+        }
+        
         setIsDropdown(false);
+    }
+
+    const loadMorePosts = async () => {
+        if (myPosts.length > 0) {
+            await getUserPosts(sort, myPosts[myPosts.length-1].id);
+        } else {
+            await getUserPosts(sort);
+        }
+    }
+
+    const loadMoreComments = async () => {
+        if (myComments.length > 0) {
+            await getUserComments(sort, myComments[myComments.length-1].id);
+        } else {
+            await getUserComments(sort);
+        }
     }
 
     return (
@@ -171,38 +211,39 @@ const UserPage = () => {
                                 <div className="line"></div>
                                 <div className={tag === Tag.Activity? "tag underline" : "tag"} onClick={() => setTagPage(Tag.Activity)}>Activity</div>
                             </div>
-                            <div className={isDropdown? "dropdown isDropdown" : "dropdown"} onClick={switchDropdown}>
-                                {
-                                    isDropdown? 
-                                        tag !== Tag.Activity?
-                                            <div>
-                                                <div className="menu-choice" onClick={() => setSortType(QueryType.Boost)}><img src="/images/boost-fill.svg"/>Boost</div>
-                                                <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src="/images/new-fill.svg"/>New</div>
-                                                <div className="menu-choice" onClick={() => setSortType(QueryType.Squash)}><img src="/images/squash-fill.svg"/>Squash</div>
-                                            </div> : 
-                                            <div>
-                                                <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src="/images/new-fill.svg"/>New</div>
-                                                <div className="menu-choice" onClick={() => setSortType(QueryType.Rep)}><img src="/images/unirep-fill.svg"/>Rep</div>
-                                            </div> :
+                            {
+                                isDropdown? 
+                                    tag !== Tag.Activity?
+                                        <div className="dropdown isDropdown" onClick={switchDropdown} style={{height: `${40*3}px`}}>
+                                            <div className="menu-choice" onClick={() => setSortType(QueryType.Boost)}><img src="/images/boost-fill.svg"/>Boost</div>
+                                            <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src="/images/new-fill.svg"/>New</div>
+                                            <div className="menu-choice" onClick={() => setSortType(QueryType.Squash)}><img src="/images/squash-fill.svg"/>Squash</div>
+                                        </div> : 
+                                        <div className="dropdown isDropdown" onClick={switchDropdown} style={{height: `${40*2}px`}}>
+                                            <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src="/images/new-fill.svg"/>New</div>
+                                            <div className="menu-choice" onClick={() => setSortType(QueryType.Rep)}><img src="/images/unirep-fill.svg"/>Rep</div>
+                                        </div> :
+                                    <div className="dropdown" onClick={switchDropdown}>
                                         <div className="menu-choice isChosen">
                                             <img src={`/images/${sort === QueryType.Rep? 'unirep' : sort}-fill.svg`}/>
                                             <span>{sort.charAt(0).toUpperCase() + sort.slice(1)}</span>
                                             <img src="/images/arrow-down.svg" />
                                         </div>
-                                }
-                            </div>
+                                    </div>
+                                    
+                            }
                         </div> 
                         <div className="user-page-content">
                             {
                                 tag === Tag.Posts? 
                                     <PostsList 
                                         posts={myPosts}
-                                        loadMorePosts={() => {}}
+                                        loadMorePosts={loadMorePosts}
                                     /> : tag === Tag.Comments?
                                     <CommentsList 
                                         comments={myComments}
                                         page={Page.User}
-                                        loadMoreComments={() => {}}
+                                        loadMoreComments={loadMoreComments}
                                     /> : <div>
                                         {
                                             histories.map((h, i) => 

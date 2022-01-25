@@ -1,6 +1,7 @@
 // import BlockButton from './blockButton';
 import { Comment, Page, ButtonType } from '../../constants';
 import dateformat from 'dateformat';
+import { useHistory } from 'react-router-dom';
 import BlockButton from './blockButton';
 
 type Props = {
@@ -10,6 +11,13 @@ type Props = {
 
 const CommentBlock = ({comment, page}: Props) => {
     const date = dateformat(new Date(comment.post_time), "dd/mm/yyyy hh:MM TT");
+    const history = useHistory();
+
+    const gotoPost = () => {
+        if (page === Page.User) {
+            history.push(`/post/${comment.post_id}`, {commentId: comment.id})
+        }
+    }
 
     return (
         <div className="comment-block">
@@ -21,7 +29,7 @@ const CommentBlock = ({comment, page}: Props) => {
                     <img src="/images/etherscan.svg" />
                 </a>
             </div>
-            <div className="block-content no-padding-horizontal">{comment.content}</div>
+            <div className="block-content no-padding-horizontal" onClick={gotoPost}>{comment.content}</div>
             <div className="block-buttons no-padding">
                 <BlockButton type={ButtonType.Boost} count={comment.upvote} data={comment} />
                 <BlockButton type={ButtonType.Squash} count={comment.downvote} data={comment} />

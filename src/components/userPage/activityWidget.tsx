@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import dateformat from 'dateformat';
 import { History, ActionType } from '../../constants';
@@ -17,23 +17,26 @@ type Info = {
 const ActivityWidget = ({ history, isSpent }: Props) => {
     const { shownPosts } = useContext(WebContext);
     const [date, setDate] = useState<string>(dateformat(new Date(history.time), "dd/mm/yyyy hh:MM TT"));
-    const [info, setInfo] = useState<Info>(() => {
-        if (history.action === ActionType.Post) {
-            return {who: 'I (' + history.from + ')', action: 'created a post'}
-        } else if (history.action === ActionType.Comment) {
-            return {who: 'I (' + history.from + ')', action: 'commented on a post'}
-        } else if (history.action === ActionType.UST) {
+    
+    const translateInfo = (h: History) => {
+        if (h.action === ActionType.Post) {
+            return {who: 'I (' + h.from + ')', action: 'created a post'}
+        } else if (h.action === ActionType.Comment) {
+            return {who: 'I (' + h.from + ')', action: 'commented on a post'}
+        } else if (h.action === ActionType.UST) {
             return {who: 'UniRep Social', action: 'Epoch Rep drop'}
-        } else if (history.action === ActionType.Signup) {
+        } else if (h.action === ActionType.Signup) {
             return {who: 'Unirep Social', action: 'Sign Up Rep drop'}
         } else {
             if (isSpent) {
-                return {who: 'I (' + history.from + ')', action: history.upvote > 0? 'boosted this post' : 'squashed this post'};
+                return {who: 'I (' + h.from + ')', action: h.upvote > 0? 'boosted this post' : 'squashed this post'};
             } else {
-                return {who: history.from, action: history.upvote > 0? 'boosted this post' : 'squashed this post'};
+                return {who: h.from, action: h.upvote > 0? 'boosted this post' : 'squashed this post'};
             }
         }
-    });
+    }
+    
+    const [info, setInfo] = useState<Info>(() => translateInfo(history));
     const [data, setData] = useState(() => {
         if (history.data_id === '0') {
             return null;
@@ -51,6 +54,12 @@ const ActivityWidget = ({ history, isSpent }: Props) => {
             return shownPosts.find(post => post.id === id[0]);
         }
     });
+
+    
+
+    useEffect(() => {
+        setInfo(translateInfo(history));
+    }, [history])
 
     const routerHistory = useHistory();
 
