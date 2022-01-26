@@ -4,11 +4,11 @@ import { useContext, useState, useEffect } from 'react';
 import './loginPage.scss';
 import { WebContext } from '../../context/WebContext'; 
 import { getEpochKeys, hasSignedUp, getUserState, userStateTransition, getAirdrop, getNextEpochTime, getEpochSpent } from '../../utils';
-import { Post, Comment } from '../../constants';
+import LoadingCover from '../loadingCover/loadingCover';
 
 const LoginPage = () => {
     const history = useHistory();
-    const { user, setUser, setNextUSTTime, shownPosts, setShownPosts } = useContext(WebContext);
+    const { user, setUser, setNextUSTTime, isLoading, setIsLoading } = useContext(WebContext);
     const [input, setInput] = useState<string>('');
     const [errorMsg, setErrorMsg] = useState<string>('');
 
@@ -26,6 +26,8 @@ const LoginPage = () => {
         if(userSignUpResult.hasSignedUp === false) {
             setErrorMsg('Incorrect private key. Please try again.')
         } else if (userSignUpResult.hasSignedUp) {
+            setIsLoading(true);
+
             const userStateResult = await getUserState(input, user?.userState);
             const userEpoch = userStateResult.userState.latestTransitionedEpoch;
             let userState: any = userStateResult.userState;
@@ -71,6 +73,7 @@ const LoginPage = () => {
             const nextET = await getNextEpochTime();
             setNextUSTTime(nextET);
 
+            setIsLoading(false);
             history.push('/');
         }
     }
@@ -94,6 +97,7 @@ const LoginPage = () => {
                     <div className="go-to-signup">Got an invitation code? <span>Join here</span></div>
                 </div>
             </div>
+            { isLoading? <LoadingCover /> : <div></div>}
         </div>
     );
 }

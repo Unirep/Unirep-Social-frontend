@@ -7,8 +7,8 @@
     z-index: 15;
 
     .loading-block {
-        width: 300px;
-        height: 221px;
+        width: 280px;
+        height: 320px;
         background-color: $grey-700;
         border-radius: 8px;
         color: $white;
@@ -35,8 +35,10 @@
             align-items: center;
             
             width: 100%;
-            padding-left: 16px;
-            padding-right: 16px;
+            padding-left: 28px;
+            padding-right: 28px;
+            margin-top: 16px;
+            text-align: center;
             
             span {
                 cursor: pointer;

@@ -4,10 +4,11 @@ import { useContext, useState, useEffect } from 'react';
 import './signupPage.scss';
 import { WebContext } from '../../context/WebContext';
 import { getEpochKeys, getUserState, getAirdrop, getNextEpochTime, checkInvitationCode, userSignUp} from '../../utils';
+import LoadingCover from '../loadingCover/loadingCover';
 
 const SignupPage = () => {
     const history = useHistory();
-    const { user, setUser, setNextUSTTime } = useContext(WebContext);
+    const { user, setUser, setNextUSTTime, isLoading, setIsLoading } = useContext(WebContext);
     const [invitationCode, setInvitationCode] = useState<string>('');
     const [step, setStep] = useState<number>(0);
     const [identity, setIdentity] = useState<string>('');
@@ -64,6 +65,8 @@ const SignupPage = () => {
                 setStep(3);
             }
         } else if (step === 3) {
+            setIsLoading(true);
+
             const userStateResult = await getUserState(identity);
             const currentRep = userStateResult.userState.getRepByAttester(BigInt(userStateResult.attesterId));
             const epks = getEpochKeys(identity, userStateResult.currentEpoch);
@@ -91,6 +94,7 @@ const SignupPage = () => {
             const nextET = await getNextEpochTime();
             setNextUSTTime(nextET);
 
+            setIsLoading(false);
             history.push('/');
         }
     }
@@ -156,6 +160,7 @@ const SignupPage = () => {
                     <div className="added-info">Need an invitation code? <span>Request here</span></div>
                 </div>
             </div>
+            { isLoading? <LoadingCover /> : <div></div> }
         </div>
     );
 }
