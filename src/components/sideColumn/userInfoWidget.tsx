@@ -13,7 +13,7 @@ const UserInfoWidget = () => {
 
     const makeCountdownText = () => {
         const diff = (nextUSTTime - Date.now()) / 1000;
-        // setDiffTime(diff);
+        setDiffTime(diff);
 
         if (diff <= 0 && user !== null) {
             if (action === null) {
@@ -47,15 +47,13 @@ const UserInfoWidget = () => {
 
     useEffect(
         () => {
-            makeCountdownText();
-            
             const timer = setTimeout(() => {
                 setCountdownText(makeCountdownText());
             }, 1000);
 
             return () => clearTimeout(timer);
         }
-    );
+    , [diffTime]);
 
     return (
         <div>
