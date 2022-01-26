@@ -19,7 +19,6 @@ const PostsList = ({ posts, loadMorePosts }: Props) => {
                         key={post.id + i} 
                         post={post} 
                         page={Page.Home}
-                        commentId={undefined}
                     />
                 ))
             }

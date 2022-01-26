@@ -64,7 +64,6 @@ const UserPage = () => {
         } else {
             setMyPosts(ret);
         }
-        console.log(ret);
     }
 
     const getUserComments = async (sort: QueryType, lastRead: string = '0') => { 
@@ -74,7 +73,6 @@ const UserPage = () => {
         } else {
             setMyComments(ret);
         }
-        console.log(ret);
     }
     
     const getUserRecords = async () => { 
@@ -131,7 +129,7 @@ const UserPage = () => {
             await getUserPosts(sort);
             console.log('get my comments');
             await getUserComments(sort);
-            console.log('get history');
+            console.log('get records');
             await getUserRecords();
         }
 
@@ -275,7 +273,7 @@ const UserPage = () => {
                                             records.map((h, i) => 
                                                 <ActivityWidget 
                                                     key={i} 
-                                                    history={h}
+                                                    record={h}
                                                     isSpent={user.all_epoch_keys.indexOf(h.from) !== -1}
                                                 />
                                             )

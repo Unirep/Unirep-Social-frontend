@@ -105,7 +105,7 @@
                 .rep-description {
                     position: absolute;
                     bottom: 28px;
-                    left: -32px;
+                    left: 0px;
                     color: $white;
                     background-color: $grey-800;
                     font-size: $text-xs;
@@ -212,99 +212,109 @@
     margin-top: 24px;
 }
 
-.activity-widget {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    border-radius: 8px;
-    border: 8px solid $grey-100;
-    margin-bottom: 24px;
+.link {
+    text-decoration: none;
+    color: $grey-700;
 
-    .main {
-        flex: 11;
-
-        .header {
-            width: 100%;
-            border-bottom: 1px solid $grey-100;
-            font-size: $text-xs;
-            color: $grey-700;
-            display: flex;
-            flex-direction: row;
-            padding: 16px 24px;
-    
-            p {
-                margin-right: auto;
-                margin-bottom: 0px;
-            }
-    
-            .etherscan {
-                cursor: pointer;
-    
-                img {
-                    margin-left: 6px;
-                    width: 13px;
-                    height: 13px;
-                }
-            }
-        }
-
-        .main-info {
-
-            &:hover {
-                background-color: $grey-100;
-                cursor: pointer;
-            }
-
-            .who {
-                width: 100%;
-                padding: 16px 24px;
-                font-size: $text-xs;
-                color: $grey-700;
-                
-                img {
-                    width: 16px;
-                }
-            }
-    
-            .data {
-                color: $black;
-                width: 100%;
-                padding: 0px 24px 16px 24px;
-    
-                .title {
-                    font-size: $title-sm;
-                    font-weight: 600;
-                    margin-bottom: 16px;
-                }
-    
-                .content {
-                    font-size: $text-base;
-                }
-            }
-        }  
+    &:hover {
+        color: $grey-700;
     }
 
-    .side {
-        flex: 3;
+    .activity-widget {
+        width: 100%;
         display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-
-        .amount {
-            font-size: $text-md;
-            font-weight: 600;
-        }
-
-        .type {
-            font-size: $text-xs;
-            color: $grey-400;
-
-            img {
-                width: 16px;
-                height: 16px;
-                margin-right: 4px;
+        flex-direction: row;
+        border-radius: 8px;
+        border: 8px solid $grey-100;
+        margin-bottom: 24px;
+    
+        .main {
+            flex: 11;
+    
+            .header {
+                width: 100%;
+                border-bottom: 1px solid $grey-100;
+                font-size: $text-xs;
+                color: $grey-700;
+                display: flex;
+                flex-direction: row;
+                padding: 16px 24px;
+        
+                p {
+                    margin-right: auto;
+                    margin-bottom: 0px;
+                }
+        
+                .etherscan {
+                    cursor: pointer;
+        
+                    img {
+                        margin-left: 6px;
+                        width: 13px;
+                        height: 13px;
+                    }
+                }
             }
+    
+            .main-info {
+    
+                &:hover {
+                    background-color: $grey-100;
+                    cursor: pointer;
+                }
+    
+                .who {
+                    width: 100%;
+                    padding: 16px 24px;
+                    font-size: $text-xs;
+                    color: $grey-700;
+                    
+                    img {
+                        width: 16px;
+                    }
+                }
+        
+                .data {
+                    color: $black;
+                    width: 100%;
+                    padding: 0px 24px 16px 24px;
+        
+                    .title {
+                        font-size: $title-sm;
+                        font-weight: 600;
+                        margin-bottom: 16px;
+                    }
+        
+                    .content {
+                        font-size: $text-base;
+                    }
+                }
+            }  
         }
-    }    
+    
+        .side {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+    
+            .amount {
+                font-size: $text-md;
+                font-weight: 600;
+            }
+    
+            .type {
+                font-size: $text-xs;
+                color: $grey-400;
+    
+                img {
+                    width: 16px;
+                    height: 16px;
+                    margin-right: 4px;
+                }
+            }
+        }    
+    }
 }
+

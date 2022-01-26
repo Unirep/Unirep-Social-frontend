@@ -88,6 +88,7 @@ export interface Record {
     epoch: number,
     time: number,
     data_id: string,
+    content: string,
 }
 
 export type FeedChoices = {

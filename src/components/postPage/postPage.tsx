@@ -10,11 +10,7 @@ import { getPostById } from '../../utils';
 import './postPage.scss';
 
 const PostPage = () => {
-    const { user } = useContext(WebContext);
     const { id } = useParams<Params>();
-    const location = useLocation<Location>();
-    const state = JSON.parse(JSON.stringify(location.state));
-    const commentId = state.commentId;
     const [postToShow, setPostToShow] = useState<Post|undefined>();
 
     const [isUpVoteBoxOn, setIsUpVoteBoxOn] = useState(false);
@@ -51,7 +47,6 @@ const PostPage = () => {
                                 <PostBlock 
                                     post={postToShow} 
                                     page={Page.Post}
-                                    commentId={commentId}
                                 />
                         }  
                     </div>

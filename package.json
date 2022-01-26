@@ -26,6 +26,7 @@
     "react-icons": "^4.2.0",
     "react-jdenticon": "^0.0.9",
     "react-router-dom": "^5.2.0",
+    "react-router-hash-link": "^2.4.3",
     "react-scripts": "4.0.3",
     "serve": "^13.0.2",
     "snarkjs": "^0.3.59",

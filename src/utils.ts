@@ -552,12 +552,13 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
     const commitmentAPIURL = makeURL(`records`, {commitment})
     const paramStr = epks.join('_');
     const apiURL = makeURL(`records/${paramStr}`, {});
+    console.log(apiURL);
 
     const getCommitment = new Promise<Record>(resolve => {
         fetch(commitmentAPIURL).then(response => response.json()).then(
             (data) => {
                 if(data.length === 0) return;
-                const history: Record = {
+                const signupRecord: Record = {
                     action: ActionType.Signup,
                     from: 'SignUp Airdrop',
                     to: data[0].to,
@@ -566,8 +567,9 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
                     epoch: data[0].epoch,
                     time: Date.parse(data[0].created_at),
                     data_id: '',
+                    content: ''
                 }
-                resolve(history);
+                resolve(signupRecord);
             }
         );
     });
@@ -575,9 +577,9 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
     const getGeneralRecords = new Promise<Record[]>(resolve => {
         fetch(apiURL).then(response => response.json()).then(
             (data) => {
-                let ret: Record[] = [];
+                let records: Record[] = [];
                 for (var i = 0; i < data.length; i ++) {
-                    const history: Record = {
+                    const record: Record = {
                         action: data[i].action,
                         from: data[i].from,
                         to: data[i].to,
@@ -586,10 +588,13 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
                         epoch: data[i].epoch,
                         time: Date.parse(data[i].created_at),
                         data_id: data[i].data,
+                        content: data[i].content,
                     }
-                    ret = [history, ...ret];
+                    records = [record, ...records];
                 }
-                resolve(ret);
+                console.log(data.length);
+                console.log(records);
+                resolve(records);
             }
         );
     });
