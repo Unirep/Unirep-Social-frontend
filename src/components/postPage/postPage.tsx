@@ -2,8 +2,6 @@ import { useContext, useState, useEffect } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { Location } from 'history';
 import { Page, Params, Post } from '../../constants';
-import { WebContext } from '../../context/WebContext';
-import { PostPageContext } from '../../context/PostPageContext';
 import PostBlock from '../postBlock/postBlock';
 import SideColumn from '../sideColumn/sideColumn';
 import { getPostById } from '../../utils';
@@ -35,26 +33,21 @@ const PostPage = () => {
     return (
         <div className="wrapper">
             <div className="default-gesture" onClick={closeAll}>
-                <PostPageContext.Provider value={{
-                        isPostPageUpVoteBoxOn: isUpVoteBoxOn, setIsPostPageUpVoteBoxOn: setIsUpVoteBoxOn, 
-                        isPostPageDownVoteBoxOn: isDownVoteBoxOn, setIsPostPageDownVoteBoxOn: setIsDownVoteBoxOn,
-                        postPageVoteReceiver: voteReceiver, setPostPageVoteReceiver: setVoteReceiver,}}>
-                    <div className="margin-box"></div>
-                    <div className="main-content">
-                        {
-                            postToShow === undefined? 
-                                <div>No such post with id {id}.</div> : 
-                                <PostBlock 
-                                    post={postToShow} 
-                                    page={Page.Post}
-                                />
-                        }  
-                    </div>
-                    <div className="side-content">
-                        <SideColumn page={Page.Post} />
-                    </div>
-                    <div className="margin-box"></div>
-                </PostPageContext.Provider>
+                <div className="margin-box"></div>
+                <div className="main-content">
+                    {
+                        postToShow === undefined? 
+                            <div>No such post with id {id}.</div> : 
+                            <PostBlock 
+                                post={postToShow} 
+                                page={Page.Post}
+                            />
+                    }  
+                </div>
+                <div className="side-content">
+                    <SideColumn page={Page.Post} />
+                </div>
+                <div className="margin-box"></div>
             </div>
         </div> 
         
