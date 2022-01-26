@@ -18,7 +18,6 @@ type Props = {
 const WritingField = (props: Props) => {
 
     const defaultRep = props.type === DataType.Post? config.DEFAULT_POST_KARMA : config.DEFAULT_COMMENT_KARMA;
-    const history = useHistory();
 
     const { user, setIsLoading } = useContext(WebContext);
     const [ reputation, setReputation ] = useState(defaultRep);
@@ -26,7 +25,6 @@ const WritingField = (props: Props) => {
     const [ content, setContent ] = useState<string>('');
     const [ epkNonce, setEpkNonce ] = useState<number>(0);
     const [ errorMsg, setErrorMsg ] = useState<string>('');
-    const [ isDropdown, setIsDropdown ] = useState(false);
     const [ isBlockLoading, setIsBlockLoading ] = useState(false);
     const [percentage, setPercentage] = useState<number>(0);
 
@@ -40,18 +38,8 @@ const WritingField = (props: Props) => {
         }
     }, [percentage]);
 
-    const changeReputation = (event: any) => {
-        if (event.target.value === '') {
-            setReputation(defaultRep);
-        } else {
-            setReputation(event.target.value);
-        }
-        setErrorMsg('');
-    }
-
     const onClickField = (event: any) => {
         props.onClick(event);
-        setIsDropdown(false);
     }
 
     const handleTitleInput = (event: any) => {
@@ -74,6 +62,7 @@ const WritingField = (props: Props) => {
             setIsLoading(true);
             setPercentage(1);
             setIsBlockLoading(true);
+            console.log('before submit, the title is ' + title);
             props.submit(title, content, epkNonce, reputation);
         }
     }

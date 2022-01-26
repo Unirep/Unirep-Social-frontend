@@ -25,6 +25,7 @@ const NewPage = () => {
             console.error('not enter anything yet.');
         } else {
             const actionData = {
+                title,
                 content, 
                 epkNonce,
                 identity: user.identity, 

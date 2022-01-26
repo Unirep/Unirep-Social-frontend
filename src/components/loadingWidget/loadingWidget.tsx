@@ -31,9 +31,6 @@ const LoadingWidget = () => {
 
             const spentRet = await getEpochSpent(user? user.epoch_keys : []);
             console.log('in the head of loading widget, spent is: ' + spentRet);
-            if (user !== null) {
-                setUser({...user, spent: spentRet});
-            }
 
             if (action.action === ActionType.Post) {
                 data = await publishPost(
@@ -43,6 +40,7 @@ const LoadingWidget = () => {
                     0,
                     spentRet,
                     action.data.userState,
+                    action.data.title,
                 );
             } else if (action.action === ActionType.Comment) {
                 data = await leaveComment(
@@ -81,13 +79,13 @@ const LoadingWidget = () => {
 
                 if (action.action === ActionType.Post && user !== null) {
                     setSuccessPost(data.transaction);
-                    setUser({...user, spent: user.spent+5});
+                    setUser({...user, spent: spentRet+5});
                 } else if (action.action === ActionType.Vote && user !== null) {
                     setSuccessPost(action.data.data);
-                    setUser({...user, spent: user.spent+action.data.upvote+action.data.downvote});
+                    setUser({...user, spent: spentRet+action.data.upvote+action.data.downvote});
                 } else if (action.action === ActionType.Comment && user !== null) {
                     setSuccessPost(action.data.data + '_' + data.transaction);
-                    setUser({...user, spent: user.spent+3});
+                    setUser({...user, spent: spentRet+3});
                 } else if (action.action === ActionType.UST && user !== null) {
                     const userStateResult = await getUserState(user.identity);
                     const epks = getEpochKeys(user.identity, userStateResult.currentEpoch);

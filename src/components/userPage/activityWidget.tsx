@@ -1,11 +1,11 @@
 import { useContext, useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import dateformat from 'dateformat';
-import { History, ActionType } from '../../constants';
+import { Record, ActionType } from '../../constants';
 import { WebContext } from '../../context/WebContext';
 
 type Props = {
-    history: History,
+    history: Record,
     isSpent: boolean,
 }
 
@@ -18,7 +18,7 @@ const ActivityWidget = ({ history, isSpent }: Props) => {
     const { shownPosts } = useContext(WebContext);
     const [date, setDate] = useState<string>(dateformat(new Date(history.time), "dd/mm/yyyy hh:MM TT"));
     
-    const translateInfo = (h: History) => {
+    const translateInfo = (h: Record) => {
         if (h.action === ActionType.Post) {
             return {who: 'I (' + h.from + ')', action: 'created a post'}
         } else if (h.action === ActionType.Comment) {

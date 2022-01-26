@@ -5,7 +5,7 @@ import { genIdentity, genIdentityCommitment, serialiseIdentity, unSerialiseIdent
 import { genUserStateFromContract, genEpochKey, genUserStateFromParams } from '@unirep/unirep';
 import { UnirepSocialContract } from '@unirep/unirep-social';
 import * as config from './config';
-import { History, Post, DataType, Vote, Comment, ActionType, QueryType } from './constants';
+import { Record, Post, DataType, Vote, Comment, ActionType, QueryType } from './constants';
 
 const snarkjs = require("snarkjs")
 
@@ -372,7 +372,7 @@ export const userSignUp = async () => {
 }
 
 
-export const publishPost = async (content: string, epkNonce: number, identity: string, minRep: number = 0, spent: number = 0, us: any) => {
+export const publishPost = async (content: string, epkNonce: number, identity: string, minRep: number = 0, spent: number = 0, us: any, title: string = '') => {
     let error
     let transaction: string = ''
     const ret = await genProof(identity, epkNonce, config.DEFAULT_POST_KARMA, minRep, us, spent)
@@ -385,6 +385,7 @@ export const publishPost = async (content: string, epkNonce: number, identity: s
      // to backend: proof, publicSignals, content
      const apiURL = makeURL('post', {})
      const data = {
+        title,
         content,
         proof: ret.proof, 
         minRep,
@@ -552,11 +553,11 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
     const paramStr = epks.join('_');
     const apiURL = makeURL(`records/${paramStr}`, {});
 
-    const getCommitment = new Promise<History>(resolve => {
+    const getCommitment = new Promise<Record>(resolve => {
         fetch(commitmentAPIURL).then(response => response.json()).then(
             (data) => {
                 if(data.length === 0) return;
-                const history: History = {
+                const history: Record = {
                     action: ActionType.Signup,
                     from: 'SignUp Airdrop',
                     to: data[0].to,
@@ -571,12 +572,12 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
         );
     });
 
-    const getGeneralRecords = new Promise<History[]>(resolve => {
+    const getGeneralRecords = new Promise<Record[]>(resolve => {
         fetch(apiURL).then(response => response.json()).then(
             (data) => {
-                let ret: History[] = [];
+                let ret: Record[] = [];
                 for (var i = 0; i < data.length; i ++) {
-                    const history: History = {
+                    const history: Record = {
                         action: data[i].action,
                         from: data[i].from,
                         to: data[i].to,

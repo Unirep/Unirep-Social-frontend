@@ -79,7 +79,7 @@ export enum InfoType {
     persona = 'Not yet decide what to say'
 }
 
-export interface History {
+export interface Record {
     action: ActionType,
     from: string,
     to: string,

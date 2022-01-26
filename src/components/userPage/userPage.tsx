@@ -3,7 +3,7 @@ import { useContext, useState, useEffect } from 'react';
 import { getPostsByQuery, getRecords, getCommentsByQuery } from '../../utils';
 import { WebContext } from '../../context/WebContext';
 import SideColumn from '../sideColumn/sideColumn';
-import { History, ActionType, Page, QueryType, Post, Comment } from '../../constants';
+import { Record, ActionType, Page, QueryType, Post, Comment } from '../../constants';
 import ActivityWidget from './activityWidget';
 import PostsList from '../postsList/postsList';
 import CommentsList from '../postsList/commentsList';
@@ -43,7 +43,7 @@ const RepPortion = ({ spent, total, action } : Props) => {
 
 const UserPage = () => {
     const { isLoading, user } = useContext(WebContext);
-    const [ histories, setHistories ] = useState<History[]>([]);
+    const [ records, setRecords ] = useState<Record[]>([]);
     const [ tag, setTag ] = useState<Tag>(Tag.Posts);
     const [ sort, setSort ] = useState<QueryType>(QueryType.Boost);
     const [ isDropdown, setIsDropdown ] = useState<boolean>(false);
@@ -80,7 +80,7 @@ const UserPage = () => {
     const getUserRecords = async () => { 
         if (user !== null) {
             const ret = await getRecords(user.current_epoch, user.identity);
-            setHistories(ret);
+            setRecords(ret);
             resortRecords(QueryType.New, ret);
             let r: number[] = [0, 0, 0];
             let s: number[] = [0, 0, 0, 0];
@@ -116,13 +116,13 @@ const UserPage = () => {
         }
     }
 
-    const resortRecords = (s: QueryType, hs: History[]) => {
+    const resortRecords = (s: QueryType, hs: Record[]) => {
         if (s === QueryType.New) {
             hs.sort((a, b) => a.time > b.time? -1 : 1);
         } else if (s === QueryType.Rep) {
             hs.sort((a, b) => a.upvote + a.downvote > b.upvote + b.downvote? -1 : 1);
         }
-        setHistories(hs);
+        setRecords(hs);
     }
 
     useEffect (() => {
@@ -162,7 +162,7 @@ const UserPage = () => {
             await getUserPosts(s);
             await getUserComments(s);
         } else {
-            resortRecords(s, histories);
+            resortRecords(s, records);
         }
         
         setIsDropdown(false);
@@ -272,7 +272,7 @@ const UserPage = () => {
                                         loadMoreComments={loadMoreComments}
                                     /> : <div>
                                         {
-                                            histories.map((h, i) => 
+                                            records.map((h, i) => 
                                                 <ActivityWidget 
                                                     key={i} 
                                                     history={h}
