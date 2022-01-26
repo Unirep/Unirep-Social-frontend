@@ -146,6 +146,7 @@ export enum QueryType {
 export enum AlertType {
     commentNotEnoughPoints = "Comment is disabled because you are running out of points...",
     commentNotLogin = "Please sign in to leave comment.",
+    commentLoading = "Loading...",
     postNotLogin = "You must join or login to create post",
     postNotEnoughPoints = "Post is disabled because you are running out of points...",
 }

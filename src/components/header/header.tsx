@@ -7,22 +7,8 @@ import './header.scss';
 const Header = () => {
     const history = useHistory();
     const location = useLocation();
-    const { user, setUser, shownPosts, setShownPosts, isLoading, setIsLoading, nextUSTTime, setNextUSTTime, isMenuOpen, setIsMenuOpen } = useContext(WebContext);
+    const { user, isLoading, isMenuOpen, setIsMenuOpen } = useContext(WebContext);
     const [searchInput, setSearchInput] = useState<string>("");
-
-    const logout = () => {
-        if (!isLoading) {
-            setUser(null);
-            setShownPosts([...shownPosts].map(p => {
-                const commentsLogout = p.comments.map(c => {
-                    return {...c, isUpvoted: false, isDownvoted: false, isAuthor: false};
-                });
-                return {...p, isUpvoted: false, isDownvoted: false, isAuthor: false, comments: commentsLogout};
-            }));
-            setNextUSTTime(4789220745000);
-            history.push(`/`);
-        }
-    }
 
     const gotoNewPage = () => {
         if (!isLoading && user !== null && (user.reputation - user.spent) >= DEFAULT_POST_KARMA) {

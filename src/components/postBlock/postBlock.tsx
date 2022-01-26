@@ -69,13 +69,15 @@ const PostBlock = ({ post, page }: Props) => {
                                 <AlertBox type={AlertType.commentNotLogin} /> : 
                                 user.reputation - user.spent < 3? 
                                     <AlertBox type={AlertType.commentNotEnoughPoints} /> : 
-                                    showCommentField? 
-                                        <CommentField 
-                                            post={post}
-                                            page={Page.Post}
-                                            closeComment={() => setShowCommentField(false)}
-                                        /> : 
-                                        <textarea placeholder="What's your thought?" onClick={() => setShowCommentField(true)} />
+                                    isLoading? 
+                                    <AlertBox type={AlertType.commentLoading} /> : 
+                                        showCommentField? 
+                                            <CommentField 
+                                                post={post}
+                                                page={Page.Post}
+                                                closeComment={() => setShowCommentField(false)}
+                                            /> : 
+                                            <textarea placeholder="What's your thought?" onClick={() => setShowCommentField(true)} />
                         }
                     </div>
                     <div className="divider"></div>
