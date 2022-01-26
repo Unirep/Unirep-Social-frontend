@@ -27,7 +27,7 @@ const BlockButton = ({ type, count, data }: Props) => {
         } else if (type === ButtonType.Squash) {
             setSquashOn(true);
         } else if (type === ButtonType.Share) {
-
+            setShareOn(true);
         }
         setIsHover(false);
     }
@@ -51,7 +51,7 @@ const BlockButton = ({ type, count, data }: Props) => {
             }
             { 
                 isShareOn?
-                    <ShareBox url={''} closeBox={() => setShareOn(false)} /> : <div></div>
+                    <ShareBox url={`http://localhost:3000/post/${data.id}`} closeBox={() => setShareOn(false)} /> : <div></div>
             }
         </div>
     );
