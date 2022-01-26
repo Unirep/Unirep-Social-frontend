@@ -3,11 +3,24 @@ import { useHistory } from 'react-router-dom';
 import dateformat from 'dateformat';
 
 import { WebContext } from '../../context/WebContext';
-import { Post, Page, ButtonType } from '../../constants';
+import { Post, Page, ButtonType, AlertType } from '../../constants';
 import CommentField from './commentField';
 import CommentBlock from './commentBlock';
 import BlockButton from './blockButton';
 import './postBlock.scss';
+
+type AlertProps = {
+    type: AlertType
+}
+
+const AlertBox = ({ type } : AlertProps) => {
+    return (
+        <div className="alert">
+            <img src={`/images/${type === AlertType.commentNotEnoughPoints? 'lighting' : 'glasses'}.svg`} />
+            {type}
+        </div>
+    );
+}
 
 
 type Props = {
@@ -25,16 +38,6 @@ const PostBlock = ({ post, page }: Props) => {
     const [ showCommentField, setShowCommentField ] = useState(false);
 
     const textLimit = 240;
-
-    useEffect(() => {
-        // if (commentId !== undefined) {
-        //     console.log(commentId);
-        //     gotoComment.current?.scrollIntoView({
-        //         behavior: 'smooth',
-        //         block: 'center',
-        //     })
-        // }
-    }, []);
 
     return (
         <div className="post-block">
@@ -62,13 +65,17 @@ const PostBlock = ({ post, page }: Props) => {
                 <div className="comment">
                     <div className="comment-block">
                         {
-                            showCommentField? 
-                                <CommentField 
-                                    post={post}
-                                    page={Page.Post}
-                                    closeComment={() => setShowCommentField(false)}
-                                /> : 
-                                <textarea placeholder="What's your thought?" onClick={() => setShowCommentField(true)} />
+                            user === null?
+                                <AlertBox type={AlertType.commentNotLogin} /> : 
+                                user.reputation - user.spent < 3? 
+                                    <AlertBox type={AlertType.commentNotEnoughPoints} /> : 
+                                    showCommentField? 
+                                        <CommentField 
+                                            post={post}
+                                            page={Page.Post}
+                                            closeComment={() => setShowCommentField(false)}
+                                        /> : 
+                                        <textarea placeholder="What's your thought?" onClick={() => setShowCommentField(true)} />
                         }
                     </div>
                     <div className="divider"></div>

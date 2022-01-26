@@ -120,6 +120,22 @@
 
       .comment-block {
         margin: 16px 0px;
+
+        .alert {
+          background-color: $grey-200;
+          border-radius: 8px;
+          display: flex;
+          flex-direction: row;
+          font-size: $text-base;
+          color: $black;
+          padding: 24px 16px;
+
+          img {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+          }
+        }
         
         textarea {
           width: 100%;

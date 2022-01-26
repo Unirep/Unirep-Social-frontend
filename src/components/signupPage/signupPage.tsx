@@ -11,7 +11,6 @@ const SignupPage = () => {
     const [invitationCode, setInvitationCode] = useState<string>('');
     const [step, setStep] = useState<number>(0);
     const [identity, setIdentity] = useState<string>('');
-    // const [commitment, setCommitment] = useState<string>('');
     const [isDownloaded, setIsDownloaded] = useState(false);
     const [userEnterIdentity, setUserEnterIdentity] = useState<string>('');
     const [errorMsg, setErrorMsg] = useState<string>('');

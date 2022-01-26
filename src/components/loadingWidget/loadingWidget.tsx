@@ -169,7 +169,8 @@ const LoadingWidget = () => {
                     loadingState === LoadingState.loading? 
                     <div className="loading-block">
                         <img src="/images/loader.svg" style={{ transform: `scaleX(${isFlip? '-1': '1'})` }} />
-                        <span>{loadingState === LoadingState.loading? "Submitting your content..." : "succeed or fail"}</span>
+                        <span>Submitting your content...</span>
+                        <div className="info-row">Please wait 'til this transaction complete for creating post, comment, boost, or squash. This is the life of blockchain :P </div>
                     </div> : loadingState === LoadingState.succeed?
                     <div className="loading-block">
                         <img src="/images/checkmark.svg" />

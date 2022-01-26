@@ -143,6 +143,11 @@ export enum QueryType {
     Rep = 'rep',
 }
 
+export enum AlertType {
+    commentNotEnoughPoints = "Comment is disabled because you are running out of points...",
+    commentNotLogin = "Please sign in to leave comment.",
+}
+
 export interface Params {
     id: string,
 }
