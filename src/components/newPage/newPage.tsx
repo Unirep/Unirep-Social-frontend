@@ -1,5 +1,5 @@
-import { useState, useContext } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useEffect, useContext } from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
 
 import './newPage.scss';
 import { WebContext } from '../../context/WebContext';
@@ -9,9 +9,15 @@ import { DataType, Page, ActionType } from '../../constants';
 
 const NewPage = () => {
     const history = useHistory();
+    const location = useLocation<Location>();
+    const state = JSON.parse(JSON.stringify(location.state));
+    const isConfirmed = state.isConfirmed;
+
     const { setIsLoading, setAction, user } = useContext(WebContext);
 
-    const [epkNonce, setEpkNonce] = useState<number>(0);
+    useEffect(() => {
+        console.log('Is this new page being confirmd? ' + isConfirmed);
+    }, [])
 
     const preventPropagation = (event: any) => {
         event.stopPropagation();

@@ -1,8 +1,7 @@
-import React, { useContext, useState, useEffect } from 'react';
+import { useContext, useState } from 'react';
 import { NavLink, useHistory, useLocation } from 'react-router-dom';
 import { WebContext } from '../../context/WebContext';
-import * as Constants from '../../constants';
-import { userStateTransition, getNextEpochTime, getEpochKeys, getAirdrop, getUserState, getCurrentEpoch } from '../../utils';
+import { DEFAULT_POST_KARMA } from '../../config';
 import './header.scss';
 
 const Header = () => {
@@ -26,8 +25,8 @@ const Header = () => {
     }
 
     const gotoNewPage = () => {
-        if (!isLoading) {
-            history.push(`/new`);
+        if (!isLoading && user !== null && (user.reputation - user.spent) >= DEFAULT_POST_KARMA) {
+            history.push(`/new`, {isConfirmed: true});
         }
     }
 
@@ -66,14 +65,8 @@ const Header = () => {
                     <input type="text" name="searchInput" placeholder="Search by keyword, user names or epoch key" onChange={handleSearchInput} />
                 </form>
             </div> */}
-            {/* <div className="timer">{countdownText}</div> */}
             {user && user.identity? 
                 <div className="navButtons">
-                    {/* <div className={isLoading? "whiteButton disabled" : "whiteButton"} onClick={gotoUserPage}>
-                        <img src="/images/user-purple.png" />
-                        <span>{user.reputation - user.spent}</span>
-                    </div>
-                    <div className={isLoading? "whiteButton disabled" : "whiteButton"} onClick={logout}>Log out</div> */}
                     <div className={location.pathname === '/new'? "navBtn chosen" : "navBtn"}><img src="/images/newpost.svg" onClick={gotoNewPage} /></div>
                     <div className={location.pathname === '/user'? "navBtn chosen" : "navBtn"}><img src="/images/user.svg" onClick={gotoUserPage} /></div>
                     <div className="navBtn"><img src="/images/menu.svg" onClick={openMenu} /></div>

@@ -45,7 +45,7 @@ const MainPage = () => {
 
     const gotoNewPost = () => {
         if (user !== null && (user.reputation - user.spent) >= DEFAULT_POST_KARMA){
-            history.push('/new');
+            history.push('/new', {isConfirmed: true});
         }
     }
 
