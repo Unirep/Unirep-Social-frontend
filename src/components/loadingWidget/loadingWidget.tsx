@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 
 import './loadingWidget.scss';
 import { WebContext } from '../../context/WebContext';
-import { publishPost, vote, leaveComment, getEpochSpent, userStateTransition, getUserState, getEpochKeys, getAirdrop, getNextEpochTime } from '../../utils';
+import { publishPost, vote, leaveComment, getEpochSpent, userStateTransition, getUserState, getEpochKeys, getAirdrop, getNextEpochTime, getCurrentEpoch } from '../../utils';
 import { ActionType } from '../../constants';
 
 enum LoadingState {
@@ -28,8 +28,17 @@ const LoadingWidget = () => {
 
             let error: string = '';
             let data: any = null;
-
-            const spentRet = await getEpochSpent(user? user.epoch_keys : []);
+            let transition = false;
+            let USTData: any = null;
+            
+            let spentRet = await getEpochSpent(user? user.epoch_keys : []);
+            const currentEpoch = await getCurrentEpoch();
+            if (user !== undefined && JSON.parse(user?.userState).latestTransitionedEpoch !== currentEpoch) {
+                console.log('user epoch is not the same as current epoch, do user state transition, ' + JSON.parse(user?.userState).latestTransitionedEpoch + ' != ' + currentEpoch);
+                USTData = await userStateTransition(action.data.identity, action.data.userState);
+                transition = true;
+                spentRet = 0;
+            }
             console.log('in the head of loading widget, spent is: ' + spentRet);
 
             if (action.action === ActionType.Post) {
@@ -66,7 +75,7 @@ const LoadingWidget = () => {
                     action.data.userState
                 );
             }  else if (action.action === ActionType.UST) {
-                data = await userStateTransition(action.data.identity, action.data.userState);
+                USTData = await userStateTransition(action.data.identity, action.data.userState);
             }
             console.log(data);
             console.log('action done.');
@@ -86,15 +95,17 @@ const LoadingWidget = () => {
                 } else if (action.action === ActionType.Comment && user !== null) {
                     setSuccessPost(action.data.data + '_' + data.transaction);
                     setUser({...user, spent: spentRet+3});
-                } else if (action.action === ActionType.UST && user !== null) {
+                } 
+
+                if ((action.action === ActionType.UST || transition) && user !== null) {
                     const userStateResult = await getUserState(user.identity);
                     const epks = getEpochKeys(user.identity, userStateResult.currentEpoch);
                     const rep = userStateResult.userState.getRepByAttester(BigInt(userStateResult.attesterId));
-                    if (data !== undefined) {
+                    if (USTData !== undefined) {
                         setUser({...user, 
                             epoch_keys: epks, 
                             reputation: Number(rep.posRep) - Number(rep.negRep), 
-                            current_epoch: data.toEpoch, 
+                            current_epoch: USTData.toEpoch, 
                             spent: 0, 
                             userState: userStateResult.userState.toJSON(),
                             all_epoch_keys: [...user.all_epoch_keys, ...epks],
