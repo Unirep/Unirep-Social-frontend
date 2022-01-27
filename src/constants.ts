@@ -163,4 +163,7 @@ export const getDaysByString = (value: string) => {
     else return 365000;
 }
 
+export const titlePrefix = "<t>";
+export const titlePostfix = "</t>"
+
 export const diffDays = (date: number, otherDate: number) => Math.ceil(Math.abs(date - otherDate) / (1000 * 60 * 60 * 24));

@@ -171,7 +171,7 @@
             min-width: 0; // really important for flex if the content overflow!
             width: 100%;
             margin-top: 8px;
-            word-wrap: break-word;
+            word-break: break-all;
         }
     }
 

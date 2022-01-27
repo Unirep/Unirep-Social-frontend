@@ -2,7 +2,7 @@ import { useContext, useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { HashLink as Link } from 'react-router-hash-link'; 
 import dateformat from 'dateformat';
-import { Record, ActionType } from '../../constants';
+import { Record, ActionType, titlePrefix, titlePostfix } from '../../constants';
 import { WebContext } from '../../context/WebContext';
 import { recordExpression } from '@babel/types';
 
@@ -57,8 +57,14 @@ const ActivityWidget = ({ record, isSpent }: Props) => {
     });
     const [actionData, setActionData] = useState<ActionData>(() => {
         if (record.content !== undefined && record.content.length > 0) {
-            let tmp = record.content.split('<title>');
-            return tmp.length > 1? {title: tmp[1], content: tmp[2]} : {title: '', content: tmp[0]};
+            let i = record.content.indexOf(titlePrefix);
+            if (i === -1) return {title: '', content: record.content};
+            else {
+                i = i + titlePrefix.length;
+                let j = record.content.indexOf(titlePostfix);
+                if (j === -1) return {title: '', content: record.content};
+                else return {title: record.content.substring(i, j), content: record.content.substring(j + titlePostfix.length)};
+            }
         } else {
             return {title: '', content: ''};
         }
