@@ -25,7 +25,7 @@ const DefaultWidget = () => {
             <div className="choice-margin"></div>
             <Choice name="About" gotoPage="/"/>
             <div className="choice-margin"></div>
-            <Choice name="Send Feedback" gotoPage="/"/>
+            <Choice name="Send Feedback" gotoPage="/feedback"/>
         </div>
     );
 }

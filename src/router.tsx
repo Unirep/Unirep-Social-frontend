@@ -14,6 +14,7 @@ import HelpPage from './components/helpPage/helpPage';
 import LoginPage from './components/loginPage/loginPage';
 import SignupPage from './components/signupPage/signupPage';
 import NewPage from './components/newPage/newPage';
+import FeedbackPage from './components/feedbackPage/feedbackPage';
 
 import { WebContext } from './context/WebContext';
 
@@ -48,6 +49,7 @@ const AppRouter = () => {
                     <Route component={LoginPage} path="/login" />
                     <Route component={SignupPage} path="/signup" />
                     <Route component={NewPage} path="/new" />
+                    <Route component={FeedbackPage} path="/feedback" />
                     <Route component={() => <Redirect to="/" />} />
                 </Switch>
 
