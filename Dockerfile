@@ -9,4 +9,4 @@ RUN npm install -g link-module-alias
 RUN yarn install
 
 COPY . .
-CMD ["yarn", "start-local"]
+CMD ["yarn", "start"]
