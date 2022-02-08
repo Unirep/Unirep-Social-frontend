@@ -7,11 +7,11 @@ const Banner = ({ closeBanner }: Props) => {
         <div className="banner-row">
             <div className="banner">
                 <img src="/images/banner.svg" />
-                <div className="banner-title">A whole new online experience. <br/> Decentralized, freedom & fully anonymous.</div>
-                <div className="banner-content">Stay up to date & share all things about Ethereum.</div>
+                <div className="banner-title">Community built on ideas, not identities.</div>
+                <div className="banner-content">Stay up to date & share everything with everyone.</div>
                 <div className="banner-buttons">
                     <div className="banner-button">How it work?</div>
-                    <div className="banner-button">Join now</div>
+                    <div className="banner-button">Join us</div>
                 </div>
                 <div className="banner-close" onClick={closeBanner}><img src="/images/close.png" /></div>
             </div>

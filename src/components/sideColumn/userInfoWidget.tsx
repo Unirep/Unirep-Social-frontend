@@ -64,7 +64,7 @@ const UserInfoWidget = () => {
                         <h3><img src="/images/lighting.svg"/>{user.reputation - user.spent}</h3>
                     </div>
                     <div className="ust-info">
-                        <div className="block-title">In this epoch, my personas are <HelpWidget type={InfoType.persona} /></div>
+                        <div className="block-title">In this cycle, my personas are <HelpWidget type={InfoType.persona} /></div>
                         <div className="epks">
                             {user.epoch_keys.map(key => <div className="epk" key={key}>{key}</div>)}
                         </div>
