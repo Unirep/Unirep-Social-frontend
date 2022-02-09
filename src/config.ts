@@ -11,11 +11,11 @@ const reputationPublicSignalsPrefix = 'Unirep.reputation.publicSignals.'
 const signUpProofPrefix = 'Unirep.signUp.proof.'
 const signUpPublicSignalsPrefix = 'Unirep.signUp.publicSignals.'
 
-// const SERVER = 'http://localhost:3001'
-// const DEFAULT_ETH_PROVIDER = 'http://localhost:8545'
-const SERVER = 'http://3.20.204.166'
+const SERVER = 'http://localhost:3001'
+const DEFAULT_ETH_PROVIDER = 'http://localhost:8545'
+// const SERVER = 'http://3.20.204.166'
 // const DEFAULT_ETH_PROVIDER = 'https://eth-goerli.alchemyapi.io/v2/tYp-IJU_idg28iohx9gsLqhq6KRZxk7f'
-const DEFAULT_ETH_PROVIDER = 'http://18.188.136.227'
+// const DEFAULT_ETH_PROVIDER = 'http://18.188.136.227'
 const DEFAULT_START_BLOCK = 0
 const DEFAULT_MAX_EPOCH_KEY_NONCE = 2
 const DEFAULT_NUM_ATTESTATIONS_PER_EPOCH_KEY = 6
