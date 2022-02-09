@@ -325,13 +325,14 @@ const makeURL = (action: string, data: any) => {
         dataStr = dataStr + k + '=' + data[k] + '&'
     }
 
-    return config.SERVER + '/api/' + action + '?' + dataStr
+    // return config.SERVER + '/api/' + action + '?' + dataStr
+    return '/api/' + action + '?' + dataStr
 }
 
 const header = {
     'content-type': 'application/json',
-    'Access-Control-Allow-Origin': config.SERVER,
-    'Access-Control-Allow-Credentials': 'true',
+    // 'Access-Control-Allow-Origin': config.SERVER,
+    // 'Access-Control-Allow-Credentials': 'true',
 }
 
 export const checkInvitationCode = async (invitationCode: string) => {
