@@ -16,6 +16,8 @@ type GlobalContent = {
     setPage: (value: Page) => void;
     action: any;
     setAction: (value: any) => void;
+    adminCode: string;
+    setAdminCode: (value: string) => void;
 }
 
 export const WebContext = createContext<GlobalContent>({
@@ -33,4 +35,6 @@ export const WebContext = createContext<GlobalContent>({
     setPage: () => {},
     action: null,
     setAction: () => {},
+    adminCode: '', 
+    setAdminCode: () => {}
 });
