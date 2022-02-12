@@ -31,6 +31,8 @@ const LoadingWidget = () => {
             let transition = false;
             let USTData: any = null;
             
+            const next = await getNextEpochTime();
+            setNextUSTTime(next);
             let spentRet = await getEpochSpent(user? user.epoch_keys : []);
             const currentEpoch = await getCurrentEpoch();
             if (user !== undefined && JSON.parse(user?.userState).latestTransitionedEpoch !== currentEpoch) {
@@ -38,6 +40,7 @@ const LoadingWidget = () => {
                 USTData = await userStateTransition(action.data.identity, action.data.userState);
                 transition = true;
                 spentRet = 0;
+                
             }
             console.log('in the head of loading widget, spent is: ' + spentRet);
 
@@ -96,32 +99,31 @@ const LoadingWidget = () => {
                     setSuccessPost(action.data.data + '_' + data.transaction);
                     setUser({...user, spent: spentRet+3});
                 } 
-
-                if ((action.action === ActionType.UST || transition) && user !== null) {
-                    const userStateResult = await getUserState(user.identity);
-                    const epks = getEpochKeys(user.identity, userStateResult.currentEpoch);
-                    const rep = userStateResult.userState.getRepByAttester(BigInt(userStateResult.attesterId));
-                    if (USTData !== undefined) {
-                        setUser({...user, 
-                            epoch_keys: epks, 
-                            reputation: Number(rep.posRep) - Number(rep.negRep), 
-                            current_epoch: USTData.toEpoch, 
-                            spent: 0, 
-                            userState: userStateResult.userState.toJSON(),
-                            all_epoch_keys: [...user.all_epoch_keys, ...epks],
-                        })
-                    }
-                    const { error} = await getAirdrop(user.identity, userStateResult.userState);
-                    if (error !== undefined) {
-                        console.error(error)
-                    }
-                    const next = await getNextEpochTime();
-                    setNextUSTTime(next);
-                }
-                
-                setLoadingState(LoadingState.succeed);
             }
 
+            if ((action.action === ActionType.UST || transition) && user !== null) {
+                const userStateResult = await getUserState(user.identity);
+                const epks = getEpochKeys(user.identity, userStateResult.currentEpoch);
+                const rep = userStateResult.userState.getRepByAttester(BigInt(userStateResult.attesterId));
+                if (USTData !== undefined) {
+                    setUser({...user, 
+                        epoch_keys: epks, 
+                        reputation: Number(rep.posRep) - Number(rep.negRep), 
+                        current_epoch: USTData.toEpoch, 
+                        spent: 0, 
+                        userState: userStateResult.userState.toJSON(),
+                        all_epoch_keys: [...user.all_epoch_keys, ...epks],
+                    })
+                }
+                const { error} = await getAirdrop(user.identity, userStateResult.userState);
+                if (error !== undefined) {
+                    console.error(error)
+                }
+                const next = await getNextEpochTime();
+                setNextUSTTime(next);
+            }
+            
+            setLoadingState(LoadingState.succeed);
             setIsLoading(false);
         }
         
