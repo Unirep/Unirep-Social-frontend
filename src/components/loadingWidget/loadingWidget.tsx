@@ -83,7 +83,9 @@ const LoadingWidget = () => {
             console.log(data);
             console.log('action done.');
 
-            if (data.error !== undefined) {
+            if (data === null) {
+                console.log('perform UST')
+            } else if (data?.error !== undefined) {
                 console.log('error: ' + error);
                 setLoadingState(LoadingState.fail);
             } else {
