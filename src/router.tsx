@@ -16,6 +16,7 @@ import SignupPage from './components/signupPage/signupPage';
 import NewPage from './components/newPage/newPage';
 import FeedbackPage from './components/feedbackPage/feedbackPage';
 import AdminPage from './components/adminPage/adminPage';
+import SettingPage from './components/settingPage/settingPage';
 
 import { WebContext } from './context/WebContext';
 
@@ -54,6 +55,7 @@ const AppRouter = () => {
                     <Route component={NewPage} path="/new" />
                     <Route component={FeedbackPage} path="/feedback" />
                     <Route component={AdminPage} path="/admin" />
+                    <Route component={SettingPage} path="/setting" />
                     <Route component={() => <Redirect to="/" />} />
                 </Switch>
 

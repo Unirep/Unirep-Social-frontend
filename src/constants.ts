@@ -117,6 +117,7 @@ export enum Page {
     Post,
     User,
     New,
+    Setting,
 }
 
 export enum ChoiceType {
