@@ -80,8 +80,6 @@ const LoadingWidget = () => {
             }  else if (action.action === ActionType.UST) {
                 USTData = await userStateTransition(action.data.identity, action.data.userState);
             }
-            console.log(data);
-            console.log('action done.');
 
             if (data === null) {
                 console.log('perform UST')
@@ -102,6 +100,7 @@ const LoadingWidget = () => {
                     setSuccessPost(action.data.data + '_' + data.transaction);
                     setUser({...user, spent: spentRet+3});
                 } 
+                setLoadingState(LoadingState.succeed);
             }
 
             if ((action.action === ActionType.UST || transition) && user !== null) {
@@ -118,15 +117,17 @@ const LoadingWidget = () => {
                         all_epoch_keys: [...user.all_epoch_keys, ...epks],
                     })
                 }
-                const { error} = await getAirdrop(user.identity, userStateResult.userState);
+                const { error } = await getAirdrop(user.identity, userStateResult.userState);
                 if (error !== undefined) {
                     console.error(error)
+                    setLoadingState(LoadingState.fail);
+                } else {
+                    setLoadingState(LoadingState.succeed);
                 }
                 const next = await getNextEpochTime();
                 setNextUSTTime(next);
             }
             
-            setLoadingState(LoadingState.succeed);
             setIsLoading(false);
         }
         
@@ -154,23 +155,33 @@ const LoadingWidget = () => {
 
     const gotoPage = (event: any) => {
         event.stopPropagation();
-        resetLoading();
-
-        console.log('goto page: successPost is = ' + successPost);
-        const tmp = successPost.split('_');
-        if (tmp.length > 1) {
-            if (window.location.pathname === `/post/${tmp[0]}`) {
-                history.go(0);
-            } else {
-                history.push(`/post/${tmp[0]}`, {commentId: tmp[1]});
+        console.log(loadingState);
+        
+        if (loadingState === LoadingState.fail) {
+            if (action.action === ActionType.Post) {
+                history.push('/new', {isConfirmed: true});
+            } else if (action.action === ActionType.Comment || action.action === ActionType.Vote) {
+                history.push(`/post/${action.data.data}`)
             }
         } else {
-            if (window.location.pathname === `/post/${successPost}`) {
-                history.go(0);
+            console.log('goto page: successPost is = ' + successPost);
+            const tmp = successPost.split('_');
+            if (tmp.length > 1) {
+                if (window.location.pathname === `/post/${tmp[0]}`) {
+                    history.go(0);
+                } else {
+                    history.push(`/post/${tmp[0]}`, {commentId: tmp[1]});
+                }
             } else {
-                history.push(`/post/${successPost}`, {commentId: ''});
+                if (window.location.pathname === `/post/${successPost}`) {
+                    history.go(0);
+                } else {
+                    history.push(`/post/${successPost}`, {commentId: ''});
+                }
             }
         }
+
+        resetLoading();
     }
 
     const gotoEtherscan = (event: any) => {
@@ -201,6 +212,9 @@ const LoadingWidget = () => {
                     <div className="loading-block failed">
                         <img src="/images/close-red.svg" />
                         <span>Fail.</span> 
+                        <div className="info-row">
+                            <span onClick={gotoPage}>See my content</span>
+                        </div>
                     </div> : <div></div>
             }
         </div>

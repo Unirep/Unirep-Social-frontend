@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 import dateformat from 'dateformat';
 
 import { WebContext } from '../../context/WebContext';
-import { Post, Page, ButtonType, AlertType } from '../../constants';
+import { Post, Page, ButtonType, AlertType, DataType } from '../../constants';
 import CommentField from './commentField';
 import CommentBlock from './commentBlock';
 import BlockButton from './blockButton';
@@ -25,17 +25,17 @@ const AlertBox = ({ type } : AlertProps) => {
 
 type Props = {
     post: Post,
-    page: Page
+    page: Page,
 }
 
 const PostBlock = ({ post, page }: Props) => {
 
     const history = useHistory();
-    const { isLoading, user } = useContext(WebContext);
+    const { isLoading, user, draft } = useContext(WebContext);
     const gotoComment = React.createRef<HTMLDivElement>();
 
     const date = dateformat(new Date(post.post_time), "dd/mm/yyyy hh:MM TT");
-    const [ showCommentField, setShowCommentField ] = useState(false);
+    const [ showCommentField, setShowCommentField ] = useState(draft !== null && draft.type === DataType.Comment);
 
     const textLimit = 240;
 
