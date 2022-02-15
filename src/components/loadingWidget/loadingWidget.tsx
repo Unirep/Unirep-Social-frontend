@@ -15,7 +15,7 @@ enum LoadingState {
 
 const LoadingWidget = () => {
     const history = useHistory();
-    const { setIsLoading, action, setAction, user, setUser, setNextUSTTime } = useContext(WebContext);
+    const { setIsLoading, action, setAction, user, setUser, setNextUSTTime, setDraft } = useContext(WebContext);
     const [ loadingState, setLoadingState ] = useState<LoadingState>(LoadingState.none);
     const [ isFlip, setFlip ] = useState<boolean>(false);
     const [ successPost, setSuccessPost ] = useState<string>('');
@@ -90,6 +90,7 @@ const LoadingWidget = () => {
                 setLoadingState(LoadingState.fail);
             } else {
                 console.log('without error.');
+                setDraft(null);
 
                 if (action.action === ActionType.Post && user !== null) {
                     setSuccessPost(data.transaction);

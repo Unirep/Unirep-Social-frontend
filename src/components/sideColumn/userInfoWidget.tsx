@@ -22,6 +22,7 @@ const UserInfoWidget = () => {
             if (action === null && !isAlertOn) {
                 setAlertOn(true);
                 confirmAlert({
+                    closeOnClickOutside: true,
                     customUI: ({ onClose }) => {
                         return (
                             <div className='custom-ui'>

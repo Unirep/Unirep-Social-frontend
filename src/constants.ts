@@ -151,6 +151,12 @@ export interface Params {
     id: string,
 }
 
+export interface Draft {
+    type: DataType,
+    title: string, 
+    content: string,
+}
+
 export const getDaysByString = (value: string) => {
     if (value === 'today') return 1;
     else if (value === 'this week') return 7;

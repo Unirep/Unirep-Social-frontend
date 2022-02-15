@@ -26,6 +26,7 @@ const AppRouter = () => {
     const [shownPosts, setShownPosts] = useLocalStorage('shownPosts', []);
     const [nextUSTTime, setNextUSTTime] = useLocalStorage('nextUSTTime', 4789220745000);
     const [adminCode, setAdminCode] = useLocalStorage('admin', '');
+    const [draft, setDraft] = useLocalStorage('draft', null);
     const [isLoading, setIsLoading] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [page, setPage] = useState(Constants.Page.Home);
@@ -42,7 +43,8 @@ const AppRouter = () => {
                     isMenuOpen, setIsMenuOpen,
                     page, setPage,
                     action, setAction,
-                    adminCode, setAdminCode}}>
+                    adminCode, setAdminCode,
+                    draft, setDraft}}>
                 <Header />
                 
                 <Switch>
