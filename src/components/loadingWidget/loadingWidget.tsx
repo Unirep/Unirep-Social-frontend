@@ -160,8 +160,11 @@ const LoadingWidget = () => {
         if (loadingState === LoadingState.fail) {
             if (action.action === ActionType.Post) {
                 history.push('/new', {isConfirmed: true});
-            } else if (action.action === ActionType.Comment || action.action === ActionType.Vote) {
+            } else if (action.action === ActionType.Comment) {
                 history.push(`/post/${action.data.data}`)
+            } else if (action.action === ActionType.Vote) {
+                let dId = action.data.data.split('_')[0];
+                history.push(`/post/${dId}`);
             }
         } else {
             console.log('goto page: successPost is = ' + successPost);
