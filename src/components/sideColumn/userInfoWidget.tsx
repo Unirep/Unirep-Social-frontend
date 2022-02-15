@@ -1,5 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import dateformat from 'dateformat';
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
 
 import { WebContext } from '../../context/WebContext';
 import HelpWidget from '../helpWidget/helpWidget';
@@ -9,6 +11,7 @@ const UserInfoWidget = () => {
     const { user, nextUSTTime, action, setAction } = useContext(WebContext);
     const [ countdownText, setCountdownText ] = useState<string>('');
     const [ diffTime, setDiffTime ] = useState<number>(0);
+    const [ isAlertOn, setAlertOn ] = useState<boolean>(false);
     const nextUSTTimeString = dateformat(new Date(nextUSTTime), "dd/mm/yyyy hh:MM TT");
 
     const makeCountdownText = () => {
@@ -16,15 +19,33 @@ const UserInfoWidget = () => {
         setDiffTime(diff);
 
         if (diff <= 0 && user !== null) {
-            if (action === null) {
-                const actionData = {
-                    identity: user.identity,
-                    userState: user.userState,
-                };
-                setAction({action: ActionType.UST, data: actionData});
+            if (action === null && !isAlertOn) {
+                setAlertOn(true);
+                confirmAlert({
+                    closeOnClickOutside: true,
+                    customUI: ({ onClose }) => {
+                        return (
+                            <div className='custom-ui'>
+                                <h3>Confirm to do UST</h3>
+                                <button className="custom-btn" onClick={() => {
+                                    const actionData = {
+                                        identity: user.identity,
+                                        userState: user.userState,
+                                    };
+                                    setAction({action: ActionType.UST, data: actionData});
+                                    setAlertOn(false);
+                                    onClose();
+                                }}>
+                                    Yes
+                                </button>
+                            </div>
+                        )
+                    }
+                });
+                
             }
             
-            return 'is doing UST...';
+            return 'Doing UST...';
         } else {
             const days = Math.floor(diff / (24 * 60 * 60));
             if (days > 0) {

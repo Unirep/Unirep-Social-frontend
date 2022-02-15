@@ -117,6 +117,7 @@ export enum Page {
     Post,
     User,
     New,
+    Setting,
 }
 
 export enum ChoiceType {
@@ -148,6 +149,12 @@ export enum AlertType {
 
 export interface Params {
     id: string,
+}
+
+export interface Draft {
+    type: DataType,
+    title: string, 
+    content: string,
 }
 
 export const getDaysByString = (value: string) => {

@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+import { useHistory } from 'react-router-dom';
 
 import './sideColumn.scss';
 import { WebContext } from '../../context/WebContext';
@@ -14,17 +15,19 @@ type Props = {
 
 const SideColumn = ( { page }: Props) => {
     const { user } = useContext(WebContext);
+    const history = useHistory();
 
     const gotoSetting = () => {
         if (user !== null) {
-
+            history.push('/setting', {isConfirmed: true});
         }
     }
 
     return (
         <div>
+            {page === Page.Setting? <div className="margin-top widget"></div> : <div></div>}
             {page === Page.User? <div className="setting widget"><img src="/images/setting.svg" onClick={gotoSetting} /></div> : <div></div>}
-            {user !== null? <UserInfoWidget /> : <div></div>}
+            {user !== null && page !== Page.Setting? <UserInfoWidget /> : <div></div>}
             {user !== null && (page === Page.New || page === Page.Post)? <ReminderWidget page={page} /> : <div></div>}
             {user !== null && page === Page.User? <PostsWidget /> : <div></div>}
             <DefaultWidget />

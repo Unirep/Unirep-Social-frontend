@@ -15,7 +15,7 @@ enum LoadingState {
 
 const LoadingWidget = () => {
     const history = useHistory();
-    const { setIsLoading, action, setAction, user, setUser, setNextUSTTime } = useContext(WebContext);
+    const { setIsLoading, action, setAction, user, setUser, setNextUSTTime, setDraft } = useContext(WebContext);
     const [ loadingState, setLoadingState ] = useState<LoadingState>(LoadingState.none);
     const [ isFlip, setFlip ] = useState<boolean>(false);
     const [ successPost, setSuccessPost ] = useState<string>('');
@@ -31,6 +31,8 @@ const LoadingWidget = () => {
             let transition = false;
             let USTData: any = null;
             
+            const next = await getNextEpochTime();
+            setNextUSTTime(next);
             let spentRet = await getEpochSpent(user? user.epoch_keys : []);
             const currentEpoch = await getCurrentEpoch();
             if (user !== undefined && JSON.parse(user?.userState).latestTransitionedEpoch !== currentEpoch) {
@@ -38,6 +40,7 @@ const LoadingWidget = () => {
                 USTData = await userStateTransition(action.data.identity, action.data.userState);
                 transition = true;
                 spentRet = 0;
+                
             }
             console.log('in the head of loading widget, spent is: ' + spentRet);
 
@@ -77,14 +80,15 @@ const LoadingWidget = () => {
             }  else if (action.action === ActionType.UST) {
                 USTData = await userStateTransition(action.data.identity, action.data.userState);
             }
-            console.log(data);
-            console.log('action done.');
 
-            if (data.error !== undefined) {
+            if (data === null) {
+                console.log('perform UST')
+            } else if (data?.error !== undefined) {
                 console.log('error: ' + error);
                 setLoadingState(LoadingState.fail);
             } else {
                 console.log('without error.');
+                setDraft(null);
 
                 if (action.action === ActionType.Post && user !== null) {
                     setSuccessPost(data.transaction);
@@ -96,32 +100,34 @@ const LoadingWidget = () => {
                     setSuccessPost(action.data.data + '_' + data.transaction);
                     setUser({...user, spent: spentRet+3});
                 } 
-
-                if ((action.action === ActionType.UST || transition) && user !== null) {
-                    const userStateResult = await getUserState(user.identity);
-                    const epks = getEpochKeys(user.identity, userStateResult.currentEpoch);
-                    const rep = userStateResult.userState.getRepByAttester(BigInt(userStateResult.attesterId));
-                    if (USTData !== undefined) {
-                        setUser({...user, 
-                            epoch_keys: epks, 
-                            reputation: Number(rep.posRep) - Number(rep.negRep), 
-                            current_epoch: USTData.toEpoch, 
-                            spent: 0, 
-                            userState: userStateResult.userState.toJSON(),
-                            all_epoch_keys: [...user.all_epoch_keys, ...epks],
-                        })
-                    }
-                    const { error} = await getAirdrop(user.identity, userStateResult.userState);
-                    if (error !== undefined) {
-                        console.error(error)
-                    }
-                    const next = await getNextEpochTime();
-                    setNextUSTTime(next);
-                }
-                
                 setLoadingState(LoadingState.succeed);
             }
 
+            if ((action.action === ActionType.UST || transition) && user !== null) {
+                const userStateResult = await getUserState(user.identity);
+                const epks = getEpochKeys(user.identity, userStateResult.currentEpoch);
+                const rep = userStateResult.userState.getRepByAttester(BigInt(userStateResult.attesterId));
+                if (USTData !== undefined) {
+                    setUser({...user, 
+                        epoch_keys: epks, 
+                        reputation: Number(rep.posRep) - Number(rep.negRep), 
+                        current_epoch: USTData.toEpoch, 
+                        spent: 0, 
+                        userState: userStateResult.userState.toJSON(),
+                        all_epoch_keys: [...user.all_epoch_keys, ...epks],
+                    })
+                }
+                const { error } = await getAirdrop(user.identity, userStateResult.userState);
+                if (error !== undefined) {
+                    console.error(error)
+                    setLoadingState(LoadingState.fail);
+                } else {
+                    setLoadingState(LoadingState.succeed);
+                }
+                const next = await getNextEpochTime();
+                setNextUSTTime(next);
+            }
+            
             setIsLoading(false);
         }
         
@@ -149,23 +155,33 @@ const LoadingWidget = () => {
 
     const gotoPage = (event: any) => {
         event.stopPropagation();
-        resetLoading();
-
-        console.log('goto page: successPost is = ' + successPost);
-        const tmp = successPost.split('_');
-        if (tmp.length > 1) {
-            if (window.location.pathname === `/post/${tmp[0]}`) {
-                history.go(0);
-            } else {
-                history.push(`/post/${tmp[0]}`, {commentId: tmp[1]});
+        console.log(loadingState);
+        
+        if (loadingState === LoadingState.fail) {
+            if (action.action === ActionType.Post) {
+                history.push('/new', {isConfirmed: true});
+            } else if (action.action === ActionType.Comment || action.action === ActionType.Vote) {
+                history.push(`/post/${action.data.data}`)
             }
         } else {
-            if (window.location.pathname === `/post/${successPost}`) {
-                history.go(0);
+            console.log('goto page: successPost is = ' + successPost);
+            const tmp = successPost.split('_');
+            if (tmp.length > 1) {
+                if (window.location.pathname === `/post/${tmp[0]}`) {
+                    history.go(0);
+                } else {
+                    history.push(`/post/${tmp[0]}`, {commentId: tmp[1]});
+                }
             } else {
-                history.push(`/post/${successPost}`, {commentId: ''});
+                if (window.location.pathname === `/post/${successPost}`) {
+                    history.go(0);
+                } else {
+                    history.push(`/post/${successPost}`, {commentId: ''});
+                }
             }
         }
+
+        resetLoading();
     }
 
     const gotoEtherscan = (event: any) => {
@@ -196,6 +212,9 @@ const LoadingWidget = () => {
                     <div className="loading-block failed">
                         <img src="/images/close-red.svg" />
                         <span>Fail.</span> 
+                        <div className="info-row">
+                            <span onClick={gotoPage}>See my content</span>
+                        </div>
                     </div> : <div></div>
             }
         </div>

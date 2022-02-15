@@ -406,6 +406,7 @@ export const publishPost = async (content: string, epkNonce: number, identity: s
             transaction = data.transaction
         });
     
+    
     return {error, transaction, currentEpoch: ret.currentEpoch, epk: ret.epk, userState: ret.userState}
 }
 
@@ -483,7 +484,6 @@ export const leaveComment = async(identity: string, content: string, postId: str
             transaction = data.transaction
             commentId = data.commentId
         });
-    
     return {error, transaction, commentId, currentEpoch: ret.currentEpoch, epk: ret.epk, userState: ret.userState}
 }
 

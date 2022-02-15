@@ -18,7 +18,7 @@ const Header = () => {
 
     const gotoUserPage = () => {
         if (!isLoading) {
-            history.push(`/user`);
+            history.push(`/user`, {isConfirmed: true});
         }
     }
 

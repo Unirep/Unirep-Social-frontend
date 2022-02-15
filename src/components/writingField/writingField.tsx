@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 import 'react-circular-progressbar/dist/styles.css';
 import { WebContext } from '../../context/WebContext';
 import HelpWidget from '../helpWidget/helpWidget';
-import { DataType, InfoType } from '../../constants';
+import { DataType, InfoType, Draft } from '../../constants';
 import './writingField.scss';
 import * as config from '../../config';
 
@@ -19,7 +19,7 @@ const WritingField = (props: Props) => {
 
     const defaultRep = props.type === DataType.Post? config.DEFAULT_POST_KARMA : config.DEFAULT_COMMENT_KARMA;
 
-    const { user, setIsLoading } = useContext(WebContext);
+    const { user, setIsLoading, draft, setDraft } = useContext(WebContext);
     const [ reputation, setReputation ] = useState(defaultRep);
     const [ title, setTitle ] = useState<string>('');
     const [ content, setContent ] = useState<string>('');
@@ -27,6 +27,13 @@ const WritingField = (props: Props) => {
     const [ errorMsg, setErrorMsg ] = useState<string>('');
     const [ isBlockLoading, setIsBlockLoading ] = useState(false);
     const [percentage, setPercentage] = useState<number>(0);
+
+    useEffect(() => {
+        if (draft !== null && draft.type === props.type) {
+            setTitle(draft.title);
+            setContent(draft.content);
+        }
+    }, []);
 
     useEffect(() => {
         if (isBlockLoading) {
@@ -38,17 +45,42 @@ const WritingField = (props: Props) => {
         }
     }, [percentage]);
 
+    useEffect(() => {
+        setErrorMsg('');
+    }, [title, content, reputation, epkNonce]);
+
     const onClickField = (event: any) => {
         props.onClick(event);
     }
 
     const handleTitleInput = (event: any) => {
         setTitle(event.target.value);
+
+        if (draft === null) {
+            const d: Draft = {type: props.type, title: event.target.value, content: ''};
+            setDraft(d);
+        } else {
+            if (draft.type === props.type) {
+                setDraft({...draft, title: event.target.value});
+            } else {
+                setDraft({...draft, title: event.target.value, type: props.type});
+            }
+        }
     }
 
     const handleContentInput = (event: any) => {
         setContent(event.target.value);
-        setErrorMsg('');
+        
+        if (draft === null) {
+            const d: Draft = {type: props.type, title: '', content: event.target.value};
+            setDraft(d);
+        } else {
+            if (draft.type === props.type) {
+                setDraft({...draft, content: event.target.value});
+            } else {
+                setDraft({...draft, content: event.target.value, type: props.type});
+            }  
+        }
     }
 
     const handleRepInput = (event: any) => {
@@ -70,10 +102,10 @@ const WritingField = (props: Props) => {
     return (
         <div className="writing-field" onClick={onClickField}>
             {
-                props.type === DataType.Post? <input type="text" placeholder="Give an eye-catching title" onChange={handleTitleInput}/> : <div></div>
+                props.type === DataType.Post? <input type="text" placeholder="Give an eye-catching title" onChange={handleTitleInput} value={title} /> : <div></div>
             }
             { 
-                props.type === DataType.Post? <textarea onChange={handleContentInput} /> : <textarea autoFocus onChange={handleContentInput} />
+                props.type === DataType.Post? <textarea onChange={handleContentInput} value={content} /> : <textarea autoFocus onChange={handleContentInput} value={content} />
             }
             <div className="info-row">
                 <div className="element">

@@ -46,6 +46,8 @@ const numAttestationsPerEpochKey = 6;
 const epochLength = 30; 
 const maxReputationBudget = 10;
 
+const ABOUT_URL = "https://about.unirep.social";
+
 export {
     SERVER,
     identityPrefix,
@@ -84,5 +86,6 @@ export {
     numAttestationsPerEpochKey,
     epochLength,
     globalStateTreeDepth,
-    maxReputationBudget
+    maxReputationBudget,
+    ABOUT_URL
 }
