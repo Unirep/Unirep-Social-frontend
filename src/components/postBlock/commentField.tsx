@@ -34,6 +34,7 @@ const CommentField = (props: Props) => {
                 userState: user.userState
             };
             setAction({action: ActionType.Comment, data: actionData});
+            props.closeComment();
         }
     }
 
