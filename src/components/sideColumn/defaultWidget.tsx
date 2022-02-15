@@ -20,9 +20,9 @@ const DefaultWidget = () => {
 
     return (
         <div className="default-widget widget">
-            <Choice name="How it works" gotoPage={ABOUT_URL} />
+            <Choice name="How it works" gotoPage={ABOUT_URL + "/how-it-work"} />
             <div className="choice-margin"></div>
-            <Choice name="FAQ" gotoPage="/"/>
+            <Choice name="FAQ" gotoPage={ABOUT_URL + "/how-it-work#faq"} />
             <div className="choice-margin"></div>
             <Choice name="About" gotoPage={ABOUT_URL} />
             <div className="choice-margin"></div>
