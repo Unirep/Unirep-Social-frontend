@@ -106,6 +106,24 @@
     }
 }
 
+.custom-ui {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .custom-btn {
+        outline: none;
+        border: none;
+        border-radius: 4px;
+        background-color: $black;
+        color: $white;
+
+        &:hover {
+            background-color: $grey-700;
+        }
+    }
+}
+
 .reminder-widget {
     border-radius: 8px;
     border: 1px solid $grey-200;
