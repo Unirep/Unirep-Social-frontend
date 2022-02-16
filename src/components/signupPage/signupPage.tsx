@@ -157,7 +157,7 @@ const SignupPage = () => {
                                 </div>
                             </div> : <div className="main-btn" onClick={nextStep}>{mainButton[step]}</div>
                     }
-                    <div className="added-info">Need an invitation code? <a href="https://unirep-alpha.webflow.io/" target="_blank">Request here</a></div>
+                    <div className="added-info">Need an invitation code? <a href="https://about.unirep.social/alpha-invitation" target="_blank">Request here</a></div>
                 </div>
             </div>
             { isLoading? <LoadingCover /> : <div></div> }
