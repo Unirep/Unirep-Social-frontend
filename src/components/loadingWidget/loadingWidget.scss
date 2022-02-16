@@ -40,10 +40,11 @@
             margin-top: 16px;
             text-align: center;
             
-            span {
+            .link, span {
                 cursor: pointer;
                 margin-left: 8px;
                 margin-right: 8px;
+                color: $white;
 
                 &:hover{
                     color: $grey-100;

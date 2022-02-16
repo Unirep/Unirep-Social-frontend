@@ -1,6 +1,5 @@
-import { useContext, useState, useEffect } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
-import { Location } from 'history';
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { Page, Params, Post } from '../../constants';
 import PostBlock from '../postBlock/postBlock';
 import SideColumn from '../sideColumn/sideColumn';
@@ -11,10 +10,6 @@ const PostPage = () => {
     const { id } = useParams<Params>();
     const [postToShow, setPostToShow] = useState<Post|undefined>();
 
-    const [isUpVoteBoxOn, setIsUpVoteBoxOn] = useState(false);
-    const [isDownVoteBoxOn, setIsDownVoteBoxOn] = useState(false);
-    const [voteReceiver, setVoteReceiver] = useState<any>(null);
-
     useEffect(() => {
         const setPost = async () => {
             const ret = await getPostById(id);
@@ -24,15 +19,9 @@ const PostPage = () => {
         setPost();
     }, []);
 
-    const closeAll = () => {
-        setIsUpVoteBoxOn(false);
-        setIsDownVoteBoxOn(false);
-        setVoteReceiver(null);
-    }
-
     return (
         <div className="wrapper">
-            <div className="default-gesture" onClick={closeAll}>
+            <div className="default-gesture">
                 <div className="margin-box"></div>
                 <div className="main-content">
                     {
