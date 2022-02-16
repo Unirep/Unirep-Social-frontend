@@ -5,6 +5,7 @@ import './loadingWidget.scss';
 import { WebContext } from '../../context/WebContext';
 import { publishPost, vote, leaveComment, getEpochSpent, userStateTransition, getUserState, getEpochKeys, getAirdrop, getNextEpochTime, getCurrentEpoch } from '../../utils';
 import { ActionType } from '../../constants';
+import * as config from '../../config';
 
 enum LoadingState {
     loading,
@@ -54,6 +55,7 @@ const LoadingWidget = () => {
                     action.data.userState,
                     action.data.title,
                 );
+                spentRet += config.DEFAULT_POST_KARMA
             } else if (action.action === ActionType.Comment) {
                 data = await leaveComment(
                     action.data.identity,
@@ -64,6 +66,7 @@ const LoadingWidget = () => {
                     spentRet,
                     action.data.userState
                 );
+                spentRet += config.DEFAULT_COMMENT_KARMA
             } else if (action.action === ActionType.Vote) {
                 data = await vote(
                     action.data.identity, 
@@ -77,6 +80,7 @@ const LoadingWidget = () => {
                     spentRet, 
                     action.data.userState
                 );
+                spentRet += action.data.upvote + action.data.downvote
             }  else if (action.action === ActionType.UST) {
                 USTData = await userStateTransition(action.data.identity, action.data.userState);
             }
@@ -92,18 +96,18 @@ const LoadingWidget = () => {
 
                 if (action.action === ActionType.Post && user !== null) {
                     setSuccessPost(data.transaction);
-                    setUser({...user, spent: spentRet+5});
+                    setUser({...user, spent: spentRet});
                 } else if (action.action === ActionType.Vote && user !== null) {
                     setSuccessPost(action.data.data);
-                    setUser({...user, spent: spentRet+action.data.upvote+action.data.downvote});
+                    setUser({...user, spent: spentRet});
                 } else if (action.action === ActionType.Comment && user !== null) {
                     setSuccessPost(action.data.data + '_' + data.transaction);
-                    setUser({...user, spent: spentRet+3});
+                    setUser({...user, spent: spentRet});
                 } 
                 setLoadingState(LoadingState.succeed);
             }
 
-            if ((action.action === ActionType.UST || transition) && user !== null) {
+            if ((transition) && user !== null) {
                 const userStateResult = await getUserState(user.identity);
                 const epks = getEpochKeys(user.identity, userStateResult.currentEpoch);
                 const rep = userStateResult.userState.getRepByAttester(BigInt(userStateResult.attesterId));
@@ -112,7 +116,7 @@ const LoadingWidget = () => {
                         epoch_keys: epks, 
                         reputation: Number(rep.posRep) - Number(rep.negRep), 
                         current_epoch: USTData.toEpoch, 
-                        spent: 0, 
+                        spent: spentRet, 
                         userState: userStateResult.userState.toJSON(),
                         all_epoch_keys: [...user.all_epoch_keys, ...epks],
                     })
