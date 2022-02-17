@@ -1,7 +1,5 @@
 @import '../../styles.scss';
 
-@import '../../styles.scss';
-
 .signup-page {
     position: fixed;
     top: 0;
@@ -87,7 +85,6 @@
             }
 
             .main-btn {
-                @include myButton($height: 46px, $radius: 8px, $color: $white, $block-color: $black, $font-weight: 600, $font-size: $title-sm);
                 width: 100%;
                 margin: 32px 0px 32px 0px;
             }

@@ -5,6 +5,7 @@ import './signupPage.scss';
 import { WebContext } from '../../context/WebContext';
 import { getEpochKeys, getUserState, getAirdrop, getNextEpochTime, checkInvitationCode, userSignUp} from '../../utils';
 import LoadingCover from '../loadingCover/loadingCover';
+import LoadingButton from '../loadingButton/loadingButton';
 
 const SignupPage = () => {
     const history = useHistory();
@@ -15,6 +16,7 @@ const SignupPage = () => {
     const [isDownloaded, setIsDownloaded] = useState(false);
     const [userEnterIdentity, setUserEnterIdentity] = useState<string>('');
     const [errorMsg, setErrorMsg] = useState<string>('');
+    const [isButtonLoading, setButtonLoading] = useState<boolean>(false);
 
     const title = [
         "Join us",
@@ -45,6 +47,7 @@ const SignupPage = () => {
         if (step === 0) {
             // send to server to check if invitation code does exist
             // if exists, get identity and commitment
+            setButtonLoading(true);
             const ret = await checkInvitationCode(invitationCode);
             if (ret) {
                 const {i, c, epoch} = await userSignUp();
@@ -53,6 +56,7 @@ const SignupPage = () => {
             } else {
                 setErrorMsg("Umm...this is not working. Try again or request a new code.");
             }
+            setButtonLoading(false);
         } else if (step === 1) {
             if (isDownloaded) {
                 navigator.clipboard.writeText(identity);
@@ -155,7 +159,9 @@ const SignupPage = () => {
                                     <div className={isDownloaded? "line" : "line disabled"}></div>
                                     <div className={isDownloaded? "number" : "number disabled"}>2</div>
                                 </div>
-                            </div> : <div className="main-btn" onClick={nextStep}>{mainButton[step]}</div>
+                            </div> : <div className="main-btn" onClick={nextStep}>
+                                <LoadingButton isLoading={isButtonLoading} name={mainButton[step]}/>
+                            </div>
                     }
                     <div className="added-info">Need an invitation code? <a href="https://about.unirep.social/alpha-invitation" target="_blank">Request here</a></div>
                 </div>
