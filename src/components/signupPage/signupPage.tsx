@@ -125,7 +125,7 @@ const SignupPage = () => {
             </div>
             <div className="right-column">
                 {
-                    step === 0? <img src="/images/close.svg" onClick={() => history.goBack()}/> : <div></div>
+                    step === 0? <img src="/images/close.svg" onClick={() => history.push('/')}/> : <div></div>
                 }
                 <div className="info">
                     <div className="title">{title[step]}</div>

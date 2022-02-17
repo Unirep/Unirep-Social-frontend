@@ -58,8 +58,10 @@
         flex-direction: column;
         justify-content: center;
 
-        p {
+        a {
           cursor: pointer;
+          text-decoration: none;
+          color: $white;
 
           &:hover {
             color: $grey-200;
@@ -78,8 +80,10 @@
         flex-direction: column;
         justify-content: center;
 
-        p {
+        a, p {
           cursor: pointer;
+          text-decoration: none;
+          color: $white;
           
           &:hover {
             color: $grey-200;

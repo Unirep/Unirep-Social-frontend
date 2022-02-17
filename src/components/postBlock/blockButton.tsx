@@ -3,7 +3,6 @@ import { useHistory } from 'react-router-dom';
 import { Post, Comment, ButtonType } from '../../constants';
 import { WebContext } from '../../context/WebContext';
 import VoteBox from '../voteBox/voteBox';
-import ShareBox from '../shareBox/shareBox';
 
 type Props = {
     type: ButtonType
@@ -18,7 +17,6 @@ const BlockButton = ({ type, count, data }: Props) => {
 
     const [isBoostOn, setBoostOn] = useState<boolean>(false);
     const [isSquashOn, setSquashOn] = useState<boolean>(false);
-    const [isShareOn, setShareOn] = useState<boolean>(false);
     const [isHover, setIsHover] = useState<boolean>(false); // null, purple1, purple2, grey1, grey2
     const [reminder, setReminder] = useState<string>('');
     const [isLinkCopied, setIsLinkCopied] = useState<boolean>(false); // only for share button
@@ -47,7 +45,7 @@ const BlockButton = ({ type, count, data }: Props) => {
         } else if (type === ButtonType.Squash) {
             setSquashOn(true);
         } else if (type === ButtonType.Share) {
-            navigator.clipboard.writeText(`http://localhost:3000/post/${data.id}`);
+            navigator.clipboard.writeText(`https://unirep.social/post/${data.id}`);
             setIsLinkCopied(true);
         }
         setIsHover(false);
@@ -61,9 +59,9 @@ const BlockButton = ({ type, count, data }: Props) => {
     const setReminderMessage = () => {
         if (user === null) setReminder('Join us :)');
         else {
-            if (data.current_epoch !== user.current_epoch) setReminder('Time out for boosting :(');
+            if (data.current_epoch !== user.current_epoch) setReminder('Time out :(');
             else if (user.reputation - user.spent < 1) setReminder('No enough Rep');
-            else if (isLoading) setReminder('loading...');
+            else if (isLoading && type !== ButtonType.Share) setReminder('loading...');
         }
     }
 
@@ -111,10 +109,6 @@ const BlockButton = ({ type, count, data }: Props) => {
                     <VoteBox isUpvote={true} data={data} closeVote={() => setBoostOn(false)} /> : isSquashOn? 
                     <VoteBox isUpvote={false} data={data} closeVote={() => setSquashOn(false)}  /> : <div></div>
             }
-            {/* { 
-                isShareOn?
-                    <ShareBox url={`http://localhost:3000/post/${data.id}`} closeBox={() => setShareOn(false)} /> : <div></div>
-            } */}
         </div>
     );
 }
