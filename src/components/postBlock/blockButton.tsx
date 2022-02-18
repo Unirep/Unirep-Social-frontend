@@ -38,15 +38,17 @@ const BlockButton = ({ type, count, data }: Props) => {
     const [isAble, setIsAble] = useState<boolean>(() => checkAbility());
 
     const onClick = () => {
-        if (type === ButtonType.Comments) {
-            history.push(`/post/${data.id}`, {commentId: ''});
-        } else if (type === ButtonType.Boost) {
-            setBoostOn(true);
-        } else if (type === ButtonType.Squash) {
-            setSquashOn(true);
-        } else if (type === ButtonType.Share) {
-            navigator.clipboard.writeText(`https://unirep.social/post/${data.id}`);
-            setIsLinkCopied(true);
+        if (isAble) {
+            if (type === ButtonType.Comments) {
+                history.push(`/post/${data.id}`, {commentId: ''});
+            } else if (type === ButtonType.Boost) {
+                setBoostOn(true);
+            } else if (type === ButtonType.Squash) {
+                setSquashOn(true);
+            } else if (type === ButtonType.Share) {
+                navigator.clipboard.writeText(`https://unirep.social/post/${data.id}`);
+                setIsLinkCopied(true);
+            }
         }
         setIsHover(false);
     }
