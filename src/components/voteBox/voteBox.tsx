@@ -11,11 +11,9 @@ type Props = {
 }
 const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
 
-    const { user, setUser, shownPosts, setShownPosts, setIsLoading, setAction } = useContext(WebContext);
+    const { user, setAction } = useContext(WebContext);
     const [ givenAmount, setGivenAmount ] = useState<number>(1);
     const [ epkNonce, setEpkNonce ] = useState(0); 
-    const [ isDropdown, setIsDropdown ] = useState(false);
-    const [ isBlockLoading, setIsBlockLoading ] = useState(false);
     const [ isHistoriesOpen, setHistoriesOpen ] = useState(false);
     const [ voteHistories, setVoteHistories ] = useState(() => {
         if (data.votes.length === 0) {
@@ -50,8 +48,6 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
         } else if (givenAmount === undefined) {
             console.error('no enter any given amount');
         } else {
-            setIsLoading(true);
-            setIsBlockLoading(true);
             
             const isPost = data.type === DataType.Post;
             const actionData = {

@@ -32,7 +32,9 @@ const UserInfoWidget = () => {
                                         identity: user.identity,
                                         userState: user.userState,
                                     };
-                                    setAction({action: ActionType.UST, data: actionData});
+                                    if (action === null) {
+                                        setAction({action: ActionType.UST, data: actionData});
+                                    }
                                     setAlertOn(false);
                                     onClose();
                                 }}>
@@ -43,6 +45,8 @@ const UserInfoWidget = () => {
                     }
                 });
                 
+            } else {
+                setAlertOn(false);
             }
             
             return 'Doing UST...';

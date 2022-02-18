@@ -27,11 +27,11 @@ const AppRouter = () => {
     const [nextUSTTime, setNextUSTTime] = useLocalStorage('nextUSTTime', 4789220745000);
     const [adminCode, setAdminCode] = useLocalStorage('admin', '');
     const [draft, setDraft] = useLocalStorage('draft', null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useLocalStorage('isLoading' ,false);
+    const [action, setAction] = useLocalStorage('action', null);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [page, setPage] = useState(Constants.Page.Home);
-    const [action, setAction] = useState<any>(null);
-
+    
     return (
         <BrowserRouter>
             <div>

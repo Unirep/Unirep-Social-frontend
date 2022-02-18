@@ -79,6 +79,12 @@ const BlockButton = ({ type, count, data }: Props) => {
         }
     }, [isLinkCopied])
 
+    window.addEventListener("storage", (e) => {
+        console.log(e);
+        // if (isLoading) setIsAble(false);
+        // else setIsAble(checkAbility());
+    });
+
     useEffect(() => {
         if (isLoading) setIsAble(false);
         else setIsAble(checkAbility());

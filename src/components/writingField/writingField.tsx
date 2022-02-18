@@ -25,8 +25,6 @@ const WritingField = (props: Props) => {
     const [ content, setContent ] = useState<string>('');
     const [ epkNonce, setEpkNonce ] = useState<number>(0);
     const [ errorMsg, setErrorMsg ] = useState<string>('');
-    const [ isBlockLoading, setIsBlockLoading ] = useState(false);
-    const [percentage, setPercentage] = useState<number>(0);
 
     useEffect(() => {
         if (draft !== null && draft.type === props.type) {
@@ -34,16 +32,6 @@ const WritingField = (props: Props) => {
             setContent(draft.content);
         }
     }, []);
-
-    useEffect(() => {
-        if (isBlockLoading) {
-            const timer = setTimeout(() => {
-                setPercentage(((percentage + 1) % 100) + 1);
-            }, 100);
-
-            return () => clearTimeout(timer);
-        }
-    }, [percentage]);
 
     useEffect(() => {
         setErrorMsg('');
@@ -91,9 +79,6 @@ const WritingField = (props: Props) => {
         if (user === null) {
             setErrorMsg('Please sign up or sign in');
         } else {
-            setIsLoading(true);
-            setPercentage(1);
-            setIsBlockLoading(true);
             console.log('before submit, the title is ' + title);
             props.submit(title, content, epkNonce, reputation);
         }

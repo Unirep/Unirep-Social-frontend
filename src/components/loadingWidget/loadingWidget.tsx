@@ -10,13 +10,13 @@ import * as config from '../../config';
 
 enum LoadingState {
     loading,
-    succeed,
-    fail,
+    success,
+    failed,
     none,
 }
 
 const LoadingWidget = () => {
-    const { setIsLoading, action, setAction, user, setUser, setNextUSTTime, setDraft } = useContext(WebContext);
+    const { isLoading, setIsLoading, action, setAction, user, setUser, setNextUSTTime, setDraft } = useContext(WebContext);
     const [ loadingState, setLoadingState ] = useState<LoadingState>(LoadingState.none);
     const [ isFlip, setFlip ] = useState<boolean>(false);
     const [ goto, setGoto ] = useState<string>('');
@@ -57,19 +57,22 @@ const LoadingWidget = () => {
             setIsLoading(true);
             setLoadingState(LoadingState.loading);
 
+            const next = await getNextEpochTime();
+            setNextUSTTime(next);
+
             let data: any = {};
-            let newUser: any = {};
+            let newUser: any = undefined;
             let spentRet = await getEpochSpent(user? user.epoch_keys : []);
 
             const currentEpoch = await getCurrentEpoch();
-            if (user !== undefined && JSON.parse(user?.userState).latestTransitionedEpoch !== currentEpoch) {
+            if (user !== null && user !== undefined && JSON.parse(user.userState).latestTransitionedEpoch !== currentEpoch) {
                 console.log('user epoch is not the same as current epoch, do user state transition, ' + JSON.parse(user?.userState).latestTransitionedEpoch + ' != ' + currentEpoch);
                 data = await doUST();  
 
                 if (data.error !== undefined) {
                     console.log(data.error);
                     setGoto('/');
-                    setLoadingState(LoadingState.fail);
+                    setLoadingState(LoadingState.failed);
                     return;
                 } else {
                     newUser = data.user;
@@ -122,7 +125,7 @@ const LoadingWidget = () => {
 
             if (data.error !== undefined) {
                 console.log('action ' + action.action + ' error: ' + data.error);
-                setLoadingState(LoadingState.fail);
+                setLoadingState(LoadingState.failed);
                 return;
             } else {
                 console.log('without error.');
@@ -136,7 +139,7 @@ const LoadingWidget = () => {
                         setUser({...newUser, spent: spentRet});
                     }
                 }
-                setLoadingState(LoadingState.succeed);
+                setLoadingState(LoadingState.success);
             }
 
             if (action.action === ActionType.Post) {
@@ -148,15 +151,16 @@ const LoadingWidget = () => {
             } else if (action.action === ActionType.UST) {
                 setGoto('/');
             }
-
-            const next = await getNextEpochTime();
-            setNextUSTTime(next);
             
             setIsLoading(false);
         }
         
-        if (action !== null && user !== null) {
+        if (action !== null && user !== null && !isLoading) {
+            console.log('do action');
             doAction();  
+        } else {
+            console.log('action: ' + JSON.stringify(action));
+            console.log('isLoading: ' + isLoading);
         }
     }, [action]);
 
@@ -172,7 +176,6 @@ const LoadingWidget = () => {
         if (loadingState === LoadingState.loading) {
             return;
         }
-
         setAction(null);
         setLoadingState(LoadingState.none);
     }
@@ -191,7 +194,7 @@ const LoadingWidget = () => {
                         <img src="/images/loader.svg" style={{ transform: `scaleX(${isFlip? '-1': '1'})` }} />
                         <span>Submitting your content...</span>
                         <div className="info-row">Please wait 'til this transaction complete for creating post, comment, boost, or squash. This is the life of blockchain :P </div>
-                    </div> : loadingState === LoadingState.succeed?
+                    </div> : loadingState === LoadingState.success?
                     <div className="loading-block">
                         <img src="/images/checkmark.svg" />
                         <span>{action.action === ActionType.Post? 'Post is finalized': action.action === ActionType.Comment? 'Comment is finalized': action.action === ActionType.Vote? 'Succeed!' : ''}</span>
@@ -201,7 +204,7 @@ const LoadingWidget = () => {
                                 <Link className="link" to={goto}>See my content</Link> | <span onClick={gotoEtherscan}>Etherscan <img src="/images/etherscan-white.svg"/></span>
                             </div>
                         } 
-                    </div> : loadingState === LoadingState.fail?
+                    </div> : loadingState === LoadingState.failed?
                     <div className="loading-block failed">
                         <img src="/images/close-red.svg" />
                         <span>Fail.</span> 
