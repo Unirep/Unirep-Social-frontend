@@ -206,7 +206,7 @@ const UserPage = () => {
                                     <div className="rep-info"><img src="/images/lighting.svg" />{user.reputation - user.spent}</div>
                                 </div>
                                 <div className="grey-block">
-                                    <span>How I use my rep in this epoch</span><br/>
+                                    <span>How I use my rep in this cycle.</span><br/>
                                     <div className="rep-bar">
                                         { 
                                             spent.map((s, i) => <RepPortion spent={s} total={user.reputation} action={i} key={i} />)
@@ -219,7 +219,7 @@ const UserPage = () => {
                                 <div className="grey-block">
                                     <p>Received</p>
                                     <div className="rep-received">{received[0] + received[1] - received[2]}</div>
-                                    <span>These Reps are in the vault now, it will release to you in next epoch.</span>
+                                    <span>These Reps are in the vault now, it will release to you in next cycle.</span>
                                 </div>
                                 <div className="white-block">
                                     <div className="received-info">
