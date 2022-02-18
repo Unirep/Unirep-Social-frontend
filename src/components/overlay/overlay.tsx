@@ -4,7 +4,7 @@ import { WebContext } from '../../context/WebContext';
 import './overlay.scss';
 
 const Overlay = () => {
-    const { isMenuOpen, setIsMenuOpen, isLoading, user, setUser } = useContext(WebContext);
+    const { setIsMenuOpen, isLoading, user, setUser } = useContext(WebContext);
     const history = useHistory();
 
     const closeOverlay = () => {
@@ -22,14 +22,6 @@ const Overlay = () => {
         history.push('/');
     }
 
-    const join = () => {
-        history.push('/signup');
-    }
-
-    const signin = () => {
-        history.push('/login');
-    }
-
     return (
         <div className="overlay" onClick={closeOverlay}>
             <div className="blur-area"></div>
@@ -38,19 +30,19 @@ const Overlay = () => {
                     <img src="/images/close.svg" />
                 </div>
                 <div className="fixed-info">
-                    <p>How it work</p>
-                    <p>FAQ</p>
-                    <p>About</p>
+                    <a href="https://about.unirep.social/how-it-work">How it work</a>
+                    <a href="https://about.unirep.social/how-it-work#faq">FAQ</a>
+                    <a href="https://about.unirep.social">About</a>
                 </div>
                 {
                     user === null?
                         <div className="dynamic-info">
-                            <p>Send feedback</p>
-                            <p onClick={signin}>Sign in</p>
-                            <p onClick={join}>Join</p>
+                            <a href="/feedback">Send feedback</a>
+                            <a href="/login">Sign in</a>
+                            <a href="/signup">Join</a>
                         </div> : 
                         <div className="dynamic-info">
-                            <p>Send feedback</p>
+                            <a href="/feedback">Send feedback</a>
                             <p onClick={signout}>Sign out</p>
                         </div> 
                 }

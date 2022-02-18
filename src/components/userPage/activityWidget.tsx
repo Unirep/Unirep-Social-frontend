@@ -1,10 +1,7 @@
-import { useContext, useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { HashLink as Link } from 'react-router-hash-link'; 
 import dateformat from 'dateformat';
 import { Record, ActionType, titlePrefix, titlePostfix } from '../../constants';
-import { WebContext } from '../../context/WebContext';
-import { recordExpression } from '@babel/types';
 
 type Props = {
     record: Record,
@@ -82,7 +79,7 @@ const ActivityWidget = ({ record, isSpent }: Props) => {
                         <div className="side">
                             <div className="amount">{record.downvote + record.upvote}</div>
                             <div className="type">
-                                <img src={record.action === ActionType.Vote? (record.upvote > 0? '/images/boost-grey.png' : '/images/squash-grey.png'): '/images/unirep-grey.png'} />
+                                <img src={record.action === ActionType.Vote? (record.upvote > 0? '/images/boost.svg' : '/images/squash.svg'): '/images/unirep.svg'} />
                                 Used
                             </div>
                         </div> : <div></div>
@@ -90,7 +87,7 @@ const ActivityWidget = ({ record, isSpent }: Props) => {
                 <div className="main">
                     <div className="header">
                         <p>{date}</p>
-                        <div className="etherscan">Etherscan <img src="/images/etherscan.png" /></div>
+                        <div className="etherscan">Etherscan <img src="/images/etherscan.svg" /></div>
                     </div>
                     <div className="main-info">
                         <div className="who">

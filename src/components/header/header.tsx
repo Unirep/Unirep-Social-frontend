@@ -17,20 +17,13 @@ const Header = () => {
     }
 
     const gotoUserPage = () => {
-        if (!isLoading) {
-            history.push(`/user`);
-        }
+        history.push(`/user`, {isConfirmed: true});
     }
 
     const openMenu = () => {
-        if (!isMenuOpen) {
+        if (!isMenuOpen && !isLoading) {
             console.log('open menu!');
             setIsMenuOpen(true);
-        }
-    }
-
-    const gotoHomePage = () => {
-        if (!isLoading) {
         }
     }
 
@@ -41,7 +34,7 @@ const Header = () => {
     return (
         <header>
             <div className="navLinks">
-                <NavLink to="/" className="link" activeClassName="active" onClick={gotoHomePage} exact>
+                <NavLink to="/" className="link" activeClassName="active" exact>
                     <img src="/images/unirep-title.svg" />
                 </NavLink>
             </div>

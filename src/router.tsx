@@ -15,14 +15,18 @@ import LoginPage from './components/loginPage/loginPage';
 import SignupPage from './components/signupPage/signupPage';
 import NewPage from './components/newPage/newPage';
 import FeedbackPage from './components/feedbackPage/feedbackPage';
+import AdminPage from './components/adminPage/adminPage';
+import SettingPage from './components/settingPage/settingPage';
 
 import { WebContext } from './context/WebContext';
 
 const AppRouter = () => {
 
-    const [user, setUser] = useLocalStorage(Constants.userKey, null);
-    const [shownPosts, setShownPosts] = useLocalStorage(Constants.shownPostsKey, []);
-    const [nextUSTTime, setNextUSTTime] = useLocalStorage(Constants.nextUSTKey, 4789220745000);
+    const [user, setUser] = useLocalStorage('user', null);
+    const [shownPosts, setShownPosts] = useLocalStorage('shownPosts', []);
+    const [nextUSTTime, setNextUSTTime] = useLocalStorage('nextUSTTime', 4789220745000);
+    const [adminCode, setAdminCode] = useLocalStorage('admin', '');
+    const [draft, setDraft] = useLocalStorage('draft', null);
     const [isLoading, setIsLoading] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [page, setPage] = useState(Constants.Page.Home);
@@ -38,7 +42,9 @@ const AppRouter = () => {
                     nextUSTTime, setNextUSTTime,
                     isMenuOpen, setIsMenuOpen,
                     page, setPage,
-                    action, setAction}}>
+                    action, setAction,
+                    adminCode, setAdminCode,
+                    draft, setDraft}}>
                 <Header />
                 
                 <Switch>
@@ -50,6 +56,8 @@ const AppRouter = () => {
                     <Route component={SignupPage} path="/signup" />
                     <Route component={NewPage} path="/new" />
                     <Route component={FeedbackPage} path="/feedback" />
+                    <Route component={AdminPage} path="/admin" />
+                    <Route component={SettingPage} path="/setting" />
                     <Route component={() => <Redirect to="/" />} />
                 </Switch>
 

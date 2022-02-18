@@ -1,8 +1,3 @@
-export const pageStatusKey = "pageStatus";
-export const userKey = "user";
-export const shownPostsKey = "shownPosts";
-export const nextUSTKey = 'nextUSTTime';
-
 export const isVotedText = "You\'ve already voted.";
 export const isAuthorText = "You cannot vote on your own post or comment.";
 export const notLoginText = "Sign in to participate.";
@@ -122,6 +117,7 @@ export enum Page {
     Post,
     User,
     New,
+    Setting,
 }
 
 export enum ChoiceType {
@@ -153,6 +149,12 @@ export enum AlertType {
 
 export interface Params {
     id: string,
+}
+
+export interface Draft {
+    type: DataType,
+    title: string, 
+    content: string,
 }
 
 export const getDaysByString = (value: string) => {

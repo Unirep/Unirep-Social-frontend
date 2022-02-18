@@ -1,4 +1,5 @@
 import { useContext, useState, useEffect } from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
 
 import { getPostsByQuery, getRecords, getCommentsByQuery } from '../../utils';
 import { WebContext } from '../../context/WebContext';
@@ -42,6 +43,11 @@ const RepPortion = ({ spent, total, action } : Props) => {
 }
 
 const UserPage = () => {
+    const history = useHistory();
+    const location = useLocation<Location>();
+    const state = JSON.parse(JSON.stringify(location.state));
+    const isConfirmed = state.isConfirmed;
+
     const { isLoading, user } = useContext(WebContext);
     const [ records, setRecords ] = useState<Record[]>([]);
     const [ tag, setTag ] = useState<Tag>(Tag.Posts);
@@ -135,6 +141,10 @@ const UserPage = () => {
 
         getUserData();
 
+    }, []);
+
+    useEffect(() => {
+        console.log('Is this user page being confirmed? ' + isConfirmed);
     }, []);
 
     const switchDropdown = () => {

@@ -5,12 +5,14 @@ import './loginPage.scss';
 import { WebContext } from '../../context/WebContext'; 
 import { getEpochKeys, hasSignedUp, getUserState, userStateTransition, getAirdrop, getNextEpochTime, getEpochSpent } from '../../utils';
 import LoadingCover from '../loadingCover/loadingCover';
+import LoadingButton from '../loadingButton/loadingButton';
 
 const LoginPage = () => {
     const history = useHistory();
     const { user, setUser, setNextUSTTime, isLoading, setIsLoading } = useContext(WebContext);
     const [input, setInput] = useState<string>('');
     const [errorMsg, setErrorMsg] = useState<string>('');
+    const [isButtonLoading, setButtonLoading] = useState<boolean>(false);
 
     useEffect(() => {
         setErrorMsg('')
@@ -21,7 +23,9 @@ const LoginPage = () => {
     }
 
     const login = async () => {
+        setButtonLoading(true);
         const userSignUpResult = await hasSignedUp(input);
+        setButtonLoading(false);
         
         if(userSignUpResult.hasSignedUp === false) {
             setErrorMsg('Incorrect private key. Please try again.')
@@ -84,7 +88,7 @@ const LoginPage = () => {
                 <img src="/images/unirep-title-white.svg" />
             </div>
             <div className="right-column">
-                <img src="/images/close.svg" onClick={() => history.goBack()}/>
+                <img src="/images/close.svg" onClick={() => history.push('/')}/>
                 <div className="info">
                     <div className="title">Welcome back</div>
                     <p>Please paster your private key below.</p>
@@ -92,9 +96,11 @@ const LoginPage = () => {
                     {
                         errorMsg.length === 0? <div></div> : <div className="error">{errorMsg}</div>
                     }
-                    <div className="sign-in-btn" onClick={login}>Sign in</div>
-                    <div className="notification">Lost your private key? Hummm... we can't help you to recover it, that's a lesson learned for you. Want to restart to earn rep points? <span>Request an invitation code here.</span></div>
-                    <div className="go-to-signup">Got an invitation code? <span>Join here</span></div>
+                    <div className="sign-in-btn" onClick={login}>
+                        <LoadingButton isLoading={isButtonLoading} name="Sign in"/>
+                    </div>
+                    <div className="notification">Lost your private key? Hummm... we can't help you to recover it, that's a lesson learned for you. Want to restart to earn rep points? <a target="_blank" href="https://about.unirep.social/alpha-invitation">Request an invitation code here.</a></div>
+                    <div className="go-to-signup">Got an invitation code? <a href="/signup">Join here</a></div>
                 </div>
             </div>
             { isLoading? <LoadingCover /> : <div></div>}

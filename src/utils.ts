@@ -405,6 +405,7 @@ export const publishPost = async (content: string, epkNonce: number, identity: s
             transaction = data.transaction
         });
     
+    
     return {error, transaction, currentEpoch: ret.currentEpoch, epk: ret.epk, userState: ret.userState}
 }
 
@@ -482,7 +483,6 @@ export const leaveComment = async(identity: string, content: string, postId: str
             transaction = data.transaction
             commentId = data.commentId
         });
-    
     return {error, transaction, commentId, currentEpoch: ret.currentEpoch, epk: ret.epk, userState: ret.userState}
 }
 
@@ -774,4 +774,34 @@ export const sentReport = async (issue: string, email: string) => {
     await fetch(apiURL).then(response => ret = (response.ok === true));
 
     return ret;
+}
+
+
+//////////////////////////////// Admin related //////////////////////////////////
+export const checkIsAdminCodeValid = async (code: string) => {
+    const apiURL = makeURL('admin', {code});
+    return await fetch(apiURL).then(response => {
+        console.log(response)
+        return response.ok
+    });
+}
+
+export const adminLogin = async (id: string, password: string) => {
+    const apiURL = makeURL('admin', {id, password});
+
+    return await fetch(apiURL).then(
+        response => {
+            if (response.ok) return response.json();
+            else return ''
+        }).then(data => data);
+}
+
+export const genInvitationCode = async (code: string) => {
+    const apiURL = makeURL('genInvitationCode', {code});
+
+    return await fetch(apiURL).then(
+        response => {
+            if (response.ok) return response.json();
+            else return ''
+        }).then(data => data);
 }
