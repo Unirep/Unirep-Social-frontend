@@ -61,66 +61,63 @@ const LoadingWidget = () => {
             let newUser: any = {};
             let spentRet = await getEpochSpent(user? user.epoch_keys : []);
 
-            if (action.action === ActionType.UST) {
+            const currentEpoch = await getCurrentEpoch();
+            if (user !== undefined && JSON.parse(user?.userState).latestTransitionedEpoch !== currentEpoch) {
+                console.log('user epoch is not the same as current epoch, do user state transition, ' + JSON.parse(user?.userState).latestTransitionedEpoch + ' != ' + currentEpoch);
                 data = await doUST();  
+
+                if (data.error !== undefined) {
+                    console.log(data.error);
+                    setGoto('/');
+                    setLoadingState(LoadingState.fail);
+                    return;
+                } else {
+                    newUser = data.user;
+                }
+
                 spentRet = 0;
-            } else {
-                const currentEpoch = await getCurrentEpoch();
-                if (user !== undefined && JSON.parse(user?.userState).latestTransitionedEpoch !== currentEpoch) {
-                    console.log('user epoch is not the same as current epoch, do user state transition, ' + JSON.parse(user?.userState).latestTransitionedEpoch + ' != ' + currentEpoch);
-                    data = await doUST();  
+            }
+            
+            console.log('in the head of loading widget, spent is: ' + spentRet);
 
-                    if (data.error !== undefined) {
-                        console.log(data.error);
-                        setGoto('/');
-                        setLoadingState(LoadingState.fail);
-                        return;
-                    } else {
-                        newUser = data.user;
-                    }
-
-                    spentRet = 0;
-                }
-                
-                console.log('in the head of loading widget, spent is: ' + spentRet);
-
-                if (action.action === ActionType.Post) {
-                    data = await publishPost(
-                        action.data.content,
-                        action.data.epkNonce,
-                        action.data.identity,
-                        0,
-                        spentRet,
-                        action.data.userState,
-                        action.data.title,
-                    );
-                    spentRet += config.DEFAULT_POST_KARMA
-                } else if (action.action === ActionType.Comment) {
-                    data = await leaveComment(
-                        action.data.identity,
-                        action.data.content,
-                        action.data.data,
-                        action.data.epkNonce,
-                        0,
-                        spentRet,
-                        action.data.userState
-                    );
-                    spentRet += config.DEFAULT_COMMENT_KARMA
-                } else if (action.action === ActionType.Vote) {
-                    data = await vote(
-                        action.data.identity, 
-                        action.data.upvote, 
-                        action.data.downvote, 
-                        action.data.data, 
-                        action.data.epk, 
-                        action.data.epkNonce, 
-                        0, 
-                        action.data.isPost, 
-                        spentRet, 
-                        action.data.userState
-                    );
-                    spentRet += action.data.upvote + action.data.downvote
-                }
+            if (action.action === ActionType.Post) {
+                data = await publishPost(
+                    action.data.content,
+                    action.data.epkNonce,
+                    action.data.identity,
+                    0,
+                    spentRet,
+                    action.data.userState,
+                    action.data.title,
+                );
+                spentRet += config.DEFAULT_POST_KARMA
+            } else if (action.action === ActionType.Comment) {
+                data = await leaveComment(
+                    action.data.identity,
+                    action.data.content,
+                    action.data.data,
+                    action.data.epkNonce,
+                    0,
+                    spentRet,
+                    action.data.userState
+                );
+                spentRet += config.DEFAULT_COMMENT_KARMA
+            } else if (action.action === ActionType.Vote) {
+                data = await vote(
+                    action.data.identity, 
+                    action.data.upvote, 
+                    action.data.downvote, 
+                    action.data.data, 
+                    action.data.epk, 
+                    action.data.epkNonce, 
+                    0, 
+                    action.data.isPost, 
+                    spentRet, 
+                    action.data.userState
+                );
+                spentRet += action.data.upvote + action.data.downvote
+            } else if (action.action === ActionType.UST) {
+                console.log('already check epoch and do ust...');
             }
 
             if (data.error !== undefined) {
