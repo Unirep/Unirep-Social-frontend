@@ -26,7 +26,7 @@ const SignupPage = () => {
     ];
 
     const content = [
-        "UniRep Social currently is an invite only community. Please enter your invitation code below.",
+        "Currently, UniRep Social is an invite only community. Please enter your invitation code below.",
         "UniRep Social’s anonymous reputation system uses a technology called Semaphore, which generates a secure private key that you use instead of a username and password to show that you’re a registered UniRep user. Yes, we know it’s not exactly easy to memorize - that’s why it’s very important for you to store it safely.<br> This key is how you access your UniRep account and Rep points, and we can’t recover it for you if it’s lost.",
         "Please paste your private key below.",
         "Ownership is confirmed, we want to celebrate this by giving you 30 Rep. In every cycle, members in the community will receive 3 different epoch keys as persona & 30 Reps to interact within the community. So be kind, be nice & let’s make our community sweet."

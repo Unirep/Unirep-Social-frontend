@@ -93,7 +93,7 @@ const UserInfoWidget = () => {
                         <div className="block-title">Remaining time: <HelpWidget type={InfoType.countdown} /></div>
                         <div className="countdown">{countdownText}</div>
                         <div className="margin"></div>
-                        <p>Transition at:</p>
+                        <div className="block-title">Transition at:</div>
                         <div className="countdown small">{nextUSTTimeString}</div>
                     </div>
                 </div> : <div></div>

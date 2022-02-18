@@ -91,7 +91,7 @@ const LoginPage = () => {
                 <img src="/images/close.svg" onClick={() => history.push('/')}/>
                 <div className="info">
                     <div className="title">Welcome back</div>
-                    <p>Please paster your private key below.</p>
+                    <p>To enter the app, please use the private key you got when you signed up.</p>
                     <textarea placeholder="enter your private key here." onChange={handleInput} />
                     {
                         errorMsg.length === 0? <div></div> : <div className="error">{errorMsg}</div>

@@ -70,8 +70,8 @@ export enum InfoType {
     epk4Post = 'Select one of epoch key as the persona to post this post',
     epk4Comment = 'Select one of epoch key as the persona to post this comment',
     rep = 'Show off or being modest. This might influence how other people think of the content',
-    countdown = 'Not yet decide what to say',
-    persona = 'Not yet decide what to say'
+    countdown = 'During this epoch, you will be able to boost or squash post that are created during the same epoch. After the transition, the previous post will be locked for boosting or squashing.',
+    persona = 'In each epoch, the system will renew your persona so it will takes about million years to associate any content posted by you. You got all the freedom to be who you are, but let’s be nice to each other :)'
 }
 
 export interface Record {
