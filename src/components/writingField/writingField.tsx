@@ -122,7 +122,7 @@ const WritingField = (props: Props) => {
                     </div>
                 </div>
                 <div className="element">
-                    <div className="name">My Rep show off <HelpWidget type={InfoType.rep} /></div>
+                    <div className="name">My Rep display <HelpWidget type={InfoType.rep} /></div>
                     <div className="rep-chooser">
                         <input type="range" 
                             min={defaultRep} 
