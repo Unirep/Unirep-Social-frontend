@@ -152,7 +152,9 @@ const LoadingWidget = () => {
                 setGoto('/');
             }
             
+            console.log('before set is loading to false');
             setIsLoading(false);
+            console.log('after set isLoading to true');
         }
         
         if (action !== null && user !== null && !isLoading) {

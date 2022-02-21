@@ -23,12 +23,12 @@ import { WebContext } from './context/WebContext';
 const AppRouter = () => {
 
     const [user, setUser] = useLocalStorage('user', null);
-    const [shownPosts, setShownPosts] = useLocalStorage('shownPosts', []);
+    const [shownPosts, setShownPosts] = useState<Constants.Post[]>([]);
     const [nextUSTTime, setNextUSTTime] = useLocalStorage('nextUSTTime', 4789220745000);
     const [adminCode, setAdminCode] = useLocalStorage('admin', '');
     const [draft, setDraft] = useLocalStorage('draft', null);
     const [isLoading, setIsLoading] = useLocalStorage('isLoading' ,false);
-    const [action, setAction] = useLocalStorage('action', null);
+    const [action, setAction] = useState<any>(null);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [page, setPage] = useState(Constants.Page.Home);
     
