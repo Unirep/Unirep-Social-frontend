@@ -8,7 +8,7 @@ import HelpWidget from '../helpWidget/helpWidget';
 import { ActionType, InfoType } from '../../constants';
 
 const UserInfoWidget = () => {
-    const { user, nextUSTTime, action, setAction } = useContext(WebContext);
+    const { user, nextUSTTime, action, setAction, isLoading, setIsLoading } = useContext(WebContext);
     const [ countdownText, setCountdownText ] = useState<string>('');
     const [ diffTime, setDiffTime ] = useState<number>(0);
     const [ isAlertOn, setAlertOn ] = useState<boolean>(false);
@@ -19,7 +19,7 @@ const UserInfoWidget = () => {
         setDiffTime(diff);
 
         if (diff <= 0 && user !== null) {
-            if (action === null && !isAlertOn) {
+            if (action === null && !isAlertOn && !isLoading) {
                 setAlertOn(true);
                 confirmAlert({
                     closeOnClickOutside: true,
@@ -32,7 +32,7 @@ const UserInfoWidget = () => {
                                         identity: user.identity,
                                         userState: user.userState,
                                     };
-                                    if (action === null) {
+                                    if (action === null && !isLoading) {
                                         setAction({action: ActionType.UST, data: actionData});
                                     }
                                     setAlertOn(false);
@@ -45,8 +45,6 @@ const UserInfoWidget = () => {
                     }
                 });
                 
-            } else {
-                setAlertOn(false);
             }
             
             return 'Doing UST...';
@@ -79,6 +77,13 @@ const UserInfoWidget = () => {
             return () => clearTimeout(timer);
         }
     , [diffTime]);
+
+    window.addEventListener("storage", (e) => {
+        if (e.key === 'isLoading' && e.newValue === 'true') {
+            console.log('close alert on other tab');
+            setIsLoading(true);
+        } 
+    });
 
     return (
         <div>

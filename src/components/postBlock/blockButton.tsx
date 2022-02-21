@@ -13,7 +13,7 @@ type Props = {
 const BlockButton = ({ type, count, data }: Props) => {
     
     const history = useHistory();
-    const { user, isLoading } = useContext(WebContext);
+    const { user, isLoading, setIsLoading } = useContext(WebContext);
 
     const [isBoostOn, setBoostOn] = useState<boolean>(false);
     const [isSquashOn, setSquashOn] = useState<boolean>(false);
@@ -80,9 +80,14 @@ const BlockButton = ({ type, count, data }: Props) => {
     }, [isLinkCopied])
 
     window.addEventListener("storage", (e) => {
-        console.log(e);
-        // if (isLoading) setIsAble(false);
-        // else setIsAble(checkAbility());
+        if (e.key === 'isLoading') {
+            if (e.newValue === 'true') {
+                setIsLoading(true);
+                setIsAble(false);
+            } else {
+                setIsAble(checkAbility());
+            }
+        } 
     });
 
     useEffect(() => {

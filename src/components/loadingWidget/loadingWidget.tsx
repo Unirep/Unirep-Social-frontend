@@ -53,8 +53,8 @@ const LoadingWidget = () => {
 
     useEffect(() => {
         const doAction = async () => {
-            console.log('Todo action: ' + JSON.stringify(action));
             setIsLoading(true);
+            console.log('Todo action: ' + JSON.stringify(action));
             setLoadingState(LoadingState.loading);
 
             const next = await getNextEpochTime();
