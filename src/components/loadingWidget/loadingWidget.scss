@@ -62,5 +62,8 @@
     .failed {
         background-color: #FFEBEB;
         color: $red;
+        link {
+            color: $red;
+        }
     }
 }

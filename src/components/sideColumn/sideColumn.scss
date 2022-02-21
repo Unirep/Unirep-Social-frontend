@@ -53,6 +53,7 @@
         color: $grey-700;
         display: flex;
         flex-direction: row;
+        padding-bottom: 8px;
     }
 
     h3 {
@@ -88,7 +89,7 @@
                 background-color: $grey-200;
                 padding: 4px 8px;
                 border-radius: 8px;
-                font-size: $text-xxs;
+                font-size: $text-xs;
                 color: $grey-700;
                 margin-right: 8px;
             }
@@ -114,6 +115,7 @@
     .custom-btn {
         outline: none;
         border: none;
+        padding:16px;
         border-radius: 4px;
         background-color: $black;
         color: $white;

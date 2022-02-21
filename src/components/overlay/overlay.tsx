@@ -30,8 +30,8 @@ const Overlay = () => {
                     <img src="/images/close.svg" />
                 </div>
                 <div className="fixed-info">
-                    <a href="https://about.unirep.social/how-it-work">How it work</a>
-                    <a href="https://about.unirep.social/how-it-work#faq">FAQ</a>
+                    <a href="https://about.unirep.social/how-it-works">How it work</a>
+                    <a href="https://about.unirep.social/how-it-works#faq">FAQ</a>
                     <a href="https://about.unirep.social">About</a>
                 </div>
                 {
