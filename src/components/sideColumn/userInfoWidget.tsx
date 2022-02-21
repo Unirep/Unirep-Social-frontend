@@ -26,7 +26,8 @@ const UserInfoWidget = () => {
                     customUI: ({ onClose }) => {
                         return (
                             <div className='custom-ui'>
-                                <h3>Confirm to do UST</h3>
+                                <p>User State Transition</p>
+                                <h2>It’s time to move on to the new cycle!</h2>
                                 <button className="custom-btn" onClick={() => {
                                     const actionData = {
                                         identity: user.identity,
@@ -36,7 +37,7 @@ const UserInfoWidget = () => {
                                     setAlertOn(false);
                                     onClose();
                                 }}>
-                                    Yes
+                                    Let's go
                                 </button>
                             </div>
                         )
@@ -81,7 +82,7 @@ const UserInfoWidget = () => {
             { user !== null? 
                 <div className="user-info-widget widget">
                     <div className="rep-info">
-                        <p>My Reps</p>
+                        <p>My Rep</p>
                         <h3><img src="/images/lighting.svg"/>{user.reputation - user.spent}</h3>
                     </div>
                     <div className="ust-info">

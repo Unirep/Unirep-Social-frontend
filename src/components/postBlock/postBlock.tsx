@@ -77,7 +77,7 @@ const PostBlock = ({ post, page }: Props) => {
                                                 page={Page.Post}
                                                 closeComment={() => setShowCommentField(false)}
                                             /> : 
-                                            <textarea placeholder="What's your thought?" onClick={() => setShowCommentField(true)} />
+                                            <textarea placeholder="What do you think?" onClick={() => setShowCommentField(true)} />
                         }
                     </div>
                     <div className="divider"></div>
@@ -93,7 +93,7 @@ const PostBlock = ({ post, page }: Props) => {
                             }
                         </div> : <div className="no-comments">
                             <img src="/images/glasses.svg" />
-                            <p>It's empty here.<br/>People just being shy, no comment yet.</p>
+                            <p>Nothing to see here.<br/>People are just being shy.</p>
                         </div>
                     }
                     

@@ -120,7 +120,7 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
                     </div>
                 </div>
                 <div className="white-box">
-                    <div className="submit" onClick={doVote}>Yep, Let's do it.</div>
+                    <div className="submit" onClick={doVote}>Yep, let's do it.</div>
                     <div className="histories">
                         <div className="main-btn" onClick={() => setHistoriesOpen(!isHistoriesOpen)}>
                             <div className="btn-name">
