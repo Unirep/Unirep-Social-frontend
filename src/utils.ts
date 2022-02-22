@@ -449,7 +449,7 @@ export const vote = async(identity: string, upvote: number, downvote: number, da
     return {error, epk: ret.epk, transaction, userState: ret.userState} 
 }
 
-export const leaveComment = async(identity: string, content: string, postId: string, epkNonce: number = 0, minRep: number = 0, spent: number = 0, us: any) => {
+export const leaveComment = async(identity: string, content: string, postId: string, epkNonce: number = 0, minRep: number = config.DEFAULT_COMMENT_KARMA, spent: number = 0, us: any) => {
     let error
     let transaction: string = ''
     let commentId: string = ''

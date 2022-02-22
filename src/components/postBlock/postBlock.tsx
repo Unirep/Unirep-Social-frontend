@@ -1,9 +1,10 @@
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import dateformat from 'dateformat';
 
 import { WebContext } from '../../context/WebContext';
 import { Post, Page, ButtonType, AlertType, DataType } from '../../constants';
+import { DEFAULT_POST_KARMA } from '../../config';
 import CommentField from './commentField';
 import CommentBlock from './commentBlock';
 import BlockButton from './blockButton';
@@ -45,7 +46,7 @@ const PostBlock = ({ post, page }: Props) => {
                 <p className="date">{date} |</p>
                 <p className="user" onMouseEnter={() => setEpkHovered(true)} onMouseLeave={() => setEpkHovered(false)}>
                     Post by {post.epoch_key} <img src="/images/lighting.svg" /> 
-                    {/* { isEpkHovered? <div className="show-off-rep">{post.reputation === DEFAULT_POST_KARMA? `This person is very modest, showing off only ${DEFAULT_POST_KARMA} Rep.` : `This person is showing off ${post.reputation} Rep.`}</div> : <div></div>} */}
+                    { isEpkHovered? <div className="show-off-rep">{post.reputation === DEFAULT_POST_KARMA? `This person is very modest, showing off only ${DEFAULT_POST_KARMA} Rep.` : `This person is showing off ${post.reputation} Rep.`}</div> : <div></div>}
                 </p>
                 <a className="etherscan" target="_blank" href={`https://goerli.etherscan.io/tx/${post.id}`}> 
                     <span>Etherscan</span>

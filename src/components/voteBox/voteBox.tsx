@@ -57,7 +57,6 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
                 data: 'post_id' in data? data.post_id + '_' + data.id : data.id,
                 epk: data.epoch_key,
                 epkNonce,
-                minRep: 0,
                 isPost,
                 spent: user.spent,
                 userState: user.userState,

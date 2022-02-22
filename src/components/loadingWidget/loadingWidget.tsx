@@ -88,7 +88,7 @@ const LoadingWidget = () => {
                     action.data.content,
                     action.data.epkNonce,
                     action.data.identity,
-                    0,
+                    action.data.reputation,
                     spentRet,
                     action.data.userState,
                     action.data.title,
@@ -100,7 +100,7 @@ const LoadingWidget = () => {
                     action.data.content,
                     action.data.data,
                     action.data.epkNonce,
-                    0,
+                    action.data.reputation,
                     spentRet,
                     action.data.userState
                 );
@@ -113,7 +113,7 @@ const LoadingWidget = () => {
                     action.data.data, 
                     action.data.epk, 
                     action.data.epkNonce, 
-                    0, 
+                    action.data.upvote + action.data.downvote, 
                     action.data.isPost, 
                     spentRet, 
                     action.data.userState

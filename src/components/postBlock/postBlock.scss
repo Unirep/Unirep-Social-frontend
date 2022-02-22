@@ -34,11 +34,10 @@
 
         .show-off-rep {
           position: absolute;
-          bottom: 5px;
+          display: inline-block;
+          top: -35px;
           height: 30px;
-          min-width: 150px;
-          max-width: 300px;
-          word-break: no-break;
+          width: max-content;
           background-color: $grey-800;
           color: $white;
           border-radius: 4px;
