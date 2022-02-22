@@ -179,6 +179,12 @@ const LoadingWidget = () => {
         return () => clearTimeout(timer);
     }, [isFlip]);
 
+    useEffect(() => {
+        if (user === null) {
+            resetLoading();
+        }
+    }, [user])
+
     const resetLoading = () => {
         if (loadingState === LoadingState.loading) {
             return;
