@@ -31,6 +31,16 @@ const AppRouter = () => {
     const [action, setAction] = useState<any>(null);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [page, setPage] = useState(Constants.Page.Home);
+
+    window.addEventListener("storage", (e) => {
+        if (e.key === 'isLoading') {
+            if (e.newValue === 'true') {
+                setIsLoading(true);
+            } else {
+                setIsLoading(false);
+            }
+        }
+    });
     
     return (
         <BrowserRouter>

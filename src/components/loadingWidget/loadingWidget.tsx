@@ -1,5 +1,4 @@
 import { useState, useContext, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
 import { HashLink as Link } from 'react-router-hash-link'; 
 
 import './loadingWidget.scss';
@@ -7,6 +6,7 @@ import { WebContext } from '../../context/WebContext';
 import { publishPost, vote, leaveComment, getEpochSpent, userStateTransition, getUserState, getEpochKeys, getAirdrop, getNextEpochTime, getCurrentEpoch } from '../../utils';
 import { ActionType } from '../../constants';
 import * as config from '../../config';
+import { getPostById } from '../../utils';
 
 enum LoadingState {
     loading,
@@ -16,7 +16,7 @@ enum LoadingState {
 }
 
 const LoadingWidget = () => {
-    const { isLoading, setIsLoading, action, setAction, user, setUser, setNextUSTTime, setDraft } = useContext(WebContext);
+    const { isLoading, setIsLoading, action, setAction, user, setUser, setNextUSTTime, setDraft, shownPosts, setShownPosts } = useContext(WebContext);
     const [ loadingState, setLoadingState ] = useState<LoadingState>(LoadingState.none);
     const [ isFlip, setFlip ] = useState<boolean>(false);
     const [ goto, setGoto ] = useState<string>('');
@@ -142,28 +142,33 @@ const LoadingWidget = () => {
                 setLoadingState(LoadingState.success);
             }
 
+            let pid: string = '';
             if (action.action === ActionType.Post) {
                 setGoto(data.error === undefined? '/post/' + data.transaction : '/new');
+                pid = data.transaction
             } else if (action.action === ActionType.Vote) {
                 setGoto('/post/' + action.data.data.replace('_', '#'));
+                pid = action.data.data.split('_')[0];
             } else if (action.action === ActionType.Comment) {
                 setGoto(data.error === undefined? '/post/' + action.data.data + '#' + data.transaction : '/post/' + action.data.data);
+                pid = action.data.data;
             } else if (action.action === ActionType.UST) {
                 setGoto('/');
             }
+
+            if (pid.length > 0) {
+                const postRet = await getPostById(pid);
+                let newShownPosts = shownPosts.map(p => p.id === pid? postRet: p);
+                setShownPosts(newShownPosts);
+            }
             
-            console.log('before set is loading to false');
             setIsLoading(false);
-            console.log('after set isLoading to true');
         }
         
         if (action !== null && user !== null && !isLoading) {
             console.log('do action');
             doAction();  
-        } else {
-            console.log('action: ' + JSON.stringify(action));
-            console.log('isLoading: ' + isLoading);
-        }
+        } 
     }, [action]);
 
     useEffect(() => {

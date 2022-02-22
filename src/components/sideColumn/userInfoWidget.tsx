@@ -81,7 +81,6 @@ const UserInfoWidget = () => {
 
     window.addEventListener("storage", (e) => {
         if (e.key === 'isLoading' && e.newValue === 'true') {
-            console.log('close alert on other tab');
             setIsLoading(true);
         } 
     });

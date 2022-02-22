@@ -29,6 +29,22 @@
       .user {
         margin-right: auto;
         display: flex;
+        cursor: pointer;
+        position: relative;
+
+        .show-off-rep {
+          position: absolute;
+          bottom: 5px;
+          height: 30px;
+          min-width: 150px;
+          max-width: 300px;
+          word-break: no-break;
+          background-color: $grey-800;
+          color: $white;
+          border-radius: 4px;
+          padding: 8px;
+          font-size: $text-xxs;
+        }
       }
 
       .date {

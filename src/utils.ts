@@ -372,7 +372,7 @@ export const userSignUp = async () => {
 }
 
 
-export const publishPost = async (content: string, epkNonce: number, identity: string, minRep: number = 0, spent: number = 0, us: any, title: string = '') => {
+export const publishPost = async (content: string, epkNonce: number, identity: string, minRep: number = config.DEFAULT_POST_KARMA, spent: number = 0, us: any, title: string = '') => {
     let error
     let transaction: string = ''
     const ret = await genProof(identity, epkNonce, config.DEFAULT_POST_KARMA, minRep, us, spent)
@@ -724,7 +724,7 @@ export const getPostById = async (postid: string) => {
     let ret: any;
     await fetch(apiURL).then(response => response.json()).then(
         data => {
-            console.log(data);
+            // console.log(data);
             ret = convertDataToPost(data, false);
         }
     );

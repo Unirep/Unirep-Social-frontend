@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import dateformat from 'dateformat';
 
@@ -32,10 +32,10 @@ const PostBlock = ({ post, page }: Props) => {
 
     const history = useHistory();
     const { isLoading, user, draft } = useContext(WebContext);
-    const gotoComment = React.createRef<HTMLDivElement>();
 
     const date = dateformat(new Date(post.post_time), "dd/mm/yyyy hh:MM TT");
     const [ showCommentField, setShowCommentField ] = useState(draft !== null && draft.type === DataType.Comment);
+    const [ isEpkHovered, setEpkHovered] = useState<boolean>(false);
 
     const textLimit = 240;
 
@@ -43,7 +43,10 @@ const PostBlock = ({ post, page }: Props) => {
         <div className="post-block">
             <div className="block-header">
                 <p className="date">{date} |</p>
-                <p className="user">Post by {post.epoch_key} <img src="/images/lighting.svg" /> </p>
+                <p className="user" onMouseEnter={() => setEpkHovered(true)} onMouseLeave={() => setEpkHovered(false)}>
+                    Post by {post.epoch_key} <img src="/images/lighting.svg" /> 
+                    {/* { isEpkHovered? <div className="show-off-rep">{post.reputation === DEFAULT_POST_KARMA? `This person is very modest, showing off only ${DEFAULT_POST_KARMA} Rep.` : `This person is showing off ${post.reputation} Rep.`}</div> : <div></div>} */}
+                </p>
                 <a className="etherscan" target="_blank" href={`https://goerli.etherscan.io/tx/${post.id}`}> 
                     <span>Etherscan</span>
                     <img src="/images/etherscan.svg" />
