@@ -132,7 +132,7 @@ const SignupPage = () => {
                     step === 0? <img src="/images/close.svg" onClick={() => history.push('/')}/> : <div></div>
                 }
                 <div className="info">
-                    <div className="title">{title[step].split('<br>').map(t => <span>{t}<br/></span>)}</div>
+                    <div className="title">{title[step].split('<br>').map(t => <span key={t}>{t}<br/></span>)}</div>
                     <p>{content[step]}</p>
                     {
                         step === 3? 
