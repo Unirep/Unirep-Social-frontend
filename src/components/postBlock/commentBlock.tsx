@@ -27,7 +27,7 @@ const CommentBlock = ({comment, page}: Props) => {
             <div className="block-header comment-block-header no-padding">
                 <p className="date">{date} |</p>
                 <div className="user" onMouseEnter={() => setEpkHovered(true)} onMouseLeave={() => setEpkHovered(false)}>
-                    Post by {comment.epoch_key} <img src="/images/lighting.svg" /> 
+                    <p>Post by {comment.epoch_key} <img src="/images/lighting.svg" /></p>
                     { isEpkHovered? <div className="show-off-rep">{comment.reputation === DEFAULT_COMMENT_KARMA? `This person is very modest, showing off only ${DEFAULT_COMMENT_KARMA} Rep.` : `This person is showing off ${comment.reputation} Rep.`}</div> : <div></div>}
                 </div>
                 <a className="etherscan" target="_blank" href={`https://goerli.etherscan.io/tx/${comment.id}`}> 

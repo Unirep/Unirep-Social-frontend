@@ -45,7 +45,7 @@ const PostBlock = ({ post, page }: Props) => {
             <div className="block-header">
                 <p className="date">{date} |</p>
                 <div className="user" onMouseEnter={() => setEpkHovered(true)} onMouseLeave={() => setEpkHovered(false)}>
-                    Post by {post.epoch_key} <img src="/images/lighting.svg" /> 
+                    <p>Post by {post.epoch_key} <img src="/images/lighting.svg" /></p>
                     { isEpkHovered? <div className="show-off-rep">{post.reputation === DEFAULT_POST_KARMA? `This person is very modest, showing off only ${DEFAULT_POST_KARMA} Rep.` : `This person is showing off ${post.reputation} Rep.`}</div> : <div></div>}
                 </div>
                 <a className="etherscan" target="_blank" href={`https://goerli.etherscan.io/tx/${post.id}`}> 
