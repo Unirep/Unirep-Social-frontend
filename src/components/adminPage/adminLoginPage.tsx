@@ -19,7 +19,7 @@ const AdminLoginPage = ({submit}: Props) => {
     }
 
     return (
-        <div className="admin-login">
+        <div className="admin-main">
             <h3>Admin Login</h3>
             <input type="text" placeholder="enter admin id" onChange={handleIdInput} />
             <input type="text" placeholder="enter admin password" onChange={handlePasswordInput} />

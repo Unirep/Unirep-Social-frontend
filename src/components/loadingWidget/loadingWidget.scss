@@ -51,6 +51,14 @@
                 }
             }
 
+            .failed {
+                color: $red;
+
+                &:hover {
+                    color: $red;
+                }
+            }
+
             img {
                 width: 16px;
                 height: 16px;
@@ -62,8 +70,5 @@
     .failed {
         background-color: #FFEBEB;
         color: $red;
-        link {
-            color: $red;
-        }
     }
 }

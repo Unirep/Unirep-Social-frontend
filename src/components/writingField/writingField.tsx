@@ -45,7 +45,7 @@ const WritingField = (props: Props) => {
         setTitle(event.target.value);
 
         if (draft === null) {
-            const d: Draft = {type: props.type, title: event.target.value, content: ''};
+            const d: Draft = {type: props.type, title: event.target.value, content};
             setDraft(d);
         } else {
             if (draft.type === props.type) {
@@ -60,7 +60,7 @@ const WritingField = (props: Props) => {
         setContent(event.target.value);
         
         if (draft === null) {
-            const d: Draft = {type: props.type, title: '', content: event.target.value};
+            const d: Draft = {type: props.type, title, content: event.target.value};
             setDraft(d);
         } else {
             if (draft.type === props.type) {
@@ -79,8 +79,11 @@ const WritingField = (props: Props) => {
         if (user === null) {
             setErrorMsg('Please sign up or sign in');
         } else {
-            console.log('before submit, the title is ' + title);
-            props.submit(title, content, epkNonce, reputation);
+            if (title.length === 0 && content.length === 0) {
+                setErrorMsg('Please input either title or content.');
+            } else {
+                props.submit(title, content, epkNonce, reputation);
+            }
         }
     }
 
@@ -120,6 +123,7 @@ const WritingField = (props: Props) => {
                 </div>
             </div>
             <div className="submit-btn" onClick={submit}>{props.submitBtnName}</div>
+            { errorMsg.length > 0? <div className="error">{errorMsg}</div>: <div></div>}
         </div>
     );
 }

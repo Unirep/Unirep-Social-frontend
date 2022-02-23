@@ -126,6 +126,7 @@ const LoadingWidget = () => {
             if (data.error !== undefined) {
                 console.log('action ' + action.action + ' error: ' + data.error);
                 setLoadingState(LoadingState.failed);
+                setIsLoading(false);
                 return;
             } else {
                 console.log('without error.');
@@ -222,7 +223,7 @@ const LoadingWidget = () => {
                         <img src="/images/close-red.svg" />
                         <span>Fail.</span> 
                         <div className="info-row">
-                            <Link className="link" to={goto}>See my content</Link>
+                            <Link className="link failed" to={goto}>See my content</Link>
                         </div>
                     </div> : <div></div>
             }
