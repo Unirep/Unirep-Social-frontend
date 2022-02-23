@@ -14,8 +14,8 @@ const signUpPublicSignalsPrefix = 'Unirep.signUp.publicSignals.'
 // const SERVER = 'http://localhost:3001'
 // const DEFAULT_ETH_PROVIDER = 'http://localhost:8545'
 const SERVER = 'http://backend:3001'
-// const DEFAULT_ETH_PROVIDER = 'https://eth-goerli.alchemyapi.io/v2/tYp-IJU_idg28iohx9gsLqhq6KRZxk7f'
-const DEFAULT_ETH_PROVIDER = 'https://hardhat.unirep.social'
+const DEFAULT_ETH_PROVIDER = 'https://eth-goerli.alchemyapi.io/v2/tYp-IJU_idg28iohx9gsLqhq6KRZxk7f'
+// const DEFAULT_ETH_PROVIDER = 'https://hardhat.unirep.social'
 const DEFAULT_START_BLOCK = 0
 const DEFAULT_MAX_EPOCH_KEY_NONCE = 2
 const DEFAULT_NUM_ATTESTATIONS_PER_EPOCH_KEY = 6
@@ -27,10 +27,8 @@ const DEFAULT_COMMENT_KARMA = 3
 const MAX_KARMA_BUDGET = 10
 const DEFAULT_AIRDROPPED_KARMA = 30
 
-const UNIREP = '0x0165878A594ca255338adfa4d48449f69242Eb8F'
-const UNIREP_SOCIAL = '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853'
-// const UNIREP = '0x7b06f51459E05FC2E973e2181E02A4dc0FbfA452';
-// const UNIREP_SOCIAL = '0xc7f739EbF152534d5613a8c6365DD3Cb10D6c07a';
+const UNIREP = '0x6F559A43190f11F8A4F66BC38525A128D9Dc3F79'
+const UNIREP_SOCIAL = '0xe9D09cF3CEDCC7b9aAbeaDA8A11998E7c47C332D'
 const UNIREP_SOCIAL_ABI = UnirepSocial.abi
 const UNIREP_SOCIAL_ATTESTER_ID = 1
 
