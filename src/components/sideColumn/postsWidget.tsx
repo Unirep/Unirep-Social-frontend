@@ -1,4 +1,5 @@
 import { useContext, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import { WebContext } from '../../context/WebContext';
 import { Post } from '../../constants';
 
@@ -18,9 +19,10 @@ const isAuthor = (p: Post, epks: undefined | string[]) => {
 
 const RankingBlock = ({ post, ranking, hasUnderline }: Props) => {
     const { user } = useContext(WebContext);
+    const history = useHistory();
     
     return (
-        <div className={hasUnderline ? "ranking-block underline" : "ranking-block"}>
+        <div className={hasUnderline ? "ranking-block underline" : "ranking-block"} onClick={() => history.push('/post/' + post.id)}>
             <div className="ranking-block-header">
                 <div className="ranking">
                     <img src="/images/boost-fill.svg" />
@@ -30,7 +32,10 @@ const RankingBlock = ({ post, ranking, hasUnderline }: Props) => {
                     {post.upvote}
                 </div>
             </div>
-            <div className="ranking-block-content">{post.content}</div>
+            <div className="ranking-block-content">
+                <h4>{post.title}</h4>
+                <p>{post.content}</p>
+            </div>
         </div>
     );
 }

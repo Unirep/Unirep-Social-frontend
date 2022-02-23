@@ -27,8 +27,6 @@ const NewPage = () => {
         console.log('submit post');
         if (user === null) {
             console.log('not login yet.');
-        } else if (content.length === 0) {
-            console.error('not enter anything yet.');
         } else {
             const actionData = {
                 title,

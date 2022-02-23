@@ -53,6 +53,7 @@
         color: $grey-700;
         display: flex;
         flex-direction: row;
+        padding-bottom: 8px;
     }
 
     h3 {
@@ -88,7 +89,7 @@
                 background-color: $grey-200;
                 padding: 4px 8px;
                 border-radius: 8px;
-                font-size: $text-xxs;
+                font-size: $text-xs;
                 color: $grey-700;
                 margin-right: 8px;
             }
@@ -114,6 +115,7 @@
     .custom-btn {
         outline: none;
         border: none;
+        padding:16px;
         border-radius: 4px;
         background-color: $black;
         color: $white;
@@ -146,19 +148,24 @@
 .posts-widget {
     border-radius: 8px;
     border: 1px solid $grey-300;
-    padding: 24px;
 
     h3 {
         font-size: $title-sm;
         font-weight: 600;
         color: $grey-700;
-        margin-bottom: 24px;
+        margin: 24px;
     }
 
     .ranking-block {
         width: 100%;
         font-size: $text-base;
         color: $grey-700;
+        padding: 24px;
+
+        &:hover {
+            background-color: $grey-100;
+            cursor: pointer;
+        }
 
         .ranking-block-header {
             width: 100%;
@@ -196,13 +203,16 @@
             width: 100%;
             margin-top: 8px;
             word-break: break-all;
+
+            p {
+                max-height: 54px;
+                overflow: hidden;
+            }
         }
     }
 
     .underline {
         border-bottom: 1px solid $grey-300;
-        margin-bottom: 24px;
-        padding-bottom: 32px;
     }
 }
 

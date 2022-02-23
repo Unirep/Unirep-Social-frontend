@@ -8,7 +8,7 @@ import HelpWidget from '../helpWidget/helpWidget';
 import { ActionType, InfoType } from '../../constants';
 
 const UserInfoWidget = () => {
-    const { user, nextUSTTime, action, setAction } = useContext(WebContext);
+    const { user, nextUSTTime, action, setAction, isLoading, setIsLoading } = useContext(WebContext);
     const [ countdownText, setCountdownText ] = useState<string>('');
     const [ diffTime, setDiffTime ] = useState<number>(0);
     const [ isAlertOn, setAlertOn ] = useState<boolean>(false);
@@ -19,24 +19,27 @@ const UserInfoWidget = () => {
         setDiffTime(diff);
 
         if (diff <= 0 && user !== null) {
-            if (action === null && !isAlertOn) {
+            if (action === null && !isAlertOn && !isLoading) {
                 setAlertOn(true);
                 confirmAlert({
                     closeOnClickOutside: true,
                     customUI: ({ onClose }) => {
                         return (
                             <div className='custom-ui'>
-                                <h3>Confirm to do UST</h3>
+                                <p>User State Transition</p>
+                                <h2>It’s time to move on to the new cycle!</h2>
                                 <button className="custom-btn" onClick={() => {
                                     const actionData = {
                                         identity: user.identity,
                                         userState: user.userState,
                                     };
-                                    setAction({action: ActionType.UST, data: actionData});
+                                    if (action === null && !isLoading) {
+                                        setAction({action: ActionType.UST, data: actionData});
+                                    }
                                     setAlertOn(false);
                                     onClose();
                                 }}>
-                                    Yes
+                                    Let's go
                                 </button>
                             </div>
                         )
@@ -76,12 +79,18 @@ const UserInfoWidget = () => {
         }
     , [diffTime]);
 
+    window.addEventListener("storage", (e) => {
+        if (e.key === 'isLoading' && e.newValue === 'true') {
+            setIsLoading(true);
+        } 
+    });
+
     return (
         <div>
             { user !== null? 
                 <div className="user-info-widget widget">
                     <div className="rep-info">
-                        <p>My Reps</p>
+                        <p>My Rep</p>
                         <h3><img src="/images/lighting.svg"/>{user.reputation - user.spent}</h3>
                     </div>
                     <div className="ust-info">
@@ -93,7 +102,7 @@ const UserInfoWidget = () => {
                         <div className="block-title">Remaining time: <HelpWidget type={InfoType.countdown} /></div>
                         <div className="countdown">{countdownText}</div>
                         <div className="margin"></div>
-                        <p>Transition at:</p>
+                        <div className="block-title">Transition at:</div>
                         <div className="countdown small">{nextUSTTimeString}</div>
                     </div>
                 </div> : <div></div>

@@ -29,7 +29,7 @@ const CommentField = (props: Props) => {
                 content,
                 data: props.post.id,
                 epkNonce,
-                minRep: 0,
+                reputation,
                 spent: user.spent, 
                 userState: user.userState
             };

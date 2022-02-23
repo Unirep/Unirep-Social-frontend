@@ -5,6 +5,7 @@ import './signupPage.scss';
 import { WebContext } from '../../context/WebContext';
 import { getEpochKeys, getUserState, getAirdrop, getNextEpochTime, checkInvitationCode, userSignUp} from '../../utils';
 import LoadingCover from '../loadingCover/loadingCover';
+import LoadingButton from '../loadingButton/loadingButton';
 
 const SignupPage = () => {
     const history = useHistory();
@@ -15,19 +16,20 @@ const SignupPage = () => {
     const [isDownloaded, setIsDownloaded] = useState(false);
     const [userEnterIdentity, setUserEnterIdentity] = useState<string>('');
     const [errorMsg, setErrorMsg] = useState<string>('');
+    const [isButtonLoading, setButtonLoading] = useState<boolean>(false);
 
     const title = [
         "Join us",
         "Great to have you here!",
         "Let's confirm the ownership.",
-        "🎉  NICE. "
+        `🎉  NICE. <br>30 Rep + 3 personas awaits you!`
     ];
 
     const content = [
-        "UniRep Social currently is an invite only community. Please enter your invitation code below.",
-        "UniRep Social’s anonymous reputation system uses a technology called Semaphore, which generates a secure private key that you use instead of a username and password to show that you’re a registered UniRep user. Yes, we know it’s not exactly easy to memorize - that’s why it’s very important for you to store it safely. \n This key is how you access your UniRep account and Rep points, and we can’t recover it for you if it’s lost. ",
+        "Currently, UniRep Social is an invite only community. Please enter your invitation code below.",
+        "UniRep Social’s anonymous reputation system uses a technology called Semaphore. It generates a secure private key that you use instead of a username and password to show that you’re a registered UniRep user. Yes, we know it’s not exactly easy to memorize - that’s why it’s very important for you to store it safely. <br> This key is how you access your UniRep account and Rep. We can not recover it for you if it’s lost. ",
         "Please paste your private key below.",
-        "Ownership is confirmed, we want to celebrate this by giving you 30 Rep. In every cycle, members in the community will receive 3 different epoch keys as persona & 30 Reps to interact within the community. So be kind, be nice & let’s make our community sweet."
+        "Now that you have confirmed ownership of your private key, it’s time to generate your weekly personas. In every cycle, members of the community  receive 3 different random strings to use as personas and 30 Rep. which are used for interactions. Let’s be kind to one another and start having fun!"
     ];
 
     const mainButton = [
@@ -45,6 +47,7 @@ const SignupPage = () => {
         if (step === 0) {
             // send to server to check if invitation code does exist
             // if exists, get identity and commitment
+            setButtonLoading(true);
             const ret = await checkInvitationCode(invitationCode);
             if (ret) {
                 const {i, c, epoch} = await userSignUp();
@@ -53,6 +56,7 @@ const SignupPage = () => {
             } else {
                 setErrorMsg("Umm...this is not working. Try again or request a new code.");
             }
+            setButtonLoading(false);
         } else if (step === 1) {
             if (isDownloaded) {
                 navigator.clipboard.writeText(identity);
@@ -125,10 +129,10 @@ const SignupPage = () => {
             </div>
             <div className="right-column">
                 {
-                    step === 0? <img src="/images/close.svg" onClick={() => history.goBack()}/> : <div></div>
+                    step === 0? <img src="/images/close.svg" onClick={() => history.push('/')}/> : <div></div>
                 }
                 <div className="info">
-                    <div className="title">{title[step]}</div>
+                    <div className="title">{title[step].split('<br>').map(t => <span>{t}<br/></span>)}</div>
                     <p>{content[step]}</p>
                     {
                         step === 3? 
@@ -155,7 +159,9 @@ const SignupPage = () => {
                                     <div className={isDownloaded? "line" : "line disabled"}></div>
                                     <div className={isDownloaded? "number" : "number disabled"}>2</div>
                                 </div>
-                            </div> : <div className="main-btn" onClick={nextStep}>{mainButton[step]}</div>
+                            </div> : <div className="main-btn" onClick={nextStep}>
+                                <LoadingButton isLoading={isButtonLoading} name={mainButton[step]}/>
+                            </div>
                     }
                     <div className="added-info">Need an invitation code? <a href="https://about.unirep.social/alpha-invitation" target="_blank">Request here</a></div>
                 </div>

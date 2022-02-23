@@ -68,10 +68,10 @@ export enum ButtonType {
 
 export enum InfoType {
     epk4Post = 'Select one of epoch key as the persona to post this post',
-    epk4Comment = 'Select one of epoch key as the persona to post this comment',
-    rep = 'Show off or being modest. This might influence how other people think of the content',
-    countdown = 'Not yet decide what to say',
-    persona = 'Not yet decide what to say'
+    epk4Comment = 'Select one of persona to post this',
+    rep = 'Show off or be modest. This might influence how other people perceive your content.',
+    countdown = 'You will be able to boost or squash the posts that are created during this cycle until it ends. When a  cycle is over, content from that cycle becomes read-only.',
+    persona = 'Each cycle, the system gives you new personas. It would take a million years to associate your identity with any content you post here. You have all the freedom to be who you are, but let’s be nice to each other :)'
 }
 
 export interface Record {
@@ -140,8 +140,8 @@ export enum QueryType {
 }
 
 export enum AlertType {
-    commentNotEnoughPoints = "Comment is disabled because you are running out of points...",
-    commentNotLogin = "Please sign in to leave comment.",
+    commentNotEnoughPoints = "Boo, you do not have enough Rep to comment.",
+    commentNotLogin = "Please sign in to comment.",
     commentLoading = "Loading...",
     postNotLogin = "You must join or login to create post",
     postNotEnoughPoints = "Post is disabled because you are running out of points...",

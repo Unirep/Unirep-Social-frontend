@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
+import { WebContext } from '../../context/WebContext';
 import { Page, Params, Post } from '../../constants';
 import PostBlock from '../postBlock/postBlock';
 import SideColumn from '../sideColumn/sideColumn';
@@ -8,14 +9,14 @@ import './postPage.scss';
 
 const PostPage = () => {
     const { id } = useParams<Params>();
-    const [postToShow, setPostToShow] = useState<Post|undefined>();
+    const { shownPosts, setShownPosts } = useContext(WebContext);
+
+    const setPost = async () => {
+        const ret = await getPostById(id);
+        setShownPosts([ret]);
+    }
 
     useEffect(() => {
-        const setPost = async () => {
-            const ret = await getPostById(id);
-            setPostToShow(ret);
-        }
-
         setPost();
     }, []);
 
@@ -25,10 +26,10 @@ const PostPage = () => {
                 <div className="margin-box"></div>
                 <div className="main-content">
                     {
-                        postToShow === undefined? 
+                        shownPosts.length === 0? 
                             <div>No such post with id {id}.</div> : 
                             <PostBlock 
-                                post={postToShow} 
+                                post={shownPosts[0]} 
                                 page={Page.Post}
                             />
                     }  

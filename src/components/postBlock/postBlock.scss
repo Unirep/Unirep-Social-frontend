@@ -29,6 +29,21 @@
       .user {
         margin-right: auto;
         display: flex;
+        cursor: pointer;
+        position: relative;
+
+        .show-off-rep {
+          position: absolute;
+          display: inline-block;
+          top: -35px;
+          height: 30px;
+          width: max-content;
+          background-color: $grey-800;
+          color: $white;
+          border-radius: 4px;
+          padding: 8px;
+          font-size: $text-xxs;
+        }
       }
 
       .date {

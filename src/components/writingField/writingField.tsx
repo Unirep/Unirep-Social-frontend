@@ -25,8 +25,6 @@ const WritingField = (props: Props) => {
     const [ content, setContent ] = useState<string>('');
     const [ epkNonce, setEpkNonce ] = useState<number>(0);
     const [ errorMsg, setErrorMsg ] = useState<string>('');
-    const [ isBlockLoading, setIsBlockLoading ] = useState(false);
-    const [percentage, setPercentage] = useState<number>(0);
 
     useEffect(() => {
         if (draft !== null && draft.type === props.type) {
@@ -34,16 +32,6 @@ const WritingField = (props: Props) => {
             setContent(draft.content);
         }
     }, []);
-
-    useEffect(() => {
-        if (isBlockLoading) {
-            const timer = setTimeout(() => {
-                setPercentage(((percentage + 1) % 100) + 1);
-            }, 100);
-
-            return () => clearTimeout(timer);
-        }
-    }, [percentage]);
 
     useEffect(() => {
         setErrorMsg('');
@@ -57,7 +45,7 @@ const WritingField = (props: Props) => {
         setTitle(event.target.value);
 
         if (draft === null) {
-            const d: Draft = {type: props.type, title: event.target.value, content: ''};
+            const d: Draft = {type: props.type, title: event.target.value, content};
             setDraft(d);
         } else {
             if (draft.type === props.type) {
@@ -72,7 +60,7 @@ const WritingField = (props: Props) => {
         setContent(event.target.value);
         
         if (draft === null) {
-            const d: Draft = {type: props.type, title: '', content: event.target.value};
+            const d: Draft = {type: props.type, title, content: event.target.value};
             setDraft(d);
         } else {
             if (draft.type === props.type) {
@@ -91,11 +79,11 @@ const WritingField = (props: Props) => {
         if (user === null) {
             setErrorMsg('Please sign up or sign in');
         } else {
-            setIsLoading(true);
-            setPercentage(1);
-            setIsBlockLoading(true);
-            console.log('before submit, the title is ' + title);
-            props.submit(title, content, epkNonce, reputation);
+            if (title.length === 0 && content.length === 0) {
+                setErrorMsg('Please input either title or content.');
+            } else {
+                props.submit(title, content, epkNonce, reputation);
+            }
         }
     }
 
@@ -122,7 +110,7 @@ const WritingField = (props: Props) => {
                     </div>
                 </div>
                 <div className="element">
-                    <div className="name">My Rep show off <HelpWidget type={InfoType.rep} /></div>
+                    <div className="name">My Rep display <HelpWidget type={InfoType.rep} /></div>
                     <div className="rep-chooser">
                         <input type="range" 
                             min={defaultRep} 
@@ -135,6 +123,7 @@ const WritingField = (props: Props) => {
                 </div>
             </div>
             <div className="submit-btn" onClick={submit}>{props.submitBtnName}</div>
+            { errorMsg.length > 0? <div className="error">{errorMsg}</div>: <div></div>}
         </div>
     );
 }

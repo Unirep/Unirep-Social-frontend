@@ -117,6 +117,11 @@ body {
     font-weight: 700;
   }
 
+  h4 {
+    font-size: $text-md;
+    font-weight: 600;
+  }
+
   .wrapper {
     margin-top: 104px;
     width: 100vw;
@@ -133,21 +138,23 @@ body {
 
   .main-content {
     flex: 7;
-    // margin: 0px 104px 100px 104px;
     margin-top: 0px;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     padding: 32px 12px;
+    flex-shrink: 1;
   }
   
   .side-content {
     flex: 3;
     padding: 32px 12px;
+    flex-shrink: 1;
   }
   
   .margin-box {
     flex: 1;
+    flex-shrink: 0.25;
   }
   
   @media screen and (max-width: 400px) {
