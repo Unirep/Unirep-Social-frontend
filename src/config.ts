@@ -11,9 +11,9 @@ const reputationPublicSignalsPrefix = 'Unirep.reputation.publicSignals.'
 const signUpProofPrefix = 'Unirep.signUp.proof.'
 const signUpPublicSignalsPrefix = 'Unirep.signUp.publicSignals.'
 
-// const SERVER = 'http://localhost:3001'
-// const DEFAULT_ETH_PROVIDER = 'http://localhost:8545'
 const SERVER = 'http://backend:3001'
+// const DEFAULT_ETH_PROVIDER = 'http://localhost:8545'
+// const SERVER = 'http://backend:3001'
 const DEFAULT_ETH_PROVIDER = 'https://eth-goerli.alchemyapi.io/v2/tYp-IJU_idg28iohx9gsLqhq6KRZxk7f'
 // const DEFAULT_ETH_PROVIDER = 'https://hardhat.unirep.social'
 const DEFAULT_START_BLOCK = 0
