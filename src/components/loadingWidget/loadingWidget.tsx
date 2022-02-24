@@ -73,6 +73,7 @@ const LoadingWidget = () => {
                     console.log(data.error);
                     setGoto('/');
                     setLoadingState(LoadingState.failed);
+                    setIsLoading(false);
                     return;
                 } else {
                     newUser = data.user;
