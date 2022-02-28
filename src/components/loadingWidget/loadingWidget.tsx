@@ -39,15 +39,14 @@ const LoadingWidget = () => {
                     userState: userStateResult.userState.toJSON(),
                     all_epoch_keys: [...user.all_epoch_keys, ...epks]
                 }
-                USTData = {...USTData, user: newUser};
+                setUser({...newUser, spent: 0});
             }
             const { error } = await getAirdrop(user.identity, userStateResult.userState);
             if (error !== undefined) {
-                console.error(error)
                 USTData = {...USTData, error};
             } 
         }
-
+        
         return USTData;
     }
 
@@ -61,7 +60,6 @@ const LoadingWidget = () => {
             setNextUSTTime(next);
 
             let data: any = {};
-            let newUser: any = undefined;
             let spentRet = await getEpochSpent(user? user.epoch_keys : []);
 
             const currentEpoch = await getCurrentEpoch();
@@ -75,8 +73,6 @@ const LoadingWidget = () => {
                     setLoadingState(LoadingState.failed);
                     setIsLoading(false);
                     return;
-                } else {
-                    newUser = data.user;
                 }
 
                 spentRet = 0;
@@ -133,13 +129,8 @@ const LoadingWidget = () => {
                 console.log('without error.');
                 setDraft(null);
 
-                newUser = data.user;
                 if (user !== null) {
-                    if (newUser === undefined) {
-                        setUser({...user, spent: spentRet});
-                    } else {
-                        setUser({...newUser, spent: spentRet});
-                    }
+                    setUser({...user, spent: spentRet});
                 }
                 setLoadingState(LoadingState.success);
             }
