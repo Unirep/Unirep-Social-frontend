@@ -24,8 +24,9 @@ const LoadingWidget = () => {
     const doUST = async () => {
         let USTData: any = null;
         USTData = await userStateTransition(action.data.identity, action.data.userState);
-        let newUser;
+        if (USTData.error !== undefined) return USTData
 
+        let newUser;
         if (user !== null) {
             const userStateResult = await getUserState(user.identity);
             const epks = getEpochKeys(user.identity, userStateResult.currentEpoch);
