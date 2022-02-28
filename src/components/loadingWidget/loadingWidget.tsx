@@ -7,6 +7,7 @@ import { publishPost, vote, leaveComment, getEpochSpent, userStateTransition, ge
 import { ActionType } from '../../constants';
 import * as config from '../../config';
 import { getPostById } from '../../utils';
+import { stringifyBigInts } from '@unirep/crypto';
 
 enum LoadingState {
     loading,
@@ -24,13 +25,12 @@ const LoadingWidget = () => {
     const doUST = async () => {
         let USTData: any = null;
         USTData = await userStateTransition(action.data.identity, action.data.userState);
-        if (USTData.error !== undefined) return USTData
 
         let newUser;
         if (user !== null) {
             const userStateResult = await getUserState(user.identity);
             const epks = getEpochKeys(user.identity, userStateResult.currentEpoch);
-            const rep = userStateResult.userState.getRepByAttester(BigInt(userStateResult.attesterId));
+            const rep = userStateResult.userState.getRepByAttester(BigInt(config.UNIREP_SOCIAL_ATTESTER_ID));
             if (USTData !== undefined) {
                 newUser = {...user, 
                     epoch_keys: epks, 
@@ -42,6 +42,7 @@ const LoadingWidget = () => {
                 }
                 USTData = {...USTData, user: newUser};
             }
+            if (USTData.error !== undefined) return USTData
             const { error } = await getAirdrop(user.identity, userStateResult.userState);
             if (error !== undefined) {
                 USTData = {...USTData, error};
@@ -72,6 +73,7 @@ const LoadingWidget = () => {
 
                 if (data.error !== undefined) {
                     console.log(data.error);
+                    setUser({...newUser, spent: 0});
                     setGoto('/');
                     setLoadingState(LoadingState.failed);
                     setIsLoading(false);
