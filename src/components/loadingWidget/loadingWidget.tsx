@@ -39,14 +39,14 @@ const LoadingWidget = () => {
                     userState: userStateResult.userState.toJSON(),
                     all_epoch_keys: [...user.all_epoch_keys, ...epks]
                 }
-                setUser({...newUser, spent: 0});
+                USTData = {...USTData, user: newUser};
             }
             const { error } = await getAirdrop(user.identity, userStateResult.userState);
             if (error !== undefined) {
                 USTData = {...USTData, error};
             } 
         }
-        
+
         return USTData;
     }
 
@@ -60,12 +60,14 @@ const LoadingWidget = () => {
             setNextUSTTime(next);
 
             let data: any = {};
+            let newUser: any = undefined;
             let spentRet = await getEpochSpent(user? user.epoch_keys : []);
 
             const currentEpoch = await getCurrentEpoch();
             if (user !== null && user !== undefined && JSON.parse(user.userState).latestTransitionedEpoch !== currentEpoch) {
                 console.log('user epoch is not the same as current epoch, do user state transition, ' + JSON.parse(user?.userState).latestTransitionedEpoch + ' != ' + currentEpoch);
                 data = await doUST();  
+                newUser = data.user;
 
                 if (data.error !== undefined) {
                     console.log(data.error);
@@ -120,6 +122,14 @@ const LoadingWidget = () => {
                 console.log('already check epoch and do ust...');
             }
 
+            if (user !== null) {
+                if (newUser === undefined) {
+                    setUser({...user, spent: spentRet});
+                } else {
+                    setUser({...newUser, spent: spentRet});
+                }
+            }
+
             if (data.error !== undefined) {
                 console.log('action ' + action.action + ' error: ' + data.error);
                 setLoadingState(LoadingState.failed);
@@ -128,10 +138,6 @@ const LoadingWidget = () => {
             } else {
                 console.log('without error.');
                 setDraft(null);
-
-                if (user !== null) {
-                    setUser({...user, spent: spentRet});
-                }
                 setLoadingState(LoadingState.success);
             }
 
