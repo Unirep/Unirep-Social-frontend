@@ -21,6 +21,7 @@ const LoadingWidget = () => {
     const [ loadingState, setLoadingState ] = useState<LoadingState>(LoadingState.none);
     const [ isFlip, setFlip ] = useState<boolean>(false);
     const [ goto, setGoto ] = useState<string>('');
+    const [ tx, setTx ] = useState<string>(''); 
     
     const doUST = async () => {
         let USTData: any = null;
@@ -157,6 +158,7 @@ const LoadingWidget = () => {
             } else if (action.action === ActionType.UST) {
                 setGoto('/');
             }
+            setTx(data.transaction);
 
             if (pid.length > 0) {
                 const postRet = await getPostById(pid);
@@ -216,7 +218,7 @@ const LoadingWidget = () => {
                         { action.action === ActionType.UST? 
                             <div className="info-row">User State Transition done.</div> : 
                             <div className="info-row">
-                                <Link className="link" to={goto}>See my content</Link> | <span onClick={gotoEtherscan}>Etherscan <img src="/images/etherscan-white.svg"/></span>
+                                <Link className="link" to={goto}>See my content</Link> | <a className="link" target="_blank" href={'https://goerli.etherscan.io/tx/' + tx}>Etherscan <img src="/images/etherscan-white.svg"/></a>
                             </div>
                         } 
                     </div> : loadingState === LoadingState.failed?
