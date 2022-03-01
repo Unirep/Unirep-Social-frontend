@@ -529,6 +529,7 @@ export const userStateTransition = async (identity: string, us: any) => {
     console.log('before UST api: ' + stringifiedData)
 
     let transaction: string = ''
+    let error = undefined
     await fetch(apiURL, {
         headers: header,
         body: stringifiedData,
@@ -537,9 +538,10 @@ export const userStateTransition = async (identity: string, us: any) => {
        .then(function(data){
            console.log(JSON.stringify(data))
            transaction = data.transaction
+           error = data.error
     });
     
-    return {transaction, toEpoch, userState}
+    return {error, transaction, toEpoch, userState}
 }
 
 export const getRecords = async (currentEpoch: number, identity: string) => {

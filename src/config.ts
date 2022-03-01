@@ -47,7 +47,7 @@ const maxReputationBudget = 10;
 const ABOUT_URL = "https://about.unirep.social";
 
 export {
-    SERVER,
+    // SERVER,
     identityPrefix,
     identityCommitmentPrefix,
     epkProofPrefix,

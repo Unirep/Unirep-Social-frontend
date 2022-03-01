@@ -7,6 +7,7 @@ import { publishPost, vote, leaveComment, getEpochSpent, userStateTransition, ge
 import { ActionType } from '../../constants';
 import * as config from '../../config';
 import { getPostById } from '../../utils';
+import { stringifyBigInts } from '@unirep/crypto';
 
 enum LoadingState {
     loading,
@@ -20,16 +21,17 @@ const LoadingWidget = () => {
     const [ loadingState, setLoadingState ] = useState<LoadingState>(LoadingState.none);
     const [ isFlip, setFlip ] = useState<boolean>(false);
     const [ goto, setGoto ] = useState<string>('');
+    const [ tx, setTx ] = useState<string>(''); 
     
     const doUST = async () => {
         let USTData: any = null;
         USTData = await userStateTransition(action.data.identity, action.data.userState);
-        let newUser;
 
+        let newUser;
         if (user !== null) {
             const userStateResult = await getUserState(user.identity);
             const epks = getEpochKeys(user.identity, userStateResult.currentEpoch);
-            const rep = userStateResult.userState.getRepByAttester(BigInt(userStateResult.attesterId));
+            const rep = userStateResult.userState.getRepByAttester(BigInt(config.UNIREP_SOCIAL_ATTESTER_ID));
             if (USTData !== undefined) {
                 newUser = {...user, 
                     epoch_keys: epks, 
@@ -41,9 +43,9 @@ const LoadingWidget = () => {
                 }
                 USTData = {...USTData, user: newUser};
             }
+            if (USTData.error !== undefined) return USTData
             const { error } = await getAirdrop(user.identity, userStateResult.userState);
             if (error !== undefined) {
-                console.error(error)
                 USTData = {...USTData, error};
             } 
         }
@@ -68,15 +70,15 @@ const LoadingWidget = () => {
             if (user !== null && user !== undefined && JSON.parse(user.userState).latestTransitionedEpoch !== currentEpoch) {
                 console.log('user epoch is not the same as current epoch, do user state transition, ' + JSON.parse(user?.userState).latestTransitionedEpoch + ' != ' + currentEpoch);
                 data = await doUST();  
+                newUser = data.user;
 
                 if (data.error !== undefined) {
                     console.log(data.error);
+                    setUser({...newUser, spent: 0});
                     setGoto('/');
                     setLoadingState(LoadingState.failed);
                     setIsLoading(false);
                     return;
-                } else {
-                    newUser = data.user;
                 }
 
                 spentRet = 0;
@@ -124,6 +126,14 @@ const LoadingWidget = () => {
                 console.log('already check epoch and do ust...');
             }
 
+            if (user !== null) {
+                if (newUser === undefined) {
+                    setUser({...user, spent: spentRet});
+                } else {
+                    setUser({...newUser, spent: spentRet});
+                }
+            }
+
             if (data.error !== undefined) {
                 console.log('action ' + action.action + ' error: ' + data.error);
                 setLoadingState(LoadingState.failed);
@@ -132,15 +142,6 @@ const LoadingWidget = () => {
             } else {
                 console.log('without error.');
                 setDraft(null);
-
-                newUser = data.user;
-                if (user !== null) {
-                    if (newUser === undefined) {
-                        setUser({...user, spent: spentRet});
-                    } else {
-                        setUser({...newUser, spent: spentRet});
-                    }
-                }
                 setLoadingState(LoadingState.success);
             }
 
@@ -157,6 +158,7 @@ const LoadingWidget = () => {
             } else if (action.action === ActionType.UST) {
                 setGoto('/');
             }
+            setTx(data.transaction);
 
             if (pid.length > 0) {
                 const postRet = await getPostById(pid);
@@ -216,7 +218,7 @@ const LoadingWidget = () => {
                         { action.action === ActionType.UST? 
                             <div className="info-row">User State Transition done.</div> : 
                             <div className="info-row">
-                                <Link className="link" to={goto}>See my content</Link> | <span onClick={gotoEtherscan}>Etherscan <img src="/images/etherscan-white.svg"/></span>
+                                <Link className="link" to={goto}>See my content</Link> | <a className="link" target="_blank" href={'https://goerli.etherscan.io/tx/' + tx}>Etherscan <img src="/images/etherscan-white.svg"/></a>
                             </div>
                         } 
                     </div> : loadingState === LoadingState.failed?
