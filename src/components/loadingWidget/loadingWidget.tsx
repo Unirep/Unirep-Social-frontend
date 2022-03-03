@@ -224,7 +224,7 @@ const LoadingWidget = () => {
                     </div> : loadingState === LoadingState.failed?
                     <div className="loading-block failed">
                         <img src="/images/close-red.svg" />
-                        <span>Fail.</span> 
+                        <span>Posting to blockchain failed.</span> 
                         <div className="info-row">
                             <Link className="link failed" to={goto}>See my content</Link>
                         </div>
