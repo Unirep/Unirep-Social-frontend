@@ -59,8 +59,7 @@ const decodeIdentity = (identity: string) => {
 }
 
 export const hasSignedUp = async (identity: string) => {
-    const provider = new ethers.providers.JsonRpcProvider(config.DEFAULT_ETH_PROVIDER)
-    const unirepContract = getUnirepContract(config.UNIREP, provider)
+    const unirepContract = getUnirepContract(config.UNIREP, config.DEFAULT_ETH_PROVIDER)
 
     const { commitment } = decodeIdentity(identity)
 
@@ -72,12 +71,10 @@ export const hasSignedUp = async (identity: string) => {
 }
 
 const hasSignedUpInUnirepSocial = async (identityCommitment: BigInt) => {
-    const ethProvider = config.DEFAULT_ETH_PROVIDER
-    const provider = new ethers.providers.JsonRpcProvider(ethProvider)
     const unirepSocial = new ethers.Contract(
         config.UNIREP_SOCIAL,
         config.UNIREP_SOCIAL_ABI,
-        provider,
+        config.DEFAULT_ETH_PROVIDER,
     )
     const userSignUpFilter = unirepSocial.filters.UserSignedUp(null, identityCommitment)
     const userSignUpEvent = await unirepSocial.queryFilter(userSignUpFilter)
@@ -98,13 +95,12 @@ export const getUserState = async (identity: string, us?: any, update?: boolean)
         const endTime = new Date().getTime()
         console.log(`Gen us time: ${endTime - startTime} ms (${Math.floor((endTime - startTime) / 1000)} s)`)
     } else {
-        const provider = new ethers.providers.JsonRpcProvider(config.DEFAULT_ETH_PROVIDER)
         const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
         const unirepContract = await unirepSocialContract.getUnirep();
         const parsedUserState = us !== undefined ? JSON.parse(us) : us
         console.log('update user state from stored us')
         userState = await genUserStateFromContract(
-            provider,
+            config.DEFAULT_ETH_PROVIDER,
             unirepContract.address,
             id,
             parsedUserState,
@@ -202,11 +198,10 @@ const genAirdropProof = async (identity: string, us: any) => {
 export const getAirdrop = async (identity: string, us: any) => {
     let error
     let transaction: string = ''
-    const provider = new ethers.providers.JsonRpcProvider(config.DEFAULT_ETH_PROVIDER)
     const unirepSocial = new ethers.Contract(
         config.UNIREP_SOCIAL,
         config.UNIREP_SOCIAL_ABI,
-        provider,
+        config.DEFAULT_ETH_PROVIDER,
     )
     const { proof, publicSignals, userState } = await genAirdropProof(identity, us);
     const { identityNullifier } = decodeIdentity(identity)
