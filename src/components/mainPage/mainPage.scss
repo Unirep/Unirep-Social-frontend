@@ -35,6 +35,10 @@
             top: 5px;
             right: 24px;
             height: 210px;
+
+            @media (max-width: 1000px) {
+                display: none;
+            }
         }
 
         .banner-title {
@@ -51,6 +55,7 @@
             position: absolute;
             top: 128px;
             left: 40px;
+            padding-right: 12px;
 
             font-size: $text-sm;
         }
