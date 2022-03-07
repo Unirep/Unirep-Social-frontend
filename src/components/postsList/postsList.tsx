@@ -1,5 +1,3 @@
-import { useContext } from 'react';
-
 import PostBlock from '../postBlock/postBlock';
 import { Post, Page } from '../../constants';
 import './postsList.scss';

@@ -88,14 +88,14 @@ const BlockButton = ({ type, count, data }: Props) => {
         <div 
             className={type === ButtonType.Share? "block-button share" : "block-button"} 
             onMouseEnter={() => setIsHover(true)} 
-            onMouseOut={onMouseOut}
+            onMouseLeave={onMouseOut}
             onClick={onClick}>
             <img src={`/images/${type}${isHover && isAble? '-fill' : ''}.svg`} />
             {   
                 type !== ButtonType.Share? 
                     <span className="count">{count}</span> : <span></span>
             }
-            <span>{type.charAt(0).toUpperCase() + type.slice(1)}</span>
+            <span className="btn-name">{type.charAt(0).toUpperCase() + type.slice(1)}</span>
 
             {
                 isAble? <div></div> : <div className="disabled" onMouseEnter={setReminderMessage}></div>
