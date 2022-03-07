@@ -16,6 +16,10 @@
       background: #FDFDFD;
       opacity: 0.8;
       backdrop-filter: blur(30px);
+
+      @media (max-width: 600px) {
+        display: none;
+      }
     }
 
     .black-area {
@@ -25,6 +29,7 @@
       opacity: 1;
       color: $white;
       position: relative;
+
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -52,11 +57,12 @@
         font-size: $title-xl;
         font-weight: 700;
         line-height: 62px;
+        margin-bottom: 40px;
 
         flex: 5;
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: space-around;
 
         a {
           cursor: pointer;
@@ -74,11 +80,12 @@
         font-size: $title-sm;
         font-weight: 600;
         line-height: 28px;
+        margin-bottom: 56px;
 
         flex: 3;
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: space-around;
 
         a, p {
           cursor: pointer;
