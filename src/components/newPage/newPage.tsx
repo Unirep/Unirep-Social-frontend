@@ -42,9 +42,9 @@ const NewPage = () => {
     }
 
     return (
-        <div className="wrapper">
-            <div className="default-gesture">
-                <div className="margin-box"></div>
+        <div className="body-columns">
+            <div className="margin-box"></div>
+            <div className="content">
                 <div className="main-content">
                     <h3>Create post</h3>
                     <WritingField
@@ -57,8 +57,8 @@ const NewPage = () => {
                 <div className="side-content">
                     <SideColumn page={Page.New} />
                 </div>
-                <div className="margin-box"></div>
             </div>
+            <div className="margin-box"></div>
         </div>
     );
 }

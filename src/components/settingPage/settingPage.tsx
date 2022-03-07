@@ -14,9 +14,9 @@ const SettingPage = () => {
     const isConfirmed = state.isConfirmed;
 
     return (
-        <div className="wrapper">
-            <div className="default-gesture">
-                <div className="margin-box"></div>
+        <div className="body-columns">
+            <div className="margin-box"></div>
+            <div className="content">
                 <div className="main-content">
                     <div className="back" onClick={() => history.push('/user', {isConfirmed: true})}><img src="/images/arrow-left.svg" /></div>
                     <PrivateKey />
@@ -24,8 +24,8 @@ const SettingPage = () => {
                 <div className="side-content">
                     <SideColumn page={Page.Setting} />
                 </div>
-                <div className="margin-box"></div>
             </div>
+            <div className="margin-box"></div>
         </div>
     );
 }

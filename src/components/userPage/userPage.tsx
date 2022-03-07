@@ -43,7 +43,6 @@ const RepPortion = ({ spent, total, action } : Props) => {
 }
 
 const UserPage = () => {
-    const history = useHistory();
     const location = useLocation<Location>();
     const state = JSON.parse(JSON.stringify(location.state));
     const isConfirmed = state.isConfirmed;
@@ -193,114 +192,113 @@ const UserPage = () => {
     }
 
     return (
-        <div className="wrapper">
-            <div className="default-gesture" onClick={closeAll}>
-                <div className="margin-box"></div>
-                { user !== null? 
-                    <div className="main-content">
-                        <h3>My Stuff</h3> 
-                        <div className="my-stuff">
-                            <div className="my-reps stuff">
-                                <div className="white-block">
-                                    <p>My Rep</p>
-                                    <div className="rep-info"><img src="/images/lighting.svg" />{user.reputation - user.spent}</div>
-                                </div>
-                                <div className="grey-block">
-                                    <span>How I use my rep in this cycle</span><br/>
-                                    <div className="rep-bar">
-                                        { 
-                                            spent.map((s, i) => <RepPortion spent={s} total={user.reputation} action={i} key={i} />)
-                                        }
-                                    </div>
-                                </div>
+        <div className="body-columns">
+            <div className="margin-box"></div>
+            <div className="content"> 
+            { user !== null? 
+                <div className="main-content">
+                    <h3>My Stuff</h3> 
+                    <div className="my-stuff">
+                        <div className="my-reps stuff">
+                            <div className="white-block">
+                                <p>My Rep</p>
+                                <div className="rep-info"><img src="/images/lighting.svg" />{user.reputation - user.spent}</div>
                             </div>
-                            <div style={{"width": "16px"}}></div>
-                            <div className="received stuff">
-                                <div className="grey-block">
-                                    <p>Received</p>
-                                    <div className="rep-received">{received[0] + received[1] - received[2]}</div>
-                                    <span>This Rep is in the vault. It will be yours in the next cycle.</span>
-                                </div>
-                                <div className="white-block">
-                                    <div className="received-info">
-                                        <span><img src="/images/unirep.svg" />System drop</span>
-                                        <p>+{received[0]}</p>
-                                    </div>
-                                    <div className="received-info">
-                                        <span><img src="/images/boost.svg" />Boost</span>
-                                        <p>+{received[1]}</p>
-                                    </div>
-                                    <div className="received-info">
-                                        <span><img src="/images/squash.svg" />Squash</span>
-                                        <p>-{received[2]}</p>
-                                    </div>
+                            <div className="grey-block">
+                                <span>How I use my rep in this cycle</span><br/>
+                                <div className="rep-bar">
+                                    { 
+                                        spent.map((s, i) => <RepPortion spent={s} total={user.reputation} action={i} key={i} />)
+                                    }
                                 </div>
                             </div>
                         </div>
-                        <div className="user-page-header">
-                            <div className="tags">
-                                <div className={tag === Tag.Posts? "tag underline" : "tag"} onClick={() => setTagPage(Tag.Posts)}>Posts</div>
-                                <div className="line"></div>
-                                <div className={tag === Tag.Comments? "tag underline" : "tag"} onClick={() => setTagPage(Tag.Comments)}>Comments</div>
-                                <div className="line"></div>
-                                <div className={tag === Tag.Activity? "tag underline" : "tag"} onClick={() => setTagPage(Tag.Activity)}>Activity</div>
+                        <div style={{"width": "16px"}}></div>
+                        <div className="received stuff">
+                            <div className="grey-block">
+                                <p>Received</p>
+                                <div className="rep-received">{received[0] + received[1] - received[2]}</div>
+                                <span>This Rep is in the vault. It will be yours in the next cycle.</span>
                             </div>
-                            {
-                                isDropdown? 
-                                    tag !== Tag.Activity?
-                                        <div className="dropdown isDropdown" onClick={switchDropdown} style={{height: `${40*3}px`}}>
-                                            <div className="menu-choice" onClick={() => setSortType(QueryType.Boost)}><img src="/images/boost-fill.svg"/>Boost</div>
-                                            <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src="/images/new-fill.svg"/>New</div>
-                                            <div className="menu-choice" onClick={() => setSortType(QueryType.Squash)}><img src="/images/squash-fill.svg"/>Squash</div>
-                                        </div> : 
-                                        <div className="dropdown isDropdown" onClick={switchDropdown} style={{height: `${40*2}px`}}>
-                                            <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src="/images/new-fill.svg"/>New</div>
-                                            <div className="menu-choice" onClick={() => setSortType(QueryType.Rep)}><img src="/images/unirep-fill.svg"/>Rep</div>
-                                        </div> :
-                                    <div className="dropdown" onClick={switchDropdown}>
-                                        <div className="menu-choice isChosen">
-                                            <img src={`/images/${sort === QueryType.Rep? 'unirep' : sort}-fill.svg`}/>
-                                            <span>{sort.charAt(0).toUpperCase() + sort.slice(1)}</span>
-                                            <img src="/images/arrow-down.svg" />
-                                        </div>
-                                    </div>
-                                    
-                            }
-                        </div> 
-                        <div className="user-page-content">
-                            {
-                                tag === Tag.Posts? 
-                                    <PostsList 
-                                        posts={myPosts}
-                                        loadMorePosts={loadMorePosts}
-                                    /> : tag === Tag.Comments?
-                                    <CommentsList 
-                                        comments={myComments}
-                                        page={Page.User}
-                                        loadMoreComments={loadMoreComments}
-                                    /> : <div>
-                                        {
-                                            records.map((h, i) => 
-                                                <ActivityWidget 
-                                                    key={i} 
-                                                    record={h}
-                                                    isSpent={user.all_epoch_keys.indexOf(h.from) !== -1}
-                                                />
-                                            )
-                                        }
-                                    </div>
-                            }   
+                            <div className="white-block">
+                                <div className="received-info">
+                                    <span><img src="/images/unirep.svg" />System drop</span>
+                                    <p>+{received[0]}</p>
+                                </div>
+                                <div className="received-info">
+                                    <span><img src="/images/boost.svg" />Boost</span>
+                                    <p>+{received[1]}</p>
+                                </div>
+                                <div className="received-info">
+                                    <span><img src="/images/squash.svg" />Squash</span>
+                                    <p>-{received[2]}</p>
+                                </div>
+                            </div>
                         </div>
-                    </div> : <div></div> 
-                }
-                { user !== null? 
-                    <div className="side-content">
-                        <SideColumn page={Page.User} />
-                    </div> : <div></div>
-                }
-                
-                <div className="margin-box"></div>
+                    </div>
+                    <div className="user-page-header">
+                        <div className="tags">
+                            <div className={tag === Tag.Posts? "tag underline" : "tag"} onClick={() => setTagPage(Tag.Posts)}>Posts</div>
+                            <div className="line"></div>
+                            <div className={tag === Tag.Comments? "tag underline" : "tag"} onClick={() => setTagPage(Tag.Comments)}>Comments</div>
+                            <div className="line"></div>
+                            <div className={tag === Tag.Activity? "tag underline" : "tag"} onClick={() => setTagPage(Tag.Activity)}>Activity</div>
+                        </div>
+                        {
+                            isDropdown? 
+                                tag !== Tag.Activity?
+                                    <div className="dropdown isDropdown" onClick={switchDropdown} style={{height: `${40*3}px`}}>
+                                        <div className="menu-choice" onClick={() => setSortType(QueryType.Boost)}><img src="/images/boost-fill.svg"/>Boost</div>
+                                        <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src="/images/new-fill.svg"/>New</div>
+                                        <div className="menu-choice" onClick={() => setSortType(QueryType.Squash)}><img src="/images/squash-fill.svg"/>Squash</div>
+                                    </div> : 
+                                    <div className="dropdown isDropdown" onClick={switchDropdown} style={{height: `${40*2}px`}}>
+                                        <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src="/images/new-fill.svg"/>New</div>
+                                        <div className="menu-choice" onClick={() => setSortType(QueryType.Rep)}><img src="/images/unirep-fill.svg"/>Rep</div>
+                                    </div> :
+                                <div className="dropdown" onClick={switchDropdown}>
+                                    <div className="menu-choice isChosen">
+                                        <img src={`/images/${sort === QueryType.Rep? 'unirep' : sort}-fill.svg`}/>
+                                        <span>{sort.charAt(0).toUpperCase() + sort.slice(1)}</span>
+                                        <img src="/images/arrow-down.svg" />
+                                    </div>
+                                </div>
+                                
+                        }
+                    </div> 
+                    <div className="user-page-content">
+                        {
+                            tag === Tag.Posts? 
+                                <PostsList 
+                                    posts={myPosts}
+                                    loadMorePosts={loadMorePosts}
+                                /> : tag === Tag.Comments?
+                                <CommentsList 
+                                    comments={myComments}
+                                    page={Page.User}
+                                    loadMoreComments={loadMoreComments}
+                                /> : <div>
+                                    {
+                                        records.map((h, i) => 
+                                            <ActivityWidget 
+                                                key={i} 
+                                                record={h}
+                                                isSpent={user.all_epoch_keys.indexOf(h.from) !== -1}
+                                            />
+                                        )
+                                    }
+                                </div>
+                        }   
+                    </div>
+                </div> : <div></div> 
+            }
+            { user !== null? 
+                <div className="side-content">
+                    <SideColumn page={Page.User} />
+                </div> : <div></div>
+            }
             </div>
+            <div className="margin-box"></div>
         </div>
     );
 };
