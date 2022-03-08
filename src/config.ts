@@ -12,8 +12,8 @@ const signUpProofPrefix = 'Unirep.signUp.proof.'
 const signUpPublicSignalsPrefix = 'Unirep.signUp.publicSignals.'
 
 // const SERVER = 'http://localhost:3001'
-const DEFAULT_ETH_PROVIDER_URL = 'http://localhost:8545'
-// const SERVER = 'https://unirep.tubby.cloud'
+const DEFAULT_ETH_PROVIDER_URL = 'ws://localhost:8545'
+const SERVER = 'https://unirep.social/'
 // const SERVER = 'http://3.20.204.166'
 // const DEFAULT_ETH_PROVIDER_URL = 'wss://eth-goerli.alchemyapi.io/v2/tYp-IJU_idg28iohx9gsLqhq6KRZxk7f'
 const DEFAULT_ETH_PROVIDER = new ethers.providers.JsonRpcProvider(DEFAULT_ETH_PROVIDER_URL)
@@ -52,7 +52,7 @@ const ABOUT_URL = "https://about.unirep.social";
 const LOAD_POST_COUNT = 10
 
 export {
-    // SERVER,
+    SERVER,
     identityPrefix,
     identityCommitmentPrefix,
     epkProofPrefix,
