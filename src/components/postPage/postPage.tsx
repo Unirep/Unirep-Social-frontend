@@ -12,8 +12,13 @@ const PostPage = () => {
     const { shownPosts, setShownPosts } = useContext(WebContext);
 
     const setPost = async () => {
-        const ret = await getPostById(id);
-        setShownPosts([ret]);
+        let ret: any = null;
+        try {
+            ret = await getPostById(id);
+            setShownPosts([ret]);
+        } catch (e) {
+            setShownPosts([]);
+        }
     }
 
     useEffect(() => {

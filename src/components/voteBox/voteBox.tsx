@@ -48,19 +48,35 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
         } else if (givenAmount === undefined) {
             console.error('no enter any given amount');
         } else {
-            
             const isPost = data.type === DataType.Post;
-            const actionData = {
-                identity: user.identity,
-                upvote: isUpvote? givenAmount : 0,
-                downvote: isUpvote? 0 : givenAmount,
-                data: data.id,
-                epk: data.epoch_key,
-                epkNonce,
-                isPost,
-                spent: user.spent,
-                userState: user.userState,
-            };
+            let actionData: any
+            if (isPost) {
+                actionData = {
+                    identity: user.identity,
+                    upvote: isUpvote? givenAmount : 0,
+                    downvote: isUpvote? 0 : givenAmount,
+                    data: data.id,
+                    epk: data.epoch_key,
+                    epkNonce,
+                    isPost,
+                    spent: user.spent,
+                    userState: user.userState,
+                };
+            } else {
+                const tmp = data as Comment;
+                actionData = {
+                    identity: user.identity,
+                    upvote: isUpvote? givenAmount : 0,
+                    downvote: isUpvote? 0 : givenAmount,
+                    data: tmp.post_id + '_' + tmp.id,
+                    epk: tmp.epoch_key,
+                    epkNonce,
+                    isPost,
+                    spent: user.spent,
+                    userState: user.userState,
+                };
+            }
+            
             setAction({action: ActionType.Vote, data: actionData});
             init();
         }

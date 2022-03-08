@@ -216,6 +216,10 @@
 
       .comments-list {
 
+        @media (max-width: 600px) {
+          padding: 0px 8px;
+        }
+
         .no-padding {
           padding: 0;
         }
