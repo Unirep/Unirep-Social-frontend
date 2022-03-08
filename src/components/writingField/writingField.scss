@@ -12,6 +12,7 @@
 
 .writing-field {
     width: 100%;
+    box-sizing: border-box;
 
     input[type="text"] {
         width: 100%;
@@ -99,7 +100,7 @@
                 input[type="range"] {
                     appearance: none;
                     display: block;
-                    width: 278px;
+                    flex-basis: 85%;
                     height: 32px;
                     background: none;
                     margin: 0;
@@ -145,7 +146,7 @@
                 }
 
                 input[type="text"] {
-                    width: 48px;
+                    flex-basis: 15%;
                     height: 32px;
                     outline: none;
                     background-color: $grey-100;

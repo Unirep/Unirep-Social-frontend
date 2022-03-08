@@ -170,6 +170,10 @@
     .comment {
       padding: 16px 24px;
 
+      @media (max-width: 600px) {
+        padding: 16px 8px;
+      }
+
       .comment-block {
         margin: 16px 0px;
 
