@@ -58,10 +58,6 @@ const UserPage = () => {
     const [ received, setReceived ] = useState<number[]>([0, 0, 0]); // airdrop, boost, squash
     const [ spent, setSpent ] = useState<number[]>([0, 0, 0, 0]); // post, comment, boost, squash
 
-    const closeAll = () => {
-        if (!isLoading) {}
-    }
-
     const getUserPosts = async (sort: QueryType, lastRead: string = '0') => { 
         const ret = await getPostsByQuery(sort, lastRead, user? user.all_epoch_keys : []);
         if (lastRead !== '0') {
@@ -237,7 +233,7 @@ const UserPage = () => {
                         </div>
                     </div>
                     <div className="user-page-header">
-                        <div className="tags">
+                        <div className="tags header-child">
                             <div className={tag === Tag.Posts? "tag underline" : "tag"} onClick={() => setTagPage(Tag.Posts)}>Posts</div>
                             <div className="line"></div>
                             <div className={tag === Tag.Comments? "tag underline" : "tag"} onClick={() => setTagPage(Tag.Comments)}>Comments</div>
@@ -247,16 +243,16 @@ const UserPage = () => {
                         {
                             isDropdown? 
                                 tag !== Tag.Activity?
-                                    <div className="dropdown isDropdown" onClick={switchDropdown} style={{height: `${40*3}px`}}>
+                                    <div className="dropdown isDropdown header-child" onClick={switchDropdown} style={{height: `${40*3}px`}}>
                                         <div className="menu-choice" onClick={() => setSortType(QueryType.Boost)}><img src="/images/boost-fill.svg"/>Boost</div>
                                         <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src="/images/new-fill.svg"/>New</div>
                                         <div className="menu-choice" onClick={() => setSortType(QueryType.Squash)}><img src="/images/squash-fill.svg"/>Squash</div>
                                     </div> : 
-                                    <div className="dropdown isDropdown" onClick={switchDropdown} style={{height: `${40*2}px`}}>
+                                    <div className="dropdown isDropdown header-child" onClick={switchDropdown} style={{height: `${40*2}px`}}>
                                         <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src="/images/new-fill.svg"/>New</div>
                                         <div className="menu-choice" onClick={() => setSortType(QueryType.Rep)}><img src="/images/unirep-fill.svg"/>Rep</div>
                                     </div> :
-                                <div className="dropdown" onClick={switchDropdown}>
+                                <div className="dropdown header-child" onClick={switchDropdown}>
                                     <div className="menu-choice isChosen">
                                         <img src={`/images/${sort === QueryType.Rep? 'unirep' : sort}-fill.svg`}/>
                                         <span>{sort.charAt(0).toUpperCase() + sort.slice(1)}</span>

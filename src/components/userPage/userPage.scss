@@ -3,7 +3,7 @@
 .my-stuff {
     width: 100%;
     display: flex;
-    flex-direction: row;
+    flex-wrap: wrap;
     margin-top: 24px;
 
     .stuff {
@@ -11,14 +11,23 @@
         border: 1px solid $grey-300;
         display: flex;
         flex-direction: column;
+        margin-bottom: 16px;
     }
 
     .my-reps {
         flex: 3;
+
+        @media (max-width: 600px) {
+            flex-basis: 100%;
+        }
     }
 
     .received {
         flex: 2;
+
+        @media (max-width: 600px) {
+            flex-basis: 100%;
+        }
     }
 
     .white-block {
@@ -136,13 +145,17 @@
 
 .user-page-header {
     display: flex;
-    flex-direction: row;
-    margin-top: 52px;
-    height: 40px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 36px;
+
+    .header-child {
+        margin-bottom: 24px;
+    }
 
     .tags {
         height: 32px;
-        margin-right: auto;
         display: flex;
         flex-direction: row;
 
@@ -166,9 +179,13 @@
     }
 
     .dropdown {
-        width: 158px;
+        flex-basis: 158px;
         position: relative;
         border-radius: 4px;
+
+        @media (max-width: 600px) {
+            flex-basis: 100%;
+        }
         
         .menu-choice {
             width: 100%;
@@ -206,10 +223,6 @@
     .isDropdown {
         box-shadow: 0px 5px 23px 2px #00000014;
     }
-}
-
-.user-page-content {
-    margin-top: 24px;
 }
 
 .link {

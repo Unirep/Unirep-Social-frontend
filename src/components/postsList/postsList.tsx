@@ -13,13 +13,17 @@ const PostsList = ({ posts, loadMorePosts }: Props) => {
     return (
         <div className="post-list">
             {
-                posts.map((post, i) => (
-                    <PostBlock 
-                        key={post.id + i} 
-                        post={post} 
-                        page={Page.Home}
-                    />
-                ))
+                posts.length > 0? 
+                    posts.map((post, i) => (
+                        <PostBlock 
+                            key={post.id + i} 
+                            post={post} 
+                            page={Page.Home}
+                        />
+                    )) : <div className="no-posts">
+                            <img src="/images/glasses.svg" />
+                            <p>It's empty here.<br />People just being shy, no post yet.</p>
+                        </div>
             }
             {
                 posts.length > 0 && posts.length % LOAD_POST_COUNT === 0? 

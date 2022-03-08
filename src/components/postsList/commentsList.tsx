@@ -2,6 +2,7 @@ import './postsList.scss';
 import '../postBlock/postBlock.scss';
 import CommentBlock from '../postBlock/commentBlock';
 import { Comment, Page } from '../../constants';
+import { LOAD_POST_COUNT } from '../../config';
 
 type Props = {
     comments: Comment[],
@@ -27,7 +28,10 @@ const CommentsList = ({comments, page, loadMoreComments}: Props) => {
                     <p>It's empty here.<br />People just being shy, no post yet.</p>
                 </div>
             }
-            <div className="load-more-button" onClick={loadMoreComments}>Load More</div>
+            {
+                comments.length > 0 && comments.length % LOAD_POST_COUNT === 0? 
+                    <div className="load-more-button" onClick={loadMoreComments}>Load more posts</div> : <div></div>
+            }
         </div>
     );
 }
