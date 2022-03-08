@@ -12,11 +12,11 @@ const signUpProofPrefix = 'Unirep.signUp.proof.'
 const signUpPublicSignalsPrefix = 'Unirep.signUp.publicSignals.'
 
 // const SERVER = 'http://localhost:3001'
-const DEFAULT_ETH_PROVIDER_URL = 'ws://localhost:8545'
-const SERVER = 'https://unirep.social/'
+const DEFAULT_ETH_PROVIDER_URL = 'https://kovan.optimism.io'
+const SERVER = 'https://unirep.tubby.cloud'
 // const SERVER = 'http://3.20.204.166'
 // const DEFAULT_ETH_PROVIDER_URL = 'wss://eth-goerli.alchemyapi.io/v2/tYp-IJU_idg28iohx9gsLqhq6KRZxk7f'
-const DEFAULT_ETH_PROVIDER = new ethers.providers.WebSocketProvider(DEFAULT_ETH_PROVIDER_URL)
+const DEFAULT_ETH_PROVIDER = new ethers.providers.JsonRpcProvider(DEFAULT_ETH_PROVIDER_URL)
 // const DEFAULT_ETH_PROVIDER = 'http://18.188.136.227'
 const DEFAULT_START_BLOCK = 0
 const DEFAULT_MAX_EPOCH_KEY_NONCE = 2
@@ -29,8 +29,8 @@ const DEFAULT_COMMENT_KARMA = 3
 const MAX_KARMA_BUDGET = 10
 const DEFAULT_AIRDROPPED_KARMA = 30
 
-const UNIREP = '0x0165878A594ca255338adfa4d48449f69242Eb8F'
-const UNIREP_SOCIAL = '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853'
+const UNIREP = '0xf6B58eB9239597F31F341863Db38b269483504df'
+const UNIREP_SOCIAL = '0x91389492565236E16Fd32Ef00b56d286A2aC0Ab4'
 // const UNIREP = '0xE7709F35fb195E1D117D486aEB24bA58CEccCD29';
 // const UNIREP_SOCIAL = '0x0F50453236B2Ca88D5C1fBC8D7FA91001d93eC68';
 const UNIREP_SOCIAL_ABI = UnirepSocial.abi
