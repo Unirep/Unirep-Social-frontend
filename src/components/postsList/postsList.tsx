@@ -1,5 +1,6 @@
 import PostBlock from '../postBlock/postBlock';
 import { Post, Page } from '../../constants';
+import { LOAD_POST_COUNT } from '../../config';
 import './postsList.scss';
 
 type Props = {
@@ -20,7 +21,10 @@ const PostsList = ({ posts, loadMorePosts }: Props) => {
                     />
                 ))
             }
-            <div className="load-more-button" onClick={loadMorePosts}>Load more posts</div>
+            {
+                posts.length % LOAD_POST_COUNT === 0? 
+                    <div className="load-more-button" onClick={loadMorePosts}>Load more posts</div> : <div></div>
+            }
         </div>
     );
 }

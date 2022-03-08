@@ -48,6 +48,7 @@ const epochLength = 30;
 const maxReputationBudget = 10;
 
 const ABOUT_URL = "https://about.unirep.social";
+const LOAD_POST_COUNT = 10
 
 export {
     // SERVER,
@@ -88,5 +89,6 @@ export {
     epochLength,
     globalStateTreeDepth,
     maxReputationBudget,
-    ABOUT_URL
+    ABOUT_URL,
+    LOAD_POST_COUNT
 }

@@ -16,6 +16,10 @@ const Overlay = () => {
         }        
     }
 
+    const gotoUserPage = () => {
+        history.push(`/user`, {isConfirmed: true});
+    }
+
     const signout = () => {
         setUser(null);
         setIsMenuOpen(false);
@@ -43,6 +47,7 @@ const Overlay = () => {
                         </div> : 
                         <div className="dynamic-info">
                             <a href="/feedback">Send feedback</a>
+                            <p onClick={gotoUserPage}>My stuff</p>
                             <p onClick={signout}>Sign out</p>
                         </div> 
                 }
