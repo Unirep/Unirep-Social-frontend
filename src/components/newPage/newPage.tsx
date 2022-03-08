@@ -13,7 +13,7 @@ const NewPage = () => {
     const state = JSON.parse(JSON.stringify(location.state));
     const isConfirmed = state.isConfirmed;
 
-    const { setIsLoading, setAction, user } = useContext(WebContext);
+    const { setAction, user } = useContext(WebContext);
 
     useEffect(() => {
         console.log('Is this new page being confirmd? ' + isConfirmed);

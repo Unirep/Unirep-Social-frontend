@@ -55,7 +55,7 @@
     .info-row {
         width: 100%;
         display: flex;
-        flex-direction: row;
+        flex-wrap: wrap;
         margin-top: 40px;
 
         .element {
@@ -63,6 +63,7 @@
             display: flex;
             flex-direction: column;
             align-items: flex-start;
+            margin-bottom: 32px;
 
             .name {
                 color: $grey-700;
@@ -92,7 +93,6 @@
 
             .rep-chooser {
                 display: flex;
-                flex-direction: row;
                 margin-top: 16px;
                 align-items: center;
 
@@ -172,7 +172,6 @@
     .submit-btn {
         width: 100%;
         @include myButton($height: 58px, $radius: 8px, $block-color: $black, $color: $white, $font-weight: 700, $font-size: $text-lg, $margin-horizontal: 0px);
-        margin-top: 48px;
     }
 }
 
