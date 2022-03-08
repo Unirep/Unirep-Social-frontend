@@ -129,7 +129,11 @@ const SignupPage = () => {
             </div>
             <div className="right-column">
                 {
-                    step === 0? <img src="/images/close.svg" onClick={() => history.push('/')}/> : <div></div>
+                    step === 0? 
+                        <div className="close">
+                            <img id="unirep-icon" src="/images/unirep-title.svg" />
+                            <img id="close-icon" src="/images/close.svg" onClick={() => history.push('/')}/>
+                        </div> : <div></div>
                 }
                 <div className="info">
                     <div className="title">{title[step].split('<br>').map(t => <span key={t}>{t}<br/></span>)}</div>
