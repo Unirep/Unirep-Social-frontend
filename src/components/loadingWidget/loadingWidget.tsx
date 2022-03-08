@@ -26,6 +26,10 @@ const LoadingWidget = () => {
     const doUST = async () => {
         let USTData: any = null;
         USTData = await userStateTransition(action.data.identity, action.data.userState);
+        if (USTData?.transaction) {
+            const recept = await config.DEFAULT_ETH_PROVIDER.waitForTransaction(USTData.transaction)
+            console.log('receipt', recept)
+        }
 
         let newUser;
         if (user !== null) {
@@ -224,7 +228,7 @@ const LoadingWidget = () => {
                     </div> : loadingState === LoadingState.failed?
                     <div className="loading-block failed">
                         <img src="/images/close-red.svg" />
-                        <span>Fail.</span> 
+                        <span>Posting to blockchain failed.</span> 
                         <div className="info-row">
                             <Link className="link failed" to={goto}>See my content</Link>
                         </div>
