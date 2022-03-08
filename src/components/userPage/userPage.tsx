@@ -30,7 +30,8 @@ const RepPortion = ({ spent, total, action } : Props) => {
         <div className="rep-portion" 
             style={{width: `${spent / total * 100}%`}}
             onMouseEnter={() => setHover(true)} 
-            onMouseOut={() => setHover(false)}>
+            onMouseOut={() => setHover(false)}
+            onClick={() => setHover(!isHover)}>
             {isHover? 
                 <div className="rep-description">
                     <img src={`/images/${portionName === 'Post' || portionName === 'Comment'? 'unirep': portionName.toLowerCase()}-white.svg`} />
