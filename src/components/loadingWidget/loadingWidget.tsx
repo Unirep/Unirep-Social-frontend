@@ -26,6 +26,10 @@ const LoadingWidget = () => {
     const doUST = async () => {
         let USTData: any = null;
         USTData = await userStateTransition(action.data.identity, action.data.userState);
+        if (USTData?.transaction) {
+            const recept = await config.DEFAULT_ETH_PROVIDER.waitForTransaction(USTData.transaction)
+            console.log('receipt', recept)
+        }
 
         let newUser;
         if (user !== null) {

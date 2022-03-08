@@ -2,7 +2,7 @@ import base64url from 'base64url';
 import { ethers } from 'ethers';
 import { getUnirepContract } from '@unirep/contracts';
 import { genIdentity, genIdentityCommitment, serialiseIdentity, unSerialiseIdentity } from '@unirep/crypto';
-import { genUserStateFromContract, genEpochKey, genUserStateFromParams } from '@unirep/unirep';
+import { genUserStateFromContract, genEpochKey, genUserStateFromParams, } from '@unirep/unirep';
 import { UnirepSocialContract } from '@unirep/unirep-social';
 import * as config from './config';
 import { Record, Post, DataType, Vote, Comment, ActionType, QueryType } from './constants';
@@ -158,18 +158,12 @@ const genAirdropProof = async (identity: string, us: any) => {
         results = await userState.genUserSignUpProof(BigInt(attesterId));
         console.log(results)
     }
-    
-    const formattedProof = formatProofForVerifierContract(results.proof)
-    const encodedProof = base64url.encode(JSON.stringify(formattedProof))
-    const encodedPublicSignals = base64url.encode(JSON.stringify(results.publicSignals))
-    const signUpProof = config.signUpProofPrefix + encodedProof
-    const signUpPublicSignals = config.signUpPublicSignalsPrefix + encodedPublicSignals
 
     return {
-        proof: signUpProof,
-        publicSignals: signUpPublicSignals,
+        proof: formatProofForVerifierContract(results.proof),
+        publicSignals: results.publicSignals,
         userState: userState,
-    }
+      }
 }
 
 // export const signUpUnirepUser = async (identity: string, us: any) => {
@@ -268,13 +262,7 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
     // find valid nonce starter
     const nonceList: BigInt[] = [];
     let nonceStarter: number = spent;
-    // for (let n = 0; n < Number(rep.posRep) - Number(rep.negRep); n++) {
-    //     const reputationNullifier = genReputationNullifier(id.identityNullifier, currentEpoch, n, BigInt(attesterId))
-    //     if(!userState.nullifierExist(reputationNullifier)) {
-    //         nonceStarter = n
-    //         break
-    //     }
-    // }
+
     if(nonceStarter === -1) {
         console.error('Error: All nullifiers are spent')
     }
@@ -304,11 +292,8 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
     const endTime = new Date().getTime()
     console.log(`Gen proof time: ${endTime - startTime} ms (${Math.floor((endTime - startTime) / 1000)} s)`)
 
-    const formattedProof = formatProofForVerifierContract(results.proof)
-    const encodedProof = base64url.encode(JSON.stringify(formattedProof))
-    const encodedPublicSignals = base64url.encode(JSON.stringify(results.publicSignals))
-    const proof = config.reputationProofPrefix + encodedProof
-    const publicSignals = config.reputationPublicSignalsPrefix + encodedPublicSignals
+    const proof = formatProofForVerifierContract(results.proof)
+    const publicSignals = results.publicSignals
 
     return {epk, proof, publicSignals, currentEpoch, userState}
 }
@@ -341,6 +326,8 @@ export const checkInvitationCode = async (invitationCode: string) => {
 export const userSignUp = async () => {
     const id = genIdentity()
     const commitment = genIdentityCommitment(id)
+        .toString(16)
+        .padStart(64, '0')
 
     const serializedIdentity = serialiseIdentity(id)
     const encodedIdentity = base64url.encode(serializedIdentity)
@@ -350,13 +337,12 @@ export const userSignUp = async () => {
     const currentEpoch = await unirepSocialContract.currentEpoch();
     const epk1 = await getEpochKey(0, id.identityNullifier, currentEpoch);
 
-    const serializedIdentityCommitment = commitment.toString(16)
-    const encodedIdentityCommitment = base64url.encode(serializedIdentityCommitment)
-    console.log(config.identityCommitmentPrefix + encodedIdentityCommitment)
-
     // call server user sign up
     let epoch: number = 0
-    const apiURL = makeURL('signup', {commitment: config.identityCommitmentPrefix + encodedIdentityCommitment, epk: epk1})
+    const apiURL = makeURL('signup', {
+        commitment: commitment, 
+        epk: epk1
+    })
     await fetch(apiURL)
         .then(response => response.json())
         .then(function(data){
@@ -364,7 +350,7 @@ export const userSignUp = async () => {
             epoch = data.epoch
         });
 
-    return {i: config.identityPrefix + encodedIdentity, c: config.identityCommitmentPrefix + encodedIdentityCommitment, epoch }
+    return {i: config.identityPrefix + encodedIdentity, c: config.identityCommitmentPrefix + commitment, epoch }
 }
 
 
@@ -501,10 +487,9 @@ export const getNextEpochTime = async () => {
     await fetch(apiURL)
         .then(response => response.json())
         .then(function(data){
-            ret = data;
+            ret = data.nextTransition;
         });
-    console.log(ret);
-    return ret
+    return ret * 1000
 }
 
 export const userStateTransition = async (identity: string, us: any) => {
@@ -531,11 +516,10 @@ export const userStateTransition = async (identity: string, us: any) => {
         method: 'POST',
     }).then(response => response.json())
        .then(function(data){
-           console.log(JSON.stringify(data))
            transaction = data.transaction
            error = data.error
     });
-    
+
     return {error, transaction, toEpoch, userState}
 }
 
@@ -722,7 +706,6 @@ export const getPostById = async (postid: string) => {
     let ret: any;
     await fetch(apiURL).then(response => response.json()).then(
         data => {
-            // console.log(data);
             ret = convertDataToPost(data, false);
         }
     );

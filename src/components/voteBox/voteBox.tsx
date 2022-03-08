@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext } from 'react';
 import 'react-circular-progressbar/dist/styles.css';
 import { WebContext } from '../../context/WebContext';
 import { Post, Vote, Comment, DataType, ActionType } from '../../constants';
@@ -54,7 +54,7 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
                 identity: user.identity,
                 upvote: isUpvote? givenAmount : 0,
                 downvote: isUpvote? 0 : givenAmount,
-                data: 'post_id' in data? data.post_id + '_' + data.id : data.id,
+                data: data.id,
                 epk: data.epoch_key,
                 epkNonce,
                 isPost,
