@@ -46,7 +46,7 @@ export const getCurrentEpoch = async () => {
 const decodeIdentity = (identity: string) => {
     const encodedIdentity = identity.slice(config.identityPrefix.length);
     const decodedIdentity = base64url.decode(encodedIdentity);
-    
+
     let commitment
     try {
         const id = unSerialiseIdentity(decodedIdentity);
@@ -66,7 +66,7 @@ export const hasSignedUp = async (identity: string) => {
     // If user has signed up in Unirep
     const hasUserSignUp = await unirepContract.hasUserSignedUp(commitment)
     return {
-        hasSignedUp: hasUserSignUp, 
+        hasSignedUp: hasUserSignUp,
     }
 }
 
@@ -108,7 +108,7 @@ export const getUserState = async (identity: string, us?: any, update?: boolean)
         const endTime = new Date().getTime()
         console.log(`Gen us time: ${endTime - startTime} ms (${Math.floor((endTime - startTime) / 1000)} s)`)
     }
-    
+
     const numEpochKeyNoncePerEpoch = config.numEpochKeyNoncePerEpoch;
     const attesterId = config.UNIREP_SOCIAL_ATTESTER_ID;
     const jsonedUserState = JSON.parse(userState.toJSON());
@@ -119,7 +119,7 @@ export const getUserState = async (identity: string, us?: any, update?: boolean)
 
 const getEpochKey = (epkNonce: number, identityNullifier: any, epoch: number) => {
     const epochKey = genEpochKey(
-        identityNullifier, 
+        identityNullifier,
         epoch, epkNonce, config.circuitEpochTreeDepth
     );
 
@@ -129,7 +129,7 @@ const getEpochKey = (epkNonce: number, identityNullifier: any, epoch: number) =>
 export const getEpochKeys = (identity: string, epoch: number) => {
     const { identityNullifier } = decodeIdentity(identity)
     let epks: string[] = []
- 
+
     for (let i = 0; i < config.numEpochKeyNoncePerEpoch; i++) {
         const tmp = getEpochKey(i, identityNullifier, epoch);
         epks = [...epks, tmp];
@@ -168,10 +168,10 @@ const genAirdropProof = async (identity: string, us: any) => {
 
 // export const signUpUnirepUser = async (identity: string, us: any) => {
 //     const { proof, publicSignals, userState } = await genAirdropProof(identity, us);
-    
+
 //     const apiURL = makeURL('signup', {})
 //     const data = {
-//         proof: proof, 
+//         proof: proof,
 //         publicSignals: publicSignals,
 //     }
 //     const stringifiedData = JSON.stringify(data)
@@ -188,7 +188,7 @@ const genAirdropProof = async (identity: string, us: any) => {
 
 //     return { transaction, userState }
 // }
- 
+
 export const getAirdrop = async (identity: string, us: any) => {
     let error
     let transaction: string = ''
@@ -202,10 +202,10 @@ export const getAirdrop = async (identity: string, us: any) => {
     const epk = genEpochKey(identityNullifier, userState.getUnirepStateCurrentEpoch(), 0)
     const gotAirdrop = await unirepSocial.isEpochKeyGotAirdrop(epk)
     if (gotAirdrop) return { error: 'The epoch key has been airdropped.'}
-    
+
     const apiURL = makeURL('airdrop', {})
     const data = {
-        proof: proof, 
+        proof: proof,
         publicSignals: publicSignals,
     }
     const stringifiedData = JSON.stringify(data)
@@ -287,7 +287,7 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
         console.log(e)
         return undefined
     }
-    
+
     console.log(results)
     const endTime = new Date().getTime()
     console.log(`Gen proof time: ${endTime - startTime} ms (${Math.floor((endTime - startTime) / 1000)} s)`)
@@ -305,8 +305,7 @@ const makeURL = (action: string, data: any) => {
         dataStr = dataStr + k + '=' + data[k] + '&'
     }
 
-    // return config.SERVER + '/api/' + action + '?' + dataStr
-    return '/api/' + action + '?' + dataStr;
+    return config.SERVER + '/api/' + action + '?' + dataStr
 }
 
 const header = {
@@ -340,7 +339,7 @@ export const userSignUp = async () => {
     // call server user sign up
     let epoch: number = 0
     const apiURL = makeURL('signup', {
-        commitment: commitment, 
+        commitment: commitment,
         epk: epk1
     })
     await fetch(apiURL)
@@ -369,13 +368,13 @@ export const publishPost = async (content: string, epkNonce: number, identity: s
      const data = {
         title,
         content,
-        proof: ret.proof, 
+        proof: ret.proof,
         minRep,
         publicSignals: ret.publicSignals,
      }
      const stringifiedData = JSON.stringify(data)
      console.log('before publish post api: ' + stringifiedData)
-     
+
      await fetch(apiURL, {
          headers: header,
          body: stringifiedData,
@@ -386,28 +385,28 @@ export const publishPost = async (content: string, epkNonce: number, identity: s
             error = data.error
             transaction = data.transaction
         });
-    
-    
+
+
     return {error, transaction, currentEpoch: ret.currentEpoch, epk: ret.epk, userState: ret.userState}
 }
 
 export const vote = async(identity: string, upvote: number, downvote: number, dataId: string, receiver: string, epkNonce: number = 0, minRep: number = 0, isPost: boolean = true, spent: number = 0, us: any) => {
     let error
     let transaction: string = ''
-    // upvote / downvote user 
+    // upvote / downvote user
     const voteValue = upvote + downvote
     const ret = await genProof(identity, epkNonce, voteValue, minRep, us, spent)
     if (ret === undefined) {
         error = 'genProof error, ret is undefined.'
-        return {error, epk: '', transaction: undefined, userState: undefined} 
+        return {error, epk: '', transaction: undefined, userState: undefined}
     }
 
-    // send publicsignals, proof, voted post id, receiver epoch key, graffiti to backend  
+    // send publicsignals, proof, voted post id, receiver epoch key, graffiti to backend
     const apiURL = makeURL('vote', {})
     const data = {
        upvote,
        downvote,
-       proof: ret.proof, 
+       proof: ret.proof,
        minRep,
        publicSignals: ret.publicSignals,
        receiver,
@@ -416,7 +415,7 @@ export const vote = async(identity: string, upvote: number, downvote: number, da
     }
     const stringifiedData = JSON.stringify(data);
     console.log('before vote api: ' + stringifiedData)
-    
+
     await fetch(apiURL, {
         headers: header,
         body: stringifiedData,
@@ -428,7 +427,7 @@ export const vote = async(identity: string, upvote: number, downvote: number, da
            transaction = data.transaction
        });
 
-    return {error, epk: ret.epk, transaction, userState: ret.userState} 
+    return {error, epk: ret.epk, transaction, userState: ret.userState}
 }
 
 export const leaveComment = async(identity: string, content: string, postId: string, epkNonce: number = 0, minRep: number = config.DEFAULT_COMMENT_KARMA, spent: number = 0, us: any) => {
@@ -446,14 +445,14 @@ export const leaveComment = async(identity: string, content: string, postId: str
      const apiURL = makeURL('comment', {})
      const data = {
         content,
-        proof: ret.proof, 
+        proof: ret.proof,
         minRep,
         postId,
         publicSignals: ret.publicSignals,
      }
      const stringifiedData = JSON.stringify(data)
      console.log('before leave comment api: ' + stringifiedData)
-     
+
      await fetch(apiURL, {
          headers: header,
          body: stringifiedData,
@@ -595,7 +594,7 @@ export const getEpochSpent = async (epks: string[]) => {
     const apiURL = makeURL(`records/${paramStr}`, {spentonly: true});
     console.log(apiURL);
 
-    
+
     return await fetch(apiURL).then(response => response.json()).then(
         data => {
             let ret: number = 0;
@@ -631,7 +630,7 @@ const convertDataToVotes = (data: any) => {
 }
 
 const convertDataToComment = (data: any) => {
-    const {votes, upvote, downvote} = convertDataToVotes(data.votes); 
+    const {votes, upvote, downvote} = convertDataToVotes(data.votes);
     const comment = {
         type: DataType.Comment,
         id: data.transactionHash,
@@ -652,8 +651,8 @@ const convertDataToComment = (data: any) => {
 }
 
 const convertDataToPost = (data: any, commentsOnlyId: boolean = true) => {
-    
-    const {votes, upvote, downvote} = convertDataToVotes(data.votes); 
+
+    const {votes, upvote, downvote} = convertDataToVotes(data.votes);
 
     let comments: Comment[] = [];
     if (!commentsOnlyId) {
@@ -670,7 +669,7 @@ const convertDataToPost = (data: any, commentsOnlyId: boolean = true) => {
         content: data.content,
         votes,
         upvote,
-        downvote, 
+        downvote,
         epoch_key: data.epochKey,
         username: '',
         post_time: Date.parse(data.created_at),
@@ -686,7 +685,7 @@ const convertDataToPost = (data: any, commentsOnlyId: boolean = true) => {
 
 export const listAllPosts = async () => {
     const apiURL = makeURL(`post`, {});
-    
+
     let ret: Post[] = [];
     await fetch(apiURL).then(response => response.json()).then(
         data => {
@@ -750,7 +749,7 @@ export const getCommentsByQuery = async (query: QueryType, lastRead: string = '0
 
 export const sentReport = async (issue: string, email: string) => {
     const apiURL = makeURL(`report`, {issue, email});
-    
+
     let ret: boolean = true;
     await fetch(apiURL).then(response => ret = (response.ok === true));
 
