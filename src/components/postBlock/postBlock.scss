@@ -76,7 +76,6 @@
       padding: 24px 24px 32px;
       color: $black;
       cursor: pointer;
-      word-wrap: break-word;
 
       &:hover {
         background-color: $grey-100;
@@ -86,10 +85,14 @@
         font-size: $title-sm;
         font-weight: 600;
         margin-bottom: 16px;
+        word-wrap: break-word;
+        word-break: break-word;
       }
 
       .content {
         font-size: $text-base;
+        word-wrap: break-word;
+        word-break: break-word;
       }
     }
   
