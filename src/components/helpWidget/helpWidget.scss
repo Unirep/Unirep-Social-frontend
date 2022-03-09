@@ -23,5 +23,9 @@
         max-height: 164px;
         min-height: 32px;
         width: 200px;
+
+        @media (max-width: 600px) {
+            left: -60px;
+        }
     }
 }
