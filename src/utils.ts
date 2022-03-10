@@ -305,7 +305,7 @@ const makeURL = (action: string, data: any) => {
         dataStr = dataStr + k + '=' + data[k] + '&'
     }
 
-    return config.SERVER + '/api/' + action + '?' + dataStr
+    return '/api/' + action + '?' + dataStr
 }
 
 const header = {
