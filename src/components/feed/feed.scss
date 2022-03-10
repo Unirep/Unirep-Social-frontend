@@ -2,6 +2,7 @@
 
 .feed-row {
     display: flex;
+    justify-content: space-evenly;
     margin: 32px 0px;
 
     @media (max-width: 600px) {
@@ -40,7 +41,7 @@
       background-color: $grey-200;
       width: 1px;
       height: 40px;
-      margin: 0px 8px;
+      margin: 0px;
     }
   
     .toggle-switch {
