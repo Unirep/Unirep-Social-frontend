@@ -4,6 +4,7 @@ import { useContext, useState, useEffect } from 'react';
 import './signupPage.scss';
 import { WebContext } from '../../context/WebContext';
 import { useAuth } from '../../context/AuthContext';
+import { useAppState } from '../../context/AppContext';
 
 import { getEpochKeys, getUserState, getAirdrop, getNextEpochTime, checkInvitationCode, userSignUp} from '../../utils';
 import LoadingCover from '../loadingCover/loadingCover';
@@ -11,8 +12,10 @@ import LoadingButton from '../loadingButton/loadingButton';
 
 const SignupPage = () => {
     const history = useHistory();
-    const { setNextUSTTime, isLoading, setIsLoading } = useContext(WebContext);
-    const { user, setUser } = useAuth();
+    const { setNextUSTTime } = useContext(WebContext);
+    const { setUser } = useAuth();
+    const { isPending, setIsPending } = useAppState();
+
     const [invitationCode, setInvitationCode] = useState<string>('');
     const [step, setStep] = useState<number>(0);
     const [identity, setIdentity] = useState<string>('');
@@ -72,7 +75,7 @@ const SignupPage = () => {
                 setStep(3);
             }
         } else if (step === 3) {
-            setIsLoading(true);
+            setIsPending(true);
 
             const userStateResult = await getUserState(identity);
             const currentRep = userStateResult.userState.getRepByAttester(BigInt(userStateResult.attesterId));
@@ -101,7 +104,7 @@ const SignupPage = () => {
             const nextET = await getNextEpochTime();
             setNextUSTTime(nextET);
 
-            setIsLoading(false);
+            setIsPending(false);
             history.push('/');
         }
     }
@@ -173,7 +176,7 @@ const SignupPage = () => {
                     <div className="added-info">Need an invitation code? <a href="https://about.unirep.social/alpha-invitation" target="_blank">Request here</a></div>
                 </div>
             </div>
-            { isLoading? <LoadingCover /> : <div></div> }
+            { isPending? <LoadingCover /> : <div></div> }
         </div>
     );
 }

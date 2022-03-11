@@ -1,20 +1,19 @@
-import { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import './overlay.scss';
-import { WebContext } from '../../context/WebContext';
+import { useAppState } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 
 
 const Overlay = () => {
-    const { setIsMenuOpen, isLoading } = useContext(WebContext);
+    const { setIsOverlayOn, isPending } = useAppState();
     const { user, setUser } = useAuth();
     const history = useHistory();
 
     const closeOverlay = () => {
-        if (!isLoading) {
+        if (!isPending) {
             console.log('close over lay');
-            setIsMenuOpen(false);
+            setIsOverlayOn(false);
         } else {
             console.log('something is loading, no close');
         }        
@@ -26,7 +25,7 @@ const Overlay = () => {
 
     const signout = () => {
         setUser(null);
-        setIsMenuOpen(false);
+        setIsOverlayOn(false);
         history.push('/');
     }
 

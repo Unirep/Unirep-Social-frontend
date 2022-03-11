@@ -4,9 +4,9 @@ import { useParams } from 'react-router-dom';
 import './postPage.scss';
 import { WebContext } from '../../context/WebContext';
 
+import BasicPage from '../basicPage/basicPage';
 import { Page, Params } from '../../constants';
 import PostBlock from '../postBlock/postBlock';
-import SideColumn from '../sideColumn/sideColumn';
 import { getPostById } from '../../utils';
 
 
@@ -29,25 +29,16 @@ const PostPage = () => {
     }, []);
 
     return (
-        <div className="body-columns">
-            <div className="margin-box"></div>
-            <div className="content">
-                <div className="main-content">
-                    {
-                        shownPosts.length === 0? 
-                            <div>No such post with id {id}.</div> : 
-                            <PostBlock 
-                                post={shownPosts[0]} 
-                                page={Page.Post}
-                            />
-                    }  
-                </div>
-                <div className="side-content">
-                    <SideColumn page={Page.Post} />
-                </div> 
-            </div>
-            <div className="margin-box"></div>
-        </div> 
+        <BasicPage>
+            {
+                shownPosts.length === 0? 
+                    <div>No such post with id {id}.</div> : 
+                    <PostBlock 
+                        post={shownPosts[0]} 
+                        page={Page.Post}
+                    />
+            }  
+        </BasicPage> 
         
     );
 }

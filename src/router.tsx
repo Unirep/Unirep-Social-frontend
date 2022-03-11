@@ -2,11 +2,8 @@ import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom';
 import { useState } from 'react';
 
 import useLocalStorage from './hooks/useLocalStorage';
-import * as Constants from './constants';
 
 import Header from './components/header/header';
-import LoadingWidget from './components/loadingWidget/loadingWidget';
-import Overlay from './components/overlay/overlay';
 import MainPage from './components/mainPage/mainPage';
 import PostPage from './components/postPage/postPage';
 import UserPage from './components/userPage/userPage';
@@ -19,63 +16,42 @@ import SettingPage from './components/settingPage/settingPage';
 
 import { WebContext } from './context/WebContext';
 import { AuthProvider } from './context/AuthContext';
+import { AppProvider } from './context/AppContext';
 
 const AppRouter = () => {
     const [shownPosts, setShownPosts] = useLocalStorage('shownPosts', []);
     const [nextUSTTime, setNextUSTTime] = useLocalStorage('nextUSTTime', 4789220745000);
     const [adminCode, setAdminCode] = useLocalStorage('admin', '');
     const [draft, setDraft] = useLocalStorage('draft', null);
-    const [isLoading, setIsLoading] = useLocalStorage('isLoading' ,false);
     const [action, setAction] = useState<any>(null);
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [page, setPage] = useState(Constants.Page.Home);
-
-    window.addEventListener("storage", (e) => {
-        if (e.key === 'isLoading') {
-            if (e.newValue === 'true') {
-                setIsLoading(true);
-            } else {
-                setIsLoading(false);
-            }
-        }
-    });
     
     return (
         <BrowserRouter>
-            <div>
-            <AuthProvider currentUser={null}>
-            <WebContext.Provider value={{
-                    shownPosts, setShownPosts, 
-                    isLoading, setIsLoading,
-                    nextUSTTime, setNextUSTTime,
-                    isMenuOpen, setIsMenuOpen,
-                    page, setPage,
-                    action, setAction,
-                    adminCode, setAdminCode,
-                    draft, setDraft}}>
-                <Header />
-                
-                <Switch>
-                    <Route component={MainPage} path="/" exact={true} />
-                    <Route component={PostPage} path="/post/:id" />
-                    <Route component={UserPage} path="/user" />
-                    <Route component={LoginPage} path="/login" />
-                    <Route component={SignupPage} path="/signup" />
-                    <Route component={NewPage} path="/new" />
-                    <Route component={FeedbackPage} path="/feedback" />
-                    <Route component={AdminPage} path="/admin" />
-                    <Route component={SettingPage} path="/setting" />
-                    <Route component={() => <Redirect to="/" />} />
-                </Switch>
-
-                <LoadingWidget />
-
-                {isMenuOpen? 
-                    <Overlay /> : <div></div>
-                }
-            </WebContext.Provider>
-            </AuthProvider>
-            </div>
+            <AppProvider>
+                <AuthProvider currentUser={null}>
+                <WebContext.Provider value={{
+                        shownPosts, setShownPosts, 
+                        nextUSTTime, setNextUSTTime,
+                        action, setAction,
+                        adminCode, setAdminCode,
+                        draft, setDraft}}>
+                    <Header />
+                    
+                    <Switch>
+                        <Route component={MainPage} path="/" exact={true} />
+                        <Route component={PostPage} path="/post/:id" />
+                        <Route component={UserPage} path="/user" />
+                        <Route component={LoginPage} path="/login" />
+                        <Route component={SignupPage} path="/signup" />
+                        <Route component={NewPage} path="/new" />
+                        <Route component={FeedbackPage} path="/feedback" />
+                        <Route component={AdminPage} path="/admin" />
+                        <Route component={SettingPage} path="/setting" />
+                        <Route component={() => <Redirect to="/" />} />
+                    </Switch>
+                </WebContext.Provider>
+                </AuthProvider>
+            </AppProvider>
         </BrowserRouter>
     );
 };

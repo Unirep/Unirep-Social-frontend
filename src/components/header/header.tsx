@@ -2,20 +2,20 @@ import { useContext, useState } from 'react';
 import { NavLink, useHistory, useLocation } from 'react-router-dom';
 
 import './header.scss';
-import { WebContext } from '../../context/WebContext';
 import { useAuth } from '../../context/AuthContext';
+import { useAppState } from '../../context/AppContext';
 
 import { DEFAULT_POST_KARMA } from '../../config';
 
 const Header = () => {
     const history = useHistory();
     const location = useLocation();
-    const { isLoading, isMenuOpen, setIsMenuOpen } = useContext(WebContext);
+    const { isPending, isOverlayOn, setIsOverlayOn } = useAppState();
     const { user } = useAuth();
     const [searchInput, setSearchInput] = useState<string>("");
 
     const gotoNewPage = () => {
-        if (!isLoading && user !== null && (user.reputation - user.spent) >= DEFAULT_POST_KARMA) {
+        if (!isPending && user !== null && (user.reputation - user.spent) >= DEFAULT_POST_KARMA) {
             history.push(`/new`, {isConfirmed: true});
         }
     }
@@ -25,9 +25,9 @@ const Header = () => {
     }
 
     const openMenu = () => {
-        if (!isMenuOpen && !isLoading) {
+        if (!isOverlayOn && !isPending) {
             console.log('open menu!');
-            setIsMenuOpen(true);
+            setIsOverlayOn(true);
         }
     }
 

@@ -4,8 +4,8 @@ import { useLocation } from 'react-router-dom';
 import './userPage.scss';
 import { useAuth } from '../../context/AuthContext';
 
+import BasicPage from '../basicPage/basicPage';
 import { getPostsByQuery, getRecords, getCommentsByQuery } from '../../utils';
-import SideColumn from '../sideColumn/sideColumn';
 import { Record, ActionType, Page, QueryType, Post, Comment } from '../../constants';
 import ActivityWidget from './activityWidget';
 import PostsList from '../postsList/postsList';
@@ -191,9 +191,7 @@ const UserPage = () => {
     }
 
     return (
-        <div className="body-columns">
-            <div className="margin-box"></div>
-            <div className="content"> 
+        <BasicPage>
             { user !== null? 
                 <div className="main-content">
                     <h3>My Stuff</h3> 
@@ -291,14 +289,7 @@ const UserPage = () => {
                     </div>
                 </div> : <div></div> 
             }
-            { user !== null? 
-                <div className="side-content">
-                    <SideColumn page={Page.User} />
-                </div> : <div></div>
-            }
-            </div>
-            <div className="margin-box"></div>
-        </div>
+        </BasicPage>
     );
 };
 

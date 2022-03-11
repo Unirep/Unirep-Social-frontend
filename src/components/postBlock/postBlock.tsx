@@ -5,6 +5,7 @@ import dateformat from 'dateformat';
 import './postBlock.scss';
 import { WebContext } from '../../context/WebContext';
 import { useAuth } from '../../context/AuthContext';
+import { useAppState } from '../../context/AppContext';
 
 import { Post, Page, ButtonType, AlertType, DataType } from '../../constants';
 import { DEFAULT_POST_KARMA } from '../../config';
@@ -35,8 +36,9 @@ type Props = {
 const PostBlock = ({ post, page }: Props) => {
 
     const history = useHistory();
-    const { isLoading, draft } = useContext(WebContext);
+    const { draft } = useContext(WebContext);
     const { user } = useAuth();
+    const { isPending } = useAppState();
 
     const date = dateformat(new Date(post.post_time), "dd/mm/yyyy hh:MM TT");
     const [ showCommentField, setShowCommentField ] = useState(draft !== null && draft.type === DataType.Comment);
@@ -85,7 +87,7 @@ const PostBlock = ({ post, page }: Props) => {
                                 <AlertBox type={AlertType.commentNotLogin} /> : 
                                 user.reputation - user.spent < 3? 
                                     <AlertBox type={AlertType.commentNotEnoughPoints} /> : 
-                                    isLoading? 
+                                    isPending? 
                                     <AlertBox type={AlertType.commentLoading} /> : 
                                         showCommentField? 
                                             <CommentField 

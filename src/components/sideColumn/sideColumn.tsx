@@ -9,13 +9,11 @@ import ReminderWidget from './reminderWidget';
 import PostsWidget from './postsWidget';
 import { Page } from '../../constants';
 
-type Props = {
-    page: Page
-}
-
-const SideColumn = ( { page }: Props) => {
+const SideColumn = () => {
     const { user } = useAuth();
     const history = useHistory();
+
+    const page = window.location.pathname;
 
     const gotoSetting = () => {
         if (user !== null) {

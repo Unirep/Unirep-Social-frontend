@@ -4,6 +4,7 @@ import { useContext, useState, useEffect } from 'react';
 import './loginPage.scss';
 import { WebContext } from '../../context/WebContext'; 
 import { useAuth } from '../../context/AuthContext';
+import { useAppState } from '../../context/AppContext'; 
 
 import { getEpochKeys, hasSignedUp, getUserState, userStateTransition, getAirdrop, getNextEpochTime, getEpochSpent } from '../../utils';
 import LoadingCover from '../loadingCover/loadingCover';
@@ -11,8 +12,10 @@ import LoadingButton from '../loadingButton/loadingButton';
 
 const LoginPage = () => {
     const history = useHistory();
-    const { setNextUSTTime, isLoading, setIsLoading } = useContext(WebContext);
+    const { setNextUSTTime } = useContext(WebContext);
     const { user, setUser } = useAuth();
+    const { isPending, setIsPending } = useAppState();
+
     const [input, setInput] = useState<string>('');
     const [errorMsg, setErrorMsg] = useState<string>('');
     const [isButtonLoading, setButtonLoading] = useState<boolean>(false);
@@ -33,7 +36,7 @@ const LoginPage = () => {
         if(userSignUpResult.hasSignedUp === false) {
             setErrorMsg('Incorrect private key. Please try again.')
         } else if (userSignUpResult.hasSignedUp) {
-            setIsLoading(true);
+            setIsPending(true);
 
             const userStateResult = await getUserState(input, user?.userState);
             const userEpoch = userStateResult.userState.latestTransitionedEpoch;
@@ -80,7 +83,7 @@ const LoginPage = () => {
             const nextET = await getNextEpochTime();
             setNextUSTTime(nextET);
 
-            setIsLoading(false);
+            setIsPending(false);
             history.push('/');
         }
     }
@@ -109,7 +112,7 @@ const LoginPage = () => {
                     <div className="go-to-signup">Got an invitation code? <a href="/signup">Join here</a></div>
                 </div>
             </div>
-            { isLoading? <LoadingCover /> : <div></div>}
+            { isPending? <LoadingCover /> : <div></div>}
         </div>
     );
 }

@@ -4,6 +4,7 @@ import { HashLink as Link } from 'react-router-hash-link';
 import './loadingWidget.scss';
 import { WebContext } from '../../context/WebContext';
 import { useAuth } from '../../context/AuthContext';
+import { useAppState } from '../../context/AppContext';
 
 import { publishPost, vote, leaveComment, getEpochSpent, userStateTransition, getUserState, getEpochKeys, getAirdrop, getNextEpochTime, getCurrentEpoch } from '../../utils';
 import { ActionType } from '../../constants';
@@ -18,8 +19,9 @@ enum LoadingState {
 }
 
 const LoadingWidget = () => {
-    const { isLoading, setIsLoading, action, setAction, setNextUSTTime, setDraft, shownPosts, setShownPosts } = useContext(WebContext);
+    const { action, setAction, setNextUSTTime, setDraft, shownPosts, setShownPosts } = useContext(WebContext);
     const { user, setUser } = useAuth();
+    const { isPending, setIsPending } = useAppState();
 
     const [ loadingState, setLoadingState ] = useState<LoadingState>(LoadingState.none);
     const [ isFlip, setFlip ] = useState<boolean>(false);
@@ -62,7 +64,7 @@ const LoadingWidget = () => {
 
     useEffect(() => {
         const doAction = async () => {
-            setIsLoading(true);
+            setIsPending(true);
             console.log('Todo action: ' + JSON.stringify(action));
             setLoadingState(LoadingState.loading);
 
@@ -84,7 +86,7 @@ const LoadingWidget = () => {
                     setUser({...newUser, spent: 0});
                     setGoto('/');
                     setLoadingState(LoadingState.failed);
-                    setIsLoading(false);
+                    setIsPending(false);
                     return;
                 }
 
@@ -160,7 +162,7 @@ const LoadingWidget = () => {
             if (data.error !== undefined) {
                 console.log('action ' + action.action + ' error: ' + data.error);
                 setLoadingState(LoadingState.failed);
-                setIsLoading(false);
+                setIsPending(false);
                 return;
             } else {
                 console.log('without error.');
@@ -189,10 +191,10 @@ const LoadingWidget = () => {
                 setShownPosts(newShownPosts);
             }
             
-            setIsLoading(false);
+            setIsPending(false);
         }
         
-        if (action !== null && user !== null && !isLoading) {
+        if (action !== null && user !== null && !isPending) {
             console.log('do action');
             doAction();  
         } 

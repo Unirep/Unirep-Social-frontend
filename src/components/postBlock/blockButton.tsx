@@ -1,8 +1,8 @@
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import { WebContext } from '../../context/WebContext';
 import { useAuth } from '../../context/AuthContext';
+import { useAppState } from '../../context/AppContext';
 
 import { Post, Comment, ButtonType } from '../../constants';
 import VoteBox from '../voteBox/voteBox';
@@ -16,7 +16,7 @@ type Props = {
 const BlockButton = ({ type, count, data }: Props) => {
     
     const history = useHistory();
-    const { isLoading } = useContext(WebContext);
+    const { isPending } = useAppState();
     const { user } = useAuth();
 
     const [isBoostOn, setBoostOn] = useState<boolean>(false);
@@ -33,7 +33,7 @@ const BlockButton = ({ type, count, data }: Props) => {
             else {
                 if (data.current_epoch !== user.current_epoch) return false;
                 else if (user.reputation - user.spent < 1) return false;
-                else if (isLoading) return false;
+                else if (isPending) return false;
                 else return true;
             }
         }
@@ -67,7 +67,7 @@ const BlockButton = ({ type, count, data }: Props) => {
         else {
             if (data.current_epoch !== user.current_epoch) setReminder('Time out :(');
             else if (user.reputation - user.spent < 1) setReminder('No enough Rep');
-            else if (isLoading && type !== ButtonType.Share) setReminder('loading...');
+            else if (isPending && type !== ButtonType.Share) setReminder('loading...');
         }
     }
 
@@ -84,9 +84,9 @@ const BlockButton = ({ type, count, data }: Props) => {
     }, [isLinkCopied])
 
     useEffect(() => {
-        if (isLoading) setIsAble(false);
+        if (isPending) setIsAble(false);
         else setIsAble(checkAbility());
-    }, [isLoading])
+    }, [isPending])
 
     return (
         <div 

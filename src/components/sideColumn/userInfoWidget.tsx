@@ -5,13 +5,16 @@ import 'react-confirm-alert/src/react-confirm-alert.css';
 
 import { WebContext } from '../../context/WebContext';
 import { useAuth } from '../../context/AuthContext';
+import { useAppState } from '../../context/AppContext';
 
 import HelpWidget from '../helpWidget/helpWidget';
 import { ActionType, InfoType } from '../../constants';
 
 const UserInfoWidget = () => {
-    const { nextUSTTime, action, setAction, isLoading, setIsLoading } = useContext(WebContext);
+    const { nextUSTTime, action, setAction } = useContext(WebContext);
     const { user } = useAuth();
+    const { isPending, setIsPending } = useAppState();
+    
     const [ countdownText, setCountdownText ] = useState<string>('');
     const [ diffTime, setDiffTime ] = useState<number>(0);
     const [ isAlertOn, setAlertOn ] = useState<boolean>(false);
@@ -22,7 +25,7 @@ const UserInfoWidget = () => {
         setDiffTime(diff);
 
         if (diff <= 0 && user !== null) {
-            if (action === null && !isAlertOn && !isLoading) {
+            if (action === null && !isAlertOn && !isPending) {
                 setAlertOn(true);
                 confirmAlert({
                     closeOnClickOutside: true,
@@ -36,7 +39,7 @@ const UserInfoWidget = () => {
                                         identity: user.identity,
                                         userState: user.userState,
                                     };
-                                    if (action === null && !isLoading) {
+                                    if (action === null && !isPending) {
                                         setAction({action: ActionType.UST, data: actionData});
                                     }
                                     setAlertOn(false);
@@ -84,7 +87,7 @@ const UserInfoWidget = () => {
 
     window.addEventListener("storage", (e) => {
         if (e.key === 'isLoading' && e.newValue === 'true') {
-            setIsLoading(true);
+            setIsPending(true);
         } 
     });
 

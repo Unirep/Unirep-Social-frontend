@@ -4,13 +4,13 @@ import { useHistory } from 'react-router-dom';
 import './mainPage.scss';
 import { WebContext } from '../../context/WebContext';
 import { useAuth } from '../../context/AuthContext';
+import { useAppState } from '../../context/AppContext';
 
+import BasicPage from '../basicPage/basicPage';
 import { getPostsByQuery } from '../../utils';
-import { Page, QueryType, AlertType } from '../../constants';
+import { QueryType, AlertType } from '../../constants';
 import { DEFAULT_POST_KARMA } from '../../config';
-import SideColumn from '../sideColumn/sideColumn';
 import PostsList from '../postsList/postsList';
-import Banner from './banner';
 import Feed from '../feed/feed';
 
 
@@ -18,11 +18,11 @@ const MainPage = () => {
 
     const history = useHistory();
 
-    const { shownPosts, setShownPosts, isLoading } = useContext(WebContext);
+    const { shownPosts, setShownPosts } = useContext(WebContext);
     const { user } = useAuth();
+    const { isPending } = useAppState();
 
     const [query, setQuery] = useState<QueryType>(QueryType.New);
-    const [showBanner, setShowBanner] = useState<Boolean>(true);
 
     const getPosts = async (lastRead: string = '0') => {
         console.log('get posts with last read: ' + lastRead + ', query is: ' + query);
@@ -48,37 +48,25 @@ const MainPage = () => {
     }, [query]);
 
     const gotoNewPost = () => {
-        if (!isLoading && user !== null && (user.reputation - user.spent) >= DEFAULT_POST_KARMA){
+        if (!isPending && user !== null && (user.reputation - user.spent) >= DEFAULT_POST_KARMA){
             history.push('/new', {isConfirmed: true});
         }
     }
 
     return (
-        <div className="body-columns">
-            <div className="margin-box"></div>
-            <div className="content">
-                {showBanner? <Banner closeBanner={() => setShowBanner(false)}/> : <div></div>}
-                <div className="main-content">
-                    <div className="create-post" onClick={gotoNewPost}>
-                        { user === null? AlertType.postNotLogin : 
-                            user.reputation - user.spent < DEFAULT_POST_KARMA? 
-                                AlertType.postNotEnoughPoints : 'Create post'
-                        }
-                    </div>
-                    <Feed feedChoice={query} setFeedChoice={setQuery} />
-                    <div>
-                        <PostsList 
-                            posts={shownPosts} 
-                            loadMorePosts={loadMorePosts}
-                        />
-                    </div>
-                </div>
-                <div className="side-content">
-                    <SideColumn page={Page.Home} />
-                </div>
+        <BasicPage>
+            <div className="create-post" onClick={gotoNewPost}>
+                { user === null? AlertType.postNotLogin : 
+                    user.reputation - user.spent < DEFAULT_POST_KARMA? 
+                        AlertType.postNotEnoughPoints : 'Create post'
+                }
             </div>
-            <div className="margin-box"></div>
-        </div>
+            <Feed feedChoice={query} setFeedChoice={setQuery} />
+            <PostsList 
+                posts={shownPosts} 
+                loadMorePosts={loadMorePosts}
+            />
+        </BasicPage>
     );
 };
 
