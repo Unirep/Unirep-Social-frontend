@@ -1,8 +1,11 @@
 import { useState, useContext } from 'react';
-import 'react-circular-progressbar/dist/styles.css';
-import { WebContext } from '../../context/WebContext';
-import { Post, Vote, Comment, DataType, ActionType } from '../../constants';
+
 import './voteBox.scss';
+import { WebContext } from '../../context/WebContext';
+import { useAuth } from '../../context/AuthContext';
+
+import { Post, Vote, Comment, DataType, ActionType } from '../../constants';
+
 
 type Props = {
     isUpvote: boolean,
@@ -11,7 +14,8 @@ type Props = {
 }
 const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
 
-    const { user, setAction } = useContext(WebContext);
+    const { setAction } = useContext(WebContext);
+    const { user } = useAuth();
     const [ givenAmount, setGivenAmount ] = useState<number>(1);
     const [ epkNonce, setEpkNonce ] = useState(0); 
     const [ isHistoriesOpen, setHistoriesOpen ] = useState(false);

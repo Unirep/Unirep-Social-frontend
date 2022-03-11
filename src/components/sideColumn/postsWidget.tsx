@@ -1,6 +1,9 @@
 import { useContext, useState } from 'react';
 import { useHistory } from 'react-router-dom';
+
 import { WebContext } from '../../context/WebContext';
+import { useAuth } from '../../context/AuthContext';
+
 import { Post } from '../../constants';
 
 type Props = {
@@ -18,7 +21,7 @@ const isAuthor = (p: Post, epks: undefined | string[]) => {
 }
 
 const RankingBlock = ({ post, ranking, hasUnderline }: Props) => {
-    const { user } = useContext(WebContext);
+    const { user } = useAuth();
     const history = useHistory();
     
     return (
@@ -46,7 +49,8 @@ type RankedPost = {
 }
 
 const PostsWidget = () => {
-    const { shownPosts, user } = useContext(WebContext);
+    const { shownPosts } = useContext(WebContext);
+    const { user } = useAuth();
     const [ posts, setPosts ] = useState<RankedPost[]>(() => {
         let posts: RankedPost[] = [];
 

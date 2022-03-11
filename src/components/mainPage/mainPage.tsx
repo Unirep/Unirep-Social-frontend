@@ -1,21 +1,25 @@
 import { useContext, useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import { getPostsByQuery } from '../../utils';
+import './mainPage.scss';
 import { WebContext } from '../../context/WebContext';
+import { useAuth } from '../../context/AuthContext';
+
+import { getPostsByQuery } from '../../utils';
 import { Page, QueryType, AlertType } from '../../constants';
 import { DEFAULT_POST_KARMA } from '../../config';
 import SideColumn from '../sideColumn/sideColumn';
 import PostsList from '../postsList/postsList';
 import Banner from './banner';
 import Feed from '../feed/feed';
-import './mainPage.scss';
+
 
 const MainPage = () => {
 
     const history = useHistory();
 
-    const { shownPosts, setShownPosts, isLoading, user } = useContext(WebContext);
+    const { shownPosts, setShownPosts, isLoading } = useContext(WebContext);
+    const { user } = useAuth();
 
     const [query, setQuery] = useState<QueryType>(QueryType.New);
     const [showBanner, setShowBanner] = useState<Boolean>(true);

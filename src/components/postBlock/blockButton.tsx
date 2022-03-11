@@ -1,7 +1,10 @@
 import { useEffect, useState, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Post, Comment, ButtonType } from '../../constants';
+
 import { WebContext } from '../../context/WebContext';
+import { useAuth } from '../../context/AuthContext';
+
+import { Post, Comment, ButtonType } from '../../constants';
 import VoteBox from '../voteBox/voteBox';
 
 type Props = {
@@ -13,7 +16,8 @@ type Props = {
 const BlockButton = ({ type, count, data }: Props) => {
     
     const history = useHistory();
-    const { user, isLoading } = useContext(WebContext);
+    const { isLoading } = useContext(WebContext);
+    const { user } = useAuth();
 
     const [isBoostOn, setBoostOn] = useState<boolean>(false);
     const [isSquashOn, setSquashOn] = useState<boolean>(false);

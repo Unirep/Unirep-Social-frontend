@@ -3,11 +3,12 @@ import { HashLink as Link } from 'react-router-hash-link';
 
 import './loadingWidget.scss';
 import { WebContext } from '../../context/WebContext';
+import { useAuth } from '../../context/AuthContext';
+
 import { publishPost, vote, leaveComment, getEpochSpent, userStateTransition, getUserState, getEpochKeys, getAirdrop, getNextEpochTime, getCurrentEpoch } from '../../utils';
 import { ActionType } from '../../constants';
 import * as config from '../../config';
 import { getPostById } from '../../utils';
-import { stringifyBigInts } from '@unirep/crypto';
 
 enum LoadingState {
     loading,
@@ -17,7 +18,9 @@ enum LoadingState {
 }
 
 const LoadingWidget = () => {
-    const { isLoading, setIsLoading, action, setAction, user, setUser, setNextUSTTime, setDraft, shownPosts, setShownPosts } = useContext(WebContext);
+    const { isLoading, setIsLoading, action, setAction, setNextUSTTime, setDraft, shownPosts, setShownPosts } = useContext(WebContext);
+    const { user, setUser } = useAuth();
+
     const [ loadingState, setLoadingState ] = useState<LoadingState>(LoadingState.none);
     const [ isFlip, setFlip ] = useState<boolean>(false);
     const [ goto, setGoto ] = useState<string>('');

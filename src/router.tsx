@@ -1,7 +1,7 @@
 import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom';
 import { useState } from 'react';
 
-import useLocalStorage from './useLocalStorage';
+import useLocalStorage from './hooks/useLocalStorage';
 import * as Constants from './constants';
 
 import Header from './components/header/header';
@@ -10,7 +10,6 @@ import Overlay from './components/overlay/overlay';
 import MainPage from './components/mainPage/mainPage';
 import PostPage from './components/postPage/postPage';
 import UserPage from './components/userPage/userPage';
-import HelpPage from './components/helpPage/helpPage';
 import LoginPage from './components/loginPage/loginPage';
 import SignupPage from './components/signupPage/signupPage';
 import NewPage from './components/newPage/newPage';
@@ -19,10 +18,9 @@ import AdminPage from './components/adminPage/adminPage';
 import SettingPage from './components/settingPage/settingPage';
 
 import { WebContext } from './context/WebContext';
+import { AuthProvider } from './context/AuthContext';
 
 const AppRouter = () => {
-
-    const [user, setUser] = useLocalStorage('user', null);
     const [shownPosts, setShownPosts] = useLocalStorage('shownPosts', []);
     const [nextUSTTime, setNextUSTTime] = useLocalStorage('nextUSTTime', 4789220745000);
     const [adminCode, setAdminCode] = useLocalStorage('admin', '');
@@ -45,8 +43,8 @@ const AppRouter = () => {
     return (
         <BrowserRouter>
             <div>
+            <AuthProvider currentUser={null}>
             <WebContext.Provider value={{
-                    user, setUser,
                     shownPosts, setShownPosts, 
                     isLoading, setIsLoading,
                     nextUSTTime, setNextUSTTime,
@@ -61,7 +59,6 @@ const AppRouter = () => {
                     <Route component={MainPage} path="/" exact={true} />
                     <Route component={PostPage} path="/post/:id" />
                     <Route component={UserPage} path="/user" />
-                    <Route component={HelpPage} path="/help" />
                     <Route component={LoginPage} path="/login" />
                     <Route component={SignupPage} path="/signup" />
                     <Route component={NewPage} path="/new" />
@@ -77,6 +74,7 @@ const AppRouter = () => {
                     <Overlay /> : <div></div>
                 }
             </WebContext.Provider>
+            </AuthProvider>
             </div>
         </BrowserRouter>
     );

@@ -1,7 +1,8 @@
+import './postsList.scss';
+
 import PostBlock from '../postBlock/postBlock';
 import { Post, Page } from '../../constants';
 import { LOAD_POST_COUNT } from '../../config';
-import './postsList.scss';
 
 type Props = {
     posts: Post[],

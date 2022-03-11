@@ -1,5 +1,6 @@
 import './postsList.scss';
 import '../postBlock/postBlock.scss';
+
 import CommentBlock from '../postBlock/commentBlock';
 import { Comment, Page } from '../../constants';
 import { LOAD_POST_COUNT } from '../../config';

@@ -1,13 +1,17 @@
 import { useContext, useState } from 'react';
 import { NavLink, useHistory, useLocation } from 'react-router-dom';
-import { WebContext } from '../../context/WebContext';
-import { DEFAULT_POST_KARMA } from '../../config';
+
 import './header.scss';
+import { WebContext } from '../../context/WebContext';
+import { useAuth } from '../../context/AuthContext';
+
+import { DEFAULT_POST_KARMA } from '../../config';
 
 const Header = () => {
     const history = useHistory();
     const location = useLocation();
-    const { user, isLoading, isMenuOpen, setIsMenuOpen } = useContext(WebContext);
+    const { isLoading, isMenuOpen, setIsMenuOpen } = useContext(WebContext);
+    const { user } = useAuth();
     const [searchInput, setSearchInput] = useState<string>("");
 
     const gotoNewPage = () => {

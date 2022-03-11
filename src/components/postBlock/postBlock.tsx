@@ -2,13 +2,16 @@ import { useState, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import dateformat from 'dateformat';
 
+import './postBlock.scss';
 import { WebContext } from '../../context/WebContext';
+import { useAuth } from '../../context/AuthContext';
+
 import { Post, Page, ButtonType, AlertType, DataType } from '../../constants';
 import { DEFAULT_POST_KARMA } from '../../config';
 import CommentField from './commentField';
 import CommentBlock from './commentBlock';
 import BlockButton from './blockButton';
-import './postBlock.scss';
+
 
 type AlertProps = {
     type: AlertType
@@ -32,7 +35,8 @@ type Props = {
 const PostBlock = ({ post, page }: Props) => {
 
     const history = useHistory();
-    const { isLoading, user, draft } = useContext(WebContext);
+    const { isLoading, draft } = useContext(WebContext);
+    const { user } = useAuth();
 
     const date = dateformat(new Date(post.post_time), "dd/mm/yyyy hh:MM TT");
     const [ showCommentField, setShowCommentField ] = useState(draft !== null && draft.type === DataType.Comment);

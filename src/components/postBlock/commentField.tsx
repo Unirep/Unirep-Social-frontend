@@ -1,8 +1,9 @@
-import { leaveComment, getUserState, updateUserState } from '../../utils';
+import { useContext } from 'react';
+
 import { WebContext } from '../../context/WebContext';
-import { useState, useContext } from 'react';
-import { Post, Comment, DataType, Page, ActionType } from '../../constants';
-import { DEFAULT_COMMENT_KARMA } from '../../config';
+import { useAuth } from '../../context/AuthContext';
+
+import { Post, DataType, Page, ActionType } from '../../constants';
 import WritingField from '../writingField/writingField';
 
 type Props = {
@@ -12,7 +13,8 @@ type Props = {
 }
 
 const CommentField = (props: Props) => {
-    const { user, isLoading, setIsLoading, setAction } = useContext(WebContext);
+    const { setAction } = useContext(WebContext);
+    const { user } = useAuth();
 
     const preventPropagation = (event: any) => {
         event.stopPropagation();

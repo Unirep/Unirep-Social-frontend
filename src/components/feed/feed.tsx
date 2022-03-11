@@ -1,7 +1,10 @@
 import { useState } from 'react';
+
+import './feed.scss';
+
 import useWindowDimension from '../../hooks/useWindowDimensions';
 import { QueryType } from '../../constants';
-import './feed.scss';
+
 
 type choiceProps = {
     type: QueryType,

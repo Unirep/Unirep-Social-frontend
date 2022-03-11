@@ -1,4 +1,5 @@
 import { useHistory } from 'react-router-dom';
+
 import { ABOUT_URL } from '../../config';
 
 type Props = {

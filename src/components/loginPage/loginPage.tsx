@@ -3,13 +3,16 @@ import { useContext, useState, useEffect } from 'react';
 
 import './loginPage.scss';
 import { WebContext } from '../../context/WebContext'; 
+import { useAuth } from '../../context/AuthContext';
+
 import { getEpochKeys, hasSignedUp, getUserState, userStateTransition, getAirdrop, getNextEpochTime, getEpochSpent } from '../../utils';
 import LoadingCover from '../loadingCover/loadingCover';
 import LoadingButton from '../loadingButton/loadingButton';
 
 const LoginPage = () => {
     const history = useHistory();
-    const { user, setUser, setNextUSTTime, isLoading, setIsLoading } = useContext(WebContext);
+    const { setNextUSTTime, isLoading, setIsLoading } = useContext(WebContext);
+    const { user, setUser } = useAuth();
     const [input, setInput] = useState<string>('');
     const [errorMsg, setErrorMsg] = useState<string>('');
     const [isButtonLoading, setButtonLoading] = useState<boolean>(false);

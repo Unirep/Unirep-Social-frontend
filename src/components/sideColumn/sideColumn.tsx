@@ -1,8 +1,8 @@
-import { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import './sideColumn.scss';
-import { WebContext } from '../../context/WebContext';
+import { useAuth } from '../../context/AuthContext';
+
 import DefaultWidget from './defaultWidget';
 import UserInfoWidget from './userInfoWidget';
 import ReminderWidget from './reminderWidget';
@@ -14,7 +14,7 @@ type Props = {
 }
 
 const SideColumn = ( { page }: Props) => {
-    const { user } = useContext(WebContext);
+    const { user } = useAuth();
     const history = useHistory();
 
     const gotoSetting = () => {

@@ -1,13 +1,14 @@
-import { useContext } from 'react';
+import { useAuth } from '../../context/AuthContext';
+
 import { ABOUT_URL } from '../../config';
-import { WebContext } from '../../context/WebContext';
+
 
 type Props = {
     closeBanner: () => void
 }
 
 const Banner = ({ closeBanner }: Props) => {
-    const { user } = useContext(WebContext);
+    const { user } = useAuth();
     return (
         <div className="banner-row">
             <div className="banner">

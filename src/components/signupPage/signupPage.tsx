@@ -3,13 +3,16 @@ import { useContext, useState, useEffect } from 'react';
 
 import './signupPage.scss';
 import { WebContext } from '../../context/WebContext';
+import { useAuth } from '../../context/AuthContext';
+
 import { getEpochKeys, getUserState, getAirdrop, getNextEpochTime, checkInvitationCode, userSignUp} from '../../utils';
 import LoadingCover from '../loadingCover/loadingCover';
 import LoadingButton from '../loadingButton/loadingButton';
 
 const SignupPage = () => {
     const history = useHistory();
-    const { user, setUser, setNextUSTTime, isLoading, setIsLoading } = useContext(WebContext);
+    const { setNextUSTTime, isLoading, setIsLoading } = useContext(WebContext);
+    const { user, setUser } = useAuth();
     const [invitationCode, setInvitationCode] = useState<string>('');
     const [step, setStep] = useState<number>(0);
     const [identity, setIdentity] = useState<string>('');

@@ -1,8 +1,9 @@
 // import BlockButton from './blockButton';
 import { useState } from 'react';
-import { Comment, Page, ButtonType } from '../../constants';
 import dateformat from 'dateformat';
 import { useHistory } from 'react-router-dom';
+
+import { Comment, Page, ButtonType } from '../../constants';
 import BlockButton from './blockButton';
 import { DEFAULT_COMMENT_KARMA } from '../../config';
 

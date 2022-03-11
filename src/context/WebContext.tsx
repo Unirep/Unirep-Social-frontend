@@ -1,9 +1,7 @@
 import { createContext } from 'react';
-import { Post, User, Page, Draft } from '../constants';
+import { Post, Page, Draft } from '../constants';
 
 type GlobalContent = {
-    user: User | null;
-    setUser: (u: User | null) => void;
     shownPosts: Post[];
     setShownPosts: (posts: Post[]) => void;
     isLoading: boolean;
@@ -23,8 +21,6 @@ type GlobalContent = {
 }
 
 export const WebContext = createContext<GlobalContent>({
-    user: null,
-    setUser: () => {},
     shownPosts: [],
     setShownPosts: () => {},
     isLoading: false,

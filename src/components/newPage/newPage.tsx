@@ -3,6 +3,8 @@ import { useHistory, useLocation } from 'react-router-dom';
 
 import './newPage.scss';
 import { WebContext } from '../../context/WebContext';
+import { useAuth } from '../../context/AuthContext';
+
 import WritingField from '../writingField/writingField';
 import SideColumn from '../sideColumn/sideColumn';
 import { DataType, Page, ActionType } from '../../constants';
@@ -13,7 +15,8 @@ const NewPage = () => {
     const state = JSON.parse(JSON.stringify(location.state));
     const isConfirmed = state.isConfirmed;
 
-    const { setAction, user } = useContext(WebContext);
+    const { setAction } = useContext(WebContext);
+    const { user } = useAuth();
 
     useEffect(() => {
         console.log('Is this new page being confirmd? ' + isConfirmed);

@@ -1,10 +1,14 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
-import { WebContext } from '../../context/WebContext';
+
 import './overlay.scss';
+import { WebContext } from '../../context/WebContext';
+import { useAuth } from '../../context/AuthContext';
+
 
 const Overlay = () => {
-    const { setIsMenuOpen, isLoading, user, setUser } = useContext(WebContext);
+    const { setIsMenuOpen, isLoading } = useContext(WebContext);
+    const { user, setUser } = useAuth();
     const history = useHistory();
 
     const closeOverlay = () => {

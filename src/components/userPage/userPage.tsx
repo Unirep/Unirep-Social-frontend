@@ -1,14 +1,16 @@
-import { useContext, useState, useEffect } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+
+import './userPage.scss';
+import { useAuth } from '../../context/AuthContext';
 
 import { getPostsByQuery, getRecords, getCommentsByQuery } from '../../utils';
-import { WebContext } from '../../context/WebContext';
 import SideColumn from '../sideColumn/sideColumn';
 import { Record, ActionType, Page, QueryType, Post, Comment } from '../../constants';
 import ActivityWidget from './activityWidget';
 import PostsList from '../postsList/postsList';
 import CommentsList from '../postsList/commentsList';
-import './userPage.scss';
+
 
 enum Tag {
     Posts = "Posts",
@@ -48,7 +50,7 @@ const UserPage = () => {
     const state = JSON.parse(JSON.stringify(location.state));
     const isConfirmed = state.isConfirmed;
 
-    const { isLoading, user } = useContext(WebContext);
+    const { user } = useAuth();
     const [ records, setRecords ] = useState<Record[]>([]);
     const [ tag, setTag ] = useState<Tag>(Tag.Posts);
     const [ sort, setSort ] = useState<QueryType>(QueryType.Boost);

@@ -1,10 +1,12 @@
 import { useState, useContext, useEffect }  from 'react';
-import { useHistory } from 'react-router-dom';
-import 'react-circular-progressbar/dist/styles.css';
+
+import './writingField.scss';
 import { WebContext } from '../../context/WebContext';
+import { useAuth } from '../../context/AuthContext';
+
 import HelpWidget from '../helpWidget/helpWidget';
 import { DataType, InfoType, Draft } from '../../constants';
-import './writingField.scss';
+
 import * as config from '../../config';
 
 
@@ -19,7 +21,8 @@ const WritingField = (props: Props) => {
 
     const defaultRep = props.type === DataType.Post? config.DEFAULT_POST_KARMA : config.DEFAULT_COMMENT_KARMA;
 
-    const { user, setIsLoading, draft, setDraft } = useContext(WebContext);
+    const { draft, setDraft } = useContext(WebContext);
+    const { user } = useAuth();
     const [ reputation, setReputation ] = useState(defaultRep);
     const [ title, setTitle ] = useState<string>('');
     const [ content, setContent ] = useState<string>('');

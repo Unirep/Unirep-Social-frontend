@@ -4,11 +4,14 @@ import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
 import { WebContext } from '../../context/WebContext';
+import { useAuth } from '../../context/AuthContext';
+
 import HelpWidget from '../helpWidget/helpWidget';
 import { ActionType, InfoType } from '../../constants';
 
 const UserInfoWidget = () => {
-    const { user, nextUSTTime, action, setAction, isLoading, setIsLoading } = useContext(WebContext);
+    const { nextUSTTime, action, setAction, isLoading, setIsLoading } = useContext(WebContext);
+    const { user } = useAuth();
     const [ countdownText, setCountdownText ] = useState<string>('');
     const [ diffTime, setDiffTime ] = useState<number>(0);
     const [ isAlertOn, setAlertOn ] = useState<boolean>(false);

@@ -1,11 +1,14 @@
-import { useState, useEffect, useContext } from 'react';
+import { useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
+
+import './postPage.scss';
 import { WebContext } from '../../context/WebContext';
-import { Page, Params, Post } from '../../constants';
+
+import { Page, Params } from '../../constants';
 import PostBlock from '../postBlock/postBlock';
 import SideColumn from '../sideColumn/sideColumn';
 import { getPostById } from '../../utils';
-import './postPage.scss';
+
 
 const PostPage = () => {
     const { id } = useParams<Params>();

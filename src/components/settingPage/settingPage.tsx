@@ -1,7 +1,7 @@
 import { useHistory, useLocation } from 'react-router-dom';
-import { useContext } from 'react';
 
 import './settingPage.scss';
+
 import SideColumn from '../sideColumn/sideColumn';
 import { Page } from '../../constants';
 import PrivateKey from './privateKey';

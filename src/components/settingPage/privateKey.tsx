@@ -1,10 +1,10 @@
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import './settingPage.scss';
-import { WebContext } from '../../context/WebContext';
+import { useAuth } from '../../context/AuthContext';
 
 const PrivateKey = () => { 
     const [isRevealed, setRevealed] = useState<boolean>(false);
-    const { user } = useContext(WebContext);
+    const { user } = useAuth();
 
     const download = () => {
         if (user !== null) {
