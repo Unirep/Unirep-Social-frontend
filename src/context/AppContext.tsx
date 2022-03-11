@@ -1,10 +1,10 @@
 import { createContext, useContext, useState } from 'react';
 
 type AppContent = {
-    isPending: boolean;
-    setIsPending: (_: boolean) => void;
-    isOverlayOn: boolean;
-    setIsOverlayOn: (_: boolean) => void;
+    isPending: boolean
+    setIsPending: (_: boolean) => void
+    isOverlayOn: boolean
+    setIsOverlayOn: (_: boolean) => void
 }
 
 const AppContext = createContext<AppContent>({
@@ -15,7 +15,7 @@ const AppContext = createContext<AppContent>({
 });
 
 type Props = {
-    children: any;
+    children: any
 }
 
 export const AppProvider = ({ children }: Props) => {

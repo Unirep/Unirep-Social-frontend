@@ -3,8 +3,8 @@ import { User } from '../constants';
 import useLocalStorage from '../hooks/useLocalStorage';
 
 type AuthContent = {
-    user: User | null;
-    setUser: (_: User | null) => void;
+    user: User | null
+    setUser: (_: User | null) => void
 }
 
 const AuthContext = createContext<AuthContent>({
@@ -13,8 +13,8 @@ const AuthContext = createContext<AuthContent>({
 });
 
 type Props = {
-    currentUser: User | null;
-    children: any;
+    currentUser: User | null
+    children: any
 }
 
 export const AuthProvider = ({ currentUser, children }: Props) => {

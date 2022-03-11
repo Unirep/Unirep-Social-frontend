@@ -4,8 +4,6 @@ import { Post, Draft } from '../constants';
 type GlobalContent = {
     shownPosts: Post[];
     setShownPosts: (posts: Post[]) => void;
-    nextUSTTime: number;
-    setNextUSTTime: (value: number) => void;
     action: any;
     setAction: (value: any) => void;
     adminCode: string;
@@ -17,8 +15,6 @@ type GlobalContent = {
 export const WebContext = createContext<GlobalContent>({
     shownPosts: [],
     setShownPosts: () => {},
-    nextUSTTime: 4789220745000,
-    setNextUSTTime: () => {},
     action: null,
     setAction: () => {},
     adminCode: '', 

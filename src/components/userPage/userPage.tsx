@@ -193,7 +193,7 @@ const UserPage = () => {
     return (
         <BasicPage>
             { user !== null? 
-                <div className="main-content">
+                <div>
                     <h3>My Stuff</h3> 
                     <div className="my-stuff">
                         <div className="my-reps stuff">

@@ -3,6 +3,7 @@ import { useHistory } from 'react-router-dom';
 
 import { useAuth } from '../../context/AuthContext';
 import { useAppState } from '../../context/AppContext';
+import { useEpochState } from '../../context/EpochContext';
 
 import { Post, Comment, ButtonType } from '../../constants';
 import VoteBox from '../voteBox/voteBox';
@@ -18,6 +19,7 @@ const BlockButton = ({ type, count, data }: Props) => {
     const history = useHistory();
     const { isPending } = useAppState();
     const { user } = useAuth();
+    const { currentEpoch } = useEpochState();
 
     const [isBoostOn, setBoostOn] = useState<boolean>(false);
     const [isSquashOn, setSquashOn] = useState<boolean>(false);
@@ -31,7 +33,7 @@ const BlockButton = ({ type, count, data }: Props) => {
         } else {
             if (user === null) return false;
             else {
-                if (data.current_epoch !== user.current_epoch) return false;
+                if (data.current_epoch !== currentEpoch) return false;
                 else if (user.reputation - user.spent < 1) return false;
                 else if (isPending) return false;
                 else return true;

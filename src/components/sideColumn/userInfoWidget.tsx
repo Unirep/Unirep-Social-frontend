@@ -6,22 +6,24 @@ import 'react-confirm-alert/src/react-confirm-alert.css';
 import { WebContext } from '../../context/WebContext';
 import { useAuth } from '../../context/AuthContext';
 import { useAppState } from '../../context/AppContext';
+import { useEpochState } from '../../context/EpochContext';
 
 import HelpWidget from '../helpWidget/helpWidget';
 import { ActionType, InfoType } from '../../constants';
 
 const UserInfoWidget = () => {
-    const { nextUSTTime, action, setAction } = useContext(WebContext);
+    const { action, setAction } = useContext(WebContext);
     const { user } = useAuth();
     const { isPending, setIsPending } = useAppState();
+    const { nextEpochAt } = useEpochState();
     
     const [ countdownText, setCountdownText ] = useState<string>('');
     const [ diffTime, setDiffTime ] = useState<number>(0);
     const [ isAlertOn, setAlertOn ] = useState<boolean>(false);
-    const nextUSTTimeString = dateformat(new Date(nextUSTTime), "dd/mm/yyyy hh:MM TT");
+    const nextUSTTimeString = dateformat(new Date(nextEpochAt), "dd/mm/yyyy hh:MM TT");
 
     const makeCountdownText = () => {
-        const diff = (nextUSTTime - Date.now()) / 1000;
+        const diff = (nextEpochAt - Date.now()) / 1000;
         setDiffTime(diff);
 
         if (diff <= 0 && user !== null) {

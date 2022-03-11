@@ -1,20 +1,20 @@
 import { useHistory } from 'react-router-dom';
-import { useContext, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 import './signupPage.scss';
-import { WebContext } from '../../context/WebContext';
 import { useAuth } from '../../context/AuthContext';
 import { useAppState } from '../../context/AppContext';
+import { useEpochState } from '../../context/EpochContext';
 
-import { getEpochKeys, getUserState, getAirdrop, getNextEpochTime, checkInvitationCode, userSignUp} from '../../utils';
+import { getEpochKeys, getUserState, getAirdrop, checkInvitationCode, userSignUp} from '../../utils';
 import LoadingCover from '../loadingCover/loadingCover';
 import LoadingButton from '../loadingButton/loadingButton';
 
 const SignupPage = () => {
     const history = useHistory();
-    const { setNextUSTTime } = useContext(WebContext);
     const { setUser } = useAuth();
     const { isPending, setIsPending } = useAppState();
+    const { setNeedReload } = useEpochState();
 
     const [invitationCode, setInvitationCode] = useState<string>('');
     const [step, setStep] = useState<number>(0);
@@ -101,8 +101,7 @@ const SignupPage = () => {
                 userState: userStateResult.userState.toJSON(),
             });
             
-            const nextET = await getNextEpochTime();
-            setNextUSTTime(nextET);
+            setNeedReload();
 
             setIsPending(false);
             history.push('/');

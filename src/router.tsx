@@ -17,10 +17,10 @@ import SettingPage from './components/settingPage/settingPage';
 import { WebContext } from './context/WebContext';
 import { AuthProvider } from './context/AuthContext';
 import { AppProvider } from './context/AppContext';
+import { EpochProvider } from './context/EpochContext';
 
 const AppRouter = () => {
     const [shownPosts, setShownPosts] = useLocalStorage('shownPosts', []);
-    const [nextUSTTime, setNextUSTTime] = useLocalStorage('nextUSTTime', 4789220745000);
     const [adminCode, setAdminCode] = useLocalStorage('admin', '');
     const [draft, setDraft] = useLocalStorage('draft', null);
     const [action, setAction] = useState<any>(null);
@@ -28,29 +28,30 @@ const AppRouter = () => {
     return (
         <BrowserRouter>
             <AppProvider>
-                <AuthProvider currentUser={null}>
-                <WebContext.Provider value={{
-                        shownPosts, setShownPosts, 
-                        nextUSTTime, setNextUSTTime,
-                        action, setAction,
-                        adminCode, setAdminCode,
-                        draft, setDraft}}>
-                    <Header />
-                    
-                    <Switch>
-                        <Route component={MainPage} path="/" exact={true} />
-                        <Route component={PostPage} path="/post/:id" />
-                        <Route component={UserPage} path="/user" />
-                        <Route component={LoginPage} path="/login" />
-                        <Route component={SignupPage} path="/signup" />
-                        <Route component={NewPage} path="/new" />
-                        <Route component={FeedbackPage} path="/feedback" />
-                        <Route component={AdminPage} path="/admin" />
-                        <Route component={SettingPage} path="/setting" />
-                        <Route component={() => <Redirect to="/" />} />
-                    </Switch>
-                </WebContext.Provider>
-                </AuthProvider>
+                <EpochProvider>
+                    <AuthProvider currentUser={null}>
+                    <WebContext.Provider value={{
+                            shownPosts, setShownPosts, 
+                            action, setAction,
+                            adminCode, setAdminCode,
+                            draft, setDraft}}>
+                        <Header />
+                        
+                        <Switch>
+                            <Route component={MainPage} path="/" exact={true} />
+                            <Route component={PostPage} path="/post/:id" />
+                            <Route component={UserPage} path="/user" />
+                            <Route component={LoginPage} path="/login" />
+                            <Route component={SignupPage} path="/signup" />
+                            <Route component={NewPage} path="/new" />
+                            <Route component={FeedbackPage} path="/feedback" />
+                            <Route component={AdminPage} path="/admin" />
+                            <Route component={SettingPage} path="/setting" />
+                            <Route component={() => <Redirect to="/" />} />
+                        </Switch>
+                    </WebContext.Provider>
+                    </AuthProvider>
+                </EpochProvider>
             </AppProvider>
         </BrowserRouter>
     );

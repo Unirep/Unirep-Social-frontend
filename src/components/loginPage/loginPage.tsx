@@ -1,20 +1,21 @@
 import { useHistory } from 'react-router-dom';
-import { useContext, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 import './loginPage.scss';
-import { WebContext } from '../../context/WebContext'; 
 import { useAuth } from '../../context/AuthContext';
 import { useAppState } from '../../context/AppContext'; 
+import { useEpochState } from '../../context/EpochContext';
 
-import { getEpochKeys, hasSignedUp, getUserState, userStateTransition, getAirdrop, getNextEpochTime, getEpochSpent } from '../../utils';
+import { getEpochKeys, hasSignedUp, getUserState, userStateTransition, getAirdrop, getEpochSpent } from '../../utils';
 import LoadingCover from '../loadingCover/loadingCover';
 import LoadingButton from '../loadingButton/loadingButton';
 
 const LoginPage = () => {
     const history = useHistory();
-    const { setNextUSTTime } = useContext(WebContext);
+    
     const { user, setUser } = useAuth();
     const { isPending, setIsPending } = useAppState();
+    const { setNeedReload } = useEpochState();
 
     const [input, setInput] = useState<string>('');
     const [errorMsg, setErrorMsg] = useState<string>('');
@@ -52,10 +53,8 @@ const LoginPage = () => {
             try {
                 console.log('get airdrop')
                 await getAirdrop(input, userState.toJSON());
-                const next = await getNextEpochTime();
-                setNextUSTTime(next);
             } catch (e) {
-                console.log('airdrop error: ', e)
+                throw ('airdrop error: ' + e)
             }
             
             const reputation = userState.getRepByAttester(userStateResult.attesterId);
@@ -80,9 +79,7 @@ const LoginPage = () => {
                 userState: userState.toJSON(),
             });
 
-            const nextET = await getNextEpochTime();
-            setNextUSTTime(nextET);
-
+            setNeedReload();
             setIsPending(false);
             history.push('/');
         }

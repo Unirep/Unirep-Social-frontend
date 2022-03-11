@@ -5,8 +5,9 @@ import './loadingWidget.scss';
 import { WebContext } from '../../context/WebContext';
 import { useAuth } from '../../context/AuthContext';
 import { useAppState } from '../../context/AppContext';
+import { useEpochState } from '../../context/EpochContext';
 
-import { publishPost, vote, leaveComment, getEpochSpent, userStateTransition, getUserState, getEpochKeys, getAirdrop, getNextEpochTime, getCurrentEpoch } from '../../utils';
+import { publishPost, vote, leaveComment, getEpochSpent, userStateTransition, getUserState, getEpochKeys, getAirdrop } from '../../utils';
 import { ActionType } from '../../constants';
 import * as config from '../../config';
 import { getPostById } from '../../utils';
@@ -19,9 +20,10 @@ enum LoadingState {
 }
 
 const LoadingWidget = () => {
-    const { action, setAction, setNextUSTTime, setDraft, shownPosts, setShownPosts } = useContext(WebContext);
+    const { action, setAction, setDraft, shownPosts, setShownPosts } = useContext(WebContext);
     const { user, setUser } = useAuth();
     const { isPending, setIsPending } = useAppState();
+    const { currentEpoch, setNeedReload } = useEpochState();
 
     const [ loadingState, setLoadingState ] = useState<LoadingState>(LoadingState.none);
     const [ isFlip, setFlip ] = useState<boolean>(false);
@@ -68,14 +70,12 @@ const LoadingWidget = () => {
             console.log('Todo action: ' + JSON.stringify(action));
             setLoadingState(LoadingState.loading);
 
-            const next = await getNextEpochTime();
-            setNextUSTTime(next);
+            setNeedReload();
 
             let data: any = {};
             let newUser: any = undefined;
             let spentRet = await getEpochSpent(user? user.epoch_keys : []);
 
-            const currentEpoch = await getCurrentEpoch();
             if (user !== null && user !== undefined && JSON.parse(user.userState).latestTransitionedEpoch !== currentEpoch) {
                 console.log('user epoch is not the same as current epoch, do user state transition, ' + JSON.parse(user?.userState).latestTransitionedEpoch + ' != ' + currentEpoch);
                 data = await doUST();  
