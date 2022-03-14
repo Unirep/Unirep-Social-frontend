@@ -267,8 +267,7 @@ const UserPage = () => {
                         {
                             tag === Tag.Posts? 
                                 <PostsList 
-                                    posts={myPosts}
-                                    loadMorePosts={loadMorePosts}
+                                    query={sort}
                                 /> : tag === Tag.Comments?
                                 <CommentsList 
                                     comments={myComments}

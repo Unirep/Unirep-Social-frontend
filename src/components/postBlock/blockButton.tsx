@@ -33,9 +33,18 @@ const BlockButton = ({ type, count, data }: Props) => {
         } else {
             if (user === null) return false;
             else {
-                if (data.current_epoch !== currentEpoch) return false;
-                else if (user.reputation - user.spent < 1) return false;
-                else if (isPending) return false;
+                if (data.current_epoch !== currentEpoch) {
+                    console.log('different epoch');
+                    return false;
+                }
+                else if (user.reputation - user.spent < 1) {
+                    console.log('no enough rep');
+                    return false;
+                } 
+                else if (isPending) {
+                    console.log('something is pending');
+                    return false;
+                }
                 else return true;
             }
         }
@@ -89,6 +98,10 @@ const BlockButton = ({ type, count, data }: Props) => {
         if (isPending) setIsAble(false);
         else setIsAble(checkAbility());
     }, [isPending])
+
+    useEffect(() => {
+        setIsAble(checkAbility());
+    }, [currentEpoch])
 
     return (
         <div 

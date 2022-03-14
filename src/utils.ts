@@ -747,15 +747,6 @@ export const getCommentsByQuery = async (query: QueryType, lastRead: string = '0
     return ret;
 }
 
-export const sentReport = async (issue: string, email: string) => {
-    const apiURL = makeURL(`report`, {issue, email});
-
-    let ret: boolean = true;
-    await fetch(apiURL).then(response => ret = (response.ok === true));
-
-    return ret;
-}
-
 
 //////////////////////////////// Admin related //////////////////////////////////
 export const checkIsAdminCodeValid = async (code: string) => {

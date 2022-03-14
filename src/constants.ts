@@ -93,6 +93,11 @@ export type FeedChoices = {
     query3: QueryType  // period
 }
 
+export enum FetchType {
+    GET = 'GET',
+    POST = 'POST'
+}
+
 export enum PageStatus {
     None,
     SignUp,
