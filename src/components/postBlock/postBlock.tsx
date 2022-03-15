@@ -43,10 +43,18 @@ const PostBlock = ({ post, page }: Props) => {
     return (
         <div className="post-block">
             <div className="block-header">
-                <p className="date">{date} |</p>
-                <div className="user" onMouseEnter={() => setEpkHovered(true)} onMouseLeave={() => setEpkHovered(false)}>
-                    <p>Post by {post.epoch_key} <img src="/images/lighting.svg" /></p>
-                    { isEpkHovered? <div className="show-off-rep">{post.reputation === DEFAULT_POST_KARMA? `This person is very modest, showing off only ${DEFAULT_POST_KARMA} Rep.` : `This person is showing off ${post.reputation} Rep.`}</div> : <div></div>}
+                <div className="info">
+                    <span className="date">{date} |</span>
+                    <span 
+                        className="user" 
+                        onMouseEnter={() => setEpkHovered(true)} 
+                        onMouseLeave={() => setEpkHovered(false)}
+                        onClick={() => setEpkHovered(!isEpkHovered)}
+                        // title={post.reputation === DEFAULT_POST_KARMA? `This person is very modest, showing off only ${DEFAULT_POST_KARMA} Rep.` : `This person is showing off ${post.reputation} Rep.`}
+                        >
+                        Post by {post.epoch_key} <img src="/images/lighting.svg" />
+                        { isEpkHovered? <span className="show-off-rep">{post.reputation === DEFAULT_POST_KARMA? `This person is very modest, showing off only ${DEFAULT_POST_KARMA} Rep.` : `This person is showing off ${post.reputation} Rep.`}</span> : <span></span>}
+                    </span>
                 </div>
                 <a className="etherscan" target="_blank" href={`https://goerli.etherscan.io/tx/${post.id}`}> 
                     <span>Etherscan</span>

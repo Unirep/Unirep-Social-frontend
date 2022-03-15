@@ -50,10 +50,10 @@ const MainPage = () => {
     }
 
     return (
-        <div className="wrapper">
-            {showBanner? <Banner closeBanner={() => setShowBanner(false)}/> : <div></div>}
-            <div className="default-gesture">
-                <div className="margin-box"></div>
+        <div className="body-columns">
+            <div className="margin-box"></div>
+            <div className="content">
+                {showBanner? <Banner closeBanner={() => setShowBanner(false)}/> : <div></div>}
                 <div className="main-content">
                     <div className="create-post" onClick={gotoNewPost}>
                         { user === null? AlertType.postNotLogin : 
@@ -72,8 +72,8 @@ const MainPage = () => {
                 <div className="side-content">
                     <SideColumn page={Page.Home} />
                 </div>
-                <div className="margin-box"></div>
             </div>
+            <div className="margin-box"></div>
         </div>
     );
 };

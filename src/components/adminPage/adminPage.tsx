@@ -42,8 +42,8 @@ const AdminPage = () => {
     }
 
     return (
-        <div className="wrapper">
-            <div className="default-gesture">
+        <div className="body-columns">
+            <div className="content">
                 {
                     status === AdminPageStatus.loading? 
                         <h2>LOADING...</h2> : status === AdminPageStatus.available? 

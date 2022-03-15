@@ -113,18 +113,34 @@ const LoadingWidget = () => {
                 );
                 spentRet += config.DEFAULT_COMMENT_KARMA
             } else if (action.action === ActionType.Vote) {
-                data = await vote(
-                    action.data.identity, 
-                    action.data.upvote, 
-                    action.data.downvote, 
-                    action.data.data, 
-                    action.data.epk, 
-                    action.data.epkNonce, 
-                    action.data.upvote + action.data.downvote, 
-                    action.data.isPost, 
-                    spentRet, 
-                    action.data.userState
-                );
+                if (action.data.isPost) {
+                    data = await vote(
+                        action.data.identity, 
+                        action.data.upvote, 
+                        action.data.downvote, 
+                        action.data.data, 
+                        action.data.epk, 
+                        action.data.epkNonce, 
+                        action.data.upvote + action.data.downvote, 
+                        action.data.isPost, 
+                        spentRet, 
+                        action.data.userState
+                    );
+                } else {
+                    data = await vote(
+                        action.data.identity, 
+                        action.data.upvote, 
+                        action.data.downvote, 
+                        action.data.data.split('_')[1], 
+                        action.data.epk, 
+                        action.data.epkNonce, 
+                        action.data.upvote + action.data.downvote, 
+                        action.data.isPost, 
+                        spentRet, 
+                        action.data.userState
+                    );
+                }
+                
                 spentRet += action.data.upvote + action.data.downvote
             } else if (action.action === ActionType.UST) {
                 console.log('already check epoch and do ust...');

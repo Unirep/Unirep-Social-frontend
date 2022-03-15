@@ -19,6 +19,10 @@
         background-color: $black;
         position: relative;
 
+        @media (max-width: 600px) {
+            display: none;
+        }
+
         img {
             width: 50%;
             position: absolute;
@@ -29,20 +33,42 @@
 
     .right-column {
         flex: 4;
-        height: 100%;
-        background-color: $white;
-        position: relative;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
 
-        img {
-            width: 48px;
-            height: 48px;
+        height: 100%;
+        background-color: $white;
+        position: relative;
+        
+        .close {
             position: absolute;
-            top: 48px;
-            right: 120px;
-            cursor: pointer;
+            top: 0;
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            padding-top: 48px;
+            padding-right: 10%;
+
+            @media (max-width: 600px) {
+                padding: 48px 16px;
+                justify-content: space-between;
+            }
+
+            #close-icon {
+                width: 48px;
+                height: 48px;
+                cursor: pointer;
+            }
+
+            #unirep-icon {
+                height: 48px;
+
+                @media (min-width: 600px) {
+                    display: none;
+                }
+            }
         }
 
 
@@ -50,7 +76,8 @@
             color: $black;
             display: flex;
             flex-direction: column;
-            width: 60%;
+            padding: 16px;
+            max-width: 500px;
 
             .title {
                 font-size: $title-lg;

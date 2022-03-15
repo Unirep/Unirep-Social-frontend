@@ -12,8 +12,13 @@ const PostPage = () => {
     const { shownPosts, setShownPosts } = useContext(WebContext);
 
     const setPost = async () => {
-        const ret = await getPostById(id);
-        setShownPosts([ret]);
+        let ret: any = null;
+        try {
+            ret = await getPostById(id);
+            setShownPosts([ret]);
+        } catch (e) {
+            setShownPosts([]);
+        }
     }
 
     useEffect(() => {
@@ -21,9 +26,9 @@ const PostPage = () => {
     }, []);
 
     return (
-        <div className="wrapper">
-            <div className="default-gesture">
-                <div className="margin-box"></div>
+        <div className="body-columns">
+            <div className="margin-box"></div>
+            <div className="content">
                 <div className="main-content">
                     {
                         shownPosts.length === 0? 
@@ -36,9 +41,9 @@ const PostPage = () => {
                 </div>
                 <div className="side-content">
                     <SideColumn page={Page.Post} />
-                </div>
-                <div className="margin-box"></div>
+                </div> 
             </div>
+            <div className="margin-box"></div>
         </div> 
         
     );

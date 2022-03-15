@@ -12,6 +12,7 @@
 
 .writing-field {
     width: 100%;
+    box-sizing: border-box;
 
     input[type="text"] {
         width: 100%;
@@ -55,7 +56,7 @@
     .info-row {
         width: 100%;
         display: flex;
-        flex-direction: row;
+        flex-wrap: wrap;
         margin-top: 40px;
 
         .element {
@@ -63,6 +64,7 @@
             display: flex;
             flex-direction: column;
             align-items: flex-start;
+            margin-bottom: 32px;
 
             .name {
                 color: $grey-700;
@@ -92,14 +94,13 @@
 
             .rep-chooser {
                 display: flex;
-                flex-direction: row;
                 margin-top: 16px;
                 align-items: center;
 
                 input[type="range"] {
                     appearance: none;
                     display: block;
-                    width: 278px;
+                    flex-basis: 85%;
                     height: 32px;
                     background: none;
                     margin: 0;
@@ -145,7 +146,7 @@
                 }
 
                 input[type="text"] {
-                    width: 48px;
+                    flex-basis: 15%;
                     height: 32px;
                     outline: none;
                     background-color: $grey-100;
@@ -172,7 +173,6 @@
     .submit-btn {
         width: 100%;
         @include myButton($height: 58px, $radius: 8px, $block-color: $black, $color: $white, $font-weight: 700, $font-size: $text-lg, $margin-horizontal: 0px);
-        margin-top: 48px;
     }
 }
 
