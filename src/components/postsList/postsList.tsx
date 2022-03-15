@@ -45,7 +45,7 @@ const PostsList = ({ query }: Props) => {
     return (
         <div className="post-list">
             {
-                loading? <div></div> : 
+                loading? <div>Here should be a loading animation</div> : 
                     <div>
                         {
                             posts.length > 0? 
