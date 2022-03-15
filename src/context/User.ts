@@ -29,8 +29,11 @@ export class UserState {
 
   // must be called in browser, not in SSR
   async load() {
-    const { identity } = JSON.parse(window.localStorage.getItem('user') ?? '{}')
-    this.id = unSerialiseIdentity(identity)
+    const storedUser = window.localStorage.getItem('user')
+    if (storedUser && storedUser !== 'null') {
+      const { identity } = JSON.parse(storedUser)
+      this.id = unSerialiseIdentity(identity)
+    }
     await this.loadReputation()
     // start listening for new epochs
     const unirep = new ethers.Contract(
@@ -82,6 +85,7 @@ export class UserState {
   }
 
   async loadReputation() {
+    if (!this.id) return { posRep: 0, negRep: 0 }
     const { userState } = await this.genUserState();
     const rep = userState.getRepByAttester(BigInt(config.UNIREP_SOCIAL_ATTESTER_ID))
     this.reputation = Number(rep.posRep) - Number(rep.negRep)
