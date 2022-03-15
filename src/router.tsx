@@ -1,5 +1,5 @@
 import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 import useLocalStorage from './useLocalStorage';
 import * as Constants from './constants';
@@ -19,8 +19,11 @@ import AdminPage from './components/adminPage/adminPage';
 import SettingPage from './components/settingPage/settingPage';
 
 import { WebContext } from './context/WebContext';
+import UserContext from './context/User'
 
 const AppRouter = () => {
+
+    const userState = React.useContext(UserContext)
 
     const [user, setUser] = useLocalStorage('user', null);
     const [shownPosts, setShownPosts] = useLocalStorage('shownPosts', []);
@@ -41,13 +44,19 @@ const AppRouter = () => {
             }
         }
     });
-    
+
+    React.useEffect(() => {
+        if (typeof window !== 'undefined') {
+          userState.load()
+        }
+    }, [])
+
     return (
         <BrowserRouter>
             <div>
             <WebContext.Provider value={{
                     user, setUser,
-                    shownPosts, setShownPosts, 
+                    shownPosts, setShownPosts,
                     isLoading, setIsLoading,
                     nextUSTTime, setNextUSTTime,
                     isMenuOpen, setIsMenuOpen,
@@ -56,7 +65,7 @@ const AppRouter = () => {
                     adminCode, setAdminCode,
                     draft, setDraft}}>
                 <Header />
-                
+
                 <Switch>
                     <Route component={MainPage} path="/" exact={true} />
                     <Route component={PostPage} path="/post/:id" />
@@ -73,7 +82,7 @@ const AppRouter = () => {
 
                 <LoadingWidget />
 
-                {isMenuOpen? 
+                {isMenuOpen?
                     <Overlay /> : <div></div>
                 }
             </WebContext.Provider>

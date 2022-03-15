@@ -1,7 +1,6 @@
-import { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import { getPostsByQuery } from '../../utils';
 import { WebContext } from '../../context/WebContext';
 import { Page, QueryType, AlertType } from '../../constants';
 import { DEFAULT_POST_KARMA } from '../../config';
@@ -10,37 +9,30 @@ import PostsList from '../postsList/postsList';
 import Banner from './banner';
 import Feed from '../feed/feed';
 import './mainPage.scss';
+import PostContext from '../../context/Post'
+import UserContext from '../../context/User'
+import { observer } from 'mobx-react-lite'
 
 const MainPage = () => {
 
+    const posts = React.useContext(PostContext)
+    const user = React.useContext(UserContext)
+
     const history = useHistory();
 
-    const { shownPosts, setShownPosts, isLoading, user } = useContext(WebContext);
+    const { isLoading } = useContext(WebContext);
 
     const [query, setQuery] = useState<QueryType>(QueryType.New);
     const [showBanner, setShowBanner] = useState<Boolean>(true);
 
-    const getPosts = async (lastRead: string = '0') => {
-        console.log('get posts with last read: ' + lastRead + ', query is: ' + query);
-        const sortedPosts = await getPostsByQuery(query, lastRead);
-        if (lastRead === '0') {
-            setShownPosts(sortedPosts);
-        } else {
-            setShownPosts([...shownPosts, ...sortedPosts]);
-        }
-    }
-
     const loadMorePosts = () => {
-        console.log("load more posts, now posts: " + shownPosts.length);
-        if (shownPosts.length > 0) {
-            getPosts(shownPosts[shownPosts.length-1].id);
-        } else {
-            getPosts();
-        }
+        console.log("load more posts, now posts: " + posts.feedsByQuery[query]?.length);
+        const lastPost = [...posts.feedsByQuery[query]].pop()
+        posts.loadFeed(query, lastPost?.id)
     }
 
     useEffect(() => {
-        getPosts();
+        posts.loadFeed(query)
     }, [query]);
 
     const gotoNewPost = () => {
@@ -56,15 +48,15 @@ const MainPage = () => {
                 {showBanner? <Banner closeBanner={() => setShowBanner(false)}/> : <div></div>}
                 <div className="main-content">
                     <div className="create-post" onClick={gotoNewPost}>
-                        { user === null? AlertType.postNotLogin : 
-                            user.reputation - user.spent < DEFAULT_POST_KARMA? 
+                        { !user.id ? AlertType.postNotLogin :
+                            user.reputation - user.spent < DEFAULT_POST_KARMA ?
                                 AlertType.postNotEnoughPoints : 'Create post'
                         }
                     </div>
                     <Feed feedChoice={query} setFeedChoice={setQuery} />
                     <div>
-                        <PostsList 
-                            posts={shownPosts} 
+                        <PostsList
+                            posts={posts.feedsByQuery[query] || []}
                             loadMorePosts={loadMorePosts}
                         />
                     </div>
@@ -78,4 +70,4 @@ const MainPage = () => {
     );
 };
 
-export default MainPage;
+export default observer(MainPage);

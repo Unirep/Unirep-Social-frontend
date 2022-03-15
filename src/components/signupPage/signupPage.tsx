@@ -1,18 +1,20 @@
 import { useHistory } from 'react-router-dom';
-import { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 
 import './signupPage.scss';
 import { WebContext } from '../../context/WebContext';
 import { getEpochKeys, getUserState, getAirdrop, getNextEpochTime, checkInvitationCode, userSignUp} from '../../utils';
 import LoadingCover from '../loadingCover/loadingCover';
 import LoadingButton from '../loadingButton/loadingButton';
+import UserState from '../../context/User'
+import { observer } from 'mobx-react-lite'
 
 const SignupPage = () => {
+    const userState = React.useContext(UserState)
     const history = useHistory();
-    const { user, setUser, setNextUSTTime, isLoading, setIsLoading } = useContext(WebContext);
+    const { setUser, setNextUSTTime, isLoading, setIsLoading } = useContext(WebContext);
     const [invitationCode, setInvitationCode] = useState<string>('');
     const [step, setStep] = useState<number>(0);
-    const [identity, setIdentity] = useState<string>('');
     const [isDownloaded, setIsDownloaded] = useState(false);
     const [userEnterIdentity, setUserEnterIdentity] = useState<string>('');
     const [errorMsg, setErrorMsg] = useState<string>('');
@@ -48,10 +50,9 @@ const SignupPage = () => {
             // send to server to check if invitation code does exist
             // if exists, get identity and commitment
             setButtonLoading(true);
-            const ret = await checkInvitationCode(invitationCode);
+            const ret = await userState.checkInvitationCode(invitationCode);
             if (ret) {
-                const {i, c, epoch} = await userSignUp();
-                setIdentity(i);
+                await userState.signUp(invitationCode);
                 setStep(1);
             } else {
                 setErrorMsg("Umm...this is not working. Try again or request a new code.");
@@ -59,42 +60,36 @@ const SignupPage = () => {
             setButtonLoading(false);
         } else if (step === 1) {
             if (isDownloaded) {
-                navigator.clipboard.writeText(identity);
+                navigator.clipboard.writeText(userState.identity || '');
                 setStep(2);
             }
         } else if (step === 2) {
-            if (userEnterIdentity !== identity) {
+            if (userEnterIdentity !== userState.identity) {
                 setErrorMsg('Incorrect private key. Please try again.');
             } else {
                 setStep(3);
             }
         } else if (step === 3) {
             setIsLoading(true);
-
-            const userStateResult = await getUserState(identity);
-            const currentRep = userStateResult.userState.getRepByAttester(BigInt(userStateResult.attesterId));
-            const epks = getEpochKeys(identity, userStateResult.currentEpoch);
-            let allEpks: string[] = [];
-            for (var i = userStateResult.currentEpoch; i > 0; i --) {
-                const oldEpks = getEpochKeys(identity, i);
-                allEpks = [...allEpks, ...oldEpks];
-            }
-            const {error} = await getAirdrop(identity, userStateResult.userState);
-            if(error !== undefined) {
+            if (!userState.identity) throw new Error('Identity not initialized')
+            await userState.calculateAllEpks()
+            const currentRep = await userState.loadReputation()
+            const {error} = await userState.getAirdrop();
+            if (error !== undefined) {
                 console.error(error)
             }
 
-            setUser({ 
-                identity: identity, 
-                epoch_keys: epks, 
-                all_epoch_keys: allEpks, 
-                reputation: Number(currentRep.posRep) - Number(currentRep.negRep), 
-                current_epoch: userStateResult.currentEpoch, 
+            setUser({
+                identity: userState.identity,
+                epoch_keys: userState.currentEpochKeys,
+                all_epoch_keys: userState.allEpks,
+                reputation: Number(currentRep.posRep) - Number(currentRep.negRep),
+                current_epoch: userState.currentEpoch,
                 isConfirmed: true,
                 spent: 0,
-                userState: userStateResult.userState.toJSON(),
+                userState: '{}' // userStateResult.userState.toJSON(),
             });
-            
+
             const nextET = await getNextEpochTime();
             setNextUSTTime(nextET);
 
@@ -112,8 +107,9 @@ const SignupPage = () => {
     }
 
     const downloadPrivateKey = () => {
+        if (!userState.identity) throw new Error('Identity not initialized')
         const element = document.createElement('a');
-        const file = new Blob([identity], {type: 'text/plain'});
+        const file = new Blob([userState.identity], {type: 'text/plain'});
         element.href = URL.createObjectURL(file);
         element.download = 'unirep-social-identity.txt';
         document.body.appendChild(element);
@@ -139,12 +135,12 @@ const SignupPage = () => {
                     <div className="title">{title[step].split('<br>').map(t => <span key={t}>{t}<br/></span>)}</div>
                     <p>{content[step]}</p>
                     {
-                        step === 3? 
-                            <div></div> : 
-                            <textarea 
-                                className={step === 0? '' : 'larger'} 
-                                onChange={handleInput} 
-                                value={step === 0? invitationCode : step === 1? identity : step === 2? userEnterIdentity : ''} 
+                        step === 3?
+                            <div></div> :
+                            <textarea
+                                className={step === 0? '' : 'larger'}
+                                onChange={handleInput}
+                                value={step === 0? invitationCode : step === 1? userState.identity : step === 2? userEnterIdentity : ''}
                             />
                     }
                     {
@@ -175,4 +171,4 @@ const SignupPage = () => {
     );
 }
 
-export default SignupPage;
+export default observer(SignupPage);

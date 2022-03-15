@@ -274,7 +274,7 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
     return {epk, proof, publicSignals, currentEpoch, userState}
 }
 
-const makeURL = (action: string, data: any = {}) => {
+export const makeURL = (action: string, data: any = {}) => {
     const params = new URLSearchParams(data)
     return `${config.SERVER}api/${action}?${params}`
 }
@@ -594,7 +594,7 @@ const convertDataToComment = (data: any) => {
     return comment;
 }
 
-const convertDataToPost = (data: any, commentsOnlyId: boolean = true) => {
+export const convertDataToPost = (data: any, commentsOnlyId: boolean = true) => {
 
     const {votes, upvote, downvote} = convertDataToVotes(data.votes);
 

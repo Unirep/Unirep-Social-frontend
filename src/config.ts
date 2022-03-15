@@ -1,10 +1,11 @@
 import { ethers } from 'ethers'
 import { circuitUserStateTreeDepth, circuitGlobalStateTreeDepth, circuitEpochTreeDepth } from '@unirep/unirep'
 import UnirepSocial from "@unirep/unirep-social/artifacts/contracts/UnirepSocial.sol/UnirepSocial.json"
+import Unirep from "@unirep/contracts/artifacts/contracts/Unirep.sol/Unirep.json"
 
-// const SERVER = 'http://localhost:3001'
-const DEFAULT_ETH_PROVIDER_URL = 'ws://localhost:8545'
-const SERVER = 'https://unirep.social/'
+// const SERVER = 'http://localhost:5000/'
+const DEFAULT_ETH_PROVIDER_URL = 'https://kovan.optimism.io'
+const SERVER = 'https://unirep.tubby.cloud/'
 // const SERVER = 'http://3.20.204.166'
 // const DEFAULT_ETH_PROVIDER_URL = 'wss://eth-goerli.alchemyapi.io/v2/tYp-IJU_idg28iohx9gsLqhq6KRZxk7f'
 const DEFAULT_ETH_PROVIDER = DEFAULT_ETH_PROVIDER_URL.startsWith('http') ?
@@ -22,11 +23,12 @@ const DEFAULT_COMMENT_KARMA = 3
 const MAX_KARMA_BUDGET = 10
 const DEFAULT_AIRDROPPED_KARMA = 30
 
-const UNIREP = '0x0165878A594ca255338adfa4d48449f69242Eb8F'
-const UNIREP_SOCIAL = '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853'
+const UNIREP = '0xFDdF504E7B74d982E91ed3A70CDBd58C52A141F6'
+const UNIREP_SOCIAL = '0xb1F6ded0a1C0dCE4e99A17Ed7cbb599459A7Ecc0'
 // const UNIREP = '0xE7709F35fb195E1D117D486aEB24bA58CEccCD29';
 // const UNIREP_SOCIAL = '0x0F50453236B2Ca88D5C1fBC8D7FA91001d93eC68';
 const UNIREP_SOCIAL_ABI = UnirepSocial.abi
+const UNIREP_ABI = Unirep.abi
 const UNIREP_SOCIAL_ATTESTER_ID = 1
 
 const circuitNullifierTreeDepth = 128;
@@ -58,6 +60,7 @@ export {
     MAX_KARMA_BUDGET,
     DEFAULT_AIRDROPPED_KARMA,
     UNIREP,
+    UNIREP_ABI,
     UNIREP_SOCIAL,
     UNIREP_SOCIAL_ABI,
     UNIREP_SOCIAL_ATTESTER_ID,

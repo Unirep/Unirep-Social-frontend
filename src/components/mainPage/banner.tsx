@@ -1,13 +1,13 @@
 import { useContext } from 'react';
 import { ABOUT_URL } from '../../config';
-import { WebContext } from '../../context/WebContext';
+import UserContext from '../../context/User'
 
 type Props = {
     closeBanner: () => void
 }
 
 const Banner = ({ closeBanner }: Props) => {
-    const { user } = useContext(WebContext);
+    const user = useContext(UserContext);
     return (
         <div className="banner-row">
             <div className="banner">
@@ -16,7 +16,7 @@ const Banner = ({ closeBanner }: Props) => {
                 <div className="banner-content">Stay up to date & share everything with everyone.</div>
                 <div className="banner-buttons">
                     <a className="banner-button" href={ABOUT_URL + "/how-it-works"}>How it works</a>
-                    {user === null? <a className="banner-button" href="/signup">Join us</a> : <div></div>}
+                    {!user.identity ? <a className="banner-button" href="/signup">Join us</a> : <div></div>}
                 </div>
                 <div className="banner-close" onClick={closeBanner}><img src="/images/close.svg" /></div>
             </div>

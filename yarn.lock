@@ -2603,6 +2603,17 @@
     ethers "^5.5.3"
     typescript "^4.4.3"
 
+"@unirep/contracts@git+https://github.com/Unirep/contracts.git#solc-version":
+  version "1.0.6"
+  resolved "git+https://github.com/Unirep/contracts.git#c3e45eecbed832957d3f1af5872dcc73006cdbf5"
+  dependencies:
+    "@openzeppelin/contracts" "^4.4.2"
+    "@unirep/circuits" "git+https://github.com/Unirep/circuits.git"
+    "@unirep/crypto" "git+https://github.com/Unirep/crypto.git"
+    argparse "^2.0.1"
+    ethers "^5.5.3"
+    typescript "^4.4.3"
+
 "@unirep/crypto@git+https://github.com/Unirep/crypto.git":
   version "1.0.0"
   resolved "git+https://github.com/Unirep/crypto.git#43a23e961c9b69be68a503bcaf9025a5152f78e0"
@@ -2612,12 +2623,12 @@
     maci-crypto "^0.9.1"
     typescript "^4.4.2"
 
-"@unirep/unirep-social@git+https://github.com/Unirep/unirep-social.git":
+"@unirep/unirep-social@git+https://github.com/Unirep/unirep-social.git#alpha":
   version "1.0.0"
-  resolved "git+https://github.com/Unirep/unirep-social.git#0f26f96523287de5e0955e4a502bd329577b2167"
+  resolved "git+https://github.com/Unirep/unirep-social.git#7a9c7ae853f04068c6de031e9615d5e332eb9037"
   dependencies:
     "@unirep/circuits" "git+https://github.com/Unirep/circuits.git"
-    "@unirep/contracts" "git+https://github.com/Unirep/contracts.git"
+    "@unirep/contracts" "git+https://github.com/Unirep/contracts.git#solc-version"
     "@unirep/crypto" "git+https://github.com/Unirep/crypto.git"
     "@unirep/unirep" "git+https://github.com/Unirep/unirep.git"
     argparse "^2.0.1"
@@ -2630,6 +2641,20 @@
 "@unirep/unirep@git+https://github.com/Unirep/unirep.git":
   version "1.0.0"
   resolved "git+https://github.com/Unirep/unirep.git#97cbc559a7528c969a6a090add93be1d65a668ab"
+  dependencies:
+    "@typechain/ethers-v5" "^9.0.0"
+    "@typechain/hardhat" "^4.0.0"
+    "@unirep/circuits" "git+https://github.com/Unirep/circuits.git"
+    "@unirep/contracts" "git+https://github.com/Unirep/contracts.git"
+    "@unirep/crypto" "git+https://github.com/Unirep/crypto.git"
+    argparse "^2.0.1"
+    base64url "^3.0.1"
+    ethers "^5.4.6"
+    typescript "^4.5.4"
+
+"@unirep/unirep@git+https://github.com/Unirep/unirep.git#alpha":
+  version "1.0.0"
+  resolved "git+https://github.com/Unirep/unirep.git#60d7bad732b2b0580e6357b4cb290534dcb43297"
   dependencies:
     "@typechain/ethers-v5" "^9.0.0"
     "@typechain/hardhat" "^4.0.0"
@@ -9234,6 +9259,16 @@ mkdirp@^1.0.3, mkdirp@^1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-1.0.4.tgz#3eb5ed62622756d79a5f0e2a221dfebad75c2f7e"
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
+
+mobx-react-lite@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/mobx-react-lite/-/mobx-react-lite-3.3.0.tgz#7174e807201943beff6f9d3701492314c9fc0db3"
+  integrity sha512-U/kMSFtV/bNVgY01FuiGWpRkaQVHozBq5CEBZltFvPt4FcV111hEWkgwqVg9GPPZSEuEdV438PEz8mk8mKpYlA==
+
+mobx@^6.4.2:
+  version "6.4.2"
+  resolved "https://registry.yarnpkg.com/mobx/-/mobx-6.4.2.tgz#d25cd358a46b7a8fe2d8299259bc71008a2aa5b3"
+  integrity sha512-b4xQJYiH8sb0sEbfq/Ws3N77DEJtSihUFD1moeiz2jNoJ5B+mqJutt54ouO9iEfkp7Wk4jQDsVUOh7DPEW3wEw==
 
 mocha@^8.2.1:
   version "8.4.0"
