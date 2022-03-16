@@ -13,7 +13,7 @@ const Overlay = () => {
             setIsMenuOpen(false);
         } else {
             console.log('something is loading, no close');
-        }        
+        }
     }
 
     const gotoUserPage = () => {
@@ -44,12 +44,12 @@ const Overlay = () => {
                             <a href="/feedback">Send feedback</a>
                             <a href="/login">Sign in</a>
                             <a href="/signup">Join</a>
-                        </div> : 
+                        </div> :
                         <div className="dynamic-info">
                             <a href="/feedback">Send feedback</a>
                             <p onClick={gotoUserPage}>My stuff</p>
                             <p onClick={signout}>Sign out</p>
-                        </div> 
+                        </div>
                 }
             </div>
         </div>
