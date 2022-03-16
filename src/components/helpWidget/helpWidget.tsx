@@ -12,7 +12,7 @@ const HelpWidget = ({ type }: Props) => {
     return (
         <div className="help-widget">
             <img 
-                src="/images/info.svg" 
+                src={require('../../../public/images/info.svg')} 
                 onMouseEnter={() => setHover(true)} 
                 onMouseOut={() => setHover(false)}
                 onClick={() => setHover(!isHover)}

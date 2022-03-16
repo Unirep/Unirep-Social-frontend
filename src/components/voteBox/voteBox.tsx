@@ -13,7 +13,7 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
 
     const { user, setAction } = useContext(WebContext);
     const [ givenAmount, setGivenAmount ] = useState<number>(1);
-    const [ epkNonce, setEpkNonce ] = useState(0); 
+    const [ epkNonce, setEpkNonce ] = useState(0);
     const [ isHistoriesOpen, setHistoriesOpen ] = useState(false);
     const [ voteHistories, setVoteHistories ] = useState(() => {
         if (data.votes.length === 0) {
@@ -26,9 +26,9 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
                         const e = user.epoch_keys.find(_e => _e === data.votes[i].epoch_key);
                         if (e !== null) {
                             ret = [...ret, data.votes[i]];
-                        
+
                         }
-                    } 
+                    }
                 }
                 return ret;
             } else {
@@ -76,7 +76,7 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
                     userState: user.userState,
                 };
             }
-            
+
             setAction({action: ActionType.Vote, data: actionData});
             init();
         }
@@ -104,10 +104,10 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
             <div className="vote-box" onClick={preventClose}>
                 <div className="grey-box">
                     <div className="close">
-                        <img src="/images/close-white.svg" onClick={close} />
+                        <img src={require('../../../public/images/close-white.svg')} onClick={close} />
                     </div>
                     <div className="title">
-                        <img src={`/images/${isUpvote? 'boost':'squash'}-fill.svg`} />
+                        <img src={require(`../../../public/images/${isUpvote? 'boost':'squash'}-fill.svg`)} />
                         {isUpvote? "Boost":"Squash"}
                     </div>
                     <div className="description">
@@ -117,15 +117,15 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
                         <input type="number" min="1" max="10" step="1" value={givenAmount} onChange={changeGivenAmount} />
                         <div className="counter-btns">
                             <div className="counter-btn add" onClick={() => {setGivenAmount(givenAmount < 10? givenAmount + 1 : givenAmount)}}>
-                                <img src="/images/arrow-up.svg" />
+                                <img src={require('../../../public/images/arrow-up.svg')} />
                             </div>
                             <div className="counter-btn minus" onClick={() => {setGivenAmount(givenAmount > 1? givenAmount - 1 : givenAmount)}}>
-                            <img src="/images/arrow-down.svg" />
+                            <img src={require('../../../public/images/arrow-down.svg')} />
                             </div>
                         </div>
                     </div>
                     <div className="epks">
-                        { user.epoch_keys.map((key, i) => 
+                        { user.epoch_keys.map((key, i) =>
                             <div className={epkNonce === i? "epk chosen" : "epk"} key={key} onClick={() => setEpkNonce(i)}>{key}</div>
                         ) }
                     </div>
@@ -138,15 +138,15 @@ const VoteBox = ({ isUpvote, data, closeVote } : Props) => {
                                 <p className="title">History</p>
                                 <p className="description">{`You have ${voteHistories.length > 0? '' : 'not '}${isUpvote? 'boosted':'squashed'} this before`}</p>
                             </div>
-                            <img src={`/images/arrow-tri-${isHistoriesOpen? 'up':'down'}.svg`} />
+                            <img src={require(`../../../public/images/arrow-tri-${isHistoriesOpen? 'up':'down'}.svg`)} />
                         </div>
-                        { isHistoriesOpen? 
+                        { isHistoriesOpen?
                             <div className="histories-list">
-                                { voteHistories.map((h, i) => 
+                                { voteHistories.map((h, i) =>
                                     <div className="record" key={i}>
                                         <div className="record-epk">{h.epoch_key}</div>
                                         <span>{isUpvote? h.upvote : h.downvote}</span>
-                                        <img src={`/images/${isUpvote? 'boost' : 'squash'}-fill.svg`}/>
+                                        <img src={require(`../../../public/images/${isUpvote? 'boost' : 'squash'}-fill.svg`)}/>
                                     </div>
                                 )}
                             </div> : <div></div>}

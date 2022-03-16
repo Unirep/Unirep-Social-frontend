@@ -31,7 +31,7 @@ const Overlay = () => {
             <div className="blur-area"></div>
             <div className="black-area">
                 <div className="close-info">
-                    <img src="/images/close.svg" />
+                    <img src={require('../../../public/images/close.svg')} />
                 </div>
                 <div className="fixed-info">
                     <a href="https://about.unirep.social/how-it-works">How it work</a>

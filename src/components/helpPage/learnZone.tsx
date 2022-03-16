@@ -10,7 +10,7 @@ const LearnBlock = ({ data }: Props) => {
             <div className="learn-block-inner">
                 <div className='learn-title'>{data.title}</div>
                 <div className='learn-content'>{data.content}</div>
-                <img src={`/images/${data.image}`} />
+                <img src={require(`../../../public/images/${data.image}`)} />
             </div>
         </div>
     );

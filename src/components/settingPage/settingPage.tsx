@@ -18,7 +18,7 @@ const SettingPage = () => {
             <div className="margin-box"></div>
             <div className="content">
                 <div className="main-content">
-                    <div className="back" onClick={() => history.push('/user', {isConfirmed: true})}><img src="/images/arrow-left.svg" /></div>
+                    <div className="back" onClick={() => history.push('/user', {isConfirmed: true})}><img src={require('../../../public/images/arrow-left.svg')} /></div>
                     <PrivateKey />
                 </div>
                 <div className="side-content">

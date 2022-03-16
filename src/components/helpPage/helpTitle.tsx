@@ -26,12 +26,12 @@ const HelpTitle = ({ title, data, level }: Props) => {
         <div className='help-item'>
             <div className="help-title" onClick={switchActive}>
                 { title }
-                <img src={isActive? '/images/arrow-up.png' : '/images/arrow-down.png'} />
+                <img src={require(`../../../public/images/arrow-${isActive ? 'up' : 'down'}.png`)} />
             </div>
             {
-                isActive? 
-                    level === 4? <div className="help-content">{data}</div> : 
-                        <HelpList data={data} level={level} key={level} /> 
+                isActive?
+                    level === 4? <div className="help-content">{data}</div> :
+                        <HelpList data={data} level={level} key={level} />
                 : <div></div>
             }
         </div>
