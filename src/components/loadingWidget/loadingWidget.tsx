@@ -228,22 +228,22 @@ const LoadingWidget = () => {
                 loadingState === LoadingState.none? <div></div> : 
                     loadingState === LoadingState.loading? 
                     <div className="loading-block">
-                        <img src="/images/loader.svg" style={{ transform: `scaleX(${isFlip? '-1': '1'})` }} />
+                        <img src={require('../../../public/images/loader.svg')} style={{ transform: `scaleX(${isFlip? '-1': '1'})` }} />
                         <span>Submitting your content...</span>
                         <div className="info-row">Please wait 'til this transaction complete for creating post, comment, boost, or squash. This is the life of blockchain :P </div>
                     </div> : loadingState === LoadingState.success?
                     <div className="loading-block">
-                        <img src="/images/checkmark.svg" />
+                        <img src={require('../../../public/images/checkmark.svg')} />
                         <span>{action.action === ActionType.Post? 'Post is finalized': action.action === ActionType.Comment? 'Comment is finalized': action.action === ActionType.Vote? 'Succeed!' : ''}</span>
                         { action.action === ActionType.UST? 
                             <div className="info-row">User State Transition done.</div> : 
                             <div className="info-row">
-                                <Link className="link" to={goto}>See my content</Link> | <a className="link" target="_blank" href={'https://goerli.etherscan.io/tx/' + tx}>Etherscan <img src="/images/etherscan-white.svg"/></a>
+                                <Link className="link" to={goto}>See my content</Link> | <a className="link" target="_blank" href={'https://goerli.etherscan.io/tx/' + tx}>Etherscan <img src={require('../../../public/images/etherscan-white.svg')}/></a>
                             </div>
                         } 
                     </div> : loadingState === LoadingState.failed?
                     <div className="loading-block failed">
-                        <img src="/images/close-red.svg" />
+                        <img src={require('../../../public/images/close-red.svg')} />
                         <span>Posting to blockchain failed.</span> 
                         <div className="info-row">
                             <Link className="link failed" to={goto}>See my content</Link>

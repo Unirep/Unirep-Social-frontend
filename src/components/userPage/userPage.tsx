@@ -25,16 +25,16 @@ type Props = {
 const RepPortion = ({ spent, total, action } : Props) => {
     const [isHover, setHover] = useState<boolean>(false);
     const portionName = action === 2? 'Boost' : action === 3? 'Squash' : action === 0? 'Post' : 'Comment';
-    
+
     return (
-        <div className="rep-portion" 
+        <div className="rep-portion"
             style={{width: `${spent / total * 100}%`}}
-            onMouseEnter={() => setHover(true)} 
+            onMouseEnter={() => setHover(true)}
             onMouseOut={() => setHover(false)}
             onClick={() => setHover(!isHover)}>
-            {isHover? 
+            {isHover?
                 <div className="rep-description">
-                    <img src={`/images/${portionName === 'Post' || portionName === 'Comment'? 'unirep': portionName.toLowerCase()}-white.svg`} />
+                    <img src={require(`../../../public/images/${portionName === 'Post' || portionName === 'Comment'? 'unirep': portionName.toLowerCase()}-white.svg`)} />
                     {portionName}:
                     <span>{spent}</span>
                 </div> : <div></div>
@@ -59,7 +59,7 @@ const UserPage = () => {
     const [ received, setReceived ] = useState<number[]>([0, 0, 0]); // airdrop, boost, squash
     const [ spent, setSpent ] = useState<number[]>([0, 0, 0, 0]); // post, comment, boost, squash
 
-    const getUserPosts = async (sort: QueryType, lastRead: string = '0') => { 
+    const getUserPosts = async (sort: QueryType, lastRead: string = '0') => {
         const ret = await getPostsByQuery(sort, lastRead, user? user.all_epoch_keys : []);
         if (lastRead !== '0') {
             setMyPosts([...myPosts, ...ret]);
@@ -68,7 +68,7 @@ const UserPage = () => {
         }
     }
 
-    const getUserComments = async (sort: QueryType, lastRead: string = '0') => { 
+    const getUserComments = async (sort: QueryType, lastRead: string = '0') => {
         const ret = await getCommentsByQuery(sort, lastRead, user? user.all_epoch_keys : []);
         if (lastRead !== '0') {
             setMyComments([...myComments, ...ret]);
@@ -76,15 +76,15 @@ const UserPage = () => {
             setMyComments(ret);
         }
     }
-    
-    const getUserRecords = async () => { 
+
+    const getUserRecords = async () => {
         if (user !== null) {
             const ret = await getRecords(user.current_epoch, user.identity);
             setRecords(ret);
             resortRecords(QueryType.New, ret);
             let r: number[] = [0, 0, 0];
             let s: number[] = [0, 0, 0, 0];
-            
+
             ret.forEach(h => {
                 const isReceived = user.epoch_keys.indexOf(h.to) !== -1;
                 const isSpent = user.epoch_keys.indexOf(h.from) !== -1;
@@ -97,7 +97,7 @@ const UserPage = () => {
                         r[1] += h.upvote;
                         r[2] += h.downvote;
                     }
-                } 
+                }
 
                 if (isSpent) {
                     // console.log(h.from + 'is giver, is me, ' + h.downvote);
@@ -168,7 +168,7 @@ const UserPage = () => {
         } else {
             resortRecords(s, records);
         }
-        
+
         setIsDropdown(false);
     }
 
@@ -191,20 +191,20 @@ const UserPage = () => {
     return (
         <div className="body-columns">
             <div className="margin-box"></div>
-            <div className="content"> 
-            { user !== null? 
+            <div className="content">
+            { user !== null?
                 <div className="main-content">
-                    <h3>My Stuff</h3> 
+                    <h3>My Stuff</h3>
                     <div className="my-stuff">
                         <div className="my-reps stuff">
                             <div className="white-block">
                                 <p>My Rep</p>
-                                <div className="rep-info"><img src="/images/lighting.svg" />{user.reputation - user.spent}</div>
+                                <div className="rep-info"><img src={require('../../../public/images/lighting.svg')} />{user.reputation - user.spent}</div>
                             </div>
                             <div className="grey-block">
                                 <span>How I use my rep in this cycle</span><br/>
                                 <div className="rep-bar">
-                                    { 
+                                    {
                                         spent.map((s, i) => <RepPortion spent={s} total={user.reputation} action={i} key={i} />)
                                     }
                                 </div>
@@ -219,15 +219,15 @@ const UserPage = () => {
                             </div>
                             <div className="white-block">
                                 <div className="received-info">
-                                    <span><img src="/images/unirep.svg" />System drop</span>
+                                    <span><img src={require('../../../public/images/lighting.svg')} />System drop</span>
                                     <p>+{received[0]}</p>
                                 </div>
                                 <div className="received-info">
-                                    <span><img src="/images/boost.svg" />Boost</span>
+                                    <span><img src={require('../../../public/images/lighting.svg')} />Boost</span>
                                     <p>+{received[1]}</p>
                                 </div>
                                 <div className="received-info">
-                                    <span><img src="/images/squash.svg" />Squash</span>
+                                    <span><img src={require('../../../public/images/lighting.svg')} />Squash</span>
                                     <p>-{received[2]}</p>
                                 </div>
                             </div>
@@ -242,54 +242,54 @@ const UserPage = () => {
                             <div className={tag === Tag.Activity? "tag underline" : "tag"} onClick={() => setTagPage(Tag.Activity)}>Activity</div>
                         </div>
                         {
-                            isDropdown? 
+                            isDropdown?
                                 tag !== Tag.Activity?
                                     <div className="dropdown isDropdown header-child" onClick={switchDropdown} style={{height: `${40*3}px`}}>
-                                        <div className="menu-choice" onClick={() => setSortType(QueryType.Boost)}><img src="/images/boost-fill.svg"/>Boost</div>
-                                        <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src="/images/new-fill.svg"/>New</div>
-                                        <div className="menu-choice" onClick={() => setSortType(QueryType.Squash)}><img src="/images/squash-fill.svg"/>Squash</div>
-                                    </div> : 
+                                        <div className="menu-choice" onClick={() => setSortType(QueryType.Boost)}><img src={require('../../../public/images/lighting.svg')}/>Boost</div>
+                                        <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src={require('../../../public/images/lighting.svg')}/>New</div>
+                                        <div className="menu-choice" onClick={() => setSortType(QueryType.Squash)}><img src={require('../../../public/images/lighting.svg')}/>Squash</div>
+                                    </div> :
                                     <div className="dropdown isDropdown header-child" onClick={switchDropdown} style={{height: `${40*2}px`}}>
-                                        <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src="/images/new-fill.svg"/>New</div>
-                                        <div className="menu-choice" onClick={() => setSortType(QueryType.Rep)}><img src="/images/unirep-fill.svg"/>Rep</div>
+                                        <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src={require('../../../public/images/lighting.svg')}/>New</div>
+                                        <div className="menu-choice" onClick={() => setSortType(QueryType.Rep)}><img src={require('../../../public/images/lighting.svg')}/>Rep</div>
                                     </div> :
                                 <div className="dropdown header-child" onClick={switchDropdown}>
                                     <div className="menu-choice isChosen">
-                                        <img src={`/images/${sort === QueryType.Rep? 'unirep' : sort}-fill.svg`}/>
+                                        <img src={require(`../../../public/images/${sort === QueryType.Rep? 'unirep' : sort}-fill.svg`)}/>
                                         <span>{sort.charAt(0).toUpperCase() + sort.slice(1)}</span>
-                                        <img src="/images/arrow-down.svg" />
+                                        <img src={require('../../../public/images/lighting.svg')} />
                                     </div>
                                 </div>
-                                
+
                         }
-                    </div> 
+                    </div>
                     <div className="user-page-content">
                         {
-                            tag === Tag.Posts? 
-                                <PostsList 
+                            tag === Tag.Posts?
+                                <PostsList
                                     posts={myPosts}
                                     loadMorePosts={loadMorePosts}
                                 /> : tag === Tag.Comments?
-                                <CommentsList 
+                                <CommentsList
                                     comments={myComments}
                                     page={Page.User}
                                     loadMoreComments={loadMoreComments}
                                 /> : <div>
                                     {
-                                        records.map((h, i) => 
-                                            <ActivityWidget 
-                                                key={i} 
+                                        records.map((h, i) =>
+                                            <ActivityWidget
+                                                key={i}
                                                 record={h}
                                                 isSpent={user.all_epoch_keys.indexOf(h.from) !== -1}
                                             />
                                         )
                                     }
                                 </div>
-                        }   
+                        }
                     </div>
-                </div> : <div></div> 
+                </div> : <div></div>
             }
-            { user !== null? 
+            { user !== null?
                 <div className="side-content">
                     <SideColumn page={Page.User} />
                 </div> : <div></div>
