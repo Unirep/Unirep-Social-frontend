@@ -1,8 +1,13 @@
-import base64url from 'base64url';
 import { ethers } from 'ethers';
 import { getUnirepContract } from '@unirep/contracts';
-import { genIdentity, genIdentityCommitment, serialiseIdentity, unSerialiseIdentity } from '@unirep/crypto';
+import {
+  genIdentity,
+  genIdentityCommitment,
+  serialiseIdentity,
+  unSerialiseIdentity,
+} from '@unirep/crypto';
 import { genUserStateFromContract, genEpochKey, genUserStateFromParams, } from '@unirep/unirep';
+import { formatProofForVerifierContract } from '@unirep/circuits'
 import { UnirepSocialContract } from '@unirep/unirep-social';
 import * as config from './config';
 import { Record, Post, DataType, Vote, Comment, ActionType, QueryType } from './constants';
@@ -10,23 +15,8 @@ import { Record, Post, DataType, Vote, Comment, ActionType, QueryType } from './
 const snarkjs = require("snarkjs")
 
 const add0x = (str: string): string => {
-    str = str.padStart(64,"0")
     return str.startsWith('0x') ? str : '0x' + str
 }
-
-/* circuit functions */
-const formatProofForVerifierContract = (_proof: any) => {
-    return ([
-        _proof.pi_a[0],
-        _proof.pi_a[1],
-        _proof.pi_b[0][1],
-        _proof.pi_b[0][0],
-        _proof.pi_b[1][1],
-        _proof.pi_b[1][0],
-        _proof.pi_c[0],
-        _proof.pi_c[1],
-    ]).map((x) => x.toString());
-};
 
 const verifyProof = async (circuitName: string, proof: any, publicSignals: any) => {
     const vkeyJsonPath =  `/build/${circuitName}.vkey.json`;
@@ -44,13 +34,9 @@ export const getCurrentEpoch = async () => {
 }
 
 const decodeIdentity = (identity: string) => {
-    const encodedIdentity = identity.slice(config.identityPrefix.length);
-    const decodedIdentity = base64url.decode(encodedIdentity);
-
-    let commitment
     try {
-        const id = unSerialiseIdentity(decodedIdentity);
-        commitment = genIdentityCommitment(id);
+        const id = unSerialiseIdentity(identity);
+        const commitment = genIdentityCommitment(id);
         return { id, commitment, identityNullifier:  id.identityNullifier}
     } catch(e) {
         console.log('Incorrect Identity format\n', e)
@@ -128,14 +114,11 @@ const getEpochKey = (epkNonce: number, identityNullifier: any, epoch: number) =>
 
 export const getEpochKeys = (identity: string, epoch: number) => {
     const { identityNullifier } = decodeIdentity(identity)
-    let epks: string[] = []
-
+    const epks: string[] = []
     for (let i = 0; i < config.numEpochKeyNoncePerEpoch; i++) {
         const tmp = getEpochKey(i, identityNullifier, epoch);
-        epks = [...epks, tmp];
+        epks.push(tmp)
     }
-    // console.log(epks)
-
     return epks;
 }
 
@@ -190,8 +173,6 @@ const genAirdropProof = async (identity: string, us: any) => {
 // }
 
 export const getAirdrop = async (identity: string, us: any) => {
-    let error
-    let transaction: string = ''
     const unirepSocial = new ethers.Contract(
         config.UNIREP_SOCIAL,
         config.UNIREP_SOCIAL_ABI,
@@ -209,17 +190,12 @@ export const getAirdrop = async (identity: string, us: any) => {
         publicSignals: publicSignals,
     }
     const stringifiedData = JSON.stringify(data)
-    await fetch(apiURL, {
+    const r = await fetch(apiURL, {
             headers: header,
             body: stringifiedData,
             method: 'POST',
-        }).then(response => response.json())
-        .then(function(data){
-            console.log(JSON.stringify(data))
-            error = data.error
-            transaction = data.transaction
-        });
-
+        })
+    const { error, transaction } = await r.json()
     return { error, transaction, userState }
 }
 
@@ -298,14 +274,9 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
     return {epk, proof, publicSignals, currentEpoch, userState}
 }
 
-const makeURL = (action: string, data: any) => {
-    let dataStr: string = ''
-
-    for (let k of Object.keys(data)) {
-        dataStr = dataStr + k + '=' + data[k] + '&'
-    }
-
-    return '/api/' + action + '?' + dataStr
+const makeURL = (action: string, data: any = {}) => {
+    const params = new URLSearchParams(data)
+    return `${config.SERVER}api/${action}?${params}`
 }
 
 const header = {
@@ -316,10 +287,8 @@ const header = {
 
 export const checkInvitationCode = async (invitationCode: string) => {
     const apiURL = makeURL('genInvitationCode/' + invitationCode, {})
-    var ret = false
-    await fetch(apiURL)
-        .then(response => ret = (response.ok === true));
-    return ret
+    const r = await fetch(apiURL)
+    return r.ok
 }
 
 export const userSignUp = async () => {
@@ -329,76 +298,73 @@ export const userSignUp = async () => {
         .padStart(64, '0')
 
     const serializedIdentity = serialiseIdentity(id)
-    const encodedIdentity = base64url.encode(serializedIdentity)
-    console.log(config.identityPrefix + encodedIdentity)
 
     const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
     const currentEpoch = await unirepSocialContract.currentEpoch();
-    const epk1 = await getEpochKey(0, id.identityNullifier, currentEpoch);
+    const epk1 = getEpochKey(0, id.identityNullifier, currentEpoch);
 
     // call server user sign up
-    let epoch: number = 0
     const apiURL = makeURL('signup', {
         commitment: commitment,
         epk: epk1
     })
-    await fetch(apiURL)
-        .then(response => response.json())
-        .then(function(data){
-            console.log(data)
-            epoch = data.epoch
-        });
-
-    return {i: config.identityPrefix + encodedIdentity, c: config.identityCommitmentPrefix + commitment, epoch }
+    const r = await fetch(apiURL)
+    const { epoch } = await r.json()
+    return {
+      i: serializedIdentity,
+      c: commitment,
+      epoch
+    }
 }
 
 
 export const publishPost = async (content: string, epkNonce: number, identity: string, minRep: number = config.DEFAULT_POST_KARMA, spent: number = 0, us: any, title: string = '') => {
-    let error
-    let transaction: string = ''
     const ret = await genProof(identity, epkNonce, config.DEFAULT_POST_KARMA, minRep, us, spent)
 
     if (ret === undefined) {
-        error = 'genProof error, ret is undefined.'
-        return {error, transaction, currentEpoch: 0, epk: '', userState: undefined}
+        return {
+          error: 'genProof error, ret is undefined',
+          transaction: undefined,
+          currentEpoch: 0,
+          epk: '',
+          userState: undefined
+        }
     }
 
-     // to backend: proof, publicSignals, content
-     const apiURL = makeURL('post', {})
-     const data = {
+    // to backend: proof, publicSignals, content
+    const apiURL = makeURL('post', {})
+    const r = await fetch(apiURL, {
+      headers: header,
+      body: JSON.stringify({
         title,
         content,
         proof: ret.proof,
         minRep,
         publicSignals: ret.publicSignals,
-     }
-     const stringifiedData = JSON.stringify(data)
-     console.log('before publish post api: ' + stringifiedData)
-
-     await fetch(apiURL, {
-         headers: header,
-         body: stringifiedData,
-         method: 'POST',
-     }).then(response => response.json())
-        .then(function(data){
-            console.log(JSON.stringify(data))
-            error = data.error
-            transaction = data.transaction
-        });
-
-
-    return {error, transaction, currentEpoch: ret.currentEpoch, epk: ret.epk, userState: ret.userState}
+      }),
+      method: 'POST',
+    })
+    const { transaction, error } = await r.json()
+    return {
+      error,
+      transaction,
+      currentEpoch: ret.currentEpoch,
+      epk: ret.epk,
+      userState: ret.userState
+    }
 }
 
 export const vote = async(identity: string, upvote: number, downvote: number, dataId: string, receiver: string, epkNonce: number = 0, minRep: number = 0, isPost: boolean = true, spent: number = 0, us: any) => {
-    let error
-    let transaction: string = ''
     // upvote / downvote user
     const voteValue = upvote + downvote
     const ret = await genProof(identity, epkNonce, voteValue, minRep, us, spent)
     if (ret === undefined) {
-        error = 'genProof error, ret is undefined.'
-        return {error, epk: '', transaction: undefined, userState: undefined}
+        return {
+          error: 'genProof error, ret is undefined',
+          epk: '',
+          transaction: undefined,
+          userState: undefined
+        }
     }
 
     // send publicsignals, proof, voted post id, receiver epoch key, graffiti to backend
@@ -416,55 +382,55 @@ export const vote = async(identity: string, upvote: number, downvote: number, da
     const stringifiedData = JSON.stringify(data);
     console.log('before vote api: ' + stringifiedData)
 
-    await fetch(apiURL, {
+    const r = await fetch(apiURL, {
         headers: header,
         body: stringifiedData,
         method: 'POST',
-    }).then(response => response.json())
-       .then(function(data){
-           console.log(JSON.stringify(data))
-           error = data.error
-           transaction = data.transaction
-       });
-
+    })
+    const { error, transaction } = await r.json()
     return {error, epk: ret.epk, transaction, userState: ret.userState}
 }
 
 export const leaveComment = async(identity: string, content: string, postId: string, epkNonce: number = 0, minRep: number = config.DEFAULT_COMMENT_KARMA, spent: number = 0, us: any) => {
-    let error
-    let transaction: string = ''
-    let commentId: string = ''
     const ret = await genProof(identity, epkNonce, config.DEFAULT_COMMENT_KARMA, minRep, us, spent)
 
     if (ret === undefined) {
-        error = 'genProof error, ret is undefined.'
-        return {error, transaction, commentId, currentEpoch: 0, epk: '', userState: undefined}
+        return {
+          error: 'genProof error, ret is undefined',
+          transaction: '',
+          commentId: '',
+          currentEpoch: 0,
+          epk: '',
+          userState: undefined
+      }
     }
 
-     // to backend: proof, publicSignals, content
-     const apiURL = makeURL('comment', {})
-     const data = {
-        content,
-        proof: ret.proof,
-        minRep,
-        postId,
-        publicSignals: ret.publicSignals,
-     }
-     const stringifiedData = JSON.stringify(data)
-     console.log('before leave comment api: ' + stringifiedData)
+    // to backend: proof, publicSignals, content
+    const apiURL = makeURL('comment', {})
+    const data = {
+      content,
+      proof: ret.proof,
+      minRep,
+      postId,
+      publicSignals: ret.publicSignals,
+    }
+    const stringifiedData = JSON.stringify(data)
+    console.log('before leave comment api: ' + stringifiedData)
 
-     await fetch(apiURL, {
-         headers: header,
-         body: stringifiedData,
-         method: 'POST',
-     }).then(response => response.json())
-        .then(function(data){
-            console.log(JSON.stringify(data))
-            error = data.error
-            transaction = data.transaction
-            commentId = data.commentId
-        });
-    return {error, transaction, commentId, currentEpoch: ret.currentEpoch, epk: ret.epk, userState: ret.userState}
+    const r = await fetch(apiURL, {
+      headers: header,
+      body: stringifiedData,
+      method: 'POST',
+    })
+    const { transaction, commentId, error } = await r.json()
+    return {
+      error,
+      transaction,
+      commentId,
+      currentEpoch: ret.currentEpoch,
+      epk: ret.epk,
+      userState: ret.userState
+    }
 }
 
 export const updateUserState = async (identity: string, us?: any) => {
@@ -482,13 +448,9 @@ export const updateUserState = async (identity: string, us?: any) => {
 
 export const getNextEpochTime = async () => {
     const apiURL = makeURL('epochTransition', {})
-    var ret = 0
-    await fetch(apiURL)
-        .then(response => response.json())
-        .then(function(data){
-            ret = data.nextTransition;
-        });
-    return ret * 1000
+    const r = await fetch(apiURL)
+    const { nextTransition } = await r.json()
+    return nextTransition * 1000
 }
 
 export const userStateTransition = async (identity: string, us: any) => {
@@ -507,27 +469,22 @@ export const userStateTransition = async (identity: string, us: any) => {
     const stringifiedData = JSON.stringify(data)
     console.log('before UST api: ' + stringifiedData)
 
-    let transaction: string = ''
-    let error = undefined
-    await fetch(apiURL, {
+    const r = await fetch(apiURL, {
         headers: header,
         body: stringifiedData,
         method: 'POST',
-    }).then(response => response.json())
-       .then(function(data){
-           transaction = data.transaction
-           error = data.error
-    });
+    })
+    const { transaction, error } = await r.json()
 
-    return {error, transaction, toEpoch, userState}
+    return { error, transaction, toEpoch, userState }
 }
 
 export const getRecords = async (currentEpoch: number, identity: string) => {
     const { commitment } = decodeIdentity(identity)
-    let epks: string[] = [];
-    for (var i = 1; i <= currentEpoch; i ++) {
+    const epks: string[] = [];
+    for (let i = 1; i <= currentEpoch; i ++) {
         const epksRet = getEpochKeys(identity, i);
-        epks = [...epks, ...epksRet];
+        epks.push(...epksRet)
     }
 
     const commitmentAPIURL = makeURL(`records`, {commitment})
@@ -535,58 +492,51 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
     const apiURL = makeURL(`records/${paramStr}`, {});
     console.log(apiURL);
 
-    const getCommitment = new Promise<Record>(resolve => {
-        fetch(commitmentAPIURL).then(response => response.json()).then(
-            (data) => {
-                if(data.length === 0) return;
-                const signupRecord: Record = {
-                    action: ActionType.Signup,
-                    from: 'SignUp Airdrop',
-                    to: data[0].to,
-                    upvote: config.DEFAULT_AIRDROPPED_KARMA,
-                    downvote: 0,
-                    epoch: data[0].epoch,
-                    time: Date.parse(data[0].created_at),
-                    data_id: '',
-                    content: ''
-                }
-                resolve(signupRecord);
+    const getCommitment = fetch(commitmentAPIURL)
+      .then(response => response.json())
+      .then((data) => {
+          if (data.length === 0) return;
+          const signupRecord: Record = {
+              action: ActionType.Signup,
+              from: 'SignUp Airdrop',
+              to: data[0].to,
+              upvote: config.DEFAULT_AIRDROPPED_KARMA,
+              downvote: 0,
+              epoch: data[0].epoch,
+              time: Date.parse(data[0].created_at),
+              data_id: '',
+              content: ''
+          }
+          return signupRecord
+      }) as Promise<Record>;
+
+    const getGeneralRecords = fetch(apiURL)
+      .then(response => response.json())
+      .then((data) => {
+          const records: Record[] = [];
+          for (let i = 0; i < data.length; i ++) {
+            const record: Record = {
+                action: data[i].action,
+                from: data[i].from,
+                to: data[i].to,
+                upvote: data[i].upvote,
+                downvote: data[i].downvote,
+                epoch: data[i].epoch,
+                time: Date.parse(data[i].created_at),
+                data_id: data[i].data,
+                content: data[i].content,
             }
-        );
-    });
+            records.unshift(record)
+          }
+          return records;
+      }) as Promise<Record[]>;
 
-    const getGeneralRecords = new Promise<Record[]>(resolve => {
-        fetch(apiURL).then(response => response.json()).then(
-            (data) => {
-                let records: Record[] = [];
-                for (var i = 0; i < data.length; i ++) {
-                    const record: Record = {
-                        action: data[i].action,
-                        from: data[i].from,
-                        to: data[i].to,
-                        upvote: data[i].upvote,
-                        downvote: data[i].downvote,
-                        epoch: data[i].epoch,
-                        time: Date.parse(data[i].created_at),
-                        data_id: data[i].data,
-                        content: data[i].content,
-                    }
-                    records = [record, ...records];
-                }
-                console.log(data.length);
-                console.log(records);
-                resolve(records);
-            }
-        );
-    });
+    const allRecords = await Promise.all([
+        getCommitment,
+        getGeneralRecords,
+    ])
 
-    const ret = Promise.all([
-        getCommitment, getGeneralRecords
-    ]).then(result => {
-        return [result[0]].concat(result[1]);
-    });
-
-    return ret;
+    return allRecords.flat();
 }
 
 export const getEpochSpent = async (epks: string[]) => {
@@ -594,26 +544,20 @@ export const getEpochSpent = async (epks: string[]) => {
     const apiURL = makeURL(`records/${paramStr}`, {spentonly: true});
     console.log(apiURL);
 
-
-    return await fetch(apiURL).then(response => response.json()).then(
-        data => {
-            let ret: number = 0;
-            console.log(data);
-            for (var i = 0; i < data.length; i ++) {
-                ret = ret + data[i].spent;
-            }
-            console.log('inside get epoch spent: ' + ret);
-            return ret;
-        }
-    );
+    const r = await fetch(apiURL)
+    const data = await r.json()
+    const totalSpent = data.reduce((acc: number, v: any) => {
+      return acc + v.spent
+    }, 0)
+    return totalSpent
 }
 
 const convertDataToVotes = (data: any) => {
     if (data === null || data === undefined) return {votes: [], upvote: 0, downvote: 0};
-    let votes: Vote[] = [];
+    const votes: Vote[] = [];
     let upvote: number = 0;
     let downvote: number = 0;
-    for (var i = 0; i < data.length; i ++) {
+    for (let i = 0; i < data.length; i ++) {
         const posRep = Number(data[i].posRep);
         const negRep = Number(data[i].negRep);
         const vote: Vote = {
@@ -623,7 +567,7 @@ const convertDataToVotes = (data: any) => {
         }
         upvote += posRep;
         downvote += negRep;
-        votes = [...votes, vote];
+        votes.push(vote)
     }
 
     return {votes, upvote, downvote};
@@ -654,11 +598,11 @@ const convertDataToPost = (data: any, commentsOnlyId: boolean = true) => {
 
     const {votes, upvote, downvote} = convertDataToVotes(data.votes);
 
-    let comments: Comment[] = [];
+    const comments: Comment[] = [];
     if (!commentsOnlyId) {
-        for (var i = 0; i < data.comments.length; i ++) {
+        for (let i = 0; i < data.comments.length; i ++) {
             const comment = convertDataToComment(data.comments[i]);
-            comments = [...comments, comment];
+            comments.push(comment)
         }
     }
 
@@ -686,102 +630,58 @@ const convertDataToPost = (data: any, commentsOnlyId: boolean = true) => {
 export const listAllPosts = async () => {
     const apiURL = makeURL(`post`, {});
 
-    let ret: Post[] = [];
-    await fetch(apiURL).then(response => response.json()).then(
-        data => {
-            console.log(data);
-            for (var i = 0; i < data.length; i ++) {
-                const post = convertDataToPost(data[i]);
-                ret = [...ret, post];
-            }
-        }
-    );
-
-    return ret;
+    const r = await fetch(apiURL)
+    const data = await r.json()
+    return data.map((p: any) => convertDataToPost(p)) as Post[];
 }
 
 export const getPostById = async (postid: string) => {
     const apiURL = makeURL(`post/${postid}`, {});
-    let ret: any;
-    await fetch(apiURL).then(response => response.json()).then(
-        data => {
-            ret = convertDataToPost(data, false);
-        }
-    );
-    return ret;
+    const r = await fetch(apiURL)
+    const data = await r.json()
+    return convertDataToPost(data, false);
 }
 
 export const getPostsByQuery = async (query: QueryType, lastRead: string = '0', epks: string[] = []) => {
     const apiURL = makeURL(`post`, {query, lastRead, epks: epks.join('_')});
     console.log(apiURL);
 
-    let ret: Post[] = [];
-    await fetch(apiURL).then(response => response.json()).then(
-        data => {
-            console.log(data);
-            for (var i = 0; i < data.length; i ++) {
-                const post = convertDataToPost(data[i]);
-                ret = [...ret, post];
-            }
-        }
-    );
-
-    return ret;
+    const r = await fetch(apiURL)
+    const data = await r.json()
+    return data.map((p: any) => convertDataToPost(p)) as Post[]
 }
 
 export const getCommentsByQuery = async (query: QueryType, lastRead: string = '0', epks: string[] = []) => {
     const apiURL = makeURL(`comment`, {query, lastRead, epks: epks.join('_')});
     console.log(apiURL);
-
-    let ret: Comment[] = [];
-    await fetch(apiURL).then(response => response.json()).then(
-        data => {
-            console.log(data);
-            for (var i = 0; i < data.length; i ++) {
-                const comment = convertDataToComment(data[i]);
-                ret = [...ret, comment];
-            }
-        }
-    );
-
-    return ret;
+    const r = await fetch(apiURL)
+    const data = await r.json()
+    return data.map((c: any) => convertDataToComment(c)) as Comment[]
 }
 
 export const sentReport = async (issue: string, email: string) => {
     const apiURL = makeURL(`report`, {issue, email});
-
-    let ret: boolean = true;
-    await fetch(apiURL).then(response => ret = (response.ok === true));
-
-    return ret;
+    const r = await fetch(apiURL)
+    return r.ok
 }
-
 
 //////////////////////////////// Admin related //////////////////////////////////
 export const checkIsAdminCodeValid = async (code: string) => {
     const apiURL = makeURL('admin', {code});
-    return await fetch(apiURL).then(response => {
-        console.log(response)
-        return response.ok
-    });
+    const r = await fetch(apiURL)
+    return r.ok
 }
 
 export const adminLogin = async (id: string, password: string) => {
     const apiURL = makeURL('admin', {id, password});
-
-    return await fetch(apiURL).then(
-        response => {
-            if (response.ok) return response.json();
-            else return ''
-        }).then(data => data);
+    const r = await fetch(apiURL)
+    if (!r.ok) return ''
+    return r.json()
 }
 
 export const genInvitationCode = async (code: string) => {
     const apiURL = makeURL('genInvitationCode', {code});
-
-    return await fetch(apiURL).then(
-        response => {
-            if (response.ok) return response.json();
-            else return ''
-        }).then(data => data);
+    const r = await fetch(apiURL)
+    if (!r.ok) return ''
+    return r.json()
 }
