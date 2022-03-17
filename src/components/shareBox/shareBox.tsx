@@ -30,10 +30,10 @@ const ShareBox = ({ url, closeBox } : Props) => {
         <div className="share-overlay" onClick={close}>
             <div className="share-box" onClick={preventClose}>
                 <div className="close">
-                    <img src="/images/close-white.svg" onClick={close} />
+                    <img src={require('../../../public/images/close-white.svg')} onClick={close} />
                 </div>
                 <div className="title">
-                    <img src={`/images/share.svg`} />
+                    <img src={require(`../../../public/images/share.svg`)} />
                     Share This Post
                 </div>
                 <div className="url-sharing">

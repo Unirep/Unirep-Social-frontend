@@ -11,7 +11,7 @@ const HelpPage = () => {
 
     const handleSearchInput = (event: any) => {
         setSearchInput(event.target.value);
-    }  
+    }
 
     const closeAll = () => {
         console.log('choosible to do');
@@ -21,7 +21,7 @@ const HelpPage = () => {
         <div className="default-gesture" onClick={closeAll}>
             <div className="main-content">
                 <div className="search-bar">
-                    <img src="/images/search.png" />
+                    <img src={''} />
                     <input type="text" name="searchInput" placeholder="Search by keyword" onChange={handleSearchInput} />
                 </div>
                 <HelpList data={helpData} level={1} key={1} />

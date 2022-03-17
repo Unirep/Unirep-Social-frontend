@@ -25,7 +25,7 @@ const PrivateKey = () => {
 
     return (
         <div className="private-key">
-            <img src="/images/glasses.svg" />
+            <img src={require('../../../public/images/glasses.svg')} />
             <h3>My private key</h3>
             {
                 isRevealed && user !== null? 

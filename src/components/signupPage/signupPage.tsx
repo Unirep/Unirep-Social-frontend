@@ -84,17 +84,17 @@ const SignupPage = () => {
                 console.error(error)
             }
 
-            setUser({ 
-                identity: identity, 
-                epoch_keys: epks, 
-                all_epoch_keys: allEpks, 
-                reputation: Number(currentRep.posRep) - Number(currentRep.negRep), 
-                current_epoch: userStateResult.currentEpoch, 
+            setUser({
+                identity: identity,
+                epoch_keys: epks,
+                all_epoch_keys: allEpks,
+                reputation: Number(currentRep.posRep) - Number(currentRep.negRep),
+                current_epoch: userStateResult.currentEpoch,
                 isConfirmed: true,
                 spent: 0,
                 userState: userStateResult.userState.toJSON(),
             });
-            
+
             const nextET = await getNextEpochTime();
             setNextUSTTime(nextET);
 
@@ -125,26 +125,26 @@ const SignupPage = () => {
     return (
         <div className="signup-page">
             <div className="left-column">
-                <img src="/images/unirep-title-white.svg" />
+                <img src={require('../../../public/images/unirep-title-white.svg')} />
             </div>
             <div className="right-column">
                 {
-                    step === 0? 
+                    step === 0?
                         <div className="close">
-                            <img id="unirep-icon" src="/images/unirep-title.svg" />
-                            <img id="close-icon" src="/images/close.svg" onClick={() => history.push('/')}/>
+                            <img id="unirep-icon" src={require('../../../public/images/unirep-title-white.svg')} />
+                            <img id="close-icon" src={require('../../../public/images/unirep-title-white.svg')} onClick={() => history.push('/')}/>
                         </div> : <div></div>
                 }
                 <div className="info">
                     <div className="title">{title[step].split('<br>').map(t => <span key={t}>{t}<br/></span>)}</div>
                     <p>{content[step]}</p>
                     {
-                        step === 3? 
-                            <div></div> : 
-                            <textarea 
-                                className={step === 0? '' : 'larger'} 
-                                onChange={handleInput} 
-                                value={step === 0? invitationCode : step === 1? identity : step === 2? userEnterIdentity : ''} 
+                        step === 3?
+                            <div></div> :
+                            <textarea
+                                className={step === 0? '' : 'larger'}
+                                onChange={handleInput}
+                                value={step === 0? invitationCode : step === 1? identity : step === 2? userEnterIdentity : ''}
                             />
                     }
                     {
