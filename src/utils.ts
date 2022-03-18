@@ -299,8 +299,11 @@ export const userSignUp = async () => {
 
     const serializedIdentity = serialiseIdentity(id)
 
+    console.log('before unirep contract')
     const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
+    console.log('after unirep contract')
     const currentEpoch = await unirepSocialContract.currentEpoch();
+    console.log('after unirep contract get current epoch')
     const epk1 = getEpochKey(0, id.identityNullifier, currentEpoch);
 
     // call server user sign up

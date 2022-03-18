@@ -26,7 +26,6 @@
   },
   "scripts": {
     "start": "webpack-dev-server",
-    "start-local": "webpack-dev-server",
     "build": "webpack",
     "build:worker": "webpack --config webpack.worker.js",
     "test": "echo 'No tests found' && exit 1",
@@ -39,18 +38,6 @@
     "extends": [
       "react-app",
       "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
     ]
   },
   "devDependencies": {
