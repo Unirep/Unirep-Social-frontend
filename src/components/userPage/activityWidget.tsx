@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { HashLink as Link } from 'react-router-hash-link'; 
+import { HashLink as Link } from 'react-router-hash-link';
 import dateformat from 'dateformat';
 import { Record, ActionType, titlePrefix, titlePostfix } from '../../constants';
 
@@ -14,13 +14,13 @@ type Info = {
 }
 
 type ActionData = {
-    title: string, 
+    title: string,
     content: string
 }
 
 const ActivityWidget = ({ record, isSpent }: Props) => {
     const [date, setDate] = useState<string>(dateformat(new Date(record.time), "dd/mm/yyyy hh:MM TT"));
-    
+
     const translateInfo = (h: Record) => {
         if (h.action === ActionType.Post) {
             return {who: 'I (' + h.from + ')', action: 'created a post'}
@@ -38,7 +38,7 @@ const ActivityWidget = ({ record, isSpent }: Props) => {
             }
         }
     }
-    
+
     const [info, setInfo] = useState<Info>(() => translateInfo(record));
     const [goto, setGoto] = useState<string>(() => {
         if (record.data_id === '0') {
@@ -66,7 +66,7 @@ const ActivityWidget = ({ record, isSpent }: Props) => {
             return {title: '', content: ''};
         }
     })
-    
+
     useEffect(() => {
         setInfo(translateInfo(record));
     }, [record])
@@ -75,11 +75,13 @@ const ActivityWidget = ({ record, isSpent }: Props) => {
         <Link className="link" to={goto}>
             <div className="activity-widget" >
                 {
-                    isSpent? 
+                    isSpent?
                         <div className="side">
                             <div className="amount">{record.downvote + record.upvote}</div>
                             <div className="type">
-                                <img src={record.action === ActionType.Vote? (record.upvote > 0? '/images/boost.svg' : '/images/squash.svg'): '/images/unirep.svg'} />
+                                <img src={
+                                  record.action === ActionType.Vote ? (
+                                    record.upvote > 0 ? require('../../../public/images/boost.svg') : require('../../../public/images/squash.svg')): require('../../../public/images/unirep.svg')} />
                                 Used
                             </div>
                         </div> : <div></div>
@@ -87,18 +89,18 @@ const ActivityWidget = ({ record, isSpent }: Props) => {
                 <div className="main">
                     <div className="header">
                         <p>{date}</p>
-                        <div className="etherscan">Etherscan <img src="/images/etherscan.svg" /></div>
+                        <div className="etherscan">Etherscan <img src={require('../../../public/images/etherscan.svg')} /></div>
                     </div>
                     <div className="main-info">
                         <div className="who">
-                            {info.who} <img src="/images/lighting.svg" /> {info.action}
+                            {info.who} <img src={require('../../../public/images/lighting.svg')} /> {info.action}
                         </div>
-                        { record.content !== undefined && record.content.length > 0? 
+                        { record.content !== undefined && record.content.length > 0?
                             actionData.title.length > 1 ?
                                 <div className="data">
-                                    <div className="title">{actionData.title}</div>   
+                                    <div className="title">{actionData.title}</div>
                                     <div className="content">{actionData.content}</div>
-                                </div> : 
+                                </div> :
                                 <div className="data">
                                     <div className="content">{actionData.content}</div>
                                 </div> :
@@ -107,12 +109,12 @@ const ActivityWidget = ({ record, isSpent }: Props) => {
                     </div>
                 </div>
                 {
-                    isSpent? 
+                    isSpent?
                         <div></div> :
                         <div className="side">
                             <div className="amount">{record.action === ActionType.Vote? (record.upvote > 0? '+' + record.upvote : '-' + record.downvote) : '+' + record.upvote}</div>
                             <div className="type">
-                                <img src={record.action === ActionType.Vote? (record.upvote > 0? '/images/boost.svg' : '/images/squash.svg'): '/images/unirep.svg'} />
+                                <img src={record.action === ActionType.Vote? (record.upvote > 0? require('../../../public/images/boost.svg') : require('../../../public/images/squash.svg')): require('../../../public/images/unirep.svg')} />
                                 Received
                             </div>
                         </div>

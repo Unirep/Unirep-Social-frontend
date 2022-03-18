@@ -1,21 +1,13 @@
 import { ethers } from 'ethers'
 import { circuitUserStateTreeDepth, circuitGlobalStateTreeDepth, circuitEpochTreeDepth } from '@unirep/unirep'
-import UnirepSocial from "../node_modules/@unirep/unirep-social/artifacts/contracts/UnirepSocial.sol/UnirepSocial.json"
-
-const identityPrefix = 'Unirep.identity.'
-const identityCommitmentPrefix = 'Unirep.identityCommitment.'
-const epkProofPrefix = 'Unirep.epk.proof.'
-const epkPublicSignalsPrefix = 'Unirep.epk.publicSignals.'
-const reputationProofPrefix = 'Unirep.reputation.proof.'
-const reputationPublicSignalsPrefix = 'Unirep.reputation.publicSignals.'
-const signUpProofPrefix = 'Unirep.signUp.proof.'
-const signUpPublicSignalsPrefix = 'Unirep.signUp.publicSignals.'
+import UnirepSocial from "@unirep/unirep-social/artifacts/contracts/UnirepSocial.sol/UnirepSocial.json"
 
 // const SERVER = 'http://localhost:3001'
-// const DEFAULT_ETH_PROVIDER_URL = 'ws://localhost:8545'
-// const SERVER = 'http://3.20.204.166'
-const DEFAULT_ETH_PROVIDER_URL = 'wss://eth-goerli.alchemyapi.io/v2/tYp-IJU_idg28iohx9gsLqhq6KRZxk7f'
-const DEFAULT_ETH_PROVIDER = new ethers.providers.WebSocketProvider(DEFAULT_ETH_PROVIDER_URL)
+const DEFAULT_ETH_PROVIDER_URL = 'https://kovan.optimism.io'
+// const DEFAULT_ETH_PROVIDER_URL = 'wss://eth-goerli.alchemyapi.io/v2/tYp-IJU_idg28iohx9gsLqhq6KRZxk7f'
+const DEFAULT_ETH_PROVIDER = DEFAULT_ETH_PROVIDER_URL.startsWith('http') ?
+  new ethers.providers.JsonRpcProvider(DEFAULT_ETH_PROVIDER_URL) :
+  new ethers.providers.WebSocketProvider(DEFAULT_ETH_PROVIDER_URL)
 // const DEFAULT_ETH_PROVIDER = 'http://18.188.136.227'
 const DEFAULT_START_BLOCK = 0
 const DEFAULT_MAX_EPOCH_KEY_NONCE = 2
@@ -28,8 +20,8 @@ const DEFAULT_COMMENT_KARMA = 3
 const MAX_KARMA_BUDGET = 10
 const DEFAULT_AIRDROPPED_KARMA = 30
 
-const UNIREP = '0x3DdC8069e7d740C86AFfB8bc10Fa66ad10181bd2'
-const UNIREP_SOCIAL = '0x22251B1135379dA965614D83c9FC3D8F012B68CE'
+const UNIREP = '0x28Ca92e6672FBe94267F46CA5fe9936D1e0aeb28'
+const UNIREP_SOCIAL = '0xCB70cd28aa571BFf1e9e42959092359936632e95'
 const UNIREP_SOCIAL_ABI = UnirepSocial.abi
 const UNIREP_SOCIAL_ATTESTER_ID = 1
 
@@ -42,21 +34,13 @@ const maxUsers = 2 ** globalStateTreeDepth - 1;
 const attestingFee = ethers.utils.parseEther("0")
 const numEpochKeyNoncePerEpoch = 3;
 const numAttestationsPerEpochKey = 6;
-const epochLength = 30; 
+const epochLength = 30;
 const maxReputationBudget = 10;
 
 const ABOUT_URL = "https://about.unirep.social";
+const LOAD_POST_COUNT = 10
 
 export {
-    // SERVER,
-    identityPrefix,
-    identityCommitmentPrefix,
-    epkProofPrefix,
-    epkPublicSignalsPrefix,
-    reputationProofPrefix,
-    reputationPublicSignalsPrefix,
-    signUpProofPrefix,
-    signUpPublicSignalsPrefix,
     DEFAULT_ETH_PROVIDER,
     DEFAULT_START_BLOCK,
     DEFAULT_MAX_EPOCH_KEY_NONCE,
@@ -86,5 +70,6 @@ export {
     epochLength,
     globalStateTreeDepth,
     maxReputationBudget,
-    ABOUT_URL
+    ABOUT_URL,
+    LOAD_POST_COUNT
 }

@@ -67,8 +67,8 @@ export enum ButtonType {
 }
 
 export enum InfoType {
-    epk4Post = 'Select one of epoch key as the persona to post this post',
-    epk4Comment = 'Select one of persona to post this',
+    epk4Post = 'Select a persona to post this',
+    epk4Comment = 'Select a persona to comment this',
     rep = 'Show off or be modest. This might influence how other people perceive your content.',
     countdown = 'You will be able to boost or squash the posts that are created during this cycle until it ends. When a  cycle is over, content from that cycle becomes read-only.',
     persona = 'Each cycle, the system gives you new personas. It would take a million years to associate your identity with any content you post here. You have all the freedom to be who you are, but let’s be nice to each other :)'

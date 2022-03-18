@@ -77,16 +77,6 @@ $text-xxs: 10px;
   }
 }
 
-@mixin epkIcon($size) {
-  width: $size;
-  height: $size;
-  border-radius: $size * 0.5;
-  border: 1px solid $grey-200;
-  background-color: white;
-  line-height: $size * 0.9;
-  padding-left: 2.5px;
-  padding-right: 2.5px;
-}
 
 @mixin disabled() {
   background-color: $grey-400;
@@ -122,60 +112,49 @@ body {
     font-weight: 600;
   }
 
-  .wrapper {
+  .body-columns {
     margin-top: 104px;
-    width: 100vw;
-  }
-
-  .default-gesture {
     height: auto;
     display: flex;
     flex-direction: row;
-    padding: 0px 104px;
-    width: 100vw;
     box-sizing: border-box;
-  } 
 
-  .main-content {
-    flex: 7;
-    margin-top: 0px;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 32px 12px;
-    flex-shrink: 1;
-  }
+    .content {
+      flex: 1 0 74%;
+      display: flex;
+      flex-wrap: wrap;
+
+      @media (max-width: 600px) {
+        flex: 100%;
+      }
   
-  .side-content {
-    flex: 3;
-    padding: 32px 12px;
-    flex-shrink: 1;
-  }
-  
-  .margin-box {
-    flex: 1;
-    flex-shrink: 0.25;
-  }
-  
-  @media screen and (max-width: 400px) {
-    h1 {
-      font-size: 30px;
-    }
-  
-    header {
-      .links {
-        a {
-          font-size: 1.2rem;
+      .main-content {
+        flex: 1 1 60%;
+        margin-top: 0px;
+        padding: 32px 12px;
+
+        @media (max-width: 600px) {
+          flex-basis: 100%;
+          padding: 32px auto;
         }
-  
-        .link:link,
-        .link:visited {
-          margin: unset;
+      }
+      
+      .side-content {
+        flex: 0 0 340px;
+        padding: 32px 12px;
+
+        @media (max-width: 600px) {
+          flex-basis: 100%;
+          padding: 32px auto;
         }
       }
     }
-  
-    .main-form {
-      width: 100%;
+    
+    .margin-box {
+      flex: 0 1 13%;
+
+      @media (max-width: 600px) {
+        display: none;
+      }
     }
-  }
+  } 

@@ -25,7 +25,7 @@ const RankingBlock = ({ post, ranking, hasUnderline }: Props) => {
         <div className={hasUnderline ? "ranking-block underline" : "ranking-block"} onClick={() => history.push('/post/' + post.id)}>
             <div className="ranking-block-header">
                 <div className="ranking">
-                    <img src="/images/boost-fill.svg" />
+                    <img src={require('../../../public/images/boost-fill.svg')} />
                     {`#${ranking+1}${isAuthor(post, user?.all_epoch_keys)? ', by you':''}`}
                 </div>
                 <div className="boost">

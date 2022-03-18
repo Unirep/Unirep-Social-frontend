@@ -11,7 +11,7 @@ type Props = {
 }
 
 const BlockButton = ({ type, count, data }: Props) => {
-    
+
     const history = useHistory();
     const { user, isLoading } = useContext(WebContext);
 
@@ -20,7 +20,7 @@ const BlockButton = ({ type, count, data }: Props) => {
     const [isHover, setIsHover] = useState<boolean>(false); // null, purple1, purple2, grey1, grey2
     const [reminder, setReminder] = useState<string>('');
     const [isLinkCopied, setIsLinkCopied] = useState<boolean>(false); // only for share button
-    
+
     const checkAbility = () => {
         if (type === ButtonType.Comments || type === ButtonType.Share) {
             return true;
@@ -34,7 +34,7 @@ const BlockButton = ({ type, count, data }: Props) => {
             }
         }
     }
-    
+
     const [isAble, setIsAble] = useState<boolean>(() => checkAbility());
 
     const onClick = () => {
@@ -85,30 +85,30 @@ const BlockButton = ({ type, count, data }: Props) => {
     }, [isLoading])
 
     return (
-        <div 
-            className={type === ButtonType.Share? "block-button share" : "block-button"} 
-            onMouseEnter={() => setIsHover(true)} 
-            onMouseOut={onMouseOut}
+        <div
+            className={type === ButtonType.Share? "block-button share" : "block-button"}
+            onMouseEnter={() => setIsHover(true)}
+            onMouseLeave={onMouseOut}
             onClick={onClick}>
-            <img src={`/images/${type}${isHover && isAble? '-fill' : ''}.svg`} />
-            {   
-                type !== ButtonType.Share? 
+            <img src={require(`../../../public/images/${type}${isHover && isAble? '-fill' : ''}.svg`)} />
+            {
+                type !== ButtonType.Share?
                     <span className="count">{count}</span> : <span></span>
             }
-            <span>{type.charAt(0).toUpperCase() + type.slice(1)}</span>
+            <span className="btn-name">{type.charAt(0).toUpperCase() + type.slice(1)}</span>
 
             {
                 isAble? <div></div> : <div className="disabled" onMouseEnter={setReminderMessage}></div>
             }
             {
-                reminder.length > 0? 
+                reminder.length > 0?
                     <div className="reminder">
                         {reminder}
                     </div> : <div></div>
             }
             {
-                isBoostOn? 
-                    <VoteBox isUpvote={true} data={data} closeVote={() => setBoostOn(false)} /> : isSquashOn? 
+                isBoostOn?
+                    <VoteBox isUpvote={true} data={data} closeVote={() => setBoostOn(false)} /> : isSquashOn?
                     <VoteBox isUpvote={false} data={data} closeVote={() => setSquashOn(false)}  /> : <div></div>
             }
         </div>

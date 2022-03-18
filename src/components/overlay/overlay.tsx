@@ -13,7 +13,11 @@ const Overlay = () => {
             setIsMenuOpen(false);
         } else {
             console.log('something is loading, no close');
-        }        
+        }
+    }
+
+    const gotoUserPage = () => {
+        history.push(`/user`, {isConfirmed: true});
     }
 
     const signout = () => {
@@ -27,7 +31,7 @@ const Overlay = () => {
             <div className="blur-area"></div>
             <div className="black-area">
                 <div className="close-info">
-                    <img src="/images/close.svg" />
+                    <img src={require('../../../public/images/close.svg')} />
                 </div>
                 <div className="fixed-info">
                     <a href="https://about.unirep.social/how-it-works">How it work</a>
@@ -40,11 +44,12 @@ const Overlay = () => {
                             <a href="/feedback">Send feedback</a>
                             <a href="/login">Sign in</a>
                             <a href="/signup">Join</a>
-                        </div> : 
+                        </div> :
                         <div className="dynamic-info">
                             <a href="/feedback">Send feedback</a>
+                            <p onClick={gotoUserPage}>My stuff</p>
                             <p onClick={signout}>Sign out</p>
-                        </div> 
+                        </div>
                 }
             </div>
         </div>

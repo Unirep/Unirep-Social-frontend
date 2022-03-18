@@ -85,10 +85,13 @@ const LoginPage = () => {
     return (
         <div className="login-page">
             <div className="left-column">
-                <img src="/images/unirep-title-white.svg" />
+                <img src={require('../../../public/images/unirep-title-white.svg')} />
             </div>
             <div className="right-column">
-                <img src="/images/close.svg" onClick={() => history.push('/')}/>
+                <div className="close">
+                    <img id="unirep-icon" src={require('../../../public/images/unirep-title.svg')} />
+                    <img id="close-icon" src={require('../../../public/images/close.svg')} onClick={() => history.push('/')}/>
+                </div>
                 <div className="info">
                     <div className="title">Welcome back</div>
                     <p>To enter the app, please use the private key you got when you signed up.</p>
