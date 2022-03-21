@@ -3,6 +3,7 @@ import { circuitUserStateTreeDepth, circuitGlobalStateTreeDepth, circuitEpochTre
 import UnirepSocial from "@unirep/unirep-social/artifacts/contracts/UnirepSocial.sol/UnirepSocial.json"
 
 const DEFAULT_ETH_PROVIDER_URL = 'https://kovan.optimism.io'
+const ETH_PROVIDER_ETHERSCAN = 'https://kovan-optimistic.etherscan.io'
 const DEFAULT_ETH_PROVIDER = DEFAULT_ETH_PROVIDER_URL.startsWith('http') ?
   new ethers.providers.JsonRpcProvider(DEFAULT_ETH_PROVIDER_URL) :
   new ethers.providers.WebSocketProvider(DEFAULT_ETH_PROVIDER_URL)
@@ -18,8 +19,8 @@ const DEFAULT_COMMENT_KARMA = 3
 const MAX_KARMA_BUDGET = 10
 const DEFAULT_AIRDROPPED_KARMA = 30
 
-const UNIREP = '0x28Ca92e6672FBe94267F46CA5fe9936D1e0aeb28'
-const UNIREP_SOCIAL = '0xCB70cd28aa571BFf1e9e42959092359936632e95'
+const UNIREP = '0x2167b6494f0DbD093CFE54a2C7bCB91525Ea678B'
+const UNIREP_SOCIAL = '0x6EDa9692a85B744C057a05D67a677cfA44078eAf'
 const UNIREP_SOCIAL_ABI = UnirepSocial.abi
 const UNIREP_SOCIAL_ATTESTER_ID = 1
 
@@ -39,6 +40,7 @@ const ABOUT_URL = "https://about.unirep.social";
 const LOAD_POST_COUNT = 10
 
 export {
+    ETH_PROVIDER_ETHERSCAN,
     DEFAULT_ETH_PROVIDER,
     DEFAULT_START_BLOCK,
     DEFAULT_MAX_EPOCH_KEY_NONCE,

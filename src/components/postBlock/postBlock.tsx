@@ -4,7 +4,7 @@ import dateformat from 'dateformat';
 
 import { WebContext } from '../../context/WebContext';
 import { Post, Page, ButtonType, AlertType, DataType } from '../../constants';
-import { DEFAULT_POST_KARMA } from '../../config';
+import { DEFAULT_POST_KARMA, ETH_PROVIDER_ETHERSCAN } from '../../config';
 import CommentField from './commentField';
 import CommentBlock from './commentBlock';
 import BlockButton from './blockButton';
@@ -56,7 +56,7 @@ const PostBlock = ({ post, page }: Props) => {
                         { isEpkHovered? <span className="show-off-rep">{post.reputation === DEFAULT_POST_KARMA? `This person is very modest, showing off only ${DEFAULT_POST_KARMA} Rep.` : `This person is showing off ${post.reputation} Rep.`}</span> : <span></span>}
                     </span>
                 </div>
-                <a className="etherscan" target="_blank" href={`https://goerli.etherscan.io/tx/${post.id}`}>
+                <a className="etherscan" target="_blank" href={`${ETH_PROVIDER_ETHERSCAN}/tx/${post.id}`}>
                     <span>Etherscan</span>
                     <img src={require('../../../public/images/etherscan.svg')} />
                 </a>

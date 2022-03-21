@@ -4,10 +4,10 @@ import { HashLink as Link } from 'react-router-hash-link';
 import './loadingWidget.scss';
 import { WebContext } from '../../context/WebContext';
 import { publishPost, vote, leaveComment, getEpochSpent, userStateTransition, getUserState, getEpochKeys, getAirdrop, getNextEpochTime, getCurrentEpoch } from '../../utils';
+import { ETH_PROVIDER_ETHERSCAN } from '../../config';
 import { ActionType } from '../../constants';
 import * as config from '../../config';
 import { getPostById } from '../../utils';
-import { stringifyBigInts } from '@unirep/crypto';
 
 enum LoadingState {
     loading,
@@ -238,7 +238,7 @@ const LoadingWidget = () => {
                         { action.action === ActionType.UST? 
                             <div className="info-row">User State Transition done.</div> : 
                             <div className="info-row">
-                                <Link className="link" to={goto}>See my content</Link> | <a className="link" target="_blank" href={'https://goerli.etherscan.io/tx/' + tx}>Etherscan <img src={require('../../../public/images/etherscan-white.svg')}/></a>
+                                <Link className="link" to={goto}>See my content</Link> | <a className="link" target="_blank" href={ETH_PROVIDER_ETHERSCAN + '/tx/' + tx}>Etherscan <img src={require('../../../public/images/etherscan-white.svg')}/></a>
                             </div>
                         } 
                     </div> : loadingState === LoadingState.failed?

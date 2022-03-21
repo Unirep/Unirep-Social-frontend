@@ -4,7 +4,7 @@ import { Comment, Page, ButtonType } from '../../constants';
 import dateformat from 'dateformat';
 import { useHistory } from 'react-router-dom';
 import BlockButton from './blockButton';
-import { DEFAULT_COMMENT_KARMA } from '../../config';
+import { DEFAULT_COMMENT_KARMA, ETH_PROVIDER_ETHERSCAN } from '../../config';
 
 type Props = {
     comment: Comment
@@ -32,7 +32,7 @@ const CommentBlock = ({comment, page}: Props) => {
                         { isEpkHovered? <span className="show-off-rep">{comment.reputation === DEFAULT_COMMENT_KARMA? `This person is very modest, showing off only ${DEFAULT_COMMENT_KARMA} Rep.` : `This person is showing off ${comment.reputation} Rep.`}</span> : <span></span>}
                     </span>
             </div>
-                <a className="etherscan" target="_blank" href={`https://goerli.etherscan.io/tx/${comment.id}`}> 
+                <a className="etherscan" target="_blank" href={`${ETH_PROVIDER_ETHERSCAN}/tx/${comment.id}`}> 
                     <span>Etherscan</span>
                     <img src={require('../../../public/images/etherscan.svg')} />
                 </a>
