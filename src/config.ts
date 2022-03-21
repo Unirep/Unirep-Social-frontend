@@ -4,7 +4,6 @@ import UnirepSocial from "@unirep/unirep-social/artifacts/contracts/UnirepSocial
 
 // const SERVER = 'http://localhost:3001/'
 const DEFAULT_ETH_PROVIDER_URL = 'ws://localhost:8545'
-const SERVER = 'https://unirep.social/'
 // const SERVER = 'http://3.20.204.166'
 // const DEFAULT_ETH_PROVIDER_URL = 'wss://eth-goerli.alchemyapi.io/v2/tYp-IJU_idg28iohx9gsLqhq6KRZxk7f'
 const DEFAULT_ETH_PROVIDER = DEFAULT_ETH_PROVIDER_URL.startsWith('http') ?
@@ -45,7 +44,6 @@ const ABOUT_URL = "https://about.unirep.social";
 const LOAD_POST_COUNT = 10
 
 export {
-    SERVER,
     DEFAULT_ETH_PROVIDER,
     DEFAULT_START_BLOCK,
     DEFAULT_MAX_EPOCH_KEY_NONCE,

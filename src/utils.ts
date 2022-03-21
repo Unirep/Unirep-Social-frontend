@@ -280,7 +280,7 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
 
 const makeURL = (action: string, data: any = {}) => {
     const params = new URLSearchParams(data)
-    return `${config.SERVER}api/${action}?${params}`
+    return `/api/${action}?${params}`
 }
 
 const header = {
