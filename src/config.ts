@@ -2,7 +2,7 @@ import { ethers } from 'ethers'
 import { circuitUserStateTreeDepth, circuitGlobalStateTreeDepth, circuitEpochTreeDepth } from '@unirep/unirep'
 import UnirepSocial from "@unirep/unirep-social/artifacts/contracts/UnirepSocial.sol/UnirepSocial.json"
 
-// const SERVER = 'http://localhost:3001'
+// const SERVER = 'http://localhost:3001/'
 const DEFAULT_ETH_PROVIDER_URL = 'ws://localhost:8545'
 const SERVER = 'https://unirep.social/'
 // const SERVER = 'http://3.20.204.166'
