@@ -27,7 +27,7 @@ const verifyProof = async (circuitName: string, proof: any, publicSignals: any) 
 /* circuit functions */
 
 export const getCurrentEpoch = async () => {
-    const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
+    const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER_URL);
     const unirepContract = await unirepSocialContract.getUnirep()
     const currentEpoch = await unirepContract.currentEpoch()
     return Number(currentEpoch)
@@ -81,7 +81,7 @@ export const getUserState = async (identity: string, us?: any, update?: boolean)
         const endTime = new Date().getTime()
         console.log(`Gen us time: ${endTime - startTime} ms (${Math.floor((endTime - startTime) / 1000)} s)`)
     } else {
-        const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
+        const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER_URL);
         const unirepContract = await unirepSocialContract.getUnirep();
         const parsedUserState = us !== undefined ? JSON.parse(us) : us
         console.log('update user state from stored us')
@@ -211,7 +211,7 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
         const ret = await getUserState(identity, us, false);
         userState = ret.userState;
     }
-    const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
+    const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER_URL);
     const unirepContract = await unirepSocialContract.getUnirep();
     const { identityNullifier } = decodeIdentity(identity);
 
@@ -276,7 +276,7 @@ const genProof = async (identity: string, epkNonce: number = 0, proveKarmaAmount
 
 const makeURL = (action: string, data: any = {}) => {
     const params = new URLSearchParams(data)
-    return `${config.SERVER}api/${action}?${params}`
+    return `/api/${action}?${params}`
 }
 
 const header = {
@@ -299,7 +299,7 @@ export const userSignUp = async () => {
 
     const serializedIdentity = serialiseIdentity(id)
 
-    const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
+    const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER_URL);
     const currentEpoch = await unirepSocialContract.currentEpoch();
     const epk1 = getEpochKey(0, id.identityNullifier, currentEpoch);
 
