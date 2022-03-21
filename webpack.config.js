@@ -10,13 +10,15 @@ module.exports = {
   mode: 'development',
   devServer: {
     port: 3000,
+    compress: true,
+    allowedHosts: "all",
+    historyApiFallback: true,
     proxy: {
       '/api': {
         target: 'http://localhost:3000',
         router: () => 'http://backend:3001'
       }
     },
-    historyApiFallback: true
   },
   output: {
     path: path.resolve(__dirname, 'build'),
