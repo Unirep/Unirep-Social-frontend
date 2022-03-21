@@ -39,7 +39,6 @@ const ABOUT_URL = "https://about.unirep.social";
 const LOAD_POST_COUNT = 10
 
 export {
-    DEFAULT_ETH_PROVIDER_URL,
     DEFAULT_ETH_PROVIDER,
     DEFAULT_START_BLOCK,
     DEFAULT_MAX_EPOCH_KEY_NONCE,
