@@ -13,7 +13,7 @@ module.exports = {
     proxy: {
       '/api': {
         target: 'http://localhost:3000',
-        router: () => 'http://localhost:3001'
+        router: () => 'http://backend:3001'
       }
     },
     historyApiFallback: true
