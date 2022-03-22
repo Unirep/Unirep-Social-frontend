@@ -1,20 +1,20 @@
 // font //
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');// sans-serif
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap'); // sans-serif
 // font //
 
 // color //
 $main-font-color: #000;
-$background-color: #FFFFFF;
+$background-color: #ffffff;
 
-$white: #FDFDFD;
-$black: #0B0B0B;
-$grey-800: #2A2B2C;
-$grey-700: #4F4F4F;
+$white: #fdfdfd;
+$black: #0b0b0b;
+$grey-800: #2a2b2c;
+$grey-700: #4f4f4f;
 $grey-400: #828282;
-$grey-300: #BDBDBD;
-$grey-200: #E0E0E0;
-$grey-100: #F2F2F2;
-$red: #EB5757;
+$grey-300: #bdbdbd;
+$grey-200: #e0e0e0;
+$grey-100: #f2f2f2;
+$red: #eb5757;
 // color //
 
 // font-size //
@@ -34,53 +34,71 @@ $text-xxs: 10px;
 
 // widgets //
 @mixin myButton(
-  $width:0, $height:0, $radius:0, $border: 0,
-  $color:$main-font-color, $block-color: $white, $border-color: $white,
-  $margin-horizontal: 5px, 
-  $font-size:$text-base, $font-weight:400, $text-align:center) {
-  
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
+    $width: 0,
+    $height: 0,
+    $radius: 0,
+    $border: 0,
+    $color: $main-font-color,
+    $block-color: $white,
+    $border-color: $white,
+    $margin-horizontal: 5px,
+    $font-size: $text-base,
+    $font-weight: 400,
+    $text-align: center
+) {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
 
-  @if $width > 0 { width:$width; }
-  @if $height > 0 { height:$height; }
-  border-radius: $radius;
-  @if $border > 0 { border: $border solid $border-color }
+    @if $width > 0 {
+        width: $width;
+    }
+    @if $height > 0 {
+        height: $height;
+    }
+    border-radius: $radius;
+    @if $border > 0 {
+        border: $border solid $border-color;
+    }
 
-  color: $color;
-  background-color: $block-color;
+    color: $color;
+    background-color: $block-color;
 
-  margin-left: $margin-horizontal;
-  margin-right: $margin-horizontal;
+    margin-left: $margin-horizontal;
+    margin-right: $margin-horizontal;
 
-  font-size: $font-size;
-  font-weight: $font-weight;
-  text-align: $text-align;
-  vertical-align: middle;
-  line-height: $height;
+    font-size: $font-size;
+    font-weight: $font-weight;
+    text-align: $text-align;
+    vertical-align: middle;
+    line-height: $height;
 
-  cursor: pointer;
+    cursor: pointer;
 }
 
-@mixin popupBox($width, $height: auto, $block-color:#fff, $border-width: 0, $border-color: black) {
-  width:$width;
-  height:$height;
-  margin: 10% auto;
-  padding: 40px 48px;
-  
-  background-color: $block-color;
+@mixin popupBox(
+    $width,
+    $height: auto,
+    $block-color: #fff,
+    $border-width: 0,
+    $border-color: black
+) {
+    width: $width;
+    height: $height;
+    margin: 10% auto;
+    padding: 40px 48px;
 
-  @if $border-width > 0 {
-    border: $border-width solid $border-color;
-  }
+    background-color: $block-color;
+
+    @if $border-width > 0 {
+        border: $border-width solid $border-color;
+    }
 }
-
 
 @mixin disabled() {
-  background-color: $grey-400;
-  cursor: not-allowed;
+    background-color: $grey-400;
+    cursor: not-allowed;
 }
 // widgets//
 
@@ -90,29 +108,29 @@ body {
     color: $grey-700;
     letter-spacing: 0;
     min-height: 100vh;
-  }
-  
-  h1 {
+}
+
+h1 {
     font-size: $title-lg;
     font-weight: 700;
-  }
+}
 
-  h2 {
+h2 {
     font-size: $title-md;
     font-weight: 600;
-  }
+}
 
-  h3 {
+h3 {
     font-size: $title-sm;
     font-weight: 700;
-  }
+}
 
-  h4 {
+h4 {
     font-size: $text-md;
     font-weight: 600;
-  }
+}
 
-  .body-columns {
+.body-columns {
     margin-top: 104px;
     height: auto;
     display: flex;
@@ -120,41 +138,41 @@ body {
     box-sizing: border-box;
 
     .content {
-      flex: 1 0 74%;
-      display: flex;
-      flex-wrap: wrap;
-
-      @media (max-width: 600px) {
-        flex: 100%;
-      }
-  
-      .main-content {
-        flex: 1 1 60%;
-        margin-top: 0px;
-        padding: 32px 12px;
+        flex: 1 0 74%;
+        display: flex;
+        flex-wrap: wrap;
 
         @media (max-width: 600px) {
-          flex-basis: 100%;
-          padding: 32px auto;
+            flex: 100%;
         }
-      }
-      
-      .side-content {
-        flex: 0 0 340px;
-        padding: 32px 12px;
 
-        @media (max-width: 600px) {
-          flex-basis: 100%;
-          padding: 32px auto;
+        .main-content {
+            flex: 1 1 60%;
+            margin-top: 0px;
+            padding: 32px 12px;
+
+            @media (max-width: 600px) {
+                flex-basis: 100%;
+                padding: 32px auto;
+            }
         }
-      }
+
+        .side-content {
+            flex: 0 0 340px;
+            padding: 32px 12px;
+
+            @media (max-width: 600px) {
+                flex-basis: 100%;
+                padding: 32px auto;
+            }
+        }
     }
-    
+
     .margin-box {
-      flex: 0 1 13%;
+        flex: 0 1 13%;
 
-      @media (max-width: 600px) {
-        display: none;
-      }
+        @media (max-width: 600px) {
+            display: none;
+        }
     }
-  } 
+}

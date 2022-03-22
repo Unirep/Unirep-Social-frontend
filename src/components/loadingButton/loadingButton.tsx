@@ -1,16 +1,16 @@
-import './loadingButton.scss';
+import './loadingButton.scss'
 
 type Props = {
-    isLoading: boolean,
+    isLoading: boolean
     name: string
 }
 
 const LoadingButton = ({ isLoading, name }: Props) => {
     return (
-        <div className={`loading-btn${isLoading? ' isLoading': ''}`}>
+        <div className={`loading-btn${isLoading ? ' isLoading' : ''}`}>
             {name}
         </div>
-    );
+    )
 }
 
-export default LoadingButton;
+export default LoadingButton
