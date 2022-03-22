@@ -1,5 +1,3 @@
-import { ethers } from 'ethers'
-import { getUnirepContract } from '@unirep/contracts'
 import {
     genIdentity,
     genIdentityCommitment,
@@ -12,7 +10,10 @@ import {
     genUserStateFromParams,
     genReputationNullifier,
 } from '@unirep/unirep'
+import { BigNumberish } from 'ethers'
 import { formatProofForVerifierContract } from '@unirep/circuits'
+import { UnirepFactory, UnirepSocialFacory } from '@unirep/unirep-social'
+
 import * as config from './config'
 import {
     Record,
@@ -24,26 +25,8 @@ import {
     QueryType,
 } from './constants'
 
-const snarkjs = require('snarkjs')
-
-const add0x = (str: string): string => {
-    return str.startsWith('0x') ? str : '0x' + str
-}
-
-const verifyProof = async (
-    circuitName: string,
-    proof: any,
-    publicSignals: any
-) => {
-    const vkeyJsonPath = `/build/${circuitName}.vkey.json`
-    const vKey = await fetch(vkeyJsonPath).then((res) => res.json())
-    const res = await snarkjs.groth16.verify(vKey, publicSignals, proof)
-    return res
-}
-/* circuit functions */
-
 export const getCurrentEpoch = async () => {
-    const unirepContract = getUnirepContract(
+    const unirepContract = UnirepFactory.connect(
         config.UNIREP,
         config.DEFAULT_ETH_PROVIDER
     )
@@ -67,7 +50,7 @@ const decodeIdentity = (identity: string) => {
 }
 
 export const hasSignedUp = async (identity: string) => {
-    const unirepContract = getUnirepContract(
+    const unirepContract = UnirepFactory.connect(
         config.UNIREP,
         config.DEFAULT_ETH_PROVIDER
     )
@@ -75,21 +58,22 @@ export const hasSignedUp = async (identity: string) => {
     const { commitment } = decodeIdentity(identity)
 
     // If user has signed up in Unirep
-    const hasUserSignUp = await unirepContract.hasUserSignedUp(commitment)
+    const hasUserSignUp = await unirepContract.hasUserSignedUp(
+        commitment as BigNumberish
+    )
     return {
         hasSignedUp: hasUserSignUp,
     }
 }
 
 const hasSignedUpInUnirepSocial = async (identityCommitment: BigInt) => {
-    const unirepSocial = new ethers.Contract(
+    const unirepSocial = UnirepSocialFacory.connect(
         config.UNIREP_SOCIAL,
-        config.UNIREP_SOCIAL_ABI,
         config.DEFAULT_ETH_PROVIDER
     )
     const userSignUpFilter = unirepSocial.filters.UserSignedUp(
         null,
-        identityCommitment
+        identityCommitment as BigNumberish
     )
     const userSignUpEvent = await unirepSocial.queryFilter(userSignUpFilter)
     if (userSignUpEvent.length === 1)
@@ -222,9 +206,8 @@ const genAirdropProof = async (identity: string, us: any) => {
 // }
 
 export const getAirdrop = async (identity: string, us: any) => {
-    const unirepSocial = new ethers.Contract(
+    const unirepSocial = UnirepSocialFacory.connect(
         config.UNIREP_SOCIAL,
-        config.UNIREP_SOCIAL_ABI,
         config.DEFAULT_ETH_PROVIDER
     )
     const { proof, publicSignals, userState } = await genAirdropProof(
@@ -237,7 +220,9 @@ export const getAirdrop = async (identity: string, us: any) => {
         userState.getUnirepStateCurrentEpoch(),
         0
     )
-    const gotAirdrop = await unirepSocial.isEpochKeyGotAirdrop(epk)
+    const gotAirdrop = await unirepSocial.isEpochKeyGotAirdrop(
+        epk as BigNumberish
+    )
     if (gotAirdrop) return { error: 'The epoch key has been airdropped.' }
 
     const apiURL = makeURL('airdrop', {})
@@ -273,7 +258,7 @@ const genProof = async (
         const ret = await getUserState(identity, us, false)
         userState = ret.userState
     }
-    const unirepContract = getUnirepContract(
+    const unirepContract = UnirepFactory.connect(
         config.UNIREP,
         config.DEFAULT_ETH_PROVIDER
     )
@@ -305,7 +290,7 @@ const genProof = async (
     const epoch = await getCurrentEpoch()
     for (let n = 0; n < Number(rep.posRep) - Number(rep.negRep); n++) {
         const reputationNullifier = genReputationNullifier(
-            userState.identityNullifier,
+            identityNullifier,
             epoch,
             n,
             BigInt(attesterId)
@@ -388,7 +373,7 @@ export const userSignUp = async () => {
 
     const serializedIdentity = serialiseIdentity(id)
 
-    const unirepContract = getUnirepContract(
+    const unirepContract = UnirepFactory.connect(
         config.UNIREP,
         config.DEFAULT_ETH_PROVIDER
     )
