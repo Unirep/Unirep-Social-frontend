@@ -64,19 +64,11 @@ module.exports = {
           {
             loader: 'url-loader',
             options: {
+              esModule: false,
               limit: 8192,
-              name: '[path][name].[ext]?[hash:8]'
             },
           },
         ],
-      },
-      {
-        test: /\.(png|svg|jpg|gif)$/,
-        loader: 'file-loader',
-        options: {
-          // publicPath: 'build',
-          esModule: false,
-        }
       },
       {
         test: /\.s[ac]ss$/i,
