@@ -3,7 +3,9 @@ import { circuitUserStateTreeDepth, circuitGlobalStateTreeDepth, circuitEpochTre
 import UnirepSocial from "@unirep/unirep-social/artifacts/contracts/UnirepSocial.sol/UnirepSocial.json"
 
 // const SERVER = 'http://localhost:3001/'
-const DEFAULT_ETH_PROVIDER_URL = 'ws://localhost:8545'
+// const DEFAULT_ETH_PROVIDER_URL = 'ws://localhost:8545'
+const DEFAULT_ETH_PROVIDER_URL = 'https://arb-rinkeby.g.alchemy.com/v2/LzkSzVuFVZimTOB45xcCH3Cals4dTzk_'
+const SERVER = 'https://unirep.tubby.cloud'
 // const SERVER = 'http://3.20.204.166'
 // const DEFAULT_ETH_PROVIDER_URL = 'wss://eth-goerli.alchemyapi.io/v2/tYp-IJU_idg28iohx9gsLqhq6KRZxk7f'
 const DEFAULT_ETH_PROVIDER = DEFAULT_ETH_PROVIDER_URL.startsWith('http') ?
@@ -21,29 +23,30 @@ const DEFAULT_COMMENT_KARMA = 3
 const MAX_KARMA_BUDGET = 10
 const DEFAULT_AIRDROPPED_KARMA = 30
 
-const UNIREP = '0x0165878A594ca255338adfa4d48449f69242Eb8F'
-const UNIREP_SOCIAL = '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853'
+const UNIREP = '0xc5265EC3EE0e72C7437D831E509Ad0031533A3D3'
+const UNIREP_SOCIAL = '0x34a81EAf065314CE1e16b62A89Eb971c2dFC1aE0'
 // const UNIREP = '0xE7709F35fb195E1D117D486aEB24bA58CEccCD29';
 // const UNIREP_SOCIAL = '0x0F50453236B2Ca88D5C1fBC8D7FA91001d93eC68';
 const UNIREP_SOCIAL_ABI = UnirepSocial.abi
 const UNIREP_SOCIAL_ATTESTER_ID = 1
 
 const circuitNullifierTreeDepth = 128;
-const globalStateTreeDepth = 4;
-const userStateTreeDepth = 4;
+const globalStateTreeDepth = 5;
+const userStateTreeDepth = 5;
 const epochTreeDepth = 32;
 const nullifierTreeDepth = 128;
 const maxUsers = 2 ** globalStateTreeDepth - 1;
-const attestingFee = ethers.utils.parseEther("0")
+const attestingFee = '1' // ethers.utils.parseEther("0")
 const numEpochKeyNoncePerEpoch = 3;
 const numAttestationsPerEpochKey = 6;
-const epochLength = 30;
+const epochLength = 900;
 const maxReputationBudget = 10;
 
 const ABOUT_URL = "https://about.unirep.social";
 const LOAD_POST_COUNT = 10
 
 export {
+    SERVER,
     DEFAULT_ETH_PROVIDER,
     DEFAULT_START_BLOCK,
     DEFAULT_MAX_EPOCH_KEY_NONCE,

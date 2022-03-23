@@ -6,6 +6,7 @@
     "@types/react": "^17.0.15",
     "@types/react-dom": "^17.0.9",
     "@unirep/crypto": "git+https://github.com/Unirep/crypto.git",
+    "@unirep/circuits": "git+https://github.com/Unirep/circuits.git#alpha",
     "@unirep/unirep": "git+https://github.com/Unirep/unirep.git",
     "@unirep/unirep-social": "git+https://github.com/Unirep/unirep-social.git",
     "bootstrap": "^5.0.2",
@@ -27,7 +28,7 @@
   "scripts": {
     "start": "webpack-dev-server",
     "start-local": "webpack-dev-server",
-    "build": "webpack",
+    "build": "cp -r node_modules/@unirep/circuits/build ./build && webpack",
     "build:worker": "webpack --config webpack.worker.js",
     "test": "echo 'No tests found' && exit 1",
     "postinstall": "link-module-alias"
