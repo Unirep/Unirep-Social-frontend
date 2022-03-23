@@ -113,11 +113,11 @@ export enum ActionType {
 }
 
 export enum Page {
-    Home,
-    Post,
-    User,
-    New,
-    Setting,
+    Home = '/',
+    Post = '/post',
+    User = '/user',
+    New = '/new',
+    Setting = '/setting',
 }
 
 export enum ChoiceType {

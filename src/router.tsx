@@ -70,12 +70,6 @@ const AppRouter = () => {
                     <Route component={SettingPage} path="/setting" />
                     <Route component={() => <Redirect to="/" />} />
                 </Switch>
-
-                <LoadingWidget />
-
-                {isMenuOpen? 
-                    <Overlay /> : <div></div>
-                }
             </WebContext.Provider>
             </div>
         </BrowserRouter>
