@@ -22,6 +22,7 @@ import { WebContext } from './context/WebContext'
 
 const AppRouter = () => {
     const [user, setUser] = useLocalStorage('user', null)
+    const [tx, setTx] = useLocalStorage('tx', '')
     const [shownPosts, setShownPosts] = useLocalStorage('shownPosts', [])
     const [nextUSTTime, setNextUSTTime] = useLocalStorage(
         'nextUSTTime',
@@ -51,6 +52,8 @@ const AppRouter = () => {
                     value={{
                         user,
                         setUser,
+                        tx,
+                        setTx,
                         shownPosts,
                         setShownPosts,
                         isLoading,

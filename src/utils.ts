@@ -10,10 +10,7 @@ import {
     genEpochKey,
     genUserStateFromParams,
 } from '@unirep/unirep'
-import { 
-    UnirepSocialFacory, 
-    UnirepFactory 
-} from '@unirep/unirep-social'
+import { UnirepSocialFacory, UnirepFactory } from '@unirep/unirep-social'
 import { formatProofForVerifierContract } from '@unirep/circuits'
 import * as config from './config'
 import {
@@ -59,7 +56,9 @@ export const hasSignedUp = async (identity: string) => {
     const { commitment } = decodeIdentity(identity)
 
     // If user has signed up in Unirep
-    const hasUserSignUp = await unirepContract.hasUserSignedUp(commitment as BigNumberish)
+    const hasUserSignUp = await unirepContract.hasUserSignedUp(
+        commitment as BigNumberish
+    )
     return {
         hasSignedUp: hasUserSignUp,
     }
@@ -219,7 +218,9 @@ export const getAirdrop = async (identity: string, us: any) => {
         userState.getUnirepStateCurrentEpoch(),
         0
     )
-    const gotAirdrop = await unirepSocial.isEpochKeyGotAirdrop(epk as BigNumberish)
+    const gotAirdrop = await unirepSocial.isEpochKeyGotAirdrop(
+        epk as BigNumberish
+    )
     if (gotAirdrop) return { error: 'The epoch key has been airdropped.' }
 
     const apiURL = makeURL('airdrop', {})
@@ -659,8 +660,7 @@ export const getEpochSpent = async (epks: string[]) => {
 }
 
 const convertDataToVotes = (data: any) => {
-    if (!data.length)
-        return { votes: [], upvote: 0, downvote: 0 }
+    if (!data.length) return { votes: [], upvote: 0, downvote: 0 }
     const votes: Vote[] = []
     let upvote: number = 0
     let downvote: number = 0
