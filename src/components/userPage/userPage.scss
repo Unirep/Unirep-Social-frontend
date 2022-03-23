@@ -43,7 +43,6 @@
             font-weight: 700;
             color: $black;
 
-            
             img {
                 width: 40px;
                 height: 40px;
@@ -120,7 +119,7 @@
                     font-size: $text-xs;
                     padding: 9px 8px 9px 8px;
                     border-radius: 4px;
-                    
+
                     display: flex;
                     flex-direction: row;
                     align-items: center;
@@ -165,11 +164,11 @@
             color: $black;
             cursor: pointer;
         }
-    
+
         .underline {
             border-bottom: 4px solid $black;
         }
-    
+
         .line {
             height: 32px;
             width: 1px;
@@ -186,7 +185,7 @@
         @media (max-width: 600px) {
             flex-basis: 100%;
         }
-        
+
         .menu-choice {
             width: 100%;
             height: 40px;
@@ -209,7 +208,7 @@
                 height: 20px;
                 margin-right: 6px;
             }
-    
+
             span {
                 margin-right: auto;
             }
@@ -240,10 +239,10 @@
         border-radius: 8px;
         border: 8px solid $grey-100;
         margin-bottom: 24px;
-    
+
         .main {
             flex: 11;
-    
+
             .header {
                 width: 100%;
                 border-bottom: 1px solid $grey-100;
@@ -252,15 +251,15 @@
                 display: flex;
                 flex-direction: row;
                 padding: 16px 24px;
-        
+
                 p {
                     margin-right: auto;
                     margin-bottom: 0px;
                 }
-        
+
                 .etherscan {
                     cursor: pointer;
-        
+
                     img {
                         margin-left: 6px;
                         width: 13px;
@@ -268,67 +267,65 @@
                     }
                 }
             }
-    
+
             .main-info {
-    
                 &:hover {
                     background-color: $grey-100;
                     cursor: pointer;
                 }
-    
+
                 .who {
                     width: 100%;
                     padding: 16px 24px;
                     font-size: $text-xs;
                     color: $grey-700;
-                    
+
                     img {
                         width: 16px;
                     }
                 }
-        
+
                 .data {
                     color: $black;
                     width: 100%;
                     padding: 0px 24px 16px 24px;
                     word-break: break-all;
-        
+
                     .title {
                         font-size: $title-sm;
                         font-weight: 600;
                         margin-bottom: 16px;
                     }
-        
+
                     .content {
                         font-size: $text-base;
                     }
                 }
-            }  
+            }
         }
-    
+
         .side {
             flex: 3;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-    
+
             .amount {
                 font-size: $text-md;
                 font-weight: 600;
             }
-    
+
             .type {
                 font-size: $text-xs;
                 color: $grey-400;
-    
+
                 img {
                     width: 16px;
                     height: 16px;
                     margin-right: 4px;
                 }
             }
-        }    
+        }
     }
 }
-

@@ -33,20 +33,21 @@
             line-height: 18px;
             justify-content: center;
             align-items: center;
-            
+
             width: 100%;
             padding-left: 28px;
             padding-right: 28px;
             margin-top: 16px;
             text-align: center;
-            
-            .link, span {
+
+            .link,
+            span {
                 cursor: pointer;
                 margin-left: 8px;
                 margin-right: 8px;
                 color: $white;
 
-                &:hover{
+                &:hover {
                     color: $grey-100;
                 }
             }
@@ -68,7 +69,7 @@
     }
 
     .failed {
-        background-color: #FFEBEB;
+        background-color: #ffebeb;
         color: $red;
     }
 }

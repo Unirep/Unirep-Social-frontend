@@ -41,7 +41,7 @@
         height: 100%;
         background-color: $white;
         position: relative;
-        
+
         .close {
             position: absolute;
             top: 0;
@@ -70,7 +70,6 @@
                 }
             }
         }
-
 
         .info {
             color: $black;
@@ -158,10 +157,17 @@
                     width: 100%;
                     display: flex;
                     flex-direction: row;
-                    
+
                     .half-btn {
                         width: 48%;
-                        @include myButton($height: 46px, $radius: 8px, $color: $white, $block-color: $black, $font-weight: 600, $font-size: $title-sm);
+                        @include myButton(
+                            $height: 46px,
+                            $radius: 8px,
+                            $color: $white,
+                            $block-color: $black,
+                            $font-weight: 600,
+                            $font-size: $title-sm
+                        );
                         margin: 32px 0px 32px 0px;
                     }
 
@@ -169,7 +175,7 @@
                         background-color: $grey-400;
                         cursor: not-allowed;
                     }
-    
+
                     .margin {
                         width: 4%;
                     }
