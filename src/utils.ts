@@ -742,7 +742,7 @@ const convertDataToPost = (data: any, commentsOnlyId: boolean = true) => {
         post_time: Date.parse(data.created_at),
         reputation: data.minRep,
         comments,
-        commentsCount: comments.length,
+        commentsCount: data.comments.length,
         current_epoch: data.epoch,
         proofIndex: data.proofIndex,
     }
