@@ -13,7 +13,7 @@ const SettingPage = () => {
 
     return (
         <BasicPage>
-            <div className="back" onClick={() => history.push('/user', {isConfirmed: true})}><img src="/images/arrow-left.svg" /></div>
+            <div className="back" onClick={() => history.push('/user', {isConfirmed: true})}><img src={require('../../../public/images/arrow-left.svg')} /></div>
             <PrivateKey />
         </BasicPage>
     );

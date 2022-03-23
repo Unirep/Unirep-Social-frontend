@@ -132,7 +132,7 @@ const SignupPage = () => {
                     step === 0?
                         <div className="close">
                             <img id="unirep-icon" src={require('../../../public/images/unirep-title-white.svg')} />
-                            <img id="close-icon" src={require('../../../public/images/unirep-title-white.svg')} onClick={() => history.push('/')}/>
+                            <img id="close-icon" src={require('../../../public/images/close.svg')} onClick={() => history.push('/')}/>
                         </div> : <div></div>
                 }
                 <div className="info">

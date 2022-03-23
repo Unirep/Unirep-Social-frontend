@@ -36,15 +36,16 @@
     "worker_threads": "./externals/worker_threads.js"
   },
   "devDependencies": {
-    "@cloudflare/kv-asset-handler": "^0.2.0",
     "@babel/core": "^7.17.7",
     "@babel/preset-react": "^7.16.7",
+    "@cloudflare/kv-asset-handler": "^0.2.0",
     "@types/keyv": "^3.1.2",
     "@types/n-readlines": "^1.0.2",
     "@types/react-router-dom": "^5.1.8",
     "@types/shelljs": "^0.8.9",
     "assert": "^2.0.0",
     "babel-loader": "^8.2.3",
+    "url-loader": "^4.1.1",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",
     "css-loader": "^6.7.1",

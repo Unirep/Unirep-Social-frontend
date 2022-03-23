@@ -59,6 +59,18 @@ module.exports = {
         }
       },
       {
+        test: /\.(png|jpg|gif|svg)$/i,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              limit: 8192,
+              name: '[path][name].[ext]?[hash:8]'
+            },
+          },
+        ],
+      },
+      {
         test: /\.(png|svg|jpg|gif)$/,
         loader: 'file-loader',
         options: {
@@ -77,7 +89,7 @@ module.exports = {
         ],
       },
       {
-        test: /\.css$/,
+        test: /\.(css)$/,
         // exclude: /node_modules/,
         use: [{
           loader: MiniCssExtractPlugin.loader,
