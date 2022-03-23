@@ -702,10 +702,11 @@ const convertDataToComment = (data: any) => {
 }
 
 const convertDataToPost = (data: any, commentsOnlyId: boolean = true) => {
+    console.log(data)
     const { votes, upvote, downvote } = convertDataToVotes(data.votes)
 
     const comments: Comment[] = []
-    if (!commentsOnlyId) {
+    if (!commentsOnlyId && data.comments !== undefined) {
         for (let i = 0; i < data.comments.length; i++) {
             const comment = convertDataToComment(data.comments[i])
             comments.push(comment)
@@ -725,7 +726,7 @@ const convertDataToPost = (data: any, commentsOnlyId: boolean = true) => {
         post_time: Date.parse(data.created_at),
         reputation: data.minRep,
         comments,
-        commentsCount: data.comments.length,
+        commentsCount: data.comments ? data.comments.length : 0,
         current_epoch: data.epoch,
         proofIndex: data.proofIndex,
     }
