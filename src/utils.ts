@@ -246,7 +246,7 @@ const genProof = async (
     proveKarmaAmount: number,
     minRep: number = 0,
     us: any,
-    spent: number = -1,
+    spent: number = -1
 ) => {
     let userState: any = us
     let currentEpoch: number
@@ -397,7 +397,7 @@ export const publishPost = async (
         config.DEFAULT_POST_KARMA,
         minRep,
         us,
-        spent,
+        spent
     )
 
     if (ret === undefined) {
@@ -496,7 +496,7 @@ export const leaveComment = async (
         config.DEFAULT_COMMENT_KARMA,
         minRep,
         us,
-        spent,
+        spent
     )
 
     if (ret === undefined) {
@@ -568,7 +568,11 @@ export const userStateTransition = async (identity: string, us: any) => {
     const fromEpoch = userState.latestTransitionedEpoch
     const toEpoch = await getCurrentEpoch()
     if (Number(fromEpoch) === toEpoch) {
-        return { error: `Already transitioned to ${toEpoch}`, toEpoch, userState }
+        return {
+            error: `Already transitioned to ${toEpoch}`,
+            toEpoch,
+            userState,
+        }
     }
     const results = await userState.genUserStateTransitionProofs()
 
@@ -662,8 +666,7 @@ export const getEpochSpent = async (epks: string[]) => {
 }
 
 const convertDataToVotes = (data: any) => {
-    if (!data.length)
-        return { votes: [], upvote: 0, downvote: 0 }
+    if (!data.length) return { votes: [], upvote: 0, downvote: 0 }
     const votes: Vote[] = []
     let upvote: number = 0
     let downvote: number = 0

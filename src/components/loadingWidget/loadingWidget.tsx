@@ -119,13 +119,13 @@ const LoadingWidget = () => {
                 user !== null &&
                 user !== undefined &&
                 JSON.parse(user.userState).latestTransitionedEpoch !==
-                currentEpoch
+                    currentEpoch
             ) {
                 console.log(
                     'user epoch is not the same as current epoch, do user state transition, ' +
-                    JSON.parse(user?.userState).latestTransitionedEpoch +
-                    ' != ' +
-                    currentEpoch
+                        JSON.parse(user?.userState).latestTransitionedEpoch +
+                        ' != ' +
+                        currentEpoch
                 )
                 data = await doUST()
                 newUser = data.user
@@ -312,10 +312,10 @@ const LoadingWidget = () => {
                         {action.action === ActionType.Post
                             ? 'Post is finalized'
                             : action.action === ActionType.Comment
-                                ? 'Comment is finalized'
-                                : action.action === ActionType.Vote
-                                    ? 'Succeed!'
-                                    : ''}
+                            ? 'Comment is finalized'
+                            : action.action === ActionType.Vote
+                            ? 'Succeed!'
+                            : ''}
                     </span>
                     {action.action === ActionType.UST ? (
                         <div className="info-row">
