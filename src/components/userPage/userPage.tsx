@@ -201,7 +201,7 @@ const UserPage = () => {
                             <div className="grey-block">
                                 <span>How I use my rep in this cycle</span><br/>
                                 <div className="rep-bar">
-                                    { 
+                                    {
                                         spent.map((s, i) => <RepPortion spent={s} total={user.reputation} action={i} key={i} />)
                                     }
                                 </div>

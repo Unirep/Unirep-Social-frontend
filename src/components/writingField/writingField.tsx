@@ -92,7 +92,7 @@ const WritingField = (props: Props) => {
             {
                 props.type === DataType.Post? <input type="text" placeholder="Give an eye-catching title" onChange={handleTitleInput} value={title} /> : <div></div>
             }
-            { 
+            {
                 props.type === DataType.Post? <textarea onChange={handleContentInput} value={content} /> : <textarea autoFocus onChange={handleContentInput} value={content} />
             }
             <div className="info-row">
