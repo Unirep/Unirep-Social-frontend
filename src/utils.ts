@@ -245,7 +245,8 @@ const genProof = async (
     epkNonce: number = 0,
     proveKarmaAmount: number,
     minRep: number = 0,
-    us: any
+    us: any,
+    spent: number = -1,
 ) => {
     let userState: any = us
     let currentEpoch: number
@@ -286,20 +287,7 @@ const genProof = async (
 
     // find valid nonce starter
     const nonceList: BigInt[] = []
-    let nonceStarter: number = -1
-    const epoch = await getCurrentEpoch()
-    for (let n = 0; n < Number(rep.posRep) - Number(rep.negRep); n++) {
-        const reputationNullifier = genReputationNullifier(
-            identityNullifier,
-            epoch,
-            n,
-            BigInt(attesterId)
-        )
-        if (!userState.nullifierExist(reputationNullifier)) {
-            nonceStarter = n
-            break
-        }
-    }
+    let nonceStarter: number = spent
 
     if (nonceStarter === -1) {
         console.error('Error: All nullifiers are spent')
@@ -399,6 +387,7 @@ export const publishPost = async (
     epkNonce: number,
     identity: string,
     minRep: number = config.DEFAULT_POST_KARMA,
+    spent: number = 0,
     us: any,
     title: string = ''
 ) => {
@@ -407,7 +396,8 @@ export const publishPost = async (
         epkNonce,
         config.DEFAULT_POST_KARMA,
         minRep,
-        us
+        us,
+        spent,
     )
 
     if (ret === undefined) {
@@ -452,11 +442,12 @@ export const vote = async (
     epkNonce: number = 0,
     minRep: number = 0,
     isPost: boolean = true,
+    spent: number = 0,
     us: any
 ) => {
     // upvote / downvote user
     const voteValue = upvote + downvote
-    const ret = await genProof(identity, epkNonce, voteValue, minRep, us)
+    const ret = await genProof(identity, epkNonce, voteValue, minRep, us, spent)
     if (ret === undefined) {
         return {
             error: 'genProof error, ret is undefined',
@@ -496,6 +487,7 @@ export const leaveComment = async (
     postId: string,
     epkNonce: number = 0,
     minRep: number = config.DEFAULT_COMMENT_KARMA,
+    spent: number = 0,
     us: any
 ) => {
     const ret = await genProof(
@@ -503,7 +495,8 @@ export const leaveComment = async (
         epkNonce,
         config.DEFAULT_COMMENT_KARMA,
         minRep,
-        us
+        us,
+        spent,
     )
 
     if (ret === undefined) {
@@ -571,11 +564,13 @@ export const getNextEpochTime = async () => {
 }
 
 export const userStateTransition = async (identity: string, us: any) => {
-    const { userState } = await getUserState(identity)
-    const results = await userState.genUserStateTransitionProofs()
-
+    const { userState } = await getUserState(identity, us, true)
     const fromEpoch = userState.latestTransitionedEpoch
-    const toEpoch = userState.getUnirepStateCurrentEpoch()
+    const toEpoch = await getCurrentEpoch()
+    if (Number(fromEpoch) === toEpoch) {
+        return { error: `Already transitioned to ${toEpoch}`, toEpoch, userState }
+    }
+    const results = await userState.genUserStateTransitionProofs()
 
     const apiURL = makeURL('userStateTransition', {})
     const data = {
@@ -667,7 +662,7 @@ export const getEpochSpent = async (epks: string[]) => {
 }
 
 const convertDataToVotes = (data: any) => {
-    if (data === null || data === undefined)
+    if (!data.length)
         return { votes: [], upvote: 0, downvote: 0 }
     const votes: Vote[] = []
     let upvote: number = 0
@@ -733,7 +728,7 @@ const convertDataToPost = (data: any, commentsOnlyId: boolean = true) => {
         post_time: Date.parse(data.created_at),
         reputation: data.minRep,
         comments,
-        commentsCount: comments.length,
+        commentsCount: data.comments.length,
         current_epoch: data.epoch,
         proofIndex: data.proofIndex,
     }
