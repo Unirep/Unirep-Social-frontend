@@ -14,13 +14,13 @@
     width: 100%;
     box-sizing: border-box;
 
-    input[type="text"] {
+    input[type='text'] {
         width: 100%;
         height: 68px;
         background-color: $grey-100;
         border-radius: 8px;
         border: 1px solid $grey-200;
-        outline: none; 
+        outline: none;
         padding: 16px;
         margin-top: 32px;
         margin-bottom: 16px;
@@ -31,9 +31,9 @@
             color: $grey-300;
             font-size: $title-sm;
             font-weight: 700;
-          }
+        }
 
-          &::-moz-placeholder {
+        &::-moz-placeholder {
             color: $grey-300;
             font-size: $title-sm;
             font-weight: 700;
@@ -81,7 +81,15 @@
                 margin-top: 16px;
 
                 .epk {
-                    @include myButton($height: 32px, $font-size: $text-sm, $color: $black, $radius: 8px, $border: 1px, $border-color: $black, $margin-horizontal: 0px);
+                    @include myButton(
+                        $height: 32px,
+                        $font-size: $text-sm,
+                        $color: $black,
+                        $radius: 8px,
+                        $border: 1px,
+                        $border-color: $black,
+                        $margin-horizontal: 0px
+                    );
                     margin-right: 8px;
                     padding: 7px 16px;
                 }
@@ -97,7 +105,7 @@
                 margin-top: 16px;
                 align-items: center;
 
-                input[type="range"] {
+                input[type='range'] {
                     appearance: none;
                     display: block;
                     flex-basis: 85%;
@@ -117,17 +125,21 @@
                         background: $white;
                     }
 
-                    &::-webkit-slider-thumb { 
+                    &::-webkit-slider-thumb {
                         appearance: none;
                         margin-top: -12px;
                         width: 30px;
                         height: 30px;
                         background-image: url('./boost-fill.svg');
                         background-size: 30px;
-                        box-shadow: rangeLongShadow($size: -12px, $color: $grey-100);
+                        box-shadow: rangeLongShadow(
+                            $size: -12px,
+                            $color: $grey-100
+                        );
                     }
 
-                    &::-moz-range-track, &::-moz-range-progress {
+                    &::-moz-range-track,
+                    &::-moz-range-progress {
                         width: 100%;
                         height: 8px;
                         border-radius: 4px;
@@ -135,17 +147,20 @@
                         background: $white;
                     }
 
-                    &::-moz-range-thumb { 
+                    &::-moz-range-thumb {
                         margin-top: -12px;
                         width: 30px;
                         height: 30px;
                         background-image: url('./boost-fill.svg');
                         background-size: 30px;
-                        box-shadow: rangeLongShadow($size: -12px, $color: $grey-100);
+                        box-shadow: rangeLongShadow(
+                            $size: -12px,
+                            $color: $grey-100
+                        );
                     }
                 }
 
-                input[type="text"] {
+                input[type='text'] {
                     flex-basis: 15%;
                     height: 32px;
                     outline: none;
@@ -172,7 +187,15 @@
 
     .submit-btn {
         width: 100%;
-        @include myButton($height: 58px, $radius: 8px, $block-color: $black, $color: $white, $font-weight: 700, $font-size: $text-lg, $margin-horizontal: 0px);
+        @include myButton(
+            $height: 58px,
+            $radius: 8px,
+            $block-color: $black,
+            $color: $white,
+            $font-weight: 700,
+            $font-size: $text-lg,
+            $margin-horizontal: 0px
+        );
     }
 }
 
@@ -263,7 +286,7 @@
 
 //         .setting-epk {
 //             z-index: 7;
-//             width: 515px; 
+//             width: 515px;
 //             position: relative;
 //             top: 8px;
 //         }

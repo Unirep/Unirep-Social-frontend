@@ -1,39 +1,42 @@
 version: 2.1
 workflows:
-  test_app:
-    jobs:
-      # - lint
-      - deploy
+    test_app:
+        jobs:
+            - lint
+            - deploy
 
 jobs:
-  # lint:
-  #   machine:
-  #     image: ubuntu-2004:202010-01
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         name: Install
-  #         command: npm ci
-  #     - run:
-  #         name: Lint
-  #         command: npm run lint:check
-  deploy:
-    machine:
-      image: ubuntu-2004:202111-01
-    steps:
-      - checkout
-      - run:
-          name: Install Yarn
-          command: curl -o- -L https://yarnpkg.com/install.sh | bash
-      - run:
-          name: Install Packages
-          command: yarn
-      - run:
-          name: Build
-          command: yarn build --mode production
-      - run:
-          name: Deploy
-          command: |
-            if [ "$CIRCLE_BRANCH" = "alpha" ]; then
-              cp wrangler.example.toml wrangler.toml && npx @cloudflare/wrangler@1.19.8 publish
-            fi
+    lint:
+        machine:
+            image: ubuntu-2004:202111-01
+        steps:
+            - checkout
+            - run:
+                  name: Install Yarn
+                  command: curl -o- -L https://yarnpkg.com/install.sh | bash
+            - run:
+                  name: Install
+                  command: yarn
+            - run:
+                  name: Lint
+                  command: yarn lint --check
+    deploy:
+        machine:
+            image: ubuntu-2004:202111-01
+        steps:
+            - checkout
+            - run:
+                  name: Install Yarn
+                  command: curl -o- -L https://yarnpkg.com/install.sh | bash
+            - run:
+                  name: Install Packages
+                  command: yarn
+            - run:
+                  name: Build
+                  command: yarn build --mode production
+            - run:
+                  name: Deploy
+                  command: |
+                      if [ "$CIRCLE_BRANCH" = "alpha" ]; then
+                        cp wrangler.example.toml wrangler.toml && npx @cloudflare/wrangler@1.19.8 publish
+                      fi
