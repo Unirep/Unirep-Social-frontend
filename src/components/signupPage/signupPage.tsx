@@ -134,7 +134,7 @@ const SignupPage = () => {
                         />
                         <img
                             id="close-icon"
-                            src={require('../../../public/images/unirep-title-white.svg')}
+                            src={require('../../../public/images/close.svg')}
                             onClick={() => history.push('/')}
                         />
                     </div>

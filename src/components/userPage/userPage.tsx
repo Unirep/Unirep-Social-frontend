@@ -1,9 +1,9 @@
 import { useContext, useState, useEffect } from 'react'
-import { useHistory, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 import { getPostsByQuery, getRecords, getCommentsByQuery } from '../../utils'
 import { WebContext } from '../../context/WebContext'
-import SideColumn from '../sideColumn/sideColumn'
+import BasicPage from '../basicPage/basicPage'
 import {
     Record,
     ActionType,
@@ -220,255 +220,240 @@ const UserPage = () => {
     }
 
     return (
-        <div className="body-columns">
-            <div className="margin-box"></div>
-            <div className="content">
-                {user !== null ? (
-                    <div className="main-content">
-                        <h3>My Stuff</h3>
-                        <div className="my-stuff">
-                            <div className="my-reps stuff">
-                                <div className="white-block">
-                                    <p>My Rep</p>
-                                    <div className="rep-info">
-                                        <img
-                                            src={require('../../../public/images/lighting.svg')}
-                                        />
-                                        {user.reputation - user.spent}
-                                    </div>
-                                </div>
-                                <div className="grey-block">
-                                    <span>How I use my rep in this cycle</span>
-                                    <br />
-                                    <div className="rep-bar">
-                                        {spent.map((s, i) => (
-                                            <RepPortion
-                                                spent={s}
-                                                total={user.reputation}
-                                                action={i}
-                                                key={i}
-                                            />
-                                        ))}
-                                    </div>
+        <BasicPage>
+            {user !== null ? (
+                <div>
+                    <h3>My Stuff</h3>
+                    <div className="my-stuff">
+                        <div className="my-reps stuff">
+                            <div className="white-block">
+                                <p>My Rep</p>
+                                <div className="rep-info">
+                                    <img
+                                        src={require('../../../public/images/lighting.svg')}
+                                    />
+                                    {user.reputation - user.spent}
                                 </div>
                             </div>
-                            <div style={{ width: '16px' }}></div>
-                            <div className="received stuff">
-                                <div className="grey-block">
-                                    <p>Received</p>
-                                    <div className="rep-received">
-                                        {received[0] +
-                                            received[1] -
-                                            received[2]}
-                                    </div>
-                                    <span>
-                                        This Rep is in the vault. It will be
-                                        yours in the next cycle.
-                                    </span>
-                                </div>
-                                <div className="white-block">
-                                    <div className="received-info">
-                                        <span>
-                                            <img
-                                                src={require('../../../public/images/lighting.svg')}
-                                            />
-                                            System drop
-                                        </span>
-                                        <p>+{received[0]}</p>
-                                    </div>
-                                    <div className="received-info">
-                                        <span>
-                                            <img
-                                                src={require('../../../public/images/lighting.svg')}
-                                            />
-                                            Boost
-                                        </span>
-                                        <p>+{received[1]}</p>
-                                    </div>
-                                    <div className="received-info">
-                                        <span>
-                                            <img
-                                                src={require('../../../public/images/lighting.svg')}
-                                            />
-                                            Squash
-                                        </span>
-                                        <p>-{received[2]}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="user-page-header">
-                            <div className="tags header-child">
-                                <div
-                                    className={
-                                        tag === Tag.Posts
-                                            ? 'tag underline'
-                                            : 'tag'
-                                    }
-                                    onClick={() => setTagPage(Tag.Posts)}
-                                >
-                                    Posts
-                                </div>
-                                <div className="line"></div>
-                                <div
-                                    className={
-                                        tag === Tag.Comments
-                                            ? 'tag underline'
-                                            : 'tag'
-                                    }
-                                    onClick={() => setTagPage(Tag.Comments)}
-                                >
-                                    Comments
-                                </div>
-                                <div className="line"></div>
-                                <div
-                                    className={
-                                        tag === Tag.Activity
-                                            ? 'tag underline'
-                                            : 'tag'
-                                    }
-                                    onClick={() => setTagPage(Tag.Activity)}
-                                >
-                                    Activity
-                                </div>
-                            </div>
-                            {isDropdown ? (
-                                tag !== Tag.Activity ? (
-                                    <div
-                                        className="dropdown isDropdown header-child"
-                                        onClick={switchDropdown}
-                                        style={{ height: `${40 * 3}px` }}
-                                    >
-                                        <div
-                                            className="menu-choice"
-                                            onClick={() =>
-                                                setSortType(QueryType.Boost)
-                                            }
-                                        >
-                                            <img
-                                                src={require('../../../public/images/lighting.svg')}
-                                            />
-                                            Boost
-                                        </div>
-                                        <div
-                                            className="menu-choice"
-                                            onClick={() =>
-                                                setSortType(QueryType.New)
-                                            }
-                                        >
-                                            <img
-                                                src={require('../../../public/images/lighting.svg')}
-                                            />
-                                            New
-                                        </div>
-                                        <div
-                                            className="menu-choice"
-                                            onClick={() =>
-                                                setSortType(QueryType.Squash)
-                                            }
-                                        >
-                                            <img
-                                                src={require('../../../public/images/lighting.svg')}
-                                            />
-                                            Squash
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div
-                                        className="dropdown isDropdown header-child"
-                                        onClick={switchDropdown}
-                                        style={{ height: `${40 * 2}px` }}
-                                    >
-                                        <div
-                                            className="menu-choice"
-                                            onClick={() =>
-                                                setSortType(QueryType.New)
-                                            }
-                                        >
-                                            <img
-                                                src={require('../../../public/images/lighting.svg')}
-                                            />
-                                            New
-                                        </div>
-                                        <div
-                                            className="menu-choice"
-                                            onClick={() =>
-                                                setSortType(QueryType.Rep)
-                                            }
-                                        >
-                                            <img
-                                                src={require('../../../public/images/lighting.svg')}
-                                            />
-                                            Rep
-                                        </div>
-                                    </div>
-                                )
-                            ) : (
-                                <div
-                                    className="dropdown header-child"
-                                    onClick={switchDropdown}
-                                >
-                                    <div className="menu-choice isChosen">
-                                        <img
-                                            src={require(`../../../public/images/${
-                                                sort === QueryType.Rep
-                                                    ? 'unirep'
-                                                    : sort
-                                            }-fill.svg`)}
-                                        />
-                                        <span>
-                                            {sort.charAt(0).toUpperCase() +
-                                                sort.slice(1)}
-                                        </span>
-                                        <img
-                                            src={require('../../../public/images/lighting.svg')}
-                                        />
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                        <div className="user-page-content">
-                            {tag === Tag.Posts ? (
-                                <PostsList
-                                    posts={myPosts}
-                                    loadMorePosts={loadMorePosts}
-                                />
-                            ) : tag === Tag.Comments ? (
-                                <CommentsList
-                                    comments={myComments}
-                                    page={Page.User}
-                                    loadMoreComments={loadMoreComments}
-                                />
-                            ) : (
-                                <div>
-                                    {records.map((h, i) => (
-                                        <ActivityWidget
+                            <div className="grey-block">
+                                <span>How I use my rep in this cycle</span>
+                                <br />
+                                <div className="rep-bar">
+                                    {spent.map((s, i) => (
+                                        <RepPortion
+                                            spent={s}
+                                            total={user.reputation}
+                                            action={i}
                                             key={i}
-                                            record={h}
-                                            isSpent={
-                                                user.all_epoch_keys.indexOf(
-                                                    h.from
-                                                ) !== -1
-                                            }
                                         />
                                     ))}
                                 </div>
-                            )}
+                            </div>
+                        </div>
+                        <div style={{ width: '16px' }}></div>
+                        <div className="received stuff">
+                            <div className="grey-block">
+                                <p>Received</p>
+                                <div className="rep-received">
+                                    {received[0] + received[1] - received[2]}
+                                </div>
+                                <span>
+                                    This Rep is in the vault. It will be yours
+                                    in the next cycle.
+                                </span>
+                            </div>
+                            <div className="white-block">
+                                <div className="received-info">
+                                    <span>
+                                        <img
+                                            src={require('../../../public/images/unirep.svg')}
+                                        />
+                                        System drop
+                                    </span>
+                                    <p>+{received[0]}</p>
+                                </div>
+                                <div className="received-info">
+                                    <span>
+                                        <img
+                                            src={require('../../../public/images/boost.svg')}
+                                        />
+                                        Boost
+                                    </span>
+                                    <p>+{received[1]}</p>
+                                </div>
+                                <div className="received-info">
+                                    <span>
+                                        <img
+                                            src={require('../../../public/images/squash.svg')}
+                                        />
+                                        Squash
+                                    </span>
+                                    <p>-{received[2]}</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                ) : (
-                    <div></div>
-                )}
-                {user !== null ? (
-                    <div className="side-content">
-                        <SideColumn page={Page.User} />
+                    <div className="user-page-header">
+                        <div className="tags header-child">
+                            <div
+                                className={
+                                    tag === Tag.Posts ? 'tag underline' : 'tag'
+                                }
+                                onClick={() => setTagPage(Tag.Posts)}
+                            >
+                                Posts
+                            </div>
+                            <div className="line"></div>
+                            <div
+                                className={
+                                    tag === Tag.Comments
+                                        ? 'tag underline'
+                                        : 'tag'
+                                }
+                                onClick={() => setTagPage(Tag.Comments)}
+                            >
+                                Comments
+                            </div>
+                            <div className="line"></div>
+                            <div
+                                className={
+                                    tag === Tag.Activity
+                                        ? 'tag underline'
+                                        : 'tag'
+                                }
+                                onClick={() => setTagPage(Tag.Activity)}
+                            >
+                                Activity
+                            </div>
+                        </div>
+                        {isDropdown ? (
+                            tag !== Tag.Activity ? (
+                                <div
+                                    className="dropdown isDropdown header-child"
+                                    onClick={switchDropdown}
+                                    style={{ height: `${40 * 3}px` }}
+                                >
+                                    <div
+                                        className="menu-choice"
+                                        onClick={() =>
+                                            setSortType(QueryType.Boost)
+                                        }
+                                    >
+                                        <img
+                                            src={require('../../../public/images/boost-fill.svg')}
+                                        />
+                                        Boost
+                                    </div>
+                                    <div
+                                        className="menu-choice"
+                                        onClick={() =>
+                                            setSortType(QueryType.New)
+                                        }
+                                    >
+                                        <img
+                                            src={require('../../../public/images/new-fill.svg')}
+                                        />
+                                        New
+                                    </div>
+                                    <div
+                                        className="menu-choice"
+                                        onClick={() =>
+                                            setSortType(QueryType.Squash)
+                                        }
+                                    >
+                                        <img
+                                            src={require('../../../public/images/squash-fill.svg')}
+                                        />
+                                        Squash
+                                    </div>
+                                </div>
+                            ) : (
+                                <div
+                                    className="dropdown isDropdown header-child"
+                                    onClick={switchDropdown}
+                                    style={{ height: `${40 * 2}px` }}
+                                >
+                                    <div
+                                        className="menu-choice"
+                                        onClick={() =>
+                                            setSortType(QueryType.New)
+                                        }
+                                    >
+                                        <img
+                                            src={require('../../../public/images/new-fill.svg')}
+                                        />
+                                        New
+                                    </div>
+                                    <div
+                                        className="menu-choice"
+                                        onClick={() =>
+                                            setSortType(QueryType.Rep)
+                                        }
+                                    >
+                                        <img
+                                            src={require('../../../public/images/unirep-fill.svg')}
+                                        />
+                                        Rep
+                                    </div>
+                                </div>
+                            )
+                        ) : (
+                            <div
+                                className="dropdown header-child"
+                                onClick={switchDropdown}
+                            >
+                                <div className="menu-choice isChosen">
+                                    <img
+                                        src={require(`../../../public/images/${
+                                            sort === QueryType.Rep
+                                                ? 'unirep'
+                                                : sort
+                                        }-fill.svg`)}
+                                    />
+                                    <span>
+                                        {sort.charAt(0).toUpperCase() +
+                                            sort.slice(1)}
+                                    </span>
+                                    <img
+                                        src={require('../../../public/images/arrow-down.svg')}
+                                    />
+                                </div>
+                            </div>
+                        )}
                     </div>
-                ) : (
-                    <div></div>
-                )}
-            </div>
-            <div className="margin-box"></div>
-        </div>
+                    <div className="user-page-content">
+                        {tag === Tag.Posts ? (
+                            <PostsList
+                                posts={myPosts}
+                                loadMorePosts={loadMorePosts}
+                            />
+                        ) : tag === Tag.Comments ? (
+                            <CommentsList
+                                comments={myComments}
+                                page={Page.User}
+                                loadMoreComments={loadMoreComments}
+                            />
+                        ) : (
+                            <div>
+                                {records.map((h, i) => (
+                                    <ActivityWidget
+                                        key={h.data_id + '_' + i}
+                                        record={h}
+                                        isSpent={
+                                            user.all_epoch_keys.indexOf(
+                                                h.from
+                                            ) !== -1
+                                        }
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            ) : (
+                <div></div>
+            )}
+        </BasicPage>
     )
 }
 

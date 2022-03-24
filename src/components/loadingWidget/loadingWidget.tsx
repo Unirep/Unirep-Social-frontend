@@ -34,6 +34,8 @@ const LoadingWidget = () => {
         setAction,
         user,
         setUser,
+        tx,
+        setTx,
         setNextUSTTime,
         setDraft,
         shownPosts,
@@ -44,7 +46,6 @@ const LoadingWidget = () => {
     )
     const [isFlip, setFlip] = useState<boolean>(false)
     const [goto, setGoto] = useState<string>('')
-    const [tx, setTx] = useState<string>('')
     const unirepConfig = useContext(UnirepContext)
 
     const doUST = async () => {
@@ -100,6 +101,12 @@ const LoadingWidget = () => {
         const doAction = async () => {
             setIsLoading(true)
             console.log('Todo action: ' + JSON.stringify(action))
+            // wait latest transaction
+            try {
+                await config.DEFAULT_ETH_PROVIDER.waitForTransaction(tx)
+            } catch (error) {
+                console.log(error)
+            }
             setLoadingState(LoadingState.loading)
 
             const next = await unirepConfig.nextEpochTime()

@@ -4,6 +4,8 @@ import { Post, User, Page, Draft } from '../constants'
 type GlobalContent = {
     user: User | null
     setUser: (u: User | null) => void
+    tx: string
+    setTx: (t: string) => void
     shownPosts: Post[]
     setShownPosts: (posts: Post[]) => void
     isLoading: boolean
@@ -25,6 +27,8 @@ type GlobalContent = {
 export const WebContext = createContext<GlobalContent>({
     user: null,
     setUser: () => {},
+    tx: '',
+    setTx: () => {},
     shownPosts: [],
     setShownPosts: () => {},
     isLoading: false,

@@ -26,6 +26,7 @@ export class UserState {
 
     constructor() {
         makeAutoObservable(this)
+        this.load()
     }
 
     // must be called in browser, not in SSR

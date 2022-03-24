@@ -1,5 +1,4 @@
-import { ethers } from 'ethers'
-import { getUnirepContract } from '@unirep/contracts'
+import { BigNumberish } from 'ethers'
 import {
     genIdentity,
     genIdentityCommitment,
@@ -12,7 +11,6 @@ import {
     genUserStateFromParams,
 } from '@unirep/unirep'
 import { formatProofForVerifierContract } from '@unirep/circuits'
-import { UnirepSocialContract } from '@unirep/unirep-social'
 import * as config from './config'
 import {
     Record,
@@ -24,7 +22,6 @@ import {
     QueryType,
 } from './constants'
 import UnirepContext from './context/Unirep'
-import { useContext } from 'react'
 
 const snarkjs = require('snarkjs')
 
@@ -650,7 +647,7 @@ export const getEpochSpent = async (epks: string[]) => {
 }
 
 const convertDataToVotes = (data: any) => {
-    if (data === null || data === undefined)
+    if (data === null || data === undefined || !data.length)
         return { votes: [], upvote: 0, downvote: 0 }
     const votes: Vote[] = []
     let upvote: number = 0
@@ -719,7 +716,7 @@ export const convertDataToPost = (
         post_time: Date.parse(data.created_at),
         reputation: data.minRep,
         comments,
-        commentsCount: comments.length,
+        commentsCount: data.comments ? data.comments.length : 0,
         current_epoch: data.epoch,
         proofIndex: data.proofIndex,
     }

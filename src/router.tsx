@@ -1,12 +1,10 @@
 import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom'
-import React, { useState } from 'react'
+import { useState } from 'react'
 
 import useLocalStorage from './useLocalStorage'
 import * as Constants from './constants'
 
 import Header from './components/header/header'
-import LoadingWidget from './components/loadingWidget/loadingWidget'
-import Overlay from './components/overlay/overlay'
 import MainPage from './components/mainPage/mainPage'
 import PostPage from './components/postPage/postPage'
 import UserPage from './components/userPage/userPage'
@@ -19,12 +17,10 @@ import AdminPage from './components/adminPage/adminPage'
 import SettingPage from './components/settingPage/settingPage'
 
 import { WebContext } from './context/WebContext'
-import UserContext from './context/User'
 
 const AppRouter = () => {
-    const userState = React.useContext(UserContext)
-
     const [user, setUser] = useLocalStorage('user', null)
+    const [tx, setTx] = useLocalStorage('tx', '')
     const [shownPosts, setShownPosts] = useLocalStorage('shownPosts', [])
     const [nextUSTTime, setNextUSTTime] = useLocalStorage(
         'nextUSTTime',
@@ -47,12 +43,6 @@ const AppRouter = () => {
         }
     })
 
-    React.useEffect(() => {
-        if (typeof window !== 'undefined') {
-            userState.load()
-        }
-    }, [])
-
     return (
         <BrowserRouter>
             <div>
@@ -60,6 +50,8 @@ const AppRouter = () => {
                     value={{
                         user,
                         setUser,
+                        tx,
+                        setTx,
                         shownPosts,
                         setShownPosts,
                         isLoading,
@@ -93,10 +85,6 @@ const AppRouter = () => {
                         <Route component={SettingPage} path="/setting" />
                         <Route component={() => <Redirect to="/" />} />
                     </Switch>
-
-                    <LoadingWidget />
-
-                    {isMenuOpen ? <Overlay /> : <div></div>}
                 </WebContext.Provider>
             </div>
         </BrowserRouter>

@@ -9,13 +9,11 @@ import ReminderWidget from './reminderWidget'
 import PostsWidget from './postsWidget'
 import { Page } from '../../constants'
 
-type Props = {
-    page: Page
-}
-
-const SideColumn = ({ page }: Props) => {
+const SideColumn = () => {
     const { user } = useContext(WebContext)
     const history = useHistory()
+
+    const page = window.location.pathname as any
 
     const gotoSetting = () => {
         if (user !== null) {

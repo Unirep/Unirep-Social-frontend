@@ -1,11 +1,9 @@
-import React, { useContext, useState, useEffect } from 'react'
+import { useContext, useState, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
-
 import { WebContext } from '../../context/WebContext'
-import { Page, QueryType, AlertType } from '../../constants'
-import SideColumn from '../sideColumn/sideColumn'
+import { QueryType, AlertType } from '../../constants'
+import BasicPage from '../basicPage/basicPage'
 import PostsList from '../postsList/postsList'
-import Banner from './banner'
 import Feed from '../feed/feed'
 import './mainPage.scss'
 import PostContext from '../../context/Post'
@@ -14,16 +12,15 @@ import { observer } from 'mobx-react-lite'
 import UnirepContext from '../../context/Unirep'
 
 const MainPage = () => {
+    const history = useHistory()
     const posts = useContext(PostContext)
     const user = useContext(UserContext)
     const unirepConfig = useContext(UnirepContext)
 
-    const history = useHistory()
-
-    const { isLoading } = useContext(WebContext)
+    const { shownPosts, setShownPosts, isLoading, } =
+        useContext(WebContext)
 
     const [query, setQuery] = useState<QueryType>(QueryType.New)
-    const [showBanner, setShowBanner] = useState<Boolean>(true)
 
     const loadMorePosts = () => {
         console.log(
@@ -48,37 +45,17 @@ const MainPage = () => {
     }
 
     return (
-        <div className="body-columns">
-            <div className="margin-box"></div>
-            <div className="content">
-                {showBanner ? (
-                    <Banner closeBanner={() => setShowBanner(false)} />
-                ) : (
-                    <div></div>
-                )}
-                <div className="main-content">
-                    <div className="create-post" onClick={gotoNewPost}>
-                        {!user.id
-                            ? AlertType.postNotLogin
-                            : user.reputation - user.spent <
-                              unirepConfig.postReputation
-                            ? AlertType.postNotEnoughPoints
-                            : 'Create post'}
-                    </div>
-                    <Feed feedChoice={query} setFeedChoice={setQuery} />
-                    <div>
-                        <PostsList
-                            posts={posts.feedsByQuery[query] || []}
-                            loadMorePosts={loadMorePosts}
-                        />
-                    </div>
-                </div>
-                <div className="side-content">
-                    <SideColumn page={Page.Home} />
-                </div>
+        <BasicPage>
+            <div className="create-post" onClick={gotoNewPost}>
+                {user === null
+                    ? AlertType.postNotLogin
+                    : user.reputation - user.spent < unirepConfig.postReputation
+                    ? AlertType.postNotEnoughPoints
+                    : 'Create post'}
             </div>
-            <div className="margin-box"></div>
-        </div>
+            <Feed feedChoice={query} setFeedChoice={setQuery} />
+            <PostsList posts={posts.feedsByQuery[query] || []} loadMorePosts={loadMorePosts} />
+        </BasicPage>
     )
 }
 
