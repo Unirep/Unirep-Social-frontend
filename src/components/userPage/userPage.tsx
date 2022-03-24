@@ -437,7 +437,7 @@ const UserPage = () => {
                             <div>
                                 {records.map((h, i) => (
                                     <ActivityWidget
-                                        key={i}
+                                        key={h.data_id + '_' + i}
                                         record={h}
                                         isSpent={
                                             user.all_epoch_keys.indexOf(
