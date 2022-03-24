@@ -16,13 +16,13 @@
         border-radius: 4px;
     }
 
-    input[type=text] {
+    input[type='text'] {
         outline: none;
         border: 1px solid $grey-300;
         padding: 8px;
     }
 
-    input[type=submit] {
+    input[type='submit'] {
         background-color: $black;
         color: $white;
         font-size: $title-sm;

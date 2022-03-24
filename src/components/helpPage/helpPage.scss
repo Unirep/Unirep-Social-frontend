@@ -24,7 +24,7 @@
         input {
             outline: none;
             border: none;
-            background-color:transparent;
+            background-color: transparent;
             width: 100%;
             font-size: 12px;
         }
@@ -33,7 +33,7 @@
     .help-list {
         width: 100%;
         padding: 0px 10px;
-        
+
         .help-item {
             width: 100%;
             border-top: 1px solid $grey-200;
@@ -44,15 +44,15 @@
                 display: flex;
                 align-items: center;
                 cursor: pointer;
-    
+
                 &:hover {
                     background-color: $grey-200;
                 }
-    
+
                 span {
                     font-size: $text-sm;
                 }
-    
+
                 img {
                     margin-left: auto;
                     width: 8px;
@@ -84,10 +84,16 @@
             width: 200px;
             height: 200px;
             border-radius: 8px;
-            background: radial-gradient(99.12% 159.6% at 92.94% 95.93%, #E4D3FF 0%, #E5EEFF 62.33%, #EEE1FF 69.62%, #DAD7F8 81.02%);
+            background: radial-gradient(
+                99.12% 159.6% at 92.94% 95.93%,
+                #e4d3ff 0%,
+                #e5eeff 62.33%,
+                #eee1ff 69.62%,
+                #dad7f8 81.02%
+            );
             padding: 10px;
             margin: 8px;
-            vertical-align : top;
+            vertical-align: top;
 
             .learn-block-inner {
                 width: 100%;
@@ -145,7 +151,7 @@
         border-radius: 20px;
         background-color: $grey-700;
         color: white;
-        box-shadow: 0px 3px 2px 0px #0000001A;
+        box-shadow: 0px 3px 2px 0px #0000001a;
         cursor: pointer;
     }
 

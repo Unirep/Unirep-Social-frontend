@@ -34,7 +34,12 @@
 }
 
 .private-key-btn {
-    @include myButton($height: 46px, $radius: 8px, $border: 1px, $border-color: $black);
+    @include myButton(
+        $height: 46px,
+        $radius: 8px,
+        $border: 1px,
+        $border-color: $black
+    );
     flex-basis: 48%;
     margin: 0px;
 
