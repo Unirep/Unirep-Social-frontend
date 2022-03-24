@@ -1,117 +1,177 @@
-import { useState, useContext } from 'react';
-import { useHistory } from 'react-router-dom';
-import dateformat from 'dateformat';
+import { useState, useContext } from 'react'
+import { useHistory } from 'react-router-dom'
+import dateformat from 'dateformat'
 
-import { WebContext } from '../../context/WebContext';
-import { Post, Page, ButtonType, AlertType, DataType } from '../../constants';
-import { DEFAULT_POST_KARMA } from '../../config';
-import CommentField from './commentField';
-import CommentBlock from './commentBlock';
-import BlockButton from './blockButton';
-import './postBlock.scss';
+import { WebContext } from '../../context/WebContext'
+import { Post, Page, ButtonType, AlertType, DataType } from '../../constants'
+import CommentField from './commentField'
+import CommentBlock from './commentBlock'
+import BlockButton from './blockButton'
+import './postBlock.scss'
+import UnirepContext from '../../context/Unirep'
 
 type AlertProps = {
     type: AlertType
 }
 
-const AlertBox = ({ type } : AlertProps) => {
+const AlertBox = ({ type }: AlertProps) => {
     return (
         <div className="alert">
-            <img src={`/images/${type === AlertType.commentNotEnoughPoints? 'lighting' : 'glasses'}.svg`} />
+            <img
+                src={require(`../../../public/images/${
+                    type === AlertType.commentNotEnoughPoints
+                        ? 'lighting'
+                        : 'glasses'
+                }.svg`)}
+            />
             {type}
         </div>
-    );
+    )
 }
 
-
 type Props = {
-    post: Post,
-    page: Page,
+    post: Post
+    page: Page
 }
 
 const PostBlock = ({ post, page }: Props) => {
+    const history = useHistory()
+    const { isLoading, user, draft } = useContext(WebContext)
 
-    const history = useHistory();
-    const { isLoading, user, draft } = useContext(WebContext);
+    const date = dateformat(new Date(post.post_time), 'dd/mm/yyyy hh:MM TT')
+    const [showCommentField, setShowCommentField] = useState(
+        draft !== null && draft.type === DataType.Comment
+    )
+    const [isEpkHovered, setEpkHovered] = useState<boolean>(false)
+    const unirepConfig = useContext(UnirepContext)
 
-    const date = dateformat(new Date(post.post_time), "dd/mm/yyyy hh:MM TT");
-    const [ showCommentField, setShowCommentField ] = useState(draft !== null && draft.type === DataType.Comment);
-    const [ isEpkHovered, setEpkHovered] = useState<boolean>(false);
-
-    const textLimit = 240;
+    const textLimit = 240
 
     return (
         <div className="post-block">
             <div className="block-header">
                 <div className="info">
                     <span className="date">{date} |</span>
-                    <span 
-                        className="user" 
-                        onMouseEnter={() => setEpkHovered(true)} 
+                    <span
+                        className="user"
+                        onMouseEnter={() => setEpkHovered(true)}
                         onMouseLeave={() => setEpkHovered(false)}
                         onClick={() => setEpkHovered(!isEpkHovered)}
                         // title={post.reputation === DEFAULT_POST_KARMA? `This person is very modest, showing off only ${DEFAULT_POST_KARMA} Rep.` : `This person is showing off ${post.reputation} Rep.`}
-                        >
-                        Post by {post.epoch_key} <img src="/images/lighting.svg" />
-                        { isEpkHovered? <span className="show-off-rep">{post.reputation === DEFAULT_POST_KARMA? `This person is very modest, showing off only ${DEFAULT_POST_KARMA} Rep.` : `This person is showing off ${post.reputation} Rep.`}</span> : <span></span>}
+                    >
+                        Post by {post.epoch_key}{' '}
+                        <img
+                            src={require('../../../public/images/lighting.svg')}
+                        />
+                        {isEpkHovered ? (
+                            <span className="show-off-rep">
+                                {post.reputation === unirepConfig.postReputation
+                                    ? `This person is very modest, showing off only ${unirepConfig.postReputation} Rep.`
+                                    : `This person is showing off ${post.reputation} Rep.`}
+                            </span>
+                        ) : (
+                            <span></span>
+                        )}
                     </span>
                 </div>
-                <a className="etherscan" target="_blank" href={`https://goerli.etherscan.io/tx/${post.id}`}> 
+                <a
+                    className="etherscan"
+                    target="_blank"
+                    href={`https://goerli.etherscan.io/tx/${post.id}`}
+                >
                     <span>Etherscan</span>
-                    <img src="/images/etherscan.svg" />
+                    <img
+                        src={require('../../../public/images/etherscan.svg')}
+                    />
                 </a>
             </div>
-            {page === Page.Home? <div className="divider"></div> : <div></div>}
-            <div className="block-content" onClick={() => history.push(`/post/${post.id}`, {commentId: ''})}>
+            {page === Page.Home ? <div className="divider"></div> : <div></div>}
+            <div
+                className="block-content"
+                onClick={() =>
+                    history.push(`/post/${post.id}`, { commentId: '' })
+                }
+            >
                 <div className="title">{post.title}</div>
-                <div className="content">{post.content.length > textLimit && page == Page.Home? post.content.slice(0, textLimit) + '...' : post.content}</div>
+                <div className="content">
+                    {post.content.length > textLimit && page == Page.Home
+                        ? post.content.slice(0, textLimit) + '...'
+                        : post.content}
+                </div>
             </div>
-            {page === Page.Home? <div className="divider"></div> : <div></div>}
+            {page === Page.Home ? <div className="divider"></div> : <div></div>}
             <div className="block-buttons">
-                <BlockButton type={ButtonType.Comments} count={post.commentsCount} data={post} />
-                <BlockButton type={ButtonType.Boost} count={post.upvote} data={post} />
-                <BlockButton type={ButtonType.Squash} count={post.downvote} data={post} />
+                <BlockButton
+                    type={ButtonType.Comments}
+                    count={post.commentsCount}
+                    data={post}
+                />
+                <BlockButton
+                    type={ButtonType.Boost}
+                    count={post.upvote}
+                    data={post}
+                />
+                <BlockButton
+                    type={ButtonType.Squash}
+                    count={post.downvote}
+                    data={post}
+                />
                 <BlockButton type={ButtonType.Share} count={0} data={post} />
             </div>
-            {page === Page.Home? <div></div> : 
+            {page === Page.Home ? (
+                <div></div>
+            ) : (
                 <div className="comment">
                     <div className="comment-block">
-                        {
-                            user === null?
-                                <AlertBox type={AlertType.commentNotLogin} /> : 
-                                user.reputation - user.spent < 3? 
-                                    <AlertBox type={AlertType.commentNotEnoughPoints} /> : 
-                                    isLoading? 
-                                    <AlertBox type={AlertType.commentLoading} /> : 
-                                        showCommentField? 
-                                            <CommentField 
-                                                post={post}
-                                                page={Page.Post}
-                                                closeComment={() => setShowCommentField(false)}
-                                            /> : 
-                                            <textarea placeholder="What do you think?" onClick={() => setShowCommentField(true)} />
-                        }
+                        {user === null ? (
+                            <AlertBox type={AlertType.commentNotLogin} />
+                        ) : user.reputation - user.spent < 3 ? (
+                            <AlertBox type={AlertType.commentNotEnoughPoints} />
+                        ) : isLoading ? (
+                            <AlertBox type={AlertType.commentLoading} />
+                        ) : showCommentField ? (
+                            <CommentField
+                                post={post}
+                                page={Page.Post}
+                                closeComment={() => setShowCommentField(false)}
+                            />
+                        ) : (
+                            <textarea
+                                placeholder="What do you think?"
+                                onClick={() => setShowCommentField(true)}
+                            />
+                        )}
                     </div>
                     <div className="divider"></div>
-                    {post.comments.length > 0? 
+                    {post.comments.length > 0 ? (
                         <div className="comments-list">
-                            {
-                                post.comments.map((c, i) => 
-                                    <div key={i} id={c.id}>
-                                        <CommentBlock page={page} comment={c} />
-                                        {i < post.comments.length-1? <div className="divider"></div> : <div></div>}
-                                    </div>
-                                )
-                            }
-                        </div> : <div className="no-comments">
-                            <img src="/images/glasses.svg" />
-                            <p>Nothing to see here.<br/>People are just being shy.</p>
+                            {post.comments.map((c, i) => (
+                                <div key={i} id={c.id}>
+                                    <CommentBlock page={page} comment={c} />
+                                    {i < post.comments.length - 1 ? (
+                                        <div className="divider"></div>
+                                    ) : (
+                                        <div></div>
+                                    )}
+                                </div>
+                            ))}
                         </div>
-                    }
-                    
-                </div>}
+                    ) : (
+                        <div className="no-comments">
+                            <img
+                                src={require('../../../public/images/glasses.svg')}
+                            />
+                            <p>
+                                Nothing to see here.
+                                <br />
+                                People are just being shy.
+                            </p>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
-    );
-};
+    )
+}
 
-export default PostBlock;
+export default PostBlock

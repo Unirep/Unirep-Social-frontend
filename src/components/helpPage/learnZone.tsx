@@ -1,4 +1,4 @@
-import { learnData } from './helpPageData';
+import { learnData } from './helpPageData'
 
 type Props = {
     data: any
@@ -6,25 +6,25 @@ type Props = {
 
 const LearnBlock = ({ data }: Props) => {
     return (
-        <div className='learn-block'>
+        <div className="learn-block">
             <div className="learn-block-inner">
-                <div className='learn-title'>{data.title}</div>
-                <div className='learn-content'>{data.content}</div>
-                <img src={`/images/${data.image}`} />
+                <div className="learn-title">{data.title}</div>
+                <div className="learn-content">{data.content}</div>
+                <img src={require(`../../../public/images/${data.image}`)} />
             </div>
         </div>
-    );
+    )
 }
 
 const LearnZone = () => {
     return (
         <div className="learn-zone">
             <h3>Learn</h3>
-            {
-                learnData.map((d, i) => <LearnBlock data={d} key={i}/>)
-            }
+            {learnData.map((d, i) => (
+                <LearnBlock data={d} key={i} />
+            ))}
         </div>
-    );
+    )
 }
 
-export default LearnZone;
+export default LearnZone

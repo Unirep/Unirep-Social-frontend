@@ -28,14 +28,14 @@
             display: flex;
             flex-direction: row;
             justify-content: flex-end;
-            
+
             img {
-              width: 40px;
-              height: 40px;
-              cursor: pointer;
+                width: 40px;
+                height: 40px;
+                cursor: pointer;
             }
-          }
-  
+        }
+
         .title {
             font-size: $title-sm;
             font-weight: 600;
@@ -62,7 +62,14 @@
             }
 
             .copy-btn {
-                @include myButton($height: 40px, $radius: 4px, $block-color: $black, $color: $white, $font-size: $text-md, $font-weight: 600);
+                @include myButton(
+                    $height: 40px,
+                    $radius: 4px,
+                    $block-color: $black,
+                    $color: $white,
+                    $font-size: $text-md,
+                    $font-weight: 600
+                );
                 width: 100%;
                 margin: 0;
             }
