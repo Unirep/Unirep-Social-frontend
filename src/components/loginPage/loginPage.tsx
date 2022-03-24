@@ -2,10 +2,11 @@ import { useHistory } from 'react-router-dom';
 import { useContext, useState, useEffect } from 'react';
 
 import './loginPage.scss';
-import { WebContext } from '../../context/WebContext'; 
-import { getEpochKeys, hasSignedUp, getUserState, userStateTransition, getAirdrop, getNextEpochTime, getEpochSpent } from '../../utils';
+import { WebContext } from '../../context/WebContext';
+import { getEpochKeys, hasSignedUp, getUserState, userStateTransition, getAirdrop, getEpochSpent } from '../../utils';
 import LoadingCover from '../loadingCover/loadingCover';
 import LoadingButton from '../loadingButton/loadingButton';
+import UnirepContext from '../../context/Unirep'
 
 const LoginPage = () => {
     const history = useHistory();
@@ -13,6 +14,7 @@ const LoginPage = () => {
     const [input, setInput] = useState<string>('');
     const [errorMsg, setErrorMsg] = useState<string>('');
     const [isButtonLoading, setButtonLoading] = useState<boolean>(false);
+    const unirepConfig = useContext(UnirepContext)
 
     useEffect(() => {
         setErrorMsg('')
@@ -26,7 +28,7 @@ const LoginPage = () => {
         setButtonLoading(true);
         const userSignUpResult = await hasSignedUp(input);
         setButtonLoading(false);
-        
+
         if(userSignUpResult.hasSignedUp === false) {
             setErrorMsg('Incorrect private key. Please try again.')
         } else if (userSignUpResult.hasSignedUp) {
@@ -42,19 +44,19 @@ const LoginPage = () => {
                 const retAfterUST = await getUserState(input, retBeforeUST.userState.toJSON(), true)
 
                 userState = retAfterUST.userState;
-            } 
+            }
             try {
                 console.log('get airdrop')
                 await getAirdrop(input, userState.toJSON());
-                const next = await getNextEpochTime();
+                const next = await unirepConfig.nextEpochTime();
                 setNextUSTTime(next);
             } catch (e) {
                 console.log('airdrop error: ', e)
             }
-            
+
             const reputation = userState.getRepByAttester(userStateResult.attesterId);
             console.log('has signed up flag', reputation.signUp)
-            
+
             const epks = getEpochKeys(input, userStateResult.currentEpoch);
             const spent = await getEpochSpent(epks);
 
@@ -74,7 +76,7 @@ const LoginPage = () => {
                 userState: userState.toJSON(),
             });
 
-            const nextET = await getNextEpochTime();
+            const nextET = await unirepConfig.nextEpochTime();
             setNextUSTTime(nextET);
 
             setIsLoading(false);

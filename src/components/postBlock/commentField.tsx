@@ -1,8 +1,6 @@
-import { leaveComment, getUserState, updateUserState } from '../../utils';
 import { WebContext } from '../../context/WebContext';
 import { useState, useContext } from 'react';
 import { Post, Comment, DataType, Page, ActionType } from '../../constants';
-import { DEFAULT_COMMENT_KARMA } from '../../config';
 import WritingField from '../writingField/writingField';
 
 type Props = {
@@ -25,12 +23,12 @@ const CommentField = (props: Props) => {
             console.error('nothing happened, no input.')
         } else {
             const actionData = {
-                identity: user.identity, 
+                identity: user.identity,
                 content,
                 data: props.post.id,
                 epkNonce,
                 reputation,
-                spent: user.spent, 
+                spent: user.spent,
                 userState: user.userState
             };
             setAction({action: ActionType.Comment, data: actionData});
@@ -42,7 +40,7 @@ const CommentField = (props: Props) => {
         <div className="comment-field">
             <WritingField
                 type={DataType.Comment}
-                submit={submitComment} 
+                submit={submitComment}
                 submitBtnName="Comment - 3 points"
                 onClick={preventPropagation}
             />

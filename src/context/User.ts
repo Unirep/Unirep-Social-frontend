@@ -1,4 +1,4 @@
-import { createContext } from 'react'
+import { createContext, useContext } from 'react'
 import { makeAutoObservable } from 'mobx'
 import * as config from '../config';
 import { User } from '../constants'
@@ -14,6 +14,7 @@ import { UnirepSocialContract } from '@unirep/unirep-social';
 import { makeURL } from '../utils'
 import { genUserStateFromContract, genEpochKey } from '@unirep/unirep';
 import { formatProofForVerifierContract } from '@unirep/circuits'
+import UnirepContext from './Unirep'
 
 export class UserState {
 
@@ -22,6 +23,7 @@ export class UserState {
   currentEpoch = 0
   reputation = 0
   spent = 0
+  unirepConfig = (UnirepContext as any)._currentValue
 
   constructor() {
     makeAutoObservable(this)
@@ -34,10 +36,11 @@ export class UserState {
       const { identity } = JSON.parse(storedUser)
       this.id = unSerialiseIdentity(identity)
     }
+    await this.unirepConfig.loadingPromise
     await this.loadReputation()
     // start listening for new epochs
     const unirep = new ethers.Contract(
-        config.UNIREP,
+        this.unirepConfig.unirepAddress,
         config.UNIREP_ABI,
         config.DEFAULT_ETH_PROVIDER,
     )
@@ -46,9 +49,10 @@ export class UserState {
   }
 
   async loadCurrentEpoch() {
+    await this.unirepConfig.loadingPromise
     const unirepSocialContract = new UnirepSocialContract(
-      config.UNIREP_SOCIAL,
-      config.DEFAULT_ETH_PROVIDER
+      this.unirepConfig.unirepSocialAddress,
+      config.DEFAULT_ETH_PROVIDER_URL
     );
     this.currentEpoch = await unirepSocialContract.currentEpoch();
   }
@@ -64,15 +68,16 @@ export class UserState {
 
   async calculateAllEpks() {
     if (!this.id) throw new Error('No identity loaded')
+    await this.unirepConfig.loadingPromise
     const { identityNullifier } = this.id
     const getEpochKeys = (epoch: number) => {
       const epks: string[] = []
-      for (let i = 0; i < config.numEpochKeyNoncePerEpoch; i++) {
+      for (let i = 0; i < this.unirepConfig.numEpochKeyNoncePerEpoch; i++) {
         const tmp = genEpochKey(
           identityNullifier,
           epoch,
           i,
-          config.circuitEpochTreeDepth
+          this.unirepConfig.epochTreeDepth
         ).toString(16)
         epks.push(tmp)
       }
@@ -87,14 +92,15 @@ export class UserState {
   async loadReputation() {
     if (!this.id) return { posRep: 0, negRep: 0 }
     const { userState } = await this.genUserState();
-    const rep = userState.getRepByAttester(BigInt(config.UNIREP_SOCIAL_ATTESTER_ID))
+    const rep = userState.getRepByAttester(BigInt(this.unirepConfig.attesterId))
     this.reputation = Number(rep.posRep) - Number(rep.negRep)
     return rep
   }
 
   async genUserState() {
+    await this.unirepConfig.loadingPromise
     const startTime = new Date().getTime()
-    const unirepSocialContract = new UnirepSocialContract(config.UNIREP_SOCIAL, config.DEFAULT_ETH_PROVIDER);
+    const unirepSocialContract = new UnirepSocialContract(this.unirepConfig.unirepSocialAddress, config.DEFAULT_ETH_PROVIDER_URL);
     const unirepContract = await unirepSocialContract.getUnirep();
     const parsedUserState = undefined
     console.log('update user state from stored us')
@@ -106,8 +112,8 @@ export class UserState {
     );
     const endTime = new Date().getTime()
     console.log(`Gen us time: ${endTime - startTime} ms (${Math.floor((endTime - startTime) / 1000)} s)`)
-    const numEpochKeyNoncePerEpoch = config.numEpochKeyNoncePerEpoch;
-    const attesterId = config.UNIREP_SOCIAL_ATTESTER_ID;
+    const numEpochKeyNoncePerEpoch = this.unirepConfig.numEpochKeyNoncePerEpoch;
+    const attesterId = this.unirepConfig.attesterId;
     const jsonedUserState = JSON.parse(userState.toJSON());
     const currentEpoch = userState.getUnirepStateCurrentEpoch()
 
@@ -122,14 +128,15 @@ export class UserState {
 
   async getAirdrop() {
     if (!this.id) throw new Error('Identity not loaded')
+    await this.unirepConfig.loadingPromise
     const unirepSocial = new ethers.Contract(
-        config.UNIREP_SOCIAL,
+        this.unirepConfig.unirepSocialAddress,
         config.UNIREP_SOCIAL_ABI,
         config.DEFAULT_ETH_PROVIDER,
     )
     // generate an airdrop proof
     const { userState } = await this.genUserState();
-    const attesterId = config.UNIREP_SOCIAL_ATTESTER_ID;
+    const attesterId = this.unirepConfig.attesterId;
     const { proof, publicSignals } = await userState.genUserSignUpProof(BigInt(attesterId));
 
     const epk = genEpochKey(this.id.identityNullifier, userState.getUnirepStateCurrentEpoch(), 0)
@@ -194,7 +201,7 @@ export class UserState {
   getEpochKey(epkNonce: number, identityNullifier: any, epoch: number) {
     const epochKey = genEpochKey(
       identityNullifier,
-      epoch, epkNonce, config.circuitEpochTreeDepth
+      epoch, epkNonce, this.unirepConfig.epochTreeDepth
     );
     return epochKey.toString(16);
   }

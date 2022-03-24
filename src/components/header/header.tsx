@@ -1,7 +1,7 @@
 import { useContext, useState } from 'react';
 import { NavLink, useHistory, useLocation } from 'react-router-dom';
 import { WebContext } from '../../context/WebContext';
-import { DEFAULT_POST_KARMA } from '../../config';
+import UnirepContext from '../../context/Unirep'
 import './header.scss';
 
 const Header = () => {
@@ -9,9 +9,10 @@ const Header = () => {
     const location = useLocation();
     const { user, isLoading, isMenuOpen, setIsMenuOpen } = useContext(WebContext);
     const [searchInput, setSearchInput] = useState<string>("");
+    const unirepConfig = useContext(UnirepContext)
 
     const gotoNewPage = () => {
-        if (!isLoading && user !== null && (user.reputation - user.spent) >= DEFAULT_POST_KARMA) {
+        if (!isLoading && user !== null && (user.reputation - user.spent) >= unirepConfig.postReputation) {
             history.push(`/new`, {isConfirmed: true});
         }
     }
@@ -44,7 +45,7 @@ const Header = () => {
                     <input type="text" name="searchInput" placeholder="Search by keyword, user names or epoch key" onChange={handleSearchInput} />
                 </form>
             </div> */}
-            {user && user.identity? 
+            {user && user.identity?
                 <div className="navButtons">
                     <div id="rep" onClick={gotoUserPage}><img src={require('../../../public/images/lighting.svg')}/>{user?.reputation - user?.spent}</div>
                     <div id="new" className={location.pathname === '/new'? "navBtn chosen" : "navBtn"}><img src={require('../../../public/images/newpost.svg')} onClick={gotoNewPage} /></div>
@@ -56,8 +57,8 @@ const Header = () => {
                     <div id="join" className="blackButton" onClick={() => history.push('/signup')}>Join</div>
                     <div id="menu" className="navBtn"><img src={require('../../../public/images/menu.svg')} onClick={openMenu} /></div>
                 </div>
-                
-            }   
+
+            }
         </header>
     );
 }

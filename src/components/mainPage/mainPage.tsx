@@ -3,7 +3,6 @@ import { useHistory } from 'react-router-dom';
 
 import { WebContext } from '../../context/WebContext';
 import { Page, QueryType, AlertType } from '../../constants';
-import { DEFAULT_POST_KARMA } from '../../config';
 import SideColumn from '../sideColumn/sideColumn';
 import PostsList from '../postsList/postsList';
 import Banner from './banner';
@@ -12,11 +11,13 @@ import './mainPage.scss';
 import PostContext from '../../context/Post'
 import UserContext from '../../context/User'
 import { observer } from 'mobx-react-lite'
+import UnirepContext from '../../context/Unirep'
 
 const MainPage = () => {
 
-    const posts = React.useContext(PostContext)
-    const user = React.useContext(UserContext)
+    const posts = useContext(PostContext)
+    const user = useContext(UserContext)
+    const unirepConfig = useContext(UnirepContext)
 
     const history = useHistory();
 
@@ -36,7 +37,7 @@ const MainPage = () => {
     }, [query]);
 
     const gotoNewPost = () => {
-        if (!isLoading && user !== null && (user.reputation - user.spent) >= DEFAULT_POST_KARMA){
+        if (!isLoading && user !== null && (user.reputation - user.spent) >= unirepConfig.postReputation){
             history.push('/new', {isConfirmed: true});
         }
     }
@@ -49,7 +50,7 @@ const MainPage = () => {
                 <div className="main-content">
                     <div className="create-post" onClick={gotoNewPost}>
                         { !user.id ? AlertType.postNotLogin :
-                            user.reputation - user.spent < DEFAULT_POST_KARMA ?
+                            user.reputation - user.spent < unirepConfig.postReputation?
                                 AlertType.postNotEnoughPoints : 'Create post'
                         }
                     </div>

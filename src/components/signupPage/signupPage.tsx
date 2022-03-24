@@ -1,16 +1,16 @@
 import { useHistory } from 'react-router-dom';
-import React, { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect } from 'react';
 
 import './signupPage.scss';
 import { WebContext } from '../../context/WebContext';
-import { getEpochKeys, getUserState, getAirdrop, getNextEpochTime, checkInvitationCode, userSignUp} from '../../utils';
 import LoadingCover from '../loadingCover/loadingCover';
 import LoadingButton from '../loadingButton/loadingButton';
 import UserState from '../../context/User'
 import { observer } from 'mobx-react-lite'
+import UnirepContext from '../../context/Unirep'
 
 const SignupPage = () => {
-    const userState = React.useContext(UserState)
+    const userState = useContext(UserState)
     const history = useHistory();
     const { setUser, setNextUSTTime, isLoading, setIsLoading } = useContext(WebContext);
     const [invitationCode, setInvitationCode] = useState<string>('');
@@ -19,6 +19,7 @@ const SignupPage = () => {
     const [userEnterIdentity, setUserEnterIdentity] = useState<string>('');
     const [errorMsg, setErrorMsg] = useState<string>('');
     const [isButtonLoading, setButtonLoading] = useState<boolean>(false);
+    const unirepConfig = useContext(UnirepContext)
 
     const title = [
         "Join us",
@@ -90,7 +91,7 @@ const SignupPage = () => {
                 userState: '{}' // userStateResult.userState.toJSON(),
             });
 
-            const nextET = await getNextEpochTime();
+            const nextET = await unirepConfig.nextEpochTime();
             setNextUSTTime(nextET);
 
             setIsLoading(false);

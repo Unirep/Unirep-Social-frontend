@@ -1,11 +1,10 @@
 import { useState, useContext, useEffect }  from 'react';
-import { useHistory } from 'react-router-dom';
 import 'react-circular-progressbar/dist/styles.css';
 import { WebContext } from '../../context/WebContext';
 import HelpWidget from '../helpWidget/helpWidget';
 import { DataType, InfoType, Draft } from '../../constants';
 import './writingField.scss';
-import * as config from '../../config';
+import UnirepContext from '../../context/Unirep'
 
 
 type Props = {
@@ -17,14 +16,16 @@ type Props = {
 
 const WritingField = (props: Props) => {
 
-    const defaultRep = props.type === DataType.Post? config.DEFAULT_POST_KARMA : config.DEFAULT_COMMENT_KARMA;
 
     const { user, setIsLoading, draft, setDraft } = useContext(WebContext);
-    const [ reputation, setReputation ] = useState(defaultRep);
+    const unirepConfig = useContext(UnirepContext)
     const [ title, setTitle ] = useState<string>('');
     const [ content, setContent ] = useState<string>('');
     const [ epkNonce, setEpkNonce ] = useState<number>(0);
     const [ errorMsg, setErrorMsg ] = useState<string>('');
+
+    const defaultRep = props.type === DataType.Post? unirepConfig.postReputation : unirepConfig.commentReputation;
+    const [ reputation, setReputation ] = useState(defaultRep);
 
     useEffect(() => {
         if (draft !== null && draft.type === props.type) {
@@ -58,7 +59,7 @@ const WritingField = (props: Props) => {
 
     const handleContentInput = (event: any) => {
         setContent(event.target.value);
-        
+
         if (draft === null) {
             const d: Draft = {type: props.type, title, content: event.target.value};
             setDraft(d);
@@ -67,7 +68,7 @@ const WritingField = (props: Props) => {
                 setDraft({...draft, content: event.target.value});
             } else {
                 setDraft({...draft, content: event.target.value, type: props.type});
-            }  
+            }
         }
     }
 
@@ -92,16 +93,16 @@ const WritingField = (props: Props) => {
             {
                 props.type === DataType.Post? <input type="text" placeholder="Give an eye-catching title" onChange={handleTitleInput} value={title} /> : <div></div>
             }
-            { 
+            {
                 props.type === DataType.Post? <textarea onChange={handleContentInput} value={content} /> : <textarea autoFocus onChange={handleContentInput} value={content} />
             }
             <div className="info-row">
                 <div className="element">
                     <div className="name">Post as <HelpWidget type={InfoType.epk4Post} /></div>
                     <div className="epks">
-                        { user === null? 
-                            <div>somethings wrong...</div> : 
-                            user.epoch_keys.map((epk, i) => 
+                        { user === null?
+                            <div>somethings wrong...</div> :
+                            user.epoch_keys.map((epk, i) =>
                                 <div className={i === epkNonce? "epk chosen" : "epk"} onClick={() => setEpkNonce(i)} key={i}>
                                     {epk}
                                 </div>
@@ -112,9 +113,9 @@ const WritingField = (props: Props) => {
                 <div className="element">
                     <div className="name">My Rep display <HelpWidget type={InfoType.rep} /></div>
                     <div className="rep-chooser">
-                        <input type="range" 
-                            min={defaultRep} 
-                            max={user? user.reputation - user.spent : defaultRep} 
+                        <input type="range"
+                            min={defaultRep}
+                            max={user? user.reputation - user.spent : defaultRep}
                             onChange={handleRepInput}
                             value={reputation}
                         />

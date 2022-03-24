@@ -4,11 +4,11 @@ import dateformat from 'dateformat';
 
 import { WebContext } from '../../context/WebContext';
 import { Post, Page, ButtonType, AlertType, DataType } from '../../constants';
-import { DEFAULT_POST_KARMA } from '../../config';
 import CommentField from './commentField';
 import CommentBlock from './commentBlock';
 import BlockButton from './blockButton';
 import './postBlock.scss';
+import UnirepContext from '../../context/Unirep'
 
 type AlertProps = {
     type: AlertType
@@ -37,6 +37,7 @@ const PostBlock = ({ post, page }: Props) => {
     const date = dateformat(new Date(post.post_time), "dd/mm/yyyy hh:MM TT");
     const [ showCommentField, setShowCommentField ] = useState(draft !== null && draft.type === DataType.Comment);
     const [ isEpkHovered, setEpkHovered] = useState<boolean>(false);
+    const unirepConfig = useContext(UnirepContext)
 
     const textLimit = 240;
 
@@ -53,7 +54,7 @@ const PostBlock = ({ post, page }: Props) => {
                         // title={post.reputation === DEFAULT_POST_KARMA? `This person is very modest, showing off only ${DEFAULT_POST_KARMA} Rep.` : `This person is showing off ${post.reputation} Rep.`}
                         >
                         Post by {post.epoch_key} <img src={require('../../../public/images/lighting.svg')} />
-                        { isEpkHovered? <span className="show-off-rep">{post.reputation === DEFAULT_POST_KARMA? `This person is very modest, showing off only ${DEFAULT_POST_KARMA} Rep.` : `This person is showing off ${post.reputation} Rep.`}</span> : <span></span>}
+                        { isEpkHovered? <span className="show-off-rep">{post.reputation === unirepConfig.postReputation ? `This person is very modest, showing off only ${unirepConfig.postReputation} Rep.` : `This person is showing off ${post.reputation} Rep.`}</span> : <span></span>}
                     </span>
                 </div>
                 <a className="etherscan" target="_blank" href={`https://goerli.etherscan.io/tx/${post.id}`}>
