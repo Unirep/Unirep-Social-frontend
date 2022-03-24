@@ -41,9 +41,9 @@ const ReportZone = () => {
             <textarea placeholder="Describe issue" name="issue" onChange={onIssueChange} onClick={stopPropagation} />
             <textarea placeholder="Your email (optional)" name="email" rows={1} onChange={onEmailChange} onClick={stopPropagation} />
             {
-                errMsg.length > 0? 
+                errMsg.length > 0?
                 <div className="error">
-                    <img src="/images/warning.png" />
+                    <img src={''} />
                     <span>{errMsg}</span>
                 </div> : <div></div>
             }

@@ -26,7 +26,7 @@ const SideColumn = ( { page }: Props) => {
     return (
         <div>
             {page === Page.Setting? <div className="margin-top widget"></div> : <div></div>}
-            {page === Page.User? <div className="setting widget"><img src="/images/setting.svg" onClick={gotoSetting} /></div> : <div></div>}
+            {page === Page.User? <div className="setting widget"><img src={require('../../../public/images/setting.svg')} onClick={gotoSetting} /></div> : <div></div>}
             {user !== null && page !== Page.Setting? <UserInfoWidget /> : <div></div>}
             {user !== null && (page === Page.New || page === Page.Post)? <ReminderWidget page={page} /> : <div></div>}
             {user !== null && page === Page.User? <PostsWidget /> : <div></div>}

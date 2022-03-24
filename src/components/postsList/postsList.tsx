@@ -21,7 +21,7 @@ const PostsList = ({ posts, loadMorePosts }: Props) => {
                             page={Page.Home}
                         />
                     )) : <div className="no-posts">
-                            <img src="/images/glasses.svg" />
+                            <img src={require('../../../public/images/glasses.svg')} />
                             <p>It's empty here.<br />People just being shy, no post yet.</p>
                         </div>
             }

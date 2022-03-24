@@ -24,7 +24,7 @@ const CommentsList = ({comments, page, loadMoreComments}: Props) => {
                     
                 ))
             ) : <div className="no-posts">
-                    <img src="/images/glasses.svg" />
+                    <img src={require('../../../public/images/glasses.svg')} />
                     <p>It's empty here.<br />People just being shy, no post yet.</p>
                 </div>
             }

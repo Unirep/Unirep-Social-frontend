@@ -34,7 +34,7 @@ const RepPortion = ({ spent, total, action } : Props) => {
             onClick={() => setHover(!isHover)}>
             {isHover?
                 <div className="rep-description">
-                    <img src={`/images/${portionName === 'Post' || portionName === 'Comment'? 'unirep': portionName.toLowerCase()}-white.svg`} />
+                    <img src={require(`../../../public/images/${portionName === 'Post' || portionName === 'Comment'? 'unirep': portionName.toLowerCase()}-white.svg`)} />
                     {portionName}:
                     <span>{spent}</span>
                 </div> : <div></div>
@@ -58,10 +58,6 @@ const UserPage = () => {
 
     const [ received, setReceived ] = useState<number[]>([0, 0, 0]); // airdrop, boost, squash
     const [ spent, setSpent ] = useState<number[]>([0, 0, 0, 0]); // post, comment, boost, squash
-
-    const closeAll = () => {
-        if (!isLoading) {}
-    }
 
     const getUserPosts = async (sort: QueryType, lastRead: string = '0') => {
         const ret = await getPostsByQuery(sort, lastRead, user? user.all_epoch_keys : []);
@@ -202,7 +198,7 @@ const UserPage = () => {
                         <div className="my-reps stuff">
                             <div className="white-block">
                                 <p>My Rep</p>
-                                <div className="rep-info"><img src="/images/lighting.svg" />{user.reputation - user.spent}</div>
+                                <div className="rep-info"><img src={require('../../../public/images/lighting.svg')} />{user.reputation - user.spent}</div>
                             </div>
                             <div className="grey-block">
                                 <span>How I use my rep in this cycle</span><br/>
@@ -222,15 +218,15 @@ const UserPage = () => {
                             </div>
                             <div className="white-block">
                                 <div className="received-info">
-                                    <span><img src="/images/unirep.svg" />System drop</span>
+                                    <span><img src={require('../../../public/images/lighting.svg')} />System drop</span>
                                     <p>+{received[0]}</p>
                                 </div>
                                 <div className="received-info">
-                                    <span><img src="/images/boost.svg" />Boost</span>
+                                    <span><img src={require('../../../public/images/lighting.svg')} />Boost</span>
                                     <p>+{received[1]}</p>
                                 </div>
                                 <div className="received-info">
-                                    <span><img src="/images/squash.svg" />Squash</span>
+                                    <span><img src={require('../../../public/images/lighting.svg')} />Squash</span>
                                     <p>-{received[2]}</p>
                                 </div>
                             </div>
@@ -248,19 +244,19 @@ const UserPage = () => {
                             isDropdown?
                                 tag !== Tag.Activity?
                                     <div className="dropdown isDropdown header-child" onClick={switchDropdown} style={{height: `${40*3}px`}}>
-                                        <div className="menu-choice" onClick={() => setSortType(QueryType.Boost)}><img src="/images/boost-fill.svg"/>Boost</div>
-                                        <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src="/images/new-fill.svg"/>New</div>
-                                        <div className="menu-choice" onClick={() => setSortType(QueryType.Squash)}><img src="/images/squash-fill.svg"/>Squash</div>
+                                        <div className="menu-choice" onClick={() => setSortType(QueryType.Boost)}><img src={require('../../../public/images/lighting.svg')}/>Boost</div>
+                                        <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src={require('../../../public/images/lighting.svg')}/>New</div>
+                                        <div className="menu-choice" onClick={() => setSortType(QueryType.Squash)}><img src={require('../../../public/images/lighting.svg')}/>Squash</div>
                                     </div> :
                                     <div className="dropdown isDropdown header-child" onClick={switchDropdown} style={{height: `${40*2}px`}}>
-                                        <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src="/images/new-fill.svg"/>New</div>
-                                        <div className="menu-choice" onClick={() => setSortType(QueryType.Rep)}><img src="/images/unirep-fill.svg"/>Rep</div>
+                                        <div className="menu-choice" onClick={() => setSortType(QueryType.New)}><img src={require('../../../public/images/lighting.svg')}/>New</div>
+                                        <div className="menu-choice" onClick={() => setSortType(QueryType.Rep)}><img src={require('../../../public/images/lighting.svg')}/>Rep</div>
                                     </div> :
                                 <div className="dropdown header-child" onClick={switchDropdown}>
                                     <div className="menu-choice isChosen">
-                                        <img src={`/images/${sort === QueryType.Rep? 'unirep' : sort}-fill.svg`}/>
+                                        <img src={require(`../../../public/images/${sort === QueryType.Rep? 'unirep' : sort}-fill.svg`)}/>
                                         <span>{sort.charAt(0).toUpperCase() + sort.slice(1)}</span>
-                                        <img src="/images/arrow-down.svg" />
+                                        <img src={require('../../../public/images/lighting.svg')} />
                                     </div>
                                 </div>
 
