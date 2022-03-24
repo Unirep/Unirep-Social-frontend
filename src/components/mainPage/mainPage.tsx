@@ -17,8 +17,7 @@ const MainPage = () => {
     const user = useContext(UserContext)
     const unirepConfig = useContext(UnirepContext)
 
-    const { shownPosts, setShownPosts, isLoading, } =
-        useContext(WebContext)
+    const { shownPosts, setShownPosts, isLoading } = useContext(WebContext)
 
     const [query, setQuery] = useState<QueryType>(QueryType.New)
 
@@ -54,7 +53,10 @@ const MainPage = () => {
                     : 'Create post'}
             </div>
             <Feed feedChoice={query} setFeedChoice={setQuery} />
-            <PostsList posts={posts.feedsByQuery[query] || []} loadMorePosts={loadMorePosts} />
+            <PostsList
+                posts={posts.feedsByQuery[query] || []}
+                loadMorePosts={loadMorePosts}
+            />
         </BasicPage>
     )
 }

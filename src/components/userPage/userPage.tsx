@@ -111,39 +111,42 @@ const UserPage = () => {
     const getUserRecords = async () => {
         if (user === null) return
         const ret = await getRecords(user.current_epoch, user.identity)
-        setRecords(ret)
-        resortRecords(QueryType.New, ret)
-        let r: number[] = [0, 0, 0]
-        let s: number[] = [0, 0, 0, 0]
+        const isParsable = !ret.some((h) => h === undefined)
+        if (isParsable) {
+            setRecords(ret)
+            resortRecords(QueryType.New, ret)
+            let r: number[] = [0, 0, 0]
+            let s: number[] = [0, 0, 0, 0]
 
-        ret.forEach((h) => {
-            const isReceived = user.epoch_keys.indexOf(h.to) !== -1
-            const isSpent = user.epoch_keys.indexOf(h.from) !== -1
-            if (isReceived) {
-                // console.log(h.to + 'is receiver, is me, ' + h.upvote);
-                // right stuff
-                if (h.action === ActionType.UST) {
-                    r[0] += h.upvote
-                } else if (h.action === ActionType.Vote) {
-                    r[1] += h.upvote
-                    r[2] += h.downvote
+            ret.forEach((h) => {
+                const isReceived = user.epoch_keys.indexOf(h.to) !== -1
+                const isSpent = user.epoch_keys.indexOf(h.from) !== -1
+                if (isReceived) {
+                    // console.log(h.to + 'is receiver, is me, ' + h.upvote);
+                    // right stuff
+                    if (h.action === ActionType.UST) {
+                        r[0] += h.upvote
+                    } else if (h.action === ActionType.Vote) {
+                        r[1] += h.upvote
+                        r[2] += h.downvote
+                    }
                 }
-            }
 
-            if (isSpent) {
-                // console.log(h.from + 'is giver, is me, ' + h.downvote);
-                if (h.action === ActionType.Post) {
-                    s[0] += h.downvote
-                } else if (h.action === ActionType.Comment) {
-                    s[1] += h.downvote
-                } else if (h.action === ActionType.Vote) {
-                    s[2] += h.upvote
-                    s[3] += h.downvote
+                if (isSpent) {
+                    // console.log(h.from + 'is giver, is me, ' + h.downvote);
+                    if (h.action === ActionType.Post) {
+                        s[0] += h.downvote
+                    } else if (h.action === ActionType.Comment) {
+                        s[1] += h.downvote
+                    } else if (h.action === ActionType.Vote) {
+                        s[2] += h.upvote
+                        s[3] += h.downvote
+                    }
                 }
-            }
-        })
-        setReceived(r)
-        setSpent(s)
+            })
+            setReceived(r)
+            setSpent(s)
+        }
     }
 
     const resortRecords = (s: QueryType, hs: Record[]) => {
