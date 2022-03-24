@@ -4,8 +4,8 @@ import { useHistory, useLocation } from 'react-router-dom'
 import './newPage.scss'
 import { WebContext } from '../../context/WebContext'
 import WritingField from '../writingField/writingField'
-import SideColumn from '../sideColumn/sideColumn'
-import { DataType, Page, ActionType } from '../../constants'
+import BasicPage from '../basicPage/basicPage'
+import { DataType, ActionType } from '../../constants'
 
 const NewPage = () => {
     const history = useHistory()
@@ -47,24 +47,15 @@ const NewPage = () => {
     }
 
     return (
-        <div className="body-columns">
-            <div className="margin-box"></div>
-            <div className="content">
-                <div className="main-content">
-                    <h3>Create post</h3>
-                    <WritingField
-                        type={DataType.Post}
-                        submit={submit}
-                        submitBtnName="Post - 5 points"
-                        onClick={preventPropagation}
-                    />
-                </div>
-                <div className="side-content">
-                    <SideColumn page={Page.New} />
-                </div>
-            </div>
-            <div className="margin-box"></div>
-        </div>
+        <BasicPage>
+            <h3>Create post</h3>
+            <WritingField
+                type={DataType.Post}
+                submit={submit}
+                submitBtnName="Post - 5 points"
+                onClick={preventPropagation}
+            />
+        </BasicPage>
     )
 }
 

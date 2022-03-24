@@ -9,13 +9,11 @@ import ReminderWidget from './reminderWidget'
 import PostsWidget from './postsWidget'
 import { Page } from '../../constants'
 
-type Props = {
-    page: Page
-}
-
-const SideColumn = ({ page }: Props) => {
+const SideColumn = () => {
     const { user } = useContext(WebContext)
     const history = useHistory()
+
+    const page = window.location.pathname
 
     const gotoSetting = () => {
         if (user !== null) {
@@ -25,7 +23,7 @@ const SideColumn = ({ page }: Props) => {
 
     return (
         <div>
-            {page === Page.Setting ? (
+            {page === (Page.Setting as string) ? (
                 <div className="margin-top widget"></div>
             ) : (
                 <div></div>

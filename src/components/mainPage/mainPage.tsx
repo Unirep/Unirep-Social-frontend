@@ -3,11 +3,10 @@ import { useHistory } from 'react-router-dom'
 
 import { getPostsByQuery } from '../../utils'
 import { WebContext } from '../../context/WebContext'
-import { Page, QueryType, AlertType } from '../../constants'
+import { QueryType, AlertType } from '../../constants'
 import { DEFAULT_POST_KARMA } from '../../config'
-import SideColumn from '../sideColumn/sideColumn'
+import BasicPage from '../basicPage/basicPage'
 import PostsList from '../postsList/postsList'
-import Banner from './banner'
 import Feed from '../feed/feed'
 import './mainPage.scss'
 
@@ -18,7 +17,6 @@ const MainPage = () => {
         useContext(WebContext)
 
     const [query, setQuery] = useState<QueryType>(QueryType.New)
-    const [showBanner, setShowBanner] = useState<Boolean>(true)
 
     const getPosts = async (lastRead: string = '0') => {
         console.log(
@@ -56,36 +54,17 @@ const MainPage = () => {
     }
 
     return (
-        <div className="body-columns">
-            <div className="margin-box"></div>
-            <div className="content">
-                {showBanner ? (
-                    <Banner closeBanner={() => setShowBanner(false)} />
-                ) : (
-                    <div></div>
-                )}
-                <div className="main-content">
-                    <div className="create-post" onClick={gotoNewPost}>
-                        {user === null
-                            ? AlertType.postNotLogin
-                            : user.reputation - user.spent < DEFAULT_POST_KARMA
-                            ? AlertType.postNotEnoughPoints
-                            : 'Create post'}
-                    </div>
-                    <Feed feedChoice={query} setFeedChoice={setQuery} />
-                    <div>
-                        <PostsList
-                            posts={shownPosts}
-                            loadMorePosts={loadMorePosts}
-                        />
-                    </div>
-                </div>
-                <div className="side-content">
-                    <SideColumn page={Page.Home} />
-                </div>
+        <BasicPage>
+            <div className="create-post" onClick={gotoNewPost}>
+                {user === null
+                    ? AlertType.postNotLogin
+                    : user.reputation - user.spent < DEFAULT_POST_KARMA
+                    ? AlertType.postNotEnoughPoints
+                    : 'Create post'}
             </div>
-            <div className="margin-box"></div>
-        </div>
+            <Feed feedChoice={query} setFeedChoice={setQuery} />
+            <PostsList posts={shownPosts} loadMorePosts={loadMorePosts} />
+        </BasicPage>
     )
 }
 

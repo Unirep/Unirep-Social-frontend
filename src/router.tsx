@@ -5,8 +5,6 @@ import useLocalStorage from './useLocalStorage'
 import * as Constants from './constants'
 
 import Header from './components/header/header'
-import LoadingWidget from './components/loadingWidget/loadingWidget'
-import Overlay from './components/overlay/overlay'
 import MainPage from './components/mainPage/mainPage'
 import PostPage from './components/postPage/postPage'
 import UserPage from './components/userPage/userPage'
@@ -87,10 +85,6 @@ const AppRouter = () => {
                         <Route component={SettingPage} path="/setting" />
                         <Route component={() => <Redirect to="/" />} />
                     </Switch>
-
-                    <LoadingWidget />
-
-                    {isMenuOpen ? <Overlay /> : <div></div>}
                 </WebContext.Provider>
             </div>
         </BrowserRouter>

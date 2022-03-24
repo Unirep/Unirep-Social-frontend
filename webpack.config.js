@@ -59,12 +59,16 @@ module.exports = {
                 },
             },
             {
-                test: /\.(png|svg|jpg|gif)$/,
-                loader: 'file-loader',
-                options: {
-                    // publicPath: 'build',
-                    esModule: false,
-                },
+                test: /\.(png|jpg|gif|svg)$/i,
+                use: [
+                    {
+                        loader: 'url-loader',
+                        options: {
+                            esModule: false,
+                            limit: 8192,
+                        },
+                    },
+                ],
             },
             {
                 test: /\.s[ac]ss$/i,
@@ -77,7 +81,7 @@ module.exports = {
                 ],
             },
             {
-                test: /\.css$/,
+                test: /\.(css)$/,
                 // exclude: /node_modules/,
                 use: [
                     {

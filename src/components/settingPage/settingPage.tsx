@@ -1,9 +1,7 @@
 import { useHistory, useLocation } from 'react-router-dom'
-import { useContext } from 'react'
 
 import './settingPage.scss'
-import SideColumn from '../sideColumn/sideColumn'
-import { Page } from '../../constants'
+import BasicPage from '../basicPage/basicPage'
 import PrivateKey from './privateKey'
 
 const SettingPage = () => {
@@ -13,28 +11,15 @@ const SettingPage = () => {
     const isConfirmed = state.isConfirmed
 
     return (
-        <div className="body-columns">
-            <div className="margin-box"></div>
-            <div className="content">
-                <div className="main-content">
-                    <div
-                        className="back"
-                        onClick={() =>
-                            history.push('/user', { isConfirmed: true })
-                        }
-                    >
-                        <img
-                            src={require('../../../public/images/arrow-left.svg')}
-                        />
-                    </div>
-                    <PrivateKey />
-                </div>
-                <div className="side-content">
-                    <SideColumn page={Page.Setting} />
-                </div>
+        <BasicPage>
+            <div
+                className="back"
+                onClick={() => history.push('/user', { isConfirmed: true })}
+            >
+                <img src={require('../../../public/images/arrow-left.svg')} />
             </div>
-            <div className="margin-box"></div>
-        </div>
+            <PrivateKey />
+        </BasicPage>
     )
 }
 
