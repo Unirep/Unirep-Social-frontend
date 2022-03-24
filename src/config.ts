@@ -1,20 +1,24 @@
 import { ethers } from 'ethers'
-import { circuitUserStateTreeDepth, circuitGlobalStateTreeDepth, circuitEpochTreeDepth } from '@unirep/unirep'
-import UnirepSocial from "@unirep/unirep-social/artifacts/contracts/UnirepSocial.sol/UnirepSocial.json"
+import {
+    circuitUserStateTreeDepth,
+    circuitGlobalStateTreeDepth,
+    circuitEpochTreeDepth,
+} from '@unirep/unirep'
+import UnirepSocial from '@unirep/unirep-social/artifacts/contracts/UnirepSocial.sol/UnirepSocial.json'
 
 // const SERVER = 'http://localhost:3001/'
 const DEFAULT_ETH_PROVIDER_URL = 'ws://localhost:8545'
 // const SERVER = 'http://3.20.204.166'
 // const DEFAULT_ETH_PROVIDER_URL = 'wss://eth-goerli.alchemyapi.io/v2/tYp-IJU_idg28iohx9gsLqhq6KRZxk7f'
-const DEFAULT_ETH_PROVIDER = DEFAULT_ETH_PROVIDER_URL.startsWith('http') ?
-  new ethers.providers.JsonRpcProvider(DEFAULT_ETH_PROVIDER_URL) :
-  new ethers.providers.WebSocketProvider(DEFAULT_ETH_PROVIDER_URL)
+const DEFAULT_ETH_PROVIDER = DEFAULT_ETH_PROVIDER_URL.startsWith('http')
+    ? new ethers.providers.JsonRpcProvider(DEFAULT_ETH_PROVIDER_URL)
+    : new ethers.providers.WebSocketProvider(DEFAULT_ETH_PROVIDER_URL)
 // const DEFAULT_ETH_PROVIDER = 'http://18.188.136.227'
 const DEFAULT_START_BLOCK = 0
 const DEFAULT_MAX_EPOCH_KEY_NONCE = 2
 const DEFAULT_NUM_ATTESTATIONS_PER_EPOCH_KEY = 6
 const DEFAULT_EPOCH_LENGTH = 30
-const DEFAULT_ATTESTING_FEE = ethers.utils.parseEther("0")
+const DEFAULT_ATTESTING_FEE = ethers.utils.parseEther('0')
 const DEFAULT_TREE_DEPTHS_CONFIG = 'circuit'
 const DEFAULT_POST_KARMA = 5
 const DEFAULT_COMMENT_KARMA = 3
@@ -28,19 +32,19 @@ const UNIREP_SOCIAL = '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853'
 const UNIREP_SOCIAL_ABI = UnirepSocial.abi
 const UNIREP_SOCIAL_ATTESTER_ID = 1
 
-const circuitNullifierTreeDepth = 128;
-const globalStateTreeDepth = 4;
-const userStateTreeDepth = 4;
-const epochTreeDepth = 32;
-const nullifierTreeDepth = 128;
-const maxUsers = 2 ** globalStateTreeDepth - 1;
-const attestingFee = ethers.utils.parseEther("0")
-const numEpochKeyNoncePerEpoch = 3;
-const numAttestationsPerEpochKey = 6;
-const epochLength = 30;
-const maxReputationBudget = 10;
+const circuitNullifierTreeDepth = 128
+const globalStateTreeDepth = 4
+const userStateTreeDepth = 4
+const epochTreeDepth = 32
+const nullifierTreeDepth = 128
+const maxUsers = 2 ** globalStateTreeDepth - 1
+const attestingFee = ethers.utils.parseEther('0')
+const numEpochKeyNoncePerEpoch = 3
+const numAttestationsPerEpochKey = 6
+const epochLength = 30
+const maxReputationBudget = 10
 
-const ABOUT_URL = "https://about.unirep.social";
+const ABOUT_URL = 'https://about.unirep.social'
 const LOAD_POST_COUNT = 10
 
 export {
@@ -74,5 +78,5 @@ export {
     globalStateTreeDepth,
     maxReputationBudget,
     ABOUT_URL,
-    LOAD_POST_COUNT
+    LOAD_POST_COUNT,
 }

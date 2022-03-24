@@ -1,28 +1,25 @@
-import { useState } from 'react';
-import './helpWidget.scss';
-import { InfoType } from '../../constants';
+import { useState } from 'react'
+import './helpWidget.scss'
+import { InfoType } from '../../constants'
 
 type Props = {
     type: InfoType
 }
 
 const HelpWidget = ({ type }: Props) => {
-    const [ isHover, setHover ] = useState<boolean>(false);
+    const [isHover, setHover] = useState<boolean>(false)
 
     return (
         <div className="help-widget">
-            <img 
-                src={require('../../../public/images/info.svg')} 
-                onMouseEnter={() => setHover(true)} 
+            <img
+                src={require('../../../public/images/info.svg')}
+                onMouseEnter={() => setHover(true)}
                 onMouseOut={() => setHover(false)}
                 onClick={() => setHover(!isHover)}
             />
-            {
-                isHover? 
-                    <div className="info">{type}</div> : <div></div>
-            }
+            {isHover ? <div className="info">{type}</div> : <div></div>}
         </div>
-    );
+    )
 }
 
-export default HelpWidget;
+export default HelpWidget
