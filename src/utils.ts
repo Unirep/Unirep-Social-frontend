@@ -702,7 +702,6 @@ const convertDataToComment = (data: any) => {
 }
 
 const convertDataToPost = (data: any, commentsOnlyId: boolean = true) => {
-    console.log(data)
     const { votes, upvote, downvote } = convertDataToVotes(data.votes)
 
     const comments: Comment[] = []
@@ -799,4 +798,12 @@ export const genInvitationCode = async (code: string) => {
     const r = await fetch(apiURL)
     if (!r.ok) return ''
     return r.json()
+}
+
+export const getLatestBlock = async () => {
+    const apiURL = makeURL('block')
+    const r = await fetch(apiURL)
+    if (!r.ok) return ''
+    const data = await r.json()
+    return data.blockNumber
 }
