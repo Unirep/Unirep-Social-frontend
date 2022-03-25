@@ -102,10 +102,15 @@ const LoadingWidget = () => {
             setLoadingState(LoadingState.loading)
             // wait latest transaction
             if (tx?.length) {
-                const receipt = await config.DEFAULT_ETH_PROVIDER.waitForTransaction(tx)
+                const receipt =
+                    await config.DEFAULT_ETH_PROVIDER.waitForTransaction(tx)
                 const latestProcessedBlock = await getLatestBlock()
                 if (receipt && latestProcessedBlock < receipt?.blockNumber) {
-                    console.log('block ' + latestProcessedBlock + ' hasn\'t been processed')
+                    console.log(
+                        'block ' +
+                            latestProcessedBlock +
+                            " hasn't been processed"
+                    )
                     setLoadingState(LoadingState.failed)
                     setIsLoading(false)
                     return
