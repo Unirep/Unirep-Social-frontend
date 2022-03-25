@@ -1,4 +1,3 @@
-import { BigNumberish } from 'ethers'
 import {
     genIdentity,
     genIdentityCommitment,

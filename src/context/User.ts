@@ -10,7 +10,7 @@ import {
     unSerialiseIdentity,
     Identity,
 } from '@unirep/crypto'
-import { UnirepSocialContract } from '@unirep/unirep-social'
+import { UnirepFactory } from '@unirep/unirep-social'
 import { makeURL } from '../utils'
 import { genUserStateFromContract, genEpochKey } from '@unirep/unirep'
 import { formatProofForVerifierContract } from '@unirep/circuits'
@@ -50,11 +50,11 @@ export class UserState {
 
     async loadCurrentEpoch() {
         await this.unirepConfig.loadingPromise
-        const unirepSocialContract = new UnirepSocialContract(
+        const unirepContract = UnirepFactory.connect(
             this.unirepConfig.unirepSocialAddress,
-            config.DEFAULT_ETH_PROVIDER_URL
+            config.DEFAULT_ETH_PROVIDER
         )
-        this.currentEpoch = await unirepSocialContract.currentEpoch()
+        this.currentEpoch = Number(await unirepContract.currentEpoch())
     }
 
     get currentEpochKeys() {
@@ -106,11 +106,10 @@ export class UserState {
     async genUserState() {
         await this.unirepConfig.loadingPromise
         const startTime = new Date().getTime()
-        const unirepSocialContract = new UnirepSocialContract(
+        const unirepContract = UnirepFactory.connect(
             this.unirepConfig.unirepSocialAddress,
-            config.DEFAULT_ETH_PROVIDER_URL
+            config.DEFAULT_ETH_PROVIDER
         )
-        const unirepContract = await unirepSocialContract.getUnirep()
         const parsedUserState = undefined
         console.log('update user state from stored us')
         const userState = await genUserStateFromContract(

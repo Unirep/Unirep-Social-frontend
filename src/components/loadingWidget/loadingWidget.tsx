@@ -16,7 +16,6 @@ import {
 import { ActionType } from '../../constants'
 import * as config from '../../config'
 import { getPostById } from '../../utils'
-import { stringifyBigInts } from '@unirep/crypto'
 import UnirepContext from '../../context/Unirep'
 
 enum LoadingState {
