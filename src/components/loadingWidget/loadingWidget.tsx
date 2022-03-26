@@ -14,11 +14,11 @@ import {
     getAirdrop,
     getNextEpochTime,
     getCurrentEpoch,
+    getLatestBlock,
 } from '../../utils'
 import { ActionType } from '../../constants'
 import * as config from '../../config'
 import { getPostById } from '../../utils'
-import { stringifyBigInts } from '@unirep/crypto'
 
 enum LoadingState {
     loading,
@@ -55,10 +55,9 @@ const LoadingWidget = () => {
             action.data.userState
         )
         if (USTData?.transaction) {
-            const recept = await config.DEFAULT_ETH_PROVIDER.waitForTransaction(
+            await config.DEFAULT_ETH_PROVIDER.waitForTransaction(
                 USTData.transaction
             )
-            console.log('receipt', recept)
         }
 
         let newUser
@@ -100,13 +99,23 @@ const LoadingWidget = () => {
         const doAction = async () => {
             setIsLoading(true)
             console.log('Todo action: ' + JSON.stringify(action))
-            // wait latest transaction
-            try {
-                await config.DEFAULT_ETH_PROVIDER.waitForTransaction(tx)
-            } catch (error) {
-                console.log(error)
-            }
             setLoadingState(LoadingState.loading)
+            // wait latest transaction
+            if (tx?.length) {
+                const receipt =
+                    await config.DEFAULT_ETH_PROVIDER.waitForTransaction(tx)
+                const latestProcessedBlock = await getLatestBlock()
+                if (receipt && latestProcessedBlock < receipt?.blockNumber) {
+                    console.log(
+                        'block ' +
+                            latestProcessedBlock +
+                            " hasn't been processed"
+                    )
+                    setLoadingState(LoadingState.failed)
+                    setIsLoading(false)
+                    return
+                }
+            }
 
             const next = await getNextEpochTime()
             setNextUSTTime(next)
