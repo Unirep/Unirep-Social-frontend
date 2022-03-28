@@ -1,7 +1,6 @@
-import { createContext, useContext } from 'react'
+import { createContext } from 'react'
 import { makeAutoObservable } from 'mobx'
 import * as config from '../config'
-import { User } from '../constants'
 import { ethers } from 'ethers'
 import {
     genIdentity,
@@ -51,7 +50,7 @@ export class UserState {
     async loadCurrentEpoch() {
         await this.unirepConfig.loadingPromise
         const unirepContract = UnirepFactory.connect(
-            this.unirepConfig.unirepSocialAddress,
+            this.unirepConfig.unirepAddress,
             config.DEFAULT_ETH_PROVIDER
         )
         this.currentEpoch = Number(await unirepContract.currentEpoch())
@@ -107,7 +106,7 @@ export class UserState {
         await this.unirepConfig.loadingPromise
         const startTime = new Date().getTime()
         const unirepContract = UnirepFactory.connect(
-            this.unirepConfig.unirepSocialAddress,
+            this.unirepConfig.unirepAddress,
             config.DEFAULT_ETH_PROVIDER
         )
         const parsedUserState = undefined

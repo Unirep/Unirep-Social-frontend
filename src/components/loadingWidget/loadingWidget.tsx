@@ -12,6 +12,7 @@ import {
     getUserState,
     getEpochKeys,
     getAirdrop,
+    getLatestBlock,
 } from '../../utils'
 import { ActionType } from '../../constants'
 import * as config from '../../config'
@@ -55,10 +56,9 @@ const LoadingWidget = () => {
             action.data.userState
         )
         if (USTData?.transaction) {
-            const recept = await config.DEFAULT_ETH_PROVIDER.waitForTransaction(
+            await config.DEFAULT_ETH_PROVIDER.waitForTransaction(
                 USTData.transaction
             )
-            console.log('receipt', recept)
         }
 
         let newUser
@@ -100,13 +100,23 @@ const LoadingWidget = () => {
         const doAction = async () => {
             setIsLoading(true)
             console.log('Todo action: ' + JSON.stringify(action))
-            // wait latest transaction
-            try {
-                await config.DEFAULT_ETH_PROVIDER.waitForTransaction(tx)
-            } catch (error) {
-                console.log(error)
-            }
             setLoadingState(LoadingState.loading)
+            // wait latest transaction
+            if (tx?.length) {
+                const receipt =
+                    await config.DEFAULT_ETH_PROVIDER.waitForTransaction(tx)
+                const latestProcessedBlock = await getLatestBlock()
+                if (receipt && latestProcessedBlock < receipt?.blockNumber) {
+                    console.log(
+                        'block ' +
+                            latestProcessedBlock +
+                            " hasn't been processed"
+                    )
+                    setLoadingState(LoadingState.failed)
+                    setIsLoading(false)
+                    return
+                }
+            }
 
             const next = await unirepConfig.nextEpochTime()
             setNextUSTTime(next)
@@ -115,32 +125,33 @@ const LoadingWidget = () => {
             let newUser: any = undefined
             let spentRet = await getEpochSpent(user ? user.epoch_keys : [])
 
-            const currentEpoch = await unirepConfig.currentEpoch()
-            if (
-                user !== null &&
-                user !== undefined &&
-                JSON.parse(user.userState).latestTransitionedEpoch !==
-                    currentEpoch
-            ) {
-                console.log(
-                    'user epoch is not the same as current epoch, do user state transition, ' +
-                        JSON.parse(user?.userState).latestTransitionedEpoch +
-                        ' != ' +
-                        currentEpoch
-                )
-                data = await doUST()
-                newUser = data.user
+            if (user !== null && user !== undefined) {
+                const currentEpoch = parseInt(await unirepConfig.currentEpoch())
+                const userEpoch = JSON.parse(
+                    user.userState
+                ).latestTransitionedEpoch
+                if (currentEpoch !== userEpoch) {
+                    console.log(
+                        'user epoch is not the same as current epoch, do user state transition, ' +
+                            JSON.parse(user?.userState)
+                                .latestTransitionedEpoch +
+                            ' != ' +
+                            currentEpoch
+                    )
+                    data = await doUST()
+                    newUser = data.user
 
-                if (data.error !== undefined) {
-                    console.log(data.error)
-                    setUser({ ...newUser, spent: 0 })
-                    setGoto('/')
-                    setLoadingState(LoadingState.failed)
-                    setIsLoading(false)
-                    return
+                    if (data.error !== undefined) {
+                        console.log(data.error)
+                        setUser({ ...newUser, spent: 0 })
+                        setGoto('/')
+                        setLoadingState(LoadingState.failed)
+                        setIsLoading(false)
+                        return
+                    }
+
+                    spentRet = 0
                 }
-
-                spentRet = 0
             }
 
             console.log('in the head of loading widget, spent is: ' + spentRet)

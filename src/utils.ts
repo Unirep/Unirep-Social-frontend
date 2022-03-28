@@ -789,3 +789,11 @@ export const genInvitationCode = async (code: string) => {
     if (!r.ok) return ''
     return r.json()
 }
+
+export const getLatestBlock = async () => {
+    const apiURL = makeURL('block')
+    const r = await fetch(apiURL)
+    if (!r.ok) return ''
+    const data = await r.json()
+    return data.blockNumber
+}
