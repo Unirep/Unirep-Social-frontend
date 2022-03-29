@@ -2,19 +2,14 @@ import { createContext } from 'react'
 import { makeAutoObservable } from 'mobx'
 import { ethers } from 'ethers'
 import UnirepContext from './Unirep'
-import {
-  DEFAULT_ETH_PROVIDER
-} from '../config'
+import { DEFAULT_ETH_PROVIDER } from '../config'
 import { UnirepState, UserState, Attestation } from '@unirep/unirep'
 import {
     Circuit,
     formatProofForSnarkjsVerification,
     verifyProof,
 } from '@unirep/circuits'
-import {
-    stringifyBigInts,
-    unstringifyBigInts,
-} from '@unirep/crypto'
+import { stringifyBigInts, unstringifyBigInts } from '@unirep/crypto'
 
 const unirepConfig = (UnirepContext as any)._currentValue
 
@@ -26,30 +21,39 @@ const decodeBigIntArray = (input: string): BigInt[] => {
     return unstringifyBigInts(JSON.parse(input))
 }
 
+type ProofKey = string
+
 export class Synchronizer {
-  unirepState?: UnirepState
-  userState?: UserState
-  validProofsByIndex = {} as { [key: number]: any }
-  spentProofIndexes = {} as { [key: number]: boolean }
+    unirepState?: UnirepState
+    userState?: UserState
+    validProofs = {} as { [key: ProofKey]: any }
+    spentProofs = {} as { [key: ProofKey]: boolean }
 
-  constructor() {
-    makeAutoObservable(this)
-    this.load()
-  }
+    constructor() {
+        makeAutoObservable(this)
+        this.load()
+    }
 
-  async load() {
-    await unirepConfig.loadingPromise
-    // now start syncing
-      this.unirepState = new UnirepState({
-          globalStateTreeDepth: unirepConfig.globalStateTreeDepth,
-          userStateTreeDepth: unirepConfig.userStateTreeDepth,
-          epochTreeDepth: unirepConfig.epochTreeDepth,
-          attestingFee: unirepConfig.attestingFee,
-          epochLength: unirepConfig.epochLength,
-          numEpochKeyNoncePerEpoch: unirepConfig.numEpochKeyNoncePerEpoch,
-          maxReputationBudget: unirepConfig.maxReputationBudget,
-      })
-  }
+    // calculate a key for storing/accessing a proof
+    proofKey(epoch: number | null, index: number): ProofKey {
+        return `epoch-${epoch}-index-${index}`
+    }
+
+    async load() {
+        await unirepConfig.loadingPromise
+        // now start syncing
+        this.unirepState = new UnirepState({
+            globalStateTreeDepth: unirepConfig.globalStateTreeDepth,
+            userStateTreeDepth: unirepConfig.userStateTreeDepth,
+            epochTreeDepth: unirepConfig.epochTreeDepth,
+            attestingFee: unirepConfig.attestingFee,
+            epochLength: unirepConfig.epochLength,
+            numEpochKeyNoncePerEpoch: unirepConfig.numEpochKeyNoncePerEpoch,
+            maxReputationBudget: unirepConfig.maxReputationBudget,
+        })
+        this.startDaemon()
+    }
+
     async startDaemon() {
         let latestBlock = await DEFAULT_ETH_PROVIDER.getBlockNumber()
         DEFAULT_ETH_PROVIDER.on('block', (num) => {
@@ -64,12 +68,12 @@ export class Synchronizer {
             const newLatest = latestBlock
             const allEvents = (
                 await Promise.all([
-                    unirepConfig.unirepContract.queryFilter(
+                    unirepConfig.unirep.queryFilter(
                         this.unirepFilter,
                         latestProcessed + 1,
                         newLatest
                     ),
-                    unirepConfig.unirepSocialContract.queryFilter(
+                    unirepConfig.unirepSocial.queryFilter(
                         this.unirepSocialFilter,
                         latestProcessed + 1,
                         newLatest
@@ -83,45 +87,45 @@ export class Synchronizer {
     }
 
     get allTopics() {
-        const [UserSignedUp] = unirepConfig.unirepContract.filters.UserSignedUp()
+        const [UserSignedUp] = unirepConfig.unirep.filters.UserSignedUp()
             .topics as string[]
         const [UserStateTransitioned] =
-            unirepConfig.unirepContract.filters.UserStateTransitioned()
+            unirepConfig.unirep.filters.UserStateTransitioned()
                 .topics as string[]
         const [AttestationSubmitted] =
-            unirepConfig.unirepContract.filters.AttestationSubmitted()
+            unirepConfig.unirep.filters.AttestationSubmitted()
                 .topics as string[]
-        const [EpochEnded] = unirepConfig.unirepContract.filters.EpochEnded()
+        const [EpochEnded] = unirepConfig.unirep.filters.EpochEnded()
             .topics as string[]
         const [IndexedEpochKeyProof] =
-            unirepConfig.unirepContract.filters.IndexedEpochKeyProof()
+            unirepConfig.unirep.filters.IndexedEpochKeyProof()
                 .topics as string[]
         const [IndexedReputationProof] =
-            unirepConfig.unirepContract.filters.IndexedReputationProof()
+            unirepConfig.unirep.filters.IndexedReputationProof()
                 .topics as string[]
         const [IndexedUserSignedUpProof] =
-            unirepConfig.unirepContract.filters.IndexedUserSignedUpProof()
+            unirepConfig.unirep.filters.IndexedUserSignedUpProof()
                 .topics as string[]
         const [IndexedStartedTransitionProof] =
-            unirepConfig.unirepContract.filters.IndexedStartedTransitionProof()
+            unirepConfig.unirep.filters.IndexedStartedTransitionProof()
                 .topics as string[]
         const [IndexedProcessedAttestationsProof] =
-            unirepConfig.unirepContract.filters.IndexedProcessedAttestationsProof()
+            unirepConfig.unirep.filters.IndexedProcessedAttestationsProof()
                 .topics as string[]
         const [IndexedUserStateTransitionProof] =
-            unirepConfig.unirepContract.filters.IndexedUserStateTransitionProof()
+            unirepConfig.unirep.filters.IndexedUserStateTransitionProof()
                 .topics as string[]
-        const [_UserSignedUp] = unirepConfig.unirepSocialContract.filters.UserSignedUp()
+        const [_UserSignedUp] = unirepConfig.unirepSocial.filters.UserSignedUp()
             .topics as string[]
         const [_PostSubmitted] =
-            unirepConfig.unirepSocialContract.filters.PostSubmitted().topics as string[]
+            unirepConfig.unirepSocial.filters.PostSubmitted().topics as string[]
         const [_CommentSubmitted] =
-            unirepConfig.unirepSocialContract.filters.CommentSubmitted()
+            unirepConfig.unirepSocial.filters.CommentSubmitted()
                 .topics as string[]
         const [_VoteSubmitted] =
-            unirepConfig.unirepSocialContract.filters.VoteSubmitted().topics as string[]
+            unirepConfig.unirepSocial.filters.VoteSubmitted().topics as string[]
         const [_AirdropSubmitted] =
-            unirepConfig.unirepSocialContract.filters.AirdropSubmitted()
+            unirepConfig.unirepSocial.filters.AirdropSubmitted()
                 .topics as string[]
         return {
             UserSignedUp,
@@ -143,37 +147,37 @@ export class Synchronizer {
     }
 
     get unirepFilter() {
-        const [UserSignedUp] = unirepConfig.unirepContract.filters.UserSignedUp()
+        const [UserSignedUp] = unirepConfig.unirep.filters.UserSignedUp()
             .topics as string[]
         const [UserStateTransitioned] =
-            unirepConfig.unirepContract.filters.UserStateTransitioned()
+            unirepConfig.unirep.filters.UserStateTransitioned()
                 .topics as string[]
         const [AttestationSubmitted] =
-            unirepConfig.unirepContract.filters.AttestationSubmitted()
+            unirepConfig.unirep.filters.AttestationSubmitted()
                 .topics as string[]
-        const [EpochEnded] = unirepConfig.unirepContract.filters.EpochEnded()
+        const [EpochEnded] = unirepConfig.unirep.filters.EpochEnded()
             .topics as string[]
         const [IndexedEpochKeyProof] =
-            unirepConfig.unirepContract.filters.IndexedEpochKeyProof()
+            unirepConfig.unirep.filters.IndexedEpochKeyProof()
                 .topics as string[]
         const [IndexedReputationProof] =
-            unirepConfig.unirepContract.filters.IndexedReputationProof()
+            unirepConfig.unirep.filters.IndexedReputationProof()
                 .topics as string[]
         const [IndexedUserSignedUpProof] =
-            unirepConfig.unirepContract.filters.IndexedUserSignedUpProof()
+            unirepConfig.unirep.filters.IndexedUserSignedUpProof()
                 .topics as string[]
         const [IndexedStartedTransitionProof] =
-            unirepConfig.unirepContract.filters.IndexedStartedTransitionProof()
+            unirepConfig.unirep.filters.IndexedStartedTransitionProof()
                 .topics as string[]
         const [IndexedProcessedAttestationsProof] =
-            unirepConfig.unirepContract.filters.IndexedProcessedAttestationsProof()
+            unirepConfig.unirep.filters.IndexedProcessedAttestationsProof()
                 .topics as string[]
         const [IndexedUserStateTransitionProof] =
-            unirepConfig.unirepContract.filters.IndexedUserStateTransitionProof()
+            unirepConfig.unirep.filters.IndexedUserStateTransitionProof()
                 .topics as string[]
 
         return {
-            address: unirepConfig.unirepContract.address,
+            address: unirepConfig.unirep.address,
             topics: [
                 [
                     UserSignedUp,
@@ -192,21 +196,21 @@ export class Synchronizer {
     }
 
     get unirepSocialFilter() {
-        const [_UserSignedUp] = unirepConfig.unirepSocialContract.filters.UserSignedUp()
+        const [_UserSignedUp] = unirepConfig.unirepSocial.filters.UserSignedUp()
             .topics as string[]
         const [_PostSubmitted] =
-            unirepConfig.unirepSocialContract.filters.PostSubmitted().topics as string[]
+            unirepConfig.unirepSocial.filters.PostSubmitted().topics as string[]
         const [_CommentSubmitted] =
-            unirepConfig.unirepSocialContract.filters.CommentSubmitted()
+            unirepConfig.unirepSocial.filters.CommentSubmitted()
                 .topics as string[]
         const [_VoteSubmitted] =
-            unirepConfig.unirepSocialContract.filters.VoteSubmitted().topics as string[]
+            unirepConfig.unirepSocial.filters.VoteSubmitted().topics as string[]
         const [_AirdropSubmitted] =
-            unirepConfig.unirepSocialContract.filters.AirdropSubmitted()
+            unirepConfig.unirepSocial.filters.AirdropSubmitted()
                 .topics as string[]
         // Unirep Social events
         return {
-            address: unirepConfig.unirepSocialContract.address,
+            address: unirepConfig.unirepSocial.address,
             topics: [
                 [
                     _UserSignedUp,
@@ -233,7 +237,7 @@ export class Synchronizer {
         })
 
         for (const event of events) {
-          await this._processEvent(event)
+            await this._processEvent(event)
         }
     }
 
@@ -243,7 +247,7 @@ export class Synchronizer {
             console.log('IndexedEpochKeyProof')
             const _proofIndex = Number(event.topics[1])
             const _epoch = Number(event.topics[2])
-            const decodedData = unirepConfig.unirepContract.interface.decodeEventLog(
+            const decodedData = unirepConfig.unirep.interface.decodeEventLog(
                 'IndexedEpochKeyProof',
                 event.data
             )
@@ -268,13 +272,16 @@ export class Synchronizer {
                 _epoch
             )
             if (isValid && isGSTRootExisted) {
-              this.validProofsByIndex[_proofIndex] = { args, _epoch }
+                console.log('mark', decodedData)
+                this.validProofs[this.proofKey(_epoch, _proofIndex)] =
+                    decodedData
             }
         } else if (event.topics[0] === this.allTopics.IndexedReputationProof) {
             console.log('IndexedReputationProof')
             const _proofIndex = Number(event.topics[1])
             const _epoch = Number(event.topics[2])
-            const decodedData = unirepConfig.unirepContract.interface.decodeEventLog(
+            const epochKey = event.topics[3]
+            const decodedData = unirepConfig.unirep.interface.decodeEventLog(
                 'IndexedReputationProof',
                 event.data
             )
@@ -310,7 +317,10 @@ export class Synchronizer {
             const nullifiersAmount = Number(args.proveReputationAmount)
             for (let j = 0; j < nullifiersAmount; j++) {
                 if (this.unirepState?.nullifierExist(nullifiers[j])) {
-                    console.log('duplicated nullifier', BigInt(nullifiers[j]).toString())
+                    console.log(
+                        'duplicated nullifier',
+                        BigInt(nullifiers[j]).toString()
+                    )
                     validNullifiers = false
                     break
                 }
@@ -318,11 +328,19 @@ export class Synchronizer {
 
             if (validNullifiers) {
                 for (let j = 0; j < nullifiersAmount; j++) {
-                    this.unirepState?.addReputationNullifiers(nullifiers[j], event.blockNumber)
+                    this.unirepState?.addReputationNullifiers(
+                        nullifiers[j],
+                        event.blockNumber
+                    )
                 }
             }
             if (isValid && isGSTRootExisted && validNullifiers) {
-              this.validProofsByIndex[_proofIndex] = { args, _epoch, isReputation: true }
+                this.validProofs[this.proofKey(_epoch, _proofIndex)] = {
+                    epochKey: epochKey.slice(-8),
+                    epoch: _epoch,
+                    proof: decodedData._proof,
+                    proofIndex: _proofIndex,
+                }
             }
         } else if (
             event.topics[0] === this.allTopics.IndexedUserSignedUpProof
@@ -330,7 +348,8 @@ export class Synchronizer {
             console.log('IndexedUserSignedUpProof')
             const _proofIndex = Number(event.topics[1])
             const _epoch = Number(event.topics[2])
-            const decodedData = unirepConfig.unirepContract.interface.decodeEventLog(
+            const epochKey = event.topics[3]
+            const decodedData = unirepConfig.unirep.interface.decodeEventLog(
                 'IndexedUserSignedUpProof',
                 event.data
             )
@@ -359,7 +378,12 @@ export class Synchronizer {
                 _epoch
             )
             if (isValid && isGSTRootExisted) {
-              this.validProofsByIndex[_proofIndex] = { args, _epoch }
+                this.validProofs[this.proofKey(_epoch, _proofIndex)] = {
+                    epochKey: epochKey.slice(-8),
+                    epoch: _epoch,
+                    proof: decodedData._proof,
+                    proofIndex: _proofIndex,
+                }
             }
         } else if (
             event.topics[0] === this.allTopics.IndexedStartedTransitionProof
@@ -368,7 +392,7 @@ export class Synchronizer {
             const _proofIndex = Number(event.topics[1])
             const _blindedUserState = BigInt(event.topics[2])
             const _globalStateTree = BigInt(event.topics[3])
-            const decodedData = unirepConfig.unirepContract.interface.decodeEventLog(
+            const decodedData = unirepConfig.unirep.interface.decodeEventLog(
                 'IndexedStartedTransitionProof',
                 event.data
             )
@@ -388,7 +412,7 @@ export class Synchronizer {
                 formatPublicSignals
             )
             if (isValid) {
-              this.validProofsByIndex[_proofIndex] = {}
+                this.validProofs[this.proofKey(null, _proofIndex)] = {}
             }
         } else if (
             event.topics[0] === this.allTopics.IndexedProcessedAttestationsProof
@@ -397,7 +421,7 @@ export class Synchronizer {
             // await this.processAttestationProofEvent(event)
             const _proofIndex = Number(event.topics[1])
             const _inputBlindedUserState = BigInt(event.topics[2])
-            const decodedData = unirepConfig.unirepContract.interface.decodeEventLog(
+            const decodedData = unirepConfig.unirep.interface.decodeEventLog(
                 'IndexedProcessedAttestationsProof',
                 event.data
             )
@@ -424,49 +448,15 @@ export class Synchronizer {
             )
             // verify the GST root when it's used in a transition
             if (isValid) {
-              this.validProofsByIndex[_proofIndex] = { }
+                this.validProofs[this.proofKey(null, _proofIndex)] = {}
             }
         } else if (
             event.topics[0] === this.allTopics.IndexedUserStateTransitionProof
         ) {
             console.log('IndexedUserStateTransitionProof')
-            const _proofIndex = Number(event.topics[1])
-            const decodedData = unirepConfig.unirepContract.interface.decodeEventLog(
-                'IndexedUserStateTransitionProof',
-                event.data
-            )
-            if (!decodedData) {
-                throw new Error('Failed to decode data')
-            }
-            const args = decodedData._proof
-            const proofIndexRecords = decodedData._proofIndexRecords.map((n: any) =>
-                Number(n)
-            )
-
-            const formatPublicSignals = []
-                .concat(
-                    args.newGlobalStateTreeLeaf,
-                    args.epkNullifiers,
-                    args.transitionFromEpoch,
-                    args.blindedUserStates,
-                    args.fromGlobalStateTree,
-                    args.blindedHashChains,
-                    args.fromEpochTree
-                )
-                .map((n) => BigInt(n))
-            const formattedProof = args.proof.map((n: any) => BigInt(n))
-            const proof = encodeBigIntArray(formattedProof)
-            const publicSignals = encodeBigIntArray(formatPublicSignals)
-            const isValid = await verifyProof(
-                Circuit.userStateTransition,
-                formatProofForSnarkjsVerification(formattedProof),
-                formatPublicSignals
-            )
-            if (isValid) {
-              this.validProofsByIndex[_proofIndex] = {}
-            }
+            await this.userStateTransitionProof(event)
         } else if (event.topics[0] === this.allTopics.UserSignedUp) {
-            const decodedData = unirepConfig.unirepContract.interface.decodeEventLog(
+            const decodedData = unirepConfig.unirep.interface.decodeEventLog(
                 'UserSignedUp',
                 event.data
             )
@@ -475,59 +465,154 @@ export class Synchronizer {
             const attesterId = Number(decodedData._attesterId)
             const airdrop = Number(decodedData._airdropAmount)
             await this.unirepState?.signUp(
-              epoch,
-              idCommitment,
-              attesterId,
-              airdrop,
-              event.blockNumber
+                epoch,
+                idCommitment,
+                attesterId,
+                airdrop,
+                event.blockNumber
             )
         } else if (event.topics[0] === this.allTopics.UserStateTransitioned) {
             console.log('UserStateTransitioned')
-            await this.USTEvent(event)
+            // await this.USTEvent(event)
+            await this.userStateTransition(event)
         } else if (event.topics[0] === this.allTopics.AttestationSubmitted) {
             console.log('AttestationSubmitted')
-            const _epoch = Number(event.topics[1])
-            const _epochKey = BigInt(event.topics[2])
-            const _attester = event.topics[3]
-            const decodedData = unirepConfig.unirepContract.interface.decodeEventLog(
-                'AttestationSubmitted',
-                event.data
-            )
-            const toProofIndex = Number(decodedData.toProofIndex)
-            const fromProofIndex = Number(decodedData.fromProofIndex)
-            const attestIndex = Number(decodedData.attestIndex)
-            if (!this.validProofsByIndex[toProofIndex]) return
-            const attestationProof = this.validProofsByIndex[toProofIndex]
-            if (fromProofIndex) {
-              if (!this.validProofsByIndex[fromProofIndex]) return
-              const proof = this.validProofsByIndex[fromProofIndex]
-              if (!proof.isReputation) return
-              const proveReputationAmount = Number(proof.args._proof.proveReputationAmount)
-              if (!attestationProof) return console.log('No to proof')
-              const repInAttestation = Number(attestationProof.args.posRep) + Number(attestationProof.args.negRep)
-              if (proveReputationAmount < repInAttestation) return console.log('not enough rep')
-            }
-            //
-            if (fromProofIndex && this.spentProofIndexes[fromProofIndex]) return
-            if (fromProofIndex) this.spentProofIndexes[fromProofIndex] = true
-            const attestation = new Attestation(
-                BigInt(attestationProof.args.attesterId),
-                BigInt(attestationProof.args.posRep),
-                BigInt(attestationProof.args.negRep),
-                BigInt(attestationProof.args.graffiti),
-                BigInt(attestationProof.args.signUp)
-            )
-            if (_epochKey !== attestationProof.args.epochKey) return console.log('epoch key mismatch')
-            if (this.unirepState?.isEpochKeySealed(_epochKey.toString())) return console.log('epoch key sealed')
-            this.unirepState?.addAttestation(_epochKey.toString(), attestation, event.blockNumber)
+            await this.attestationSubmitted(event)
         } else if (event.topics[0] === this.allTopics.EpochEnded) {
             console.log('EpochEnded')
-            const epoch = Number(event.topics[1])
-            await this.unirepState?.epochTransition(epoch, event.blockNumber)
+            await this.epochEnded(event)
         } else {
-            console.log(event)
-            throw new Error(`Unrecognized event topic "${event.topics[0]}"`)
+            // console.log(event)
+            // throw new Error(`Unrecognized event topic "${event.topics[0]}"`)
         }
+    }
+
+    private async userStateTransition(event: any) {
+        const decodedData = unirepConfig.unirep.interface.decodeEventLog(
+            'UserStateTransitioned',
+            event.data
+        )
+
+        // const transactionHash = event.transactionHash
+        const epoch = Number(event.topics[1])
+        const leaf = BigInt(event.topics[2])
+        const proofIndex = Number(decodedData._proofIndex)
+
+        if (!this.validProofs[this.proofKey(epoch, proofIndex)]) return
+        const epkNullifiers = decodedData.epkNullifiers.map((n: any) =>
+            BigInt(n)
+        )
+        for (const nullifier of epkNullifiers) {
+            if (this.unirepState?.nullifierExist(nullifier)) {
+                return console.log('duplicate nullifier')
+            }
+        }
+        this.unirepState?.userStateTransition(
+            epoch,
+            leaf,
+            epkNullifiers,
+            event.blockNumber
+        )
+    }
+
+    private async userStateTransitionProof(event: any) {
+        const _proofIndex = Number(event.topics[1])
+        const decodedData = unirepConfig.unirep.interface.decodeEventLog(
+            'IndexedUserStateTransitionProof',
+            event.data
+        )
+        if (!decodedData) {
+            throw new Error('Failed to decode data')
+        }
+        const args = decodedData._proof
+        const proofIndexRecords = decodedData._proofIndexRecords.map((n: any) =>
+            Number(n)
+        )
+
+        const formatPublicSignals = []
+            .concat(
+                args.newGlobalStateTreeLeaf,
+                args.epkNullifiers,
+                args.transitionFromEpoch,
+                args.blindedUserStates,
+                args.fromGlobalStateTree,
+                args.blindedHashChains,
+                args.fromEpochTree
+            )
+            .map((n) => BigInt(n))
+        const formattedProof = args.proof.map((n: any) => BigInt(n))
+        const proof = encodeBigIntArray(formattedProof)
+        const publicSignals = encodeBigIntArray(formatPublicSignals)
+        const isValid = await verifyProof(
+            Circuit.userStateTransition,
+            formatProofForSnarkjsVerification(formattedProof),
+            formatPublicSignals
+        )
+        if (isValid) {
+            this.validProofs[this.proofKey(null, _proofIndex)] = {}
+        }
+    }
+
+    private async attestationSubmitted(event: any) {
+        const _epoch = Number(event.topics[1])
+        const _epochKey = BigInt(event.topics[2])
+        const _attester = event.topics[3]
+        const decodedData = unirepConfig.unirep.interface.decodeEventLog(
+            'AttestationSubmitted',
+            event.data
+        )
+        const toProofIndex = Number(decodedData.toProofIndex)
+        const fromProofIndex = Number(decodedData.fromProofIndex)
+        if (!this.validProofs[this.proofKey(_epoch, toProofIndex)]) return
+        const attestationProof =
+            this.validProofs[this.proofKey(_epoch, toProofIndex)]
+        if (
+            fromProofIndex &&
+            this.spentProofs[this.proofKey(_epoch, fromProofIndex)]
+        )
+            return
+        if (fromProofIndex) {
+            if (!this.validProofs[this.proofKey(_epoch, fromProofIndex)]) return
+            const proof =
+                this.validProofs[this.proofKey(_epoch, fromProofIndex)]
+            console.log(proof)
+            if (!proof.isReputation) return
+            const proveReputationAmount = Number(
+                proof.args._proof.proveReputationAmount
+            )
+            if (!attestationProof) return console.log('No to proof')
+            const repInAttestation =
+                Number(attestationProof.args.posRep) +
+                Number(attestationProof.args.negRep)
+            if (proveReputationAmount < repInAttestation)
+                return console.log('not enough rep')
+        }
+        if (fromProofIndex)
+            this.spentProofs[this.proofKey(_epoch, fromProofIndex)] = true
+        const attestation = new Attestation(
+            BigInt(decodedData._attestation.attesterId),
+            BigInt(decodedData._attestation.posRep),
+            BigInt(decodedData._attestation.negRep),
+            BigInt(decodedData._attestation.graffiti),
+            BigInt(decodedData._attestation.signUp)
+        )
+        if (
+            _epochKey.toString(16).padStart(8, '0') !==
+            attestationProof.epochKey
+        )
+            return console.error('epoch key mismatch')
+        if (this.unirepState?.isEpochKeySealed(_epochKey.toString()))
+            return console.error('epoch key sealed')
+        this.unirepState?.addAttestation(
+            _epochKey.toString(),
+            attestation,
+            event.blockNumber
+        )
+    }
+
+    private async epochEnded(event: any) {
+        const epoch = Number(event.topics[1])
+        await this.unirepState?.epochTransition(epoch, event.blockNumber)
     }
 }
 
