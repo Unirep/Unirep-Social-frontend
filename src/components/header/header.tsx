@@ -18,7 +18,7 @@ const Header = () => {
     const gotoNewPage = () => {
         if (
             !isLoading &&
-            user.identity &&
+            user.id &&
             user.reputation - user.spent >= unirepConfig.postReputation
         ) {
             history.push(`/new`, { isConfirmed: true })
@@ -55,7 +55,7 @@ const Header = () => {
                     <input type="text" name="searchInput" placeholder="Search by keyword, user names or epoch key" onChange={handleSearchInput} />
                 </form>
             </div> */}
-            {user.identity ? (
+            {user.id ? (
                 <div className="navButtons">
                     <div id="rep" onClick={gotoUserPage}>
                         <img

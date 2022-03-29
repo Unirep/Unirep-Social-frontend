@@ -36,7 +36,6 @@ export class UserState {
             this.id = unSerialiseIdentity(identity)
         }
         await this.unirepConfig.loadingPromise
-        await this.loadReputation()
 
         // start listening for new epochs
         const unirep = new ethers.Contract(
@@ -45,10 +44,11 @@ export class UserState {
             config.DEFAULT_ETH_PROVIDER
         )
         unirep.on('EpochEnded', this.loadCurrentEpoch.bind(this))
+        await this.loadCurrentEpoch()
 
         if (this.id) {
-            await this.loadCurrentEpoch()
             await this.calculateAllEpks()
+            await this.loadReputation()
             await this.loadSpent()
         }
     }
@@ -259,6 +259,76 @@ export class UserState {
         const { epoch } = await r.json()
 
         await this.updateUser(epoch)
+    }
+
+    async hasSignedUp(inputIdentity: string) {
+        await this.unirepConfig.loadingPromise
+
+        let unSerializedId: Identity | undefined
+        let commitment: BigInt = BigInt(0)
+        try {
+            unSerializedId = unSerialiseIdentity(inputIdentity)
+            commitment = genIdentityCommitment(unSerializedId)
+            // If user has signed up in Unirep
+            const hasUserSignUp =
+                await this.unirepConfig.unirep.hasUserSignedUp(commitment)
+            if (hasUserSignUp) {
+                this.id = unSerializedId
+            }
+            return hasUserSignUp
+        } catch (e) {
+            console.log('unserialise id error.')
+            return false
+        }
+    }
+
+    async login() {
+        console.log('login, get user state')
+        const userStateResult = await this.genUserState()
+        const userEpoch = userStateResult.userState.latestTransitionedEpoch
+        let userState: any = userStateResult.userState
+
+        if (userEpoch !== userStateResult.currentEpoch) {
+            console.log(
+                'user epoch is not the same as current epoch, do user state transition, ' +
+                    userEpoch +
+                    ' != ' +
+                    userStateResult.currentEpoch
+            )
+            await this.userStateTransition()
+            const retAfterUST = await this.genUserState()
+
+            userState = retAfterUST.userState
+        }
+
+        // no matter is same epoch or not, try get airdrop
+        try {
+            console.log('get airdrop')
+            await this.getAirdrop()
+        } catch (e) {
+            console.log('airdrop error: ', e)
+        }
+
+        await this.loadCurrentEpoch()
+        await this.calculateAllEpks()
+        await this.loadReputation()
+        await this.loadSpent()
+
+        if (this.id) {
+            window.localStorage.setItem(
+                'user',
+                JSON.stringify({
+                    identity: serialiseIdentity(this.id),
+                    epoch_keys: this.currentEpochKeys,
+                    all_epoch_keys: this.allEpks,
+                    reputation: this.reputation,
+                    current_epoch: userStateResult.currentEpoch,
+                    isConfirmed: true,
+                    spent: this.spent,
+                    userState: userState.toJSON(),
+                })
+            )
+        }
     }
 
     getEpochKey(epkNonce: number, identityNullifier: any, epoch: number) {

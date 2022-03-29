@@ -4,17 +4,9 @@ import { useContext, useState, useEffect } from 'react'
 import './loginPage.scss'
 import { WebContext } from '../../context/WebContext'
 import UserContext from '../../context/User'
-import {
-    getEpochKeys,
-    hasSignedUp,
-    getUserState,
-    userStateTransition,
-    getAirdrop,
-    getEpochSpent,
-} from '../../utils'
+
 import LoadingCover from '../loadingCover/loadingCover'
 import LoadingButton from '../loadingButton/loadingButton'
-import UnirepContext from '../../context/Unirep'
 
 const LoginPage = () => {
     const history = useHistory()
@@ -24,7 +16,6 @@ const LoginPage = () => {
     const [input, setInput] = useState<string>('')
     const [errorMsg, setErrorMsg] = useState<string>('')
     const [isButtonLoading, setButtonLoading] = useState<boolean>(false)
-    const unirepConfig = useContext(UnirepContext)
 
     useEffect(() => {
         setErrorMsg('')
@@ -36,69 +27,14 @@ const LoginPage = () => {
 
     const login = async () => {
         setButtonLoading(true)
-        const userSignUpResult = await hasSignedUp(input)
+        const userSignUpResult = await user.hasSignedUp(input)
         setButtonLoading(false)
 
-        if (userSignUpResult.hasSignedUp === false) {
+        if (!userSignUpResult) {
             setErrorMsg('Incorrect private key. Please try again.')
-        } else if (userSignUpResult.hasSignedUp) {
+        } else {
             setIsLoading(true)
-
-            const userStateResult = await user.genUserState()
-            const userEpoch = userStateResult.userState.latestTransitionedEpoch
-            let userState: any = userStateResult.userState
-
-            if (userEpoch !== userStateResult.currentEpoch) {
-                console.log(
-                    'user epoch is not the same as current epoch, do user state transition, ' +
-                        userEpoch +
-                        ' != ' +
-                        userStateResult.currentEpoch
-                )
-                const retBeforeUST = await userStateTransition(
-                    input,
-                    userState.toJSON()
-                )
-                const retAfterUST = await getUserState(
-                    input,
-                    retBeforeUST.userState.toJSON(),
-                    true
-                )
-
-                userState = retAfterUST.userState
-            }
-            try {
-                console.log('get airdrop')
-                await getAirdrop(input, userState.toJSON())
-            } catch (e) {
-                console.log('airdrop error: ', e)
-            }
-
-            const reputation = userState.getRepByAttester(
-                userStateResult.attesterId
-            )
-            console.log('has signed up flag', reputation.signUp)
-
-            const epks = getEpochKeys(input, userStateResult.currentEpoch)
-            const spent = await getEpochSpent(epks)
-
-            let allEpks: string[] = []
-            for (var i = userStateResult.currentEpoch; i > 0; i--) {
-                const oldEpks = getEpochKeys(input, i)
-                allEpks = [...allEpks, ...oldEpks]
-            }
-            // setUser({
-            //     identity: input,
-            //     epoch_keys: epks,
-            //     all_epoch_keys: allEpks,
-            //     reputation:
-            //         Number(reputation.posRep) - Number(reputation.negRep),
-            //     current_epoch: userStateResult.currentEpoch,
-            //     isConfirmed: true,
-            //     spent: spent,
-            //     userState: userState.toJSON(),
-            // })
-
+            await user.login()
             setIsLoading(false)
             history.push('/')
         }
