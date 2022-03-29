@@ -1,6 +1,7 @@
 import { useContext, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { WebContext } from '../../context/WebContext'
+import UserContext from '../../context/User'
 import { Post } from '../../constants'
 
 type Props = {
@@ -18,7 +19,7 @@ const isAuthor = (p: Post, epks: undefined | string[]) => {
 }
 
 const RankingBlock = ({ post, ranking, hasUnderline }: Props) => {
-    const { user } = useContext(WebContext)
+    const user = useContext(UserContext)
     const history = useHistory()
 
     return (
@@ -34,7 +35,7 @@ const RankingBlock = ({ post, ranking, hasUnderline }: Props) => {
                         src={require('../../../public/images/boost-fill.svg')}
                     />
                     {`#${ranking + 1}${
-                        isAuthor(post, user?.all_epoch_keys) ? ', by you' : ''
+                        isAuthor(post, user.allEpks) ? ', by you' : ''
                     }`}
                 </div>
                 <div className="boost">{post.upvote}</div>
@@ -53,7 +54,9 @@ type RankedPost = {
 }
 
 const PostsWidget = () => {
-    const { shownPosts, user } = useContext(WebContext)
+    const { shownPosts } = useContext(WebContext)
+    const user = useContext(UserContext)
+
     const [posts, setPosts] = useState<RankedPost[]>(() => {
         let posts: RankedPost[] = []
 
@@ -69,12 +72,12 @@ const PostsWidget = () => {
             } else {
                 // console.log('i >= 3, check post!');
                 // console.log(i);
-                if (!hasUserPost && isAuthor(post, user?.all_epoch_keys)) {
+                if (!hasUserPost && isAuthor(post, user.allEpks)) {
                     const p = { post, rank: i }
                     posts = [...posts, p]
                 }
             }
-            hasUserPost = hasUserPost || isAuthor(post, user?.all_epoch_keys)
+            hasUserPost = hasUserPost || isAuthor(post, user.allEpks)
         })
 
         return posts

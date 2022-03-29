@@ -30,6 +30,7 @@ export class Data {
         const r = await fetch(apiURL)
         const data = await r.json()
         const posts = data.map((p: any) => convertDataToPost(p)) as Post[]
+        console.log(posts)
         this.ingestPosts(posts)
         if (!this.feedsByQuery[query]) {
             this.feedsByQuery[query] = []
@@ -43,6 +44,15 @@ export class Data {
             ids[p.id] = true
             return true
         })
+    }
+
+    async loadPost(id: string) {
+        const apiURL = makeURL(`post/${id}`, {})
+        const r = await fetch(apiURL)
+        const data = await r.json()
+        const posts = data.map((p: any) => convertDataToPost(p, false)) as Post[]
+        console.log(posts)
+        this.ingestPosts(posts)
     }
 }
 

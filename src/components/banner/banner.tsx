@@ -1,11 +1,11 @@
 import { useEffect, useState, useContext } from 'react'
 
 import './banner.scss'
-import { WebContext } from '../../context/WebContext'
+import UserContext from '../../context/User'
 import { ABOUT_URL } from '../../config'
 
 const Banner = () => {
-    const { user } = useContext(WebContext)
+    const user = useContext(UserContext)
     const [on, setOn] = useState<boolean>(false)
 
     useEffect(() => {
@@ -32,12 +32,12 @@ const Banner = () => {
                         >
                             How it works
                         </a>
-                        {user === null ? (
+                        {user.identity ? (
+                            <div></div>
+                        ) : (
                             <a className="banner-button" href="/signup">
                                 Join us
                             </a>
-                        ) : (
-                            <div></div>
                         )}
                     </div>
                     <div className="banner-close" onClick={() => setOn(false)}>

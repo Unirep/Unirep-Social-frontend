@@ -3,6 +3,8 @@ import { useHistory } from 'react-router-dom'
 import dateformat from 'dateformat'
 
 import { WebContext } from '../../context/WebContext'
+import UserContext from '../../context/User'
+
 import { Post, Page, ButtonType, AlertType, DataType } from '../../constants'
 import CommentField from './commentField'
 import CommentBlock from './commentBlock'
@@ -36,7 +38,8 @@ type Props = {
 
 const PostBlock = ({ post, page }: Props) => {
     const history = useHistory()
-    const { isLoading, user, draft } = useContext(WebContext)
+    const { isLoading, draft } = useContext(WebContext)
+    const user = useContext(UserContext)
 
     const date = dateformat(new Date(post.post_time), 'dd/mm/yyyy hh:MM TT')
     const [showCommentField, setShowCommentField] = useState(

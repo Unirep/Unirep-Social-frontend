@@ -1,6 +1,9 @@
+import { useContext } from 'react'
+
 import { WebContext } from '../../context/WebContext'
-import { useState, useContext } from 'react'
-import { Post, Comment, DataType, Page, ActionType } from '../../constants'
+import UserContext from '../../context/User'
+
+import { Post, DataType, Page, ActionType } from '../../constants'
 import WritingField from '../writingField/writingField'
 
 type Props = {
@@ -10,7 +13,8 @@ type Props = {
 }
 
 const CommentField = (props: Props) => {
-    const { user, isLoading, setIsLoading, setAction } = useContext(WebContext)
+    const { setAction } = useContext(WebContext)
+    const user = useContext(UserContext)
 
     const preventPropagation = (event: any) => {
         event.stopPropagation()
@@ -22,7 +26,7 @@ const CommentField = (props: Props) => {
         epkNonce: number,
         reputation: number
     ) => {
-        if (user === null) {
+        if (!user.identity) {
             console.error('user not login!')
         } else if (content.length === 0) {
             console.error('nothing happened, no input.')
@@ -34,7 +38,7 @@ const CommentField = (props: Props) => {
                 epkNonce,
                 reputation,
                 spent: user.spent,
-                userState: user.userState,
+                userState: {},
             }
             setAction({ action: ActionType.Comment, data: actionData })
             props.closeComment()

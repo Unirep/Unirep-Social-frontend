@@ -8,11 +8,12 @@ import LoadingButton from '../loadingButton/loadingButton'
 import UserState from '../../context/User'
 import { observer } from 'mobx-react-lite'
 import UnirepContext from '../../context/Unirep'
+import UserContext from '../../context/User'
 
 const SignupPage = () => {
     const userState = useContext(UserState)
     const history = useHistory()
-    const { setUser, setNextUSTTime, isLoading, setIsLoading } =
+    const { setNextUSTTime, isLoading, setIsLoading } =
         useContext(WebContext)
     const [invitationCode, setInvitationCode] = useState<string>('')
     const [step, setStep] = useState<number>(0)
@@ -71,24 +72,11 @@ const SignupPage = () => {
         } else if (step === 3) {
             setIsLoading(true)
             if (!userState.identity) throw new Error('Identity not initialized')
-            await userState.calculateAllEpks()
-            const currentRep = await userState.loadReputation()
+
             const { error } = await userState.getAirdrop()
             if (error !== undefined) {
                 console.error(error)
             }
-
-            setUser({
-                identity: userState.identity,
-                epoch_keys: userState.currentEpochKeys,
-                all_epoch_keys: userState.allEpks,
-                reputation:
-                    Number(currentRep.posRep) - Number(currentRep.negRep),
-                current_epoch: userState.currentEpoch,
-                isConfirmed: true,
-                spent: 0,
-                userState: '{}', // userStateResult.userState.toJSON(),
-            })
 
             const nextET = await unirepConfig.nextEpochTime()
             setNextUSTTime(nextET)

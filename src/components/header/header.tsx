@@ -1,21 +1,25 @@
 import { useContext, useState } from 'react'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
+import { observer } from 'mobx-react-lite'
+
 import { WebContext } from '../../context/WebContext'
 import UnirepContext from '../../context/Unirep'
+import UserContext from '../../context/User'
 import './header.scss'
 
 const Header = () => {
     const history = useHistory()
     const location = useLocation()
-    const { user, isLoading, isMenuOpen, setIsMenuOpen } =
+    const { isLoading, isMenuOpen, setIsMenuOpen } =
         useContext(WebContext)
+    const user = useContext(UserContext)
     const [searchInput, setSearchInput] = useState<string>('')
     const unirepConfig = useContext(UnirepContext)
 
     const gotoNewPage = () => {
         if (
             !isLoading &&
-            user !== null &&
+            user.identity &&
             user.reputation - user.spent >= unirepConfig.postReputation
         ) {
             history.push(`/new`, { isConfirmed: true })
@@ -52,7 +56,7 @@ const Header = () => {
                     <input type="text" name="searchInput" placeholder="Search by keyword, user names or epoch key" onChange={handleSearchInput} />
                 </form>
             </div> */}
-            {user && user.identity ? (
+            {user.identity ? (
                 <div className="navButtons">
                     <div id="rep" onClick={gotoUserPage}>
                         <img
@@ -121,4 +125,4 @@ const Header = () => {
     )
 }
 
-export default Header
+export default observer(Header)

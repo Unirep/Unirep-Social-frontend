@@ -1,39 +1,31 @@
-import { useState, useEffect, useContext } from 'react'
+import { useEffect, useContext } from 'react'
 import { useParams } from 'react-router-dom'
-import { WebContext } from '../../context/WebContext'
+import { observer } from 'mobx-react-lite'
+
+import PostContext from '../../context/Post'
+import './postPage.scss'
+
 import { Page, Params, Post } from '../../constants'
 import PostBlock from '../postBlock/postBlock'
 import BasicPage from '../basicPage/basicPage'
-import { getPostById } from '../../utils'
-import './postPage.scss'
 
 const PostPage = () => {
     const { id } = useParams<Params>()
-    const { shownPosts, setShownPosts } = useContext(WebContext)
-
-    const setPost = async () => {
-        let ret: any = null
-        try {
-            ret = await getPostById(id)
-            setShownPosts([ret])
-        } catch (e) {
-            setShownPosts([])
-        }
-    }
+    const post = useContext(PostContext)
 
     useEffect(() => {
-        setPost()
+        post.loadPost(id)
     }, [])
 
     return (
         <BasicPage>
-            {shownPosts.length === 0 ? (
+            {post.postsById[id] === undefined ? (
                 <div>No such post with id {id}.</div>
             ) : (
-                <PostBlock post={shownPosts[0]} page={Page.Post} />
+                <PostBlock post={post.postsById[id]} page={Page.Post} />
             )}
         </BasicPage>
     )
 }
 
-export default PostPage
+export default observer(PostPage)

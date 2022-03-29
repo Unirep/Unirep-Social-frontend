@@ -1,10 +1,14 @@
 import { useState, useContext, useEffect } from 'react'
 import 'react-circular-progressbar/dist/styles.css'
+import { observer } from 'mobx-react-lite'
+
 import { WebContext } from '../../context/WebContext'
+import UnirepContext from '../../context/Unirep'
+import UserContext from '../../context/User'
+import './writingField.scss'
+
 import HelpWidget from '../helpWidget/helpWidget'
 import { DataType, InfoType, Draft } from '../../constants'
-import './writingField.scss'
-import UnirepContext from '../../context/Unirep'
 
 type Props = {
     type: DataType
@@ -19,8 +23,10 @@ type Props = {
 }
 
 const WritingField = (props: Props) => {
-    const { user, setIsLoading, draft, setDraft } = useContext(WebContext)
+    const { draft, setDraft } = useContext(WebContext)
     const unirepConfig = useContext(UnirepContext)
+    const user = useContext(UserContext)
+
     const [title, setTitle] = useState<string>('')
     const [content, setContent] = useState<string>('')
     const [epkNonce, setEpkNonce] = useState<number>(0)
@@ -139,7 +145,7 @@ const WritingField = (props: Props) => {
                         {user === null ? (
                             <div>somethings wrong...</div>
                         ) : (
-                            user.epoch_keys.map((epk, i) => (
+                            user.currentEpochKeys.map((epk, i) => (
                                 <div
                                     className={
                                         i === epkNonce ? 'epk chosen' : 'epk'
@@ -187,4 +193,4 @@ const WritingField = (props: Props) => {
     )
 }
 
-export default WritingField
+export default observer(WritingField)

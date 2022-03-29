@@ -3,6 +3,9 @@ import { HashLink as Link } from 'react-router-hash-link'
 
 import './loadingWidget.scss'
 import { WebContext } from '../../context/WebContext'
+import UnirepContext from '../../context/Unirep'
+import UserContext from '../../context/User'
+
 import {
     publishPost,
     vote,
@@ -11,13 +14,12 @@ import {
     userStateTransition,
     getUserState,
     getEpochKeys,
-    getAirdrop,
     getLatestBlock,
 } from '../../utils'
 import { ActionType } from '../../constants'
 import * as config from '../../config'
 import { getPostById } from '../../utils'
-import UnirepContext from '../../context/Unirep'
+
 
 enum LoadingState {
     loading,
@@ -32,8 +34,6 @@ const LoadingWidget = () => {
         setIsLoading,
         action,
         setAction,
-        user,
-        setUser,
         tx,
         setTx,
         setNextUSTTime,
@@ -41,6 +41,7 @@ const LoadingWidget = () => {
         shownPosts,
         setShownPosts,
     } = useContext(WebContext)
+    const user = useContext(UserContext)
     const [loadingState, setLoadingState] = useState<LoadingState>(
         LoadingState.none
     )
@@ -62,7 +63,7 @@ const LoadingWidget = () => {
         }
 
         let newUser
-        if (user !== null) {
+        if (user !== null && user.identity) { // reload user to local storage
             const userStateResult = await getUserState(user.identity)
             const epks = getEpochKeys(
                 user.identity,
@@ -79,15 +80,12 @@ const LoadingWidget = () => {
                     current_epoch: USTData.toEpoch,
                     spent: 0,
                     userState: userStateResult.userState.toJSON(),
-                    all_epoch_keys: [...user.all_epoch_keys, ...epks],
+                    all_epoch_keys: [...user.allEpks, ...epks],
                 }
                 USTData = { ...USTData, user: newUser }
             }
             if (USTData.error !== undefined) return USTData
-            const { error } = await getAirdrop(
-                user.identity,
-                userStateResult.userState
-            )
+            const { error } = await user.getAirdrop()
             if (error !== undefined) {
                 USTData = { ...USTData, error }
             }
@@ -123,18 +121,15 @@ const LoadingWidget = () => {
 
             let data: any = {}
             let newUser: any = undefined
-            let spentRet = await getEpochSpent(user ? user.epoch_keys : [])
+            let spentRet = await getEpochSpent(user ? user.allEpks : [])
 
             if (user !== null && user !== undefined) {
                 const currentEpoch = parseInt(await unirepConfig.currentEpoch())
-                const userEpoch = JSON.parse(
-                    user.userState
-                ).latestTransitionedEpoch
+                const userEpoch = user.currentEpoch
                 if (currentEpoch !== userEpoch) {
                     console.log(
                         'user epoch is not the same as current epoch, do user state transition, ' +
-                            JSON.parse(user?.userState)
-                                .latestTransitionedEpoch +
+                            userEpoch +
                             ' != ' +
                             currentEpoch
                     )
@@ -143,7 +138,7 @@ const LoadingWidget = () => {
 
                     if (data.error !== undefined) {
                         console.log(data.error)
-                        setUser({ ...newUser, spent: 0 })
+                        // setUser({ ...newUser, spent: 0 })
                         setGoto('/')
                         setLoadingState(LoadingState.failed)
                         setIsLoading(false)
@@ -214,9 +209,9 @@ const LoadingWidget = () => {
 
             if (user !== null) {
                 if (newUser === undefined) {
-                    setUser({ ...user, spent: spentRet })
+                    // setUser({ ...user, spent: spentRet })
                 } else {
-                    setUser({ ...newUser, spent: spentRet })
+                    // setUser({ ...newUser, spent: spentRet })
                 }
             }
 

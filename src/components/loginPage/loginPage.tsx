@@ -3,6 +3,7 @@ import { useContext, useState, useEffect } from 'react'
 
 import './loginPage.scss'
 import { WebContext } from '../../context/WebContext'
+import UserContext from '../../context/User'
 import {
     getEpochKeys,
     hasSignedUp,
@@ -17,8 +18,10 @@ import UnirepContext from '../../context/Unirep'
 
 const LoginPage = () => {
     const history = useHistory()
-    const { user, setUser, setNextUSTTime, isLoading, setIsLoading } =
+    const { setNextUSTTime, isLoading, setIsLoading } =
         useContext(WebContext)
+    const user = useContext(UserContext)
+
     const [input, setInput] = useState<string>('')
     const [errorMsg, setErrorMsg] = useState<string>('')
     const [isButtonLoading, setButtonLoading] = useState<boolean>(false)
@@ -42,7 +45,7 @@ const LoginPage = () => {
         } else if (userSignUpResult.hasSignedUp) {
             setIsLoading(true)
 
-            const userStateResult = await getUserState(input, user?.userState)
+            const userStateResult = await user.genUserState()
             const userEpoch = userStateResult.userState.latestTransitionedEpoch
             let userState: any = userStateResult.userState
 
@@ -87,17 +90,17 @@ const LoginPage = () => {
                 const oldEpks = getEpochKeys(input, i)
                 allEpks = [...allEpks, ...oldEpks]
             }
-            setUser({
-                identity: input,
-                epoch_keys: epks,
-                all_epoch_keys: allEpks,
-                reputation:
-                    Number(reputation.posRep) - Number(reputation.negRep),
-                current_epoch: userStateResult.currentEpoch,
-                isConfirmed: true,
-                spent: spent,
-                userState: userState.toJSON(),
-            })
+            // setUser({
+            //     identity: input,
+            //     epoch_keys: epks,
+            //     all_epoch_keys: allEpks,
+            //     reputation:
+            //         Number(reputation.posRep) - Number(reputation.negRep),
+            //     current_epoch: userStateResult.currentEpoch,
+            //     isConfirmed: true,
+            //     spent: spent,
+            //     userState: userState.toJSON(),
+            // })
 
             const nextET = await unirepConfig.nextEpochTime()
             setNextUSTTime(nextET)

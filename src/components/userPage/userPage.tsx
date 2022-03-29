@@ -2,7 +2,7 @@ import { useContext, useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import { getPostsByQuery, getRecords, getCommentsByQuery } from '../../utils'
-import { WebContext } from '../../context/WebContext'
+import UserContext from '../../context/User'
 import BasicPage from '../basicPage/basicPage'
 import {
     Record,
@@ -71,7 +71,7 @@ const UserPage = () => {
     const state = JSON.parse(JSON.stringify(location.state))
     const isConfirmed = state.isConfirmed
 
-    const { isLoading, user } = useContext(WebContext)
+    const user = useContext(UserContext)
     const [records, setRecords] = useState<Record[]>([])
     const [tag, setTag] = useState<Tag>(Tag.Posts)
     const [sort, setSort] = useState<QueryType>(QueryType.Boost)
@@ -86,7 +86,7 @@ const UserPage = () => {
         const ret = await getPostsByQuery(
             sort,
             lastRead,
-            user ? user.all_epoch_keys : []
+            user ? user.allEpks : []
         )
         if (lastRead !== '0') {
             setMyPosts([...myPosts, ...ret])
@@ -99,7 +99,7 @@ const UserPage = () => {
         const ret = await getCommentsByQuery(
             sort,
             lastRead,
-            user ? user.all_epoch_keys : []
+            user ? user.allEpks : []
         )
         if (lastRead !== '0') {
             setMyComments([...myComments, ...ret])
@@ -109,8 +109,8 @@ const UserPage = () => {
     }
 
     const getUserRecords = async () => {
-        if (user === null) return
-        const ret = await getRecords(user.current_epoch, user.identity)
+        if (user.identity === undefined) return
+        const ret = await getRecords(user.currentEpoch, user.identity)
         const isParsable = !ret.some((h) => h === undefined)
         if (isParsable) {
             setRecords(ret)
@@ -119,8 +119,8 @@ const UserPage = () => {
             let s: number[] = [0, 0, 0, 0]
 
             ret.forEach((h) => {
-                const isReceived = user.epoch_keys.indexOf(h.to) !== -1
-                const isSpent = user.epoch_keys.indexOf(h.from) !== -1
+                const isReceived = user.allEpks.indexOf(h.to) !== -1
+                const isSpent = user.allEpks.indexOf(h.from) !== -1
                 if (isReceived) {
                     // console.log(h.to + 'is receiver, is me, ' + h.upvote);
                     // right stuff
@@ -443,7 +443,7 @@ const UserPage = () => {
                                         key={h.data_id + '_' + i}
                                         record={h}
                                         isSpent={
-                                            user.all_epoch_keys.indexOf(
+                                            user.allEpks.indexOf(
                                                 h.from
                                             ) !== -1
                                         }

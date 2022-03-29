@@ -2,7 +2,7 @@ import { useContext } from 'react'
 import { useHistory } from 'react-router-dom'
 
 import './sideColumn.scss'
-import { WebContext } from '../../context/WebContext'
+import UserContext from '../../context/User'
 import DefaultWidget from './defaultWidget'
 import UserInfoWidget from './userInfoWidget'
 import ReminderWidget from './reminderWidget'
@@ -10,7 +10,7 @@ import PostsWidget from './postsWidget'
 import { Page } from '../../constants'
 
 const SideColumn = () => {
-    const { user } = useContext(WebContext)
+    const user = useContext(UserContext)
     const history = useHistory()
 
     const page = window.location.pathname as any
@@ -38,7 +38,7 @@ const SideColumn = () => {
             ) : (
                 <div></div>
             )}
-            {user !== null && page !== Page.Setting ? (
+            {user.identity && page !== Page.Setting ? (
                 <UserInfoWidget />
             ) : (
                 <div></div>

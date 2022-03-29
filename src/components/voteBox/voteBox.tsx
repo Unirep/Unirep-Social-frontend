@@ -1,6 +1,7 @@
 import { useState, useContext } from 'react'
 import 'react-circular-progressbar/dist/styles.css'
 import { WebContext } from '../../context/WebContext'
+import UserContext from '../../context/User'
 import { Post, Vote, Comment, DataType, ActionType } from '../../constants'
 import './voteBox.scss'
 
@@ -10,7 +11,9 @@ type Props = {
     closeVote: () => void
 }
 const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
-    const { user, setAction } = useContext(WebContext)
+    const { setAction } = useContext(WebContext)
+    const user = useContext(UserContext)
+
     const [givenAmount, setGivenAmount] = useState<number>(1)
     const [epkNonce, setEpkNonce] = useState(0)
     const [isHistoriesOpen, setHistoriesOpen] = useState(false)
@@ -18,14 +21,14 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
         if (data.votes.length === 0) {
             return []
         } else {
-            if (user !== null) {
+            if (user.identity) {
                 let ret: Vote[] = []
                 for (var i = 0; i < data.votes.length; i++) {
                     if (
                         (isUpvote && data.votes[i].upvote > 0) ||
                         (!isUpvote && data.votes[i].downvote > 0)
                     ) {
-                        const e = user.epoch_keys.find(
+                        const e = user.allEpks.find(
                             (_e) => _e === data.votes[i].epoch_key
                         )
                         if (e !== null) {
@@ -63,7 +66,7 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
                     epkNonce,
                     isPost,
                     spent: user.spent,
-                    userState: user.userState,
+                    userState: {},
                 }
             } else {
                 const tmp = data as Comment
@@ -76,7 +79,7 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
                     epkNonce,
                     isPost,
                     spent: user.spent,
-                    userState: user.userState,
+                    userState: {},
                 }
             }
 
@@ -170,7 +173,7 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
                                 </div>
                             </div>
                             <div className="epks">
-                                {user.epoch_keys.map((key, i) => (
+                                {user.allEpks.map((key, i) => (
                                     <div
                                         className={
                                             epkNonce === i

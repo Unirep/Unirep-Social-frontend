@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Post, Comment, ButtonType } from '../../constants'
 import { WebContext } from '../../context/WebContext'
+import UserContext from '../../context/User'
 import VoteBox from '../voteBox/voteBox'
 
 type Props = {
@@ -12,7 +13,8 @@ type Props = {
 
 const BlockButton = ({ type, count, data }: Props) => {
     const history = useHistory()
-    const { user, isLoading } = useContext(WebContext)
+    const { isLoading } = useContext(WebContext)
+    const user = useContext(UserContext)
 
     const [isBoostOn, setBoostOn] = useState<boolean>(false)
     const [isSquashOn, setSquashOn] = useState<boolean>(false)
@@ -24,9 +26,9 @@ const BlockButton = ({ type, count, data }: Props) => {
         if (type === ButtonType.Comments || type === ButtonType.Share) {
             return true
         } else {
-            if (user === null) return false
+            if (user.identity === undefined) return false
             else {
-                if (data.current_epoch !== user.current_epoch) return false
+                if (data.current_epoch !== user.currentEpoch) return false
                 else if (user.reputation - user.spent < 1) return false
                 else if (isLoading) return false
                 else return true
@@ -62,7 +64,7 @@ const BlockButton = ({ type, count, data }: Props) => {
     const setReminderMessage = () => {
         if (user === null) setReminder('Join us :)')
         else {
-            if (data.current_epoch !== user.current_epoch)
+            if (data.current_epoch !== user.currentEpoch)
                 setReminder('Time out :(')
             else if (user.reputation - user.spent < 1)
                 setReminder('No enough Rep')

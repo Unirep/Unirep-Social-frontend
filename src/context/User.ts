@@ -37,6 +37,7 @@ export class UserState {
         }
         await this.unirepConfig.loadingPromise
         await this.loadReputation()
+
         // start listening for new epochs
         const unirep = new ethers.Contract(
             this.unirepConfig.unirepAddress,
@@ -44,7 +45,12 @@ export class UserState {
             config.DEFAULT_ETH_PROVIDER
         )
         unirep.on('EpochEnded', this.loadCurrentEpoch.bind(this))
-        await this.loadCurrentEpoch()
+
+        if (this.id) {
+            await this.loadCurrentEpoch()
+            await this.calculateAllEpks()
+            await this.loadSpent()
+        }
     }
 
     async loadCurrentEpoch() {
@@ -61,8 +67,10 @@ export class UserState {
     }
 
     get identity() {
-        if (!this.id) return
-        return serialiseIdentity(this.id)
+        if (!this.id) return undefined
+        const serializedIdentity = serialiseIdentity(this.id)
+        console.log('serialized identity: ' + serializedIdentity)
+        return serializedIdentity
     }
 
     async calculateAllEpks() {
@@ -87,7 +95,7 @@ export class UserState {
             return epks
         }
         this.allEpks = [] as string[]
-        for (let x = 0; x < this.currentEpoch; x++) {
+        for (let x = 1; x <= this.currentEpoch; x++) {
             this.allEpks.push(...getEpochKeys(x))
         }
     }
@@ -100,6 +108,17 @@ export class UserState {
         )
         this.reputation = Number(rep.posRep) - Number(rep.negRep)
         return rep
+    }
+
+    async loadSpent() {
+        const paramStr = this.allEpks.join('_')
+        const apiURL = makeURL(`records/${paramStr}`, { spentonly: true })
+    
+        const r = await fetch(apiURL)
+        const data = await r.json()
+        this.spent = data.reduce((acc: number, v: any) => {
+            return acc + v.spent
+        }, 0)
     }
 
     async genUserState() {
@@ -177,8 +196,30 @@ export class UserState {
     }
 
     async checkInvitationCode(invitationCode: string): Promise<boolean> {
-        // check the code first but don't delete it until we signup
-        return true
+        // check the code first but don't delete it until we signup --> related to backend
+        const apiURL = makeURL('genInvitationCode', { invitationCode })
+        const r = await fetch(apiURL)
+        if (!r.ok) return false
+        return r.json()
+    }
+
+    async updateUser(currentEpoch: number) {
+        if (this.id) {
+            // write user to localStorage
+            await this.calculateAllEpks()
+            await this.loadReputation()
+
+            window.localStorage.setItem('user', JSON.stringify({
+                identity: serialiseIdentity(this.id),
+                epoch_keys: this.allEpks[-3],
+                all_epoch_keys: this.allEpks,
+                reputation: this.reputation,
+                current_epoch: currentEpoch,
+                isConfirmed: true,
+                spent: 0,
+                userState: '{}', // userStateResult.userState.toJSON(),
+            }))
+        }
     }
 
     async signUp(invitationCode: string) {
@@ -199,7 +240,6 @@ export class UserState {
             .toString(16)
             .padStart(64, '0')
 
-        const serializedIdentity = serialiseIdentity(this.id)
         const epk1 = this.getEpochKey(
             0,
             this.id.identityNullifier,
@@ -210,14 +250,12 @@ export class UserState {
         const apiURL = makeURL('signup', {
             commitment: commitment,
             epk: epk1,
+            invitationCode
         })
         const r = await fetch(apiURL)
         const { epoch } = await r.json()
-        return {
-            i: serializedIdentity,
-            c: commitment,
-            epoch,
-        }
+
+        await this.updateUser(epoch)
     }
 
     getEpochKey(epkNonce: number, identityNullifier: any, epoch: number) {
@@ -228,6 +266,21 @@ export class UserState {
             this.unirepConfig.epochTreeDepth
         )
         return epochKey.toString(16)
+    }
+
+    async userStateTransition() {
+
+    }
+    
+    logout() {
+        console.log('log out')
+        this.id = undefined
+        this.allEpks = [] as string[]
+        this.currentEpoch = 0
+        this.reputation = 0
+        this.spent = 0
+
+        window.localStorage.setItem('user', 'null')
     }
 }
 

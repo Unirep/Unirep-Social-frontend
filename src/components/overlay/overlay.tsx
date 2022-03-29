@@ -1,10 +1,12 @@
-import React, { useContext } from 'react'
+import { useContext } from 'react'
 import { useHistory } from 'react-router-dom'
 import { WebContext } from '../../context/WebContext'
+import UserContext from '../../context/User'
 import './overlay.scss'
 
 const Overlay = () => {
-    const { setIsMenuOpen, isLoading, user, setUser } = useContext(WebContext)
+    const { setIsMenuOpen, isLoading } = useContext(WebContext)
+    const user = useContext(UserContext)
     const history = useHistory()
 
     const closeOverlay = () => {
@@ -21,7 +23,7 @@ const Overlay = () => {
     }
 
     const signout = () => {
-        setUser(null)
+        user.logout()
         setIsMenuOpen(false)
         history.push('/')
     }

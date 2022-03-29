@@ -1,15 +1,18 @@
 import { useContext, useEffect, useState } from 'react'
 import dateformat from 'dateformat'
 import { confirmAlert } from 'react-confirm-alert'
+import { observer } from 'mobx-react-lite'
 import 'react-confirm-alert/src/react-confirm-alert.css'
 
 import { WebContext } from '../../context/WebContext'
+import UserContext from '../../context/User'
 import HelpWidget from '../helpWidget/helpWidget'
 import { ActionType, InfoType } from '../../constants'
 
 const UserInfoWidget = () => {
-    const { user, nextUSTTime, action, setAction, isLoading, setIsLoading } =
+    const { nextUSTTime, action, setAction, isLoading, setIsLoading } =
         useContext(WebContext)
+    const user = useContext(UserContext)
     const [countdownText, setCountdownText] = useState<string>('')
     const [diffTime, setDiffTime] = useState<number>(0)
     const [isAlertOn, setAlertOn] = useState<boolean>(false)
@@ -35,16 +38,7 @@ const UserInfoWidget = () => {
                                 <button
                                     className="custom-btn"
                                     onClick={() => {
-                                        const actionData = {
-                                            identity: user.identity,
-                                            userState: user.userState,
-                                        }
-                                        if (action === null && !isLoading) {
-                                            setAction({
-                                                action: ActionType.UST,
-                                                data: actionData,
-                                            })
-                                        }
+                                        user.userStateTransition()
                                         setAlertOn(false)
                                         onClose()
                                     }}
@@ -111,7 +105,7 @@ const UserInfoWidget = () => {
                             <HelpWidget type={InfoType.persona} />
                         </div>
                         <div className="epks">
-                            {user.epoch_keys.map((key) => (
+                            {user.currentEpochKeys.map((key) => (
                                 <div className="epk" key={key}>
                                     {key}
                                 </div>
@@ -137,4 +131,4 @@ const UserInfoWidget = () => {
     )
 }
 
-export default UserInfoWidget
+export default observer(UserInfoWidget)
