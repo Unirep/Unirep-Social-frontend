@@ -1,8 +1,8 @@
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { useHistory } from 'react-router-dom'
-import { WebContext } from '../../context/WebContext'
 import UserContext from '../../context/User'
-import { Post } from '../../constants'
+import PostContext from '../../context/Post'
+import { Post, QueryType } from '../../constants'
 
 type Props = {
     post: Post
@@ -54,34 +54,37 @@ type RankedPost = {
 }
 
 const PostsWidget = () => {
-    const { shownPosts } = useContext(WebContext)
     const user = useContext(UserContext)
+    const postController = useContext(PostContext)
+    const [posts, setPosts] = useState<RankedPost[]>([])
 
-    const [posts, setPosts] = useState<RankedPost[]>(() => {
-        let posts: RankedPost[] = []
+    useEffect(() => {
+        const loadRankedPosts = async () => {
+            await postController.loadFeed(QueryType.Boost)
 
-        const sortedPosts = shownPosts.sort((a, b) =>
-            a.upvote > b.upvote ? -1 : 1
-        )
-        let hasUserPost: boolean = false
-        sortedPosts.forEach((post, i) => {
-            if (i < 3) {
-                // console.log('i < 3, add post! ' + i);
-                const p = { post, rank: i }
-                posts = [...posts, p]
-            } else {
-                // console.log('i >= 3, check post!');
-                // console.log(i);
-                if (!hasUserPost && isAuthor(post, user.allEpks)) {
+            let hasUserPost: boolean = false
+            let rankedPosts: RankedPost[] = []
+            const unrankedPosts =
+                postController.feedsByQuery[QueryType.Boost] ?? []
+            unrankedPosts.forEach((post, i) => {
+                if (i < 3) {
+                    // console.log('i < 3, add post! ' + i);
                     const p = { post, rank: i }
-                    posts = [...posts, p]
+                    rankedPosts = [...posts, p]
+                } else {
+                    if (!hasUserPost && isAuthor(post, user.allEpks)) {
+                        const p = { post, rank: i }
+                        rankedPosts = [...posts, p]
+                    }
                 }
-            }
-            hasUserPost = hasUserPost || isAuthor(post, user.allEpks)
-        })
+                hasUserPost = hasUserPost || isAuthor(post, user.allEpks)
+            })
 
-        return posts
-    }) // top3 and 1 your most popular post, if yours is in the top3 or you don't have post, then only 3 posts or less.
+            setPosts(rankedPosts)
+        }
+
+        loadRankedPosts()
+    }, [])
 
     return (
         <div className="posts-widget widget">

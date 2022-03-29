@@ -1,5 +1,6 @@
 import { useContext } from 'react'
 import { useHistory } from 'react-router-dom'
+import { observer } from 'mobx-react-lite'
 
 import './sideColumn.scss'
 import UserContext from '../../context/User'
@@ -61,4 +62,4 @@ const SideColumn = () => {
     )
 }
 
-export default SideColumn
+export default observer(SideColumn)

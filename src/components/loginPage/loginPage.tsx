@@ -18,8 +18,7 @@ import UnirepContext from '../../context/Unirep'
 
 const LoginPage = () => {
     const history = useHistory()
-    const { setNextUSTTime, isLoading, setIsLoading } =
-        useContext(WebContext)
+    const { isLoading, setIsLoading } = useContext(WebContext)
     const user = useContext(UserContext)
 
     const [input, setInput] = useState<string>('')
@@ -71,8 +70,6 @@ const LoginPage = () => {
             try {
                 console.log('get airdrop')
                 await getAirdrop(input, userState.toJSON())
-                const next = await unirepConfig.nextEpochTime()
-                setNextUSTTime(next)
             } catch (e) {
                 console.log('airdrop error: ', e)
             }
@@ -101,9 +98,6 @@ const LoginPage = () => {
             //     spent: spent,
             //     userState: userState.toJSON(),
             // })
-
-            const nextET = await unirepConfig.nextEpochTime()
-            setNextUSTTime(nextET)
 
             setIsLoading(false)
             history.push('/')

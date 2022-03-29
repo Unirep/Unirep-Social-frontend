@@ -21,19 +21,13 @@ import { UserState } from './context/User'
 
 const AppRouter = () => {
     const [tx, setTx] = useLocalStorage('tx', '')
-    const [shownPosts, setShownPosts] = useLocalStorage('shownPosts', [])
-    const [nextUSTTime, setNextUSTTime] = useLocalStorage(
-        'nextUSTTime',
-        4789220745000
-    )
+
     const [adminCode, setAdminCode] = useLocalStorage('admin', '')
     const [draft, setDraft] = useLocalStorage('draft', null)
     const [isLoading, setIsLoading] = useLocalStorage('isLoading', false)
     const [action, setAction] = useState<any>(null)
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [page, setPage] = useState(Constants.Page.Home)
-
-    const user = new UserState();
 
     window.addEventListener('storage', (e) => {
         if (e.key === 'isLoading') {
@@ -52,12 +46,8 @@ const AppRouter = () => {
                     value={{
                         tx,
                         setTx,
-                        shownPosts,
-                        setShownPosts,
                         isLoading,
                         setIsLoading,
-                        nextUSTTime,
-                        setNextUSTTime,
                         isMenuOpen,
                         setIsMenuOpen,
                         page,
@@ -70,21 +60,21 @@ const AppRouter = () => {
                         setDraft,
                     }}
                 >
-                        <Header />
+                    <Header />
 
-                        <Switch>
-                            <Route component={MainPage} path="/" exact={true} />
-                            <Route component={PostPage} path="/post/:id" />
-                            <Route component={UserPage} path="/user" />
-                            <Route component={HelpPage} path="/help" />
-                            <Route component={LoginPage} path="/login" />
-                            <Route component={SignupPage} path="/signup" />
-                            <Route component={NewPage} path="/new" />
-                            <Route component={FeedbackPage} path="/feedback" />
-                            <Route component={AdminPage} path="/admin" />
-                            <Route component={SettingPage} path="/setting" />
-                            <Route component={() => <Redirect to="/" />} />
-                        </Switch>
+                    <Switch>
+                        <Route component={MainPage} path="/" exact={true} />
+                        <Route component={PostPage} path="/post/:id" />
+                        <Route component={UserPage} path="/user" />
+                        <Route component={HelpPage} path="/help" />
+                        <Route component={LoginPage} path="/login" />
+                        <Route component={SignupPage} path="/signup" />
+                        <Route component={NewPage} path="/new" />
+                        <Route component={FeedbackPage} path="/feedback" />
+                        <Route component={AdminPage} path="/admin" />
+                        <Route component={SettingPage} path="/setting" />
+                        <Route component={() => <Redirect to="/" />} />
+                    </Switch>
                 </WebContext.Provider>
             </div>
         </BrowserRouter>

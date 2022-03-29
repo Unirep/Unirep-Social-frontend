@@ -13,10 +13,9 @@ import BasicPage from '../basicPage/basicPage'
 import PostsList from '../postsList/postsList'
 import Feed from '../feed/feed'
 
-
 const MainPage = () => {
     const history = useHistory()
-    const posts = useContext(PostContext)
+    const postController = useContext(PostContext)
     const user = useContext(UserContext)
     const unirepConfig = useContext(UnirepContext)
 
@@ -26,14 +25,15 @@ const MainPage = () => {
 
     const loadMorePosts = () => {
         console.log(
-            'load more posts, now posts: ' + posts.feedsByQuery[query]?.length
+            'load more posts, now posts: ' +
+                postController.feedsByQuery[query]?.length
         )
-        const lastPost = [...posts.feedsByQuery[query]].pop()
-        posts.loadFeed(query, lastPost?.id)
+        const lastPost = [...postController.feedsByQuery[query]].pop()
+        postController.loadFeed(query, lastPost?.id)
     }
 
     useEffect(() => {
-        posts.loadFeed(query)
+        postController.loadFeed(query)
     }, [query])
 
     const gotoNewPost = () => {
@@ -59,7 +59,7 @@ const MainPage = () => {
             </div>
             <Feed feedChoice={query} setFeedChoice={setQuery} />
             <PostsList
-                posts={posts.feedsByQuery[query] || []}
+                posts={postController.feedsByQuery[query] || []}
                 loadMorePosts={loadMorePosts}
             />
         </BasicPage>

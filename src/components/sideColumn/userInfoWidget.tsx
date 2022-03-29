@@ -1,25 +1,37 @@
 import { useContext, useEffect, useState } from 'react'
 import dateformat from 'dateformat'
 import { confirmAlert } from 'react-confirm-alert'
-import { observer } from 'mobx-react-lite'
 import 'react-confirm-alert/src/react-confirm-alert.css'
 
 import { WebContext } from '../../context/WebContext'
 import UserContext from '../../context/User'
+import UnirepContext from '../../context/Unirep'
+
 import HelpWidget from '../helpWidget/helpWidget'
-import { ActionType, InfoType } from '../../constants'
+import { InfoType } from '../../constants'
 
 const UserInfoWidget = () => {
-    const { nextUSTTime, action, setAction, isLoading, setIsLoading } =
-        useContext(WebContext)
+    const { action, isLoading, setIsLoading } = useContext(WebContext)
     const user = useContext(UserContext)
+    const unirepConfig = useContext(UnirepContext)
+
     const [countdownText, setCountdownText] = useState<string>('')
     const [diffTime, setDiffTime] = useState<number>(0)
     const [isAlertOn, setAlertOn] = useState<boolean>(false)
-    const nextUSTTimeString = dateformat(
-        new Date(nextUSTTime),
-        'dd/mm/yyyy hh:MM TT'
-    )
+    const [nextUSTTime, setNextUSTTime] = useState<number>(4789220745000)
+    const [nextUSTTimeString, setNextUSTTimeString] = useState<string>('')
+
+    useEffect(() => {
+        const getEpochTime = async () => {
+            const nextEpochTime = await unirepConfig.nextEpochTime()
+            setNextUSTTime(nextEpochTime)
+            setNextUSTTimeString(
+                dateformat(new Date(nextEpochTime), 'dd/mm/yyyy hh:MM TT')
+            )
+        }
+
+        getEpochTime()
+    }, [])
 
     const makeCountdownText = () => {
         const diff = (nextUSTTime - Date.now()) / 1000
@@ -131,4 +143,4 @@ const UserInfoWidget = () => {
     )
 }
 
-export default observer(UserInfoWidget)
+export default UserInfoWidget

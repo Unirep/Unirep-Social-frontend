@@ -443,9 +443,7 @@ const UserPage = () => {
                                         key={h.data_id + '_' + i}
                                         record={h}
                                         isSpent={
-                                            user.allEpks.indexOf(
-                                                h.from
-                                            ) !== -1
+                                            user.allEpks.indexOf(h.from) !== -1
                                         }
                                     />
                                 ))}

@@ -10,8 +10,7 @@ import './header.scss'
 const Header = () => {
     const history = useHistory()
     const location = useLocation()
-    const { isLoading, isMenuOpen, setIsMenuOpen } =
-        useContext(WebContext)
+    const { isLoading, isMenuOpen, setIsMenuOpen } = useContext(WebContext)
     const user = useContext(UserContext)
     const [searchInput, setSearchInput] = useState<string>('')
     const unirepConfig = useContext(UnirepContext)

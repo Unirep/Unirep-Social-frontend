@@ -113,7 +113,7 @@ export class UserState {
     async loadSpent() {
         const paramStr = this.allEpks.join('_')
         const apiURL = makeURL(`records/${paramStr}`, { spentonly: true })
-    
+
         const r = await fetch(apiURL)
         const data = await r.json()
         this.spent = data.reduce((acc: number, v: any) => {
@@ -209,16 +209,19 @@ export class UserState {
             await this.calculateAllEpks()
             await this.loadReputation()
 
-            window.localStorage.setItem('user', JSON.stringify({
-                identity: serialiseIdentity(this.id),
-                epoch_keys: this.allEpks[-3],
-                all_epoch_keys: this.allEpks,
-                reputation: this.reputation,
-                current_epoch: currentEpoch,
-                isConfirmed: true,
-                spent: 0,
-                userState: '{}', // userStateResult.userState.toJSON(),
-            }))
+            window.localStorage.setItem(
+                'user',
+                JSON.stringify({
+                    identity: serialiseIdentity(this.id),
+                    epoch_keys: this.allEpks[-3],
+                    all_epoch_keys: this.allEpks,
+                    reputation: this.reputation,
+                    current_epoch: currentEpoch,
+                    isConfirmed: true,
+                    spent: 0,
+                    userState: '{}', // userStateResult.userState.toJSON(),
+                })
+            )
         }
     }
 
@@ -250,7 +253,7 @@ export class UserState {
         const apiURL = makeURL('signup', {
             commitment: commitment,
             epk: epk1,
-            invitationCode
+            invitationCode,
         })
         const r = await fetch(apiURL)
         const { epoch } = await r.json()
@@ -268,10 +271,8 @@ export class UserState {
         return epochKey.toString(16)
     }
 
-    async userStateTransition() {
+    async userStateTransition() {}
 
-    }
-    
     logout() {
         console.log('log out')
         this.id = undefined

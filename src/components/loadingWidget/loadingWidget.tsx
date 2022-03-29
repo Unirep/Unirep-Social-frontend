@@ -5,6 +5,7 @@ import './loadingWidget.scss'
 import { WebContext } from '../../context/WebContext'
 import UnirepContext from '../../context/Unirep'
 import UserContext from '../../context/User'
+import PostContext from '../../context/Post'
 
 import {
     publishPost,
@@ -18,8 +19,6 @@ import {
 } from '../../utils'
 import { ActionType } from '../../constants'
 import * as config from '../../config'
-import { getPostById } from '../../utils'
-
 
 enum LoadingState {
     loading,
@@ -29,19 +28,11 @@ enum LoadingState {
 }
 
 const LoadingWidget = () => {
-    const {
-        isLoading,
-        setIsLoading,
-        action,
-        setAction,
-        tx,
-        setTx,
-        setNextUSTTime,
-        setDraft,
-        shownPosts,
-        setShownPosts,
-    } = useContext(WebContext)
+    const { isLoading, setIsLoading, action, setAction, tx, setTx, setDraft } =
+        useContext(WebContext)
     const user = useContext(UserContext)
+    const postController = useContext(PostContext)
+
     const [loadingState, setLoadingState] = useState<LoadingState>(
         LoadingState.none
     )
@@ -63,7 +54,8 @@ const LoadingWidget = () => {
         }
 
         let newUser
-        if (user !== null && user.identity) { // reload user to local storage
+        if (user !== null && user.identity) {
+            // reload user to local storage
             const userStateResult = await getUserState(user.identity)
             const epks = getEpochKeys(
                 user.identity,
@@ -115,9 +107,6 @@ const LoadingWidget = () => {
                     return
                 }
             }
-
-            const next = await unirepConfig.nextEpochTime()
-            setNextUSTTime(next)
 
             let data: any = {}
             let newUser: any = undefined
@@ -250,11 +239,7 @@ const LoadingWidget = () => {
             setTx(data.transaction)
 
             if (pid.length > 0) {
-                const postRet = await getPostById(pid)
-                let newShownPosts = shownPosts.map((p) =>
-                    p.id === pid ? postRet : p
-                )
-                setShownPosts(newShownPosts)
+                await postController.loadPost(pid)
             }
 
             setIsLoading(false)
