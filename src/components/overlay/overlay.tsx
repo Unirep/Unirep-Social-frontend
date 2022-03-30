@@ -44,17 +44,17 @@ const Overlay = () => {
                     </a>
                     <a href="https://about.unirep.social">About</a>
                 </div>
-                {user === null ? (
-                    <div className="dynamic-info">
-                        <a href="/feedback">Send feedback</a>
-                        <a href="/login">Sign in</a>
-                        <a href="/signup">Join</a>
-                    </div>
-                ) : (
+                {user.id ? (
                     <div className="dynamic-info">
                         <a href="/feedback">Send feedback</a>
                         <p onClick={gotoUserPage}>My stuff</p>
                         <p onClick={signout}>Sign out</p>
+                    </div>
+                ) : (
+                    <div className="dynamic-info">
+                        <a href="/feedback">Send feedback</a>
+                        <a href="/login">Sign in</a>
+                        <a href="/signup">Join</a>
                     </div>
                 )}
             </div>

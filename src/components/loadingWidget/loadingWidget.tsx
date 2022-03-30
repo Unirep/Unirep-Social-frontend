@@ -112,7 +112,7 @@ const LoadingWidget = () => {
             let newUser: any = undefined
             let spentRet = await getEpochSpent(user ? user.allEpks : [])
 
-            if (user !== null && user !== undefined) {
+            if (user.id) {
                 const currentEpoch = parseInt(await unirepConfig.currentEpoch())
                 const userEpoch = user.currentEpoch
                 if (currentEpoch !== userEpoch) {

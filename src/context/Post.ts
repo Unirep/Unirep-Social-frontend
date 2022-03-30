@@ -6,6 +6,11 @@ import { makeURL, convertDataToPost } from '../utils'
 export class Data {
     postsById = {} as { [id: string]: Post }
     feedsByQuery = {} as { [query: string]: Post[] }
+    header = {
+        'content-type': 'application/json',
+        // 'Access-Control-Allow-Origin': config.SERVER,
+        // 'Access-Control-Allow-Credentials': 'true',
+    }
 
     constructor() {
         makeAutoObservable(this)
@@ -56,6 +61,28 @@ export class Data {
         ) as Post[]
         console.log(posts)
         this.ingestPosts(posts)
+    }
+
+    async publishPost(title: string = '', content: string = '', minRep: number = 0, proof: any = undefined, publicSignals: any = undefined) {
+        if (!proof || !publicSignals) return undefined
+
+        const apiURL = makeURL('post', {})
+        const r = await fetch(apiURL, {
+            headers: this.header,
+            body: JSON.stringify({
+                title,
+                content,
+                proof,
+                minRep,
+                publicSignals,
+            }),
+            method: 'POST',
+        })
+        const { transaction, error } = await r.json()
+        return {
+            error,
+            transaction
+        }
     }
 }
 

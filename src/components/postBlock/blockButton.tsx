@@ -26,7 +26,7 @@ const BlockButton = ({ type, count, data }: Props) => {
         if (type === ButtonType.Comments || type === ButtonType.Share) {
             return true
         } else {
-            if (user.identity === undefined) return false
+            if (!user.id) return false
             else {
                 if (data.current_epoch !== user.currentEpoch) return false
                 else if (user.reputation - user.spent < 1) return false
@@ -62,7 +62,7 @@ const BlockButton = ({ type, count, data }: Props) => {
     }
 
     const setReminderMessage = () => {
-        if (user === null) setReminder('Join us :)')
+        if (!user.id) setReminder('Join us :)')
         else {
             if (data.current_epoch !== user.currentEpoch)
                 setReminder('Time out :(')
@@ -115,7 +115,7 @@ const BlockButton = ({ type, count, data }: Props) => {
                 {type.charAt(0).toUpperCase() + type.slice(1)}
             </span>
 
-            {isAble ? (
+            {checkAbility() ? (
                 <div></div>
             ) : (
                 <div
