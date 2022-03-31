@@ -6,8 +6,11 @@ import 'react-confirm-alert/src/react-confirm-alert.css'
 import { WebContext } from '../../context/WebContext'
 import HelpWidget from '../helpWidget/helpWidget'
 import { ActionType, InfoType } from '../../constants'
+import UserContext from '../../context/User'
+import { observer } from 'mobx-react-lite'
 
 const UserInfoWidget = () => {
+    const userContext = useContext(UserContext)
     const { user, nextUSTTime, action, setAction, isLoading, setIsLoading } =
         useContext(WebContext)
     const [countdownText, setCountdownText] = useState<string>('')
@@ -22,7 +25,7 @@ const UserInfoWidget = () => {
         const diff = (nextUSTTime - Date.now()) / 1000
         setDiffTime(diff)
 
-        if (diff <= 0 && user !== null) {
+        if (diff <= 0 && userContext.userState) {
             if (action === null && !isAlertOn && !isLoading) {
                 setAlertOn(true)
                 confirmAlert({
@@ -36,8 +39,8 @@ const UserInfoWidget = () => {
                                     className="custom-btn"
                                     onClick={() => {
                                         const actionData = {
-                                            identity: user.identity,
-                                            userState: user.userState,
+                                            identity: userContext.identity,
+                                            userState: userContext.userState,
                                         }
                                         if (action === null && !isLoading) {
                                             setAction({
@@ -102,7 +105,7 @@ const UserInfoWidget = () => {
                             <img
                                 src={require('../../../public/images/lighting.svg')}
                             />
-                            {user.reputation - user.spent}
+                            {userContext.reputation}
                         </h3>
                     </div>
                     <div className="ust-info">
@@ -111,7 +114,7 @@ const UserInfoWidget = () => {
                             <HelpWidget type={InfoType.persona} />
                         </div>
                         <div className="epks">
-                            {user.epoch_keys.map((key) => (
+                            {userContext.currentEpochKeys.map((key) => (
                                 <div className="epk" key={key}>
                                     {key}
                                 </div>
@@ -137,4 +140,4 @@ const UserInfoWidget = () => {
     )
 }
 
-export default UserInfoWidget
+export default observer(UserInfoWidget)

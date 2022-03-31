@@ -43,15 +43,18 @@ export class Synchronizer {
     async load() {
         await unirepConfig.loadingPromise
         // now start syncing
-        this.unirepState = new UnirepState({
-            globalStateTreeDepth: unirepConfig.globalStateTreeDepth,
-            userStateTreeDepth: unirepConfig.userStateTreeDepth,
-            epochTreeDepth: unirepConfig.epochTreeDepth,
-            attestingFee: unirepConfig.attestingFee,
-            epochLength: unirepConfig.epochLength,
-            numEpochKeyNoncePerEpoch: unirepConfig.numEpochKeyNoncePerEpoch,
-            maxReputationBudget: unirepConfig.maxReputationBudget,
-        }, 1)
+        this.unirepState = new UnirepState(
+            {
+                globalStateTreeDepth: unirepConfig.globalStateTreeDepth,
+                userStateTreeDepth: unirepConfig.userStateTreeDepth,
+                epochTreeDepth: unirepConfig.epochTreeDepth,
+                attestingFee: unirepConfig.attestingFee,
+                epochLength: unirepConfig.epochLength,
+                numEpochKeyNoncePerEpoch: unirepConfig.numEpochKeyNoncePerEpoch,
+                maxReputationBudget: unirepConfig.maxReputationBudget,
+            },
+            1
+        )
     }
 
     // wait until we've synced to the latest known block
@@ -248,7 +251,12 @@ export class Synchronizer {
         })
 
         for (const event of events) {
-            await this._processEvent(event)
+            try {
+                await this._processEvent(event)
+            } catch (err) {
+                console.log('Error processing event', err)
+                console.log(event)
+            }
         }
     }
 

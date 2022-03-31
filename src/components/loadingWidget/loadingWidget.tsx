@@ -3,12 +3,7 @@ import { HashLink as Link } from 'react-router-hash-link'
 
 import './loadingWidget.scss'
 import { WebContext } from '../../context/WebContext'
-import {
-    publishPost,
-    vote,
-    leaveComment,
-    getLatestBlock,
-} from '../../utils'
+import { publishPost, vote, leaveComment, getLatestBlock } from '../../utils'
 import { ActionType } from '../../constants'
 import * as config from '../../config'
 import { getPostById } from '../../utils'
@@ -69,7 +64,7 @@ const LoadingWidget = () => {
             setNextUSTTime(next)
 
             if (!userContext.userState) {
-              throw new Error('User state is not initialized')
+                throw new Error('User state is not initialized')
             }
             const currentEpoch = parseInt(await unirepConfig.currentEpoch())
             if (currentEpoch > userContext.userState.latestTransitionedEpoch) {
@@ -88,11 +83,10 @@ const LoadingWidget = () => {
                 await userContext.getAirdrop()
             }
             // generate the proof here and then pass to api call fn
-            const amount = action.data.reputation || (action.data.upvote + action.data.downvote)
-            const proofData = await userContext.genRepProof(
-              amount,
-              amount
-            )
+            const amount =
+                action.data.reputation ||
+                action.data.upvote + action.data.downvote
+            const proofData = await userContext.genRepProof(amount, amount)
             let data
             if (action.action === ActionType.Post) {
                 data = await publishPost(
@@ -106,7 +100,7 @@ const LoadingWidget = () => {
                     proofData,
                     amount,
                     action.data.content,
-                    action.data.data,
+                    action.data.data
                 )
             } else if (action.action === ActionType.Vote) {
                 if (action.data.isPost) {
@@ -117,7 +111,7 @@ const LoadingWidget = () => {
                         action.data.downvote,
                         action.data.data,
                         action.data.epk,
-                        action.data.isPost,
+                        action.data.isPost
                     )
                 } else {
                     data = await vote(
@@ -127,10 +121,9 @@ const LoadingWidget = () => {
                         action.data.downvote,
                         action.data.data.split('_')[1],
                         action.data.epk,
-                        action.data.isPost,
+                        action.data.isPost
                     )
                 }
-
             } else if (action.action === ActionType.UST) {
                 console.log('already check epoch and do ust...')
             }
@@ -149,7 +142,7 @@ const LoadingWidget = () => {
             let pid: string = ''
             if (action.action === ActionType.Post) {
                 setGoto(
-                    (data && data.error === undefined)
+                    data && data.error === undefined
                         ? '/post/' + data.transaction
                         : '/new'
                 )

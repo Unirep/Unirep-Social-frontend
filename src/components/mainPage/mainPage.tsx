@@ -17,7 +17,7 @@ const MainPage = () => {
     const user = useContext(UserContext)
     const unirepConfig = useContext(UnirepContext)
 
-    const { shownPosts, setShownPosts, isLoading } = useContext(WebContext)
+    const { isLoading } = useContext(WebContext)
 
     const [query, setQuery] = useState<QueryType>(QueryType.New)
 

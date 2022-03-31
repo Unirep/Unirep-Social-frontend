@@ -11,10 +11,7 @@ import {
 } from '@unirep/crypto'
 import { UnirepFactory } from '@unirep/unirep-social'
 import { makeURL } from '../utils'
-import {
-    genEpochKey,
-    UserState,
-} from '@unirep/unirep'
+import { genEpochKey, UserState } from '@unirep/unirep'
 import { formatProofForVerifierContract } from '@unirep/circuits'
 import UnirepContext from './Unirep'
 import { Synchronizer } from './Synchronizer'
@@ -31,8 +28,8 @@ export class User extends Synchronizer {
     constructor() {
         super()
         makeObservable(this, {
-          currentEpoch: observable,
-          reputation: observable,
+            currentEpoch: observable,
+            reputation: observable,
         })
         this.load()
     }
@@ -57,6 +54,7 @@ export class User extends Synchronizer {
         )
         unirep.on('EpochEnded', this.loadCurrentEpoch.bind(this))
         await this.loadCurrentEpoch()
+        this.waitForSync().then(() => this.loadReputation())
     }
 
     async loadCurrentEpoch() {
@@ -215,9 +213,7 @@ export class User extends Synchronizer {
         })
         const r = await fetch(apiURL)
         const { epoch, transaction } = await r.json()
-        const receipt = await config.DEFAULT_ETH_PROVIDER.waitForTransaction(
-            transaction
-        )
+        await config.DEFAULT_ETH_PROVIDER.waitForTransaction(transaction)
         return {
             i: serializedIdentity,
             c: commitment,
@@ -236,44 +232,48 @@ export class User extends Synchronizer {
     }
 
     async genRepProof(amount: number, min: number) {
-      const currentEpoch = await this.loadCurrentEpoch()
-      const epk = this.getEpochKey(this.epkNonce, this.id?.identityNullifier, currentEpoch)
-      if (this.epkNonce >= this.unirepConfig.numEpochKeyNoncePerEpoch) {
-        throw new Error('Max epk nonce reached')
-      }
-      const rep = await this.loadReputation()
-      if (this.spent === -1) {
-        throw new Error('All nullifiers are spent')
-      }
-      if (this.spent + amount > Number(rep.posRep) - Number(rep.negRep)) {
-        throw new Error('Not enough reputation')
-      }
-      const nonceList = [] as BigInt[]
-      for (let i = 0; i < amount; i++) {
-        nonceList.push(BigInt(this.spent + i))
-      }
-      const spentNonces = nonceList.length
-      for (let i = amount; i < this.unirepConfig.maxReputationBudget; i++) {
-        nonceList.push(BigInt(-1))
-      }
-      console.log(nonceList)
-      const proveGraffiti = BigInt(0)
-      const graffitiPreImage = BigInt(0)
-      if (!this.userState) throw new Error('User state not initialized')
-      const results = await this.userState.genProveReputationProof(
-          BigInt(this.unirepConfig.attesterId),
-          this.epkNonce,
-          min,
-          proveGraffiti,
-          graffitiPreImage,
-          nonceList
-      )
+        const currentEpoch = await this.loadCurrentEpoch()
+        const epk = this.getEpochKey(
+            this.epkNonce,
+            this.id?.identityNullifier,
+            currentEpoch
+        )
+        if (this.epkNonce >= this.unirepConfig.numEpochKeyNoncePerEpoch) {
+            throw new Error('Max epk nonce reached')
+        }
+        const rep = await this.loadReputation()
+        if (this.spent === -1) {
+            throw new Error('All nullifiers are spent')
+        }
+        if (this.spent + amount > Number(rep.posRep) - Number(rep.negRep)) {
+            throw new Error('Not enough reputation')
+        }
+        const nonceList = [] as BigInt[]
+        for (let i = 0; i < amount; i++) {
+            nonceList.push(BigInt(this.spent + i))
+        }
+        const spentNonces = nonceList.length
+        for (let i = amount; i < this.unirepConfig.maxReputationBudget; i++) {
+            nonceList.push(BigInt(-1))
+        }
+        console.log(nonceList)
+        const proveGraffiti = BigInt(0)
+        const graffitiPreImage = BigInt(0)
+        if (!this.userState) throw new Error('User state not initialized')
+        const results = await this.userState.genProveReputationProof(
+            BigInt(this.unirepConfig.attesterId),
+            this.epkNonce,
+            min,
+            proveGraffiti,
+            graffitiPreImage,
+            nonceList
+        )
 
-      const proof = formatProofForVerifierContract(results.proof)
-      const publicSignals = results.publicSignals
-      this.spent += spentNonces
-      this.epkNonce++
-      return { epk, proof, publicSignals, currentEpoch }
+        const proof = formatProofForVerifierContract(results.proof)
+        const publicSignals = results.publicSignals
+        this.spent += spentNonces
+        this.epkNonce++
+        return { epk, proof, publicSignals, currentEpoch }
     }
 
     async userStateTransition() {

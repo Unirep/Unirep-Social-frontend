@@ -4,9 +4,7 @@ import {
     serialiseIdentity,
     unSerialiseIdentity,
 } from '@unirep/crypto'
-import {
-    genEpochKey,
-} from '@unirep/unirep'
+import { genEpochKey } from '@unirep/unirep'
 import * as config from './config'
 import {
     Record,
@@ -109,7 +107,7 @@ export const publishPost = async (
     proofData: any,
     minRep: number,
     content: string,
-    title: string = '',
+    title: string = ''
 ) => {
     const unirepConfig = (UnirepContext as any)._currentValue
     await unirepConfig.loadingPromise
@@ -129,8 +127,8 @@ export const publishPost = async (
     })
     const { transaction, error } = await r.json()
     return {
-      error,
-      transaction,
+        error,
+        transaction,
     }
 }
 
@@ -141,7 +139,7 @@ export const vote = async (
     downvote: number,
     dataId: string,
     receiver: string,
-    isPost: boolean = true,
+    isPost: boolean = true
 ) => {
     // send publicsignals, proof, voted post id, receiver epoch key, graffiti to backend
     const apiURL = makeURL('vote', {})
@@ -171,7 +169,7 @@ export const leaveComment = async (
     proofData: any,
     minRep: number,
     content: string,
-    postId: string,
+    postId: string
 ) => {
     const unirepConfig = (UnirepContext as any)._currentValue
     await unirepConfig.loadingPromise
