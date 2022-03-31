@@ -1,5 +1,5 @@
 import { createContext } from 'react'
-import { makeAutoObservable } from 'mobx'
+import { makeObservable, observable } from 'mobx'
 import * as config from '../config'
 import { ethers } from 'ethers'
 import {
@@ -12,7 +12,6 @@ import {
 import { UnirepFactory } from '@unirep/unirep-social'
 import { makeURL } from '../utils'
 import {
-    genUserStateFromContract,
     genEpochKey,
     UserState,
 } from '@unirep/unirep'
@@ -24,12 +23,17 @@ export class User extends Synchronizer {
     id?: Identity
     allEpks = [] as string[]
     currentEpoch = 0
-    reputation = 0
-    spent = 0
+    reputation = 30
     unirepConfig = (UnirepContext as any)._currentValue
+    epkNonce = 0
+    spent = 0
 
     constructor() {
         super()
+        makeObservable(this, {
+          currentEpoch: observable,
+          reputation: observable,
+        })
         this.load()
     }
 
@@ -126,42 +130,6 @@ export class User extends Synchronizer {
         return rep
     }
 
-    async genUserState() {
-        await this.unirepConfig.loadingPromise
-        const startTime = new Date().getTime()
-        const unirepContract = UnirepFactory.connect(
-            this.unirepConfig.unirepAddress,
-            config.DEFAULT_ETH_PROVIDER
-        )
-        const parsedUserState = undefined
-        console.log('update user state from stored us')
-        const userState = await genUserStateFromContract(
-            config.DEFAULT_ETH_PROVIDER,
-            unirepContract.address,
-            this.id,
-            parsedUserState
-        )
-        const endTime = new Date().getTime()
-        console.log(
-            `Gen us time: ${endTime - startTime} ms (${Math.floor(
-                (endTime - startTime) / 1000
-            )} s)`
-        )
-        const numEpochKeyNoncePerEpoch =
-            this.unirepConfig.numEpochKeyNoncePerEpoch
-        const attesterId = this.unirepConfig.attesterId
-        const jsonedUserState = JSON.parse(userState.toJSON())
-        const currentEpoch = userState.getUnirepStateCurrentEpoch()
-
-        return {
-            userState,
-            numEpochKeyNoncePerEpoch,
-            currentEpoch: Number(currentEpoch),
-            attesterId,
-            hasSignedUp: jsonedUserState.hasSignedUp,
-        }
-    }
-
     async getAirdrop() {
         if (!this.id || !this.userState) throw new Error('Identity not loaded')
         await this.unirepConfig.loadingPromise
@@ -250,7 +218,6 @@ export class User extends Synchronizer {
         const receipt = await config.DEFAULT_ETH_PROVIDER.waitForTransaction(
             transaction
         )
-        console.log('test', receipt)
         return {
             i: serializedIdentity,
             c: commitment,
@@ -266,6 +233,47 @@ export class User extends Synchronizer {
             this.unirepConfig.epochTreeDepth
         )
         return epochKey.toString(16)
+    }
+
+    async genRepProof(amount: number, min: number) {
+      const currentEpoch = await this.loadCurrentEpoch()
+      const epk = this.getEpochKey(this.epkNonce, this.id?.identityNullifier, currentEpoch)
+      if (this.epkNonce >= this.unirepConfig.numEpochKeyNoncePerEpoch) {
+        throw new Error('Max epk nonce reached')
+      }
+      const rep = await this.loadReputation()
+      if (this.spent === -1) {
+        throw new Error('All nullifiers are spent')
+      }
+      if (this.spent + amount > Number(rep.posRep) - Number(rep.negRep)) {
+        throw new Error('Not enough reputation')
+      }
+      const nonceList = [] as BigInt[]
+      for (let i = 0; i < amount; i++) {
+        nonceList.push(BigInt(this.spent + i))
+      }
+      const spentNonces = nonceList.length
+      for (let i = amount; i < this.unirepConfig.maxReputationBudget; i++) {
+        nonceList.push(BigInt(-1))
+      }
+      console.log(nonceList)
+      const proveGraffiti = BigInt(0)
+      const graffitiPreImage = BigInt(0)
+      if (!this.userState) throw new Error('User state not initialized')
+      const results = await this.userState.genProveReputationProof(
+          BigInt(this.unirepConfig.attesterId),
+          this.epkNonce,
+          min,
+          proveGraffiti,
+          graffitiPreImage,
+          nonceList
+      )
+
+      const proof = formatProofForVerifierContract(results.proof)
+      const publicSignals = results.publicSignals
+      this.spent += spentNonces
+      this.epkNonce++
+      return { epk, proof, publicSignals, currentEpoch }
     }
 
     async userStateTransition() {
@@ -284,6 +292,8 @@ export class User extends Synchronizer {
             },
         })
         const { transaction, error } = await r.json()
+        this.epkNonce = 0
+        this.spent = 0
         return { error, transaction }
     }
 }

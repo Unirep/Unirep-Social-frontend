@@ -51,7 +51,7 @@ export class Synchronizer {
             epochLength: unirepConfig.epochLength,
             numEpochKeyNoncePerEpoch: unirepConfig.numEpochKeyNoncePerEpoch,
             maxReputationBudget: unirepConfig.maxReputationBudget,
-        })
+        }, 1)
     }
 
     // wait until we've synced to the latest known block
@@ -623,7 +623,7 @@ export class Synchronizer {
 
     private async epochEnded(event: any) {
         const epoch = Number(event.topics[1])
-        await this.unirepState?.epochTransition(epoch, event.blockNumber)
+        await this.userState?.epochTransition(epoch, event.blockNumber)
     }
 }
 

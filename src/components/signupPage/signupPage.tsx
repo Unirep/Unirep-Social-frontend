@@ -76,7 +76,6 @@ const SignupPage = () => {
             await userState.calculateAllEpks()
             const currentRep = await userState.loadReputation()
             const { error } = await userState.getAirdrop()
-            console.log('test')
             if (error !== undefined) {
                 console.error(error)
             }

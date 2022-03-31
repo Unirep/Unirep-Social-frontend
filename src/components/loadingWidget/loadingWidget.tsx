@@ -7,17 +7,13 @@ import {
     publishPost,
     vote,
     leaveComment,
-    getEpochSpent,
-    userStateTransition,
-    getUserState,
-    getEpochKeys,
-    getAirdrop,
     getLatestBlock,
 } from '../../utils'
 import { ActionType } from '../../constants'
 import * as config from '../../config'
 import { getPostById } from '../../utils'
 import UnirepContext from '../../context/Unirep'
+import UserContext from '../../context/User'
 
 enum LoadingState {
     loading,
@@ -32,8 +28,6 @@ const LoadingWidget = () => {
         setIsLoading,
         action,
         setAction,
-        user,
-        setUser,
         tx,
         setTx,
         setNextUSTTime,
@@ -47,54 +41,7 @@ const LoadingWidget = () => {
     const [isFlip, setFlip] = useState<boolean>(false)
     const [goto, setGoto] = useState<string>('')
     const unirepConfig = useContext(UnirepContext)
-
-    const doUST = async () => {
-        await unirepConfig.loadingPromise
-        let USTData: any = null
-        USTData = await userStateTransition(
-            action.data.identity,
-            action.data.userState
-        )
-        if (USTData?.transaction) {
-            await config.DEFAULT_ETH_PROVIDER.waitForTransaction(
-                USTData.transaction
-            )
-        }
-
-        let newUser
-        if (user !== null) {
-            const userStateResult = await getUserState(user.identity)
-            const epks = getEpochKeys(
-                user.identity,
-                userStateResult.currentEpoch
-            )
-            const rep = userStateResult.userState.getRepByAttester(
-                BigInt(unirepConfig.attesterId)
-            )
-            if (USTData !== undefined) {
-                newUser = {
-                    ...user,
-                    epoch_keys: epks,
-                    reputation: Number(rep.posRep) - Number(rep.negRep),
-                    current_epoch: USTData.toEpoch,
-                    spent: 0,
-                    userState: userStateResult.userState.toJSON(),
-                    all_epoch_keys: [...user.all_epoch_keys, ...epks],
-                }
-                USTData = { ...USTData, user: newUser }
-            }
-            if (USTData.error !== undefined) return USTData
-            const { error } = await getAirdrop(
-                user.identity,
-                userStateResult.userState
-            )
-            if (error !== undefined) {
-                USTData = { ...USTData, error }
-            }
-        }
-
-        return USTData
-    }
+    const userContext = useContext(UserContext)
 
     useEffect(() => {
         const doAction = async () => {
@@ -121,106 +68,74 @@ const LoadingWidget = () => {
             const next = await unirepConfig.nextEpochTime()
             setNextUSTTime(next)
 
-            let data: any = {}
-            let newUser: any = undefined
-            let spentRet = await getEpochSpent(user ? user.epoch_keys : [])
-
-            if (user !== null && user !== undefined) {
-                const currentEpoch = parseInt(await unirepConfig.currentEpoch())
-                const userEpoch = JSON.parse(
-                    user.userState
-                ).latestTransitionedEpoch
-                if (currentEpoch !== userEpoch) {
-                    console.log(
-                        'user epoch is not the same as current epoch, do user state transition, ' +
-                            JSON.parse(user?.userState)
-                                .latestTransitionedEpoch +
-                            ' != ' +
-                            currentEpoch
-                    )
-                    data = await doUST()
-                    newUser = data.user
-
-                    if (data.error !== undefined) {
-                        console.log(data.error)
-                        setUser({ ...newUser, spent: 0 })
-                        setGoto('/')
-                        setLoadingState(LoadingState.failed)
-                        setIsLoading(false)
-                        return
-                    }
-
-                    spentRet = 0
-                }
+            if (!userContext.userState) {
+              throw new Error('User state is not initialized')
             }
-
-            console.log('in the head of loading widget, spent is: ' + spentRet)
-
+            const currentEpoch = parseInt(await unirepConfig.currentEpoch())
+            if (currentEpoch > userContext.userState.latestTransitionedEpoch) {
+                console.log(
+                    'user epoch is not the same as current epoch, do user state transition, ' +
+                        userContext.userState.latestTransitionedEpoch +
+                        ' != ' +
+                        currentEpoch
+                )
+                const { transaction } = await userContext.userStateTransition()
+                if (transaction) {
+                    await config.DEFAULT_ETH_PROVIDER.waitForTransaction(
+                        transaction
+                    )
+                }
+                await userContext.getAirdrop()
+            }
+            // generate the proof here and then pass to api call fn
+            const amount = action.data.reputation || (action.data.upvote + action.data.downvote)
+            const proofData = await userContext.genRepProof(
+              amount,
+              amount
+            )
+            let data
             if (action.action === ActionType.Post) {
                 data = await publishPost(
+                    proofData,
+                    amount,
                     action.data.content,
-                    action.data.epkNonce,
-                    action.data.identity,
-                    action.data.reputation,
-                    spentRet,
-                    action.data.userState,
                     action.data.title
                 )
-                spentRet += unirepConfig.postReputation
             } else if (action.action === ActionType.Comment) {
                 data = await leaveComment(
-                    action.data.identity,
+                    proofData,
+                    amount,
                     action.data.content,
                     action.data.data,
-                    action.data.epkNonce,
-                    action.data.reputation,
-                    spentRet,
-                    action.data.userState
                 )
-                spentRet += unirepConfig.commentReputation
             } else if (action.action === ActionType.Vote) {
                 if (action.data.isPost) {
                     data = await vote(
-                        action.data.identity,
+                        proofData,
+                        amount,
                         action.data.upvote,
                         action.data.downvote,
                         action.data.data,
                         action.data.epk,
-                        action.data.epkNonce,
-                        action.data.upvote + action.data.downvote,
                         action.data.isPost,
-                        spentRet,
-                        action.data.userState
                     )
                 } else {
                     data = await vote(
-                        action.data.identity,
+                        proofData,
+                        amount,
                         action.data.upvote,
                         action.data.downvote,
                         action.data.data.split('_')[1],
                         action.data.epk,
-                        action.data.epkNonce,
-                        action.data.upvote + action.data.downvote,
                         action.data.isPost,
-                        spentRet,
-                        action.data.userState
                     )
                 }
 
-                spentRet += action.data.upvote + action.data.downvote
             } else if (action.action === ActionType.UST) {
                 console.log('already check epoch and do ust...')
             }
 
-            if (user !== null) {
-                if (newUser === undefined) {
-                    setUser({ ...user, spent: spentRet })
-                } else {
-                    setUser({ ...newUser, spent: spentRet })
-                }
-            }
-
-            if (data.error !== undefined) {
+            if (data && data.error !== undefined) {
                 console.log('action ' + action.action + ' error: ' + data.error)
                 setLoadingState(LoadingState.failed)
                 setIsLoading(false)
@@ -234,25 +149,25 @@ const LoadingWidget = () => {
             let pid: string = ''
             if (action.action === ActionType.Post) {
                 setGoto(
-                    data.error === undefined
+                    (data && data.error === undefined)
                         ? '/post/' + data.transaction
                         : '/new'
                 )
-                pid = data.transaction
+                pid = data?.transaction
             } else if (action.action === ActionType.Vote) {
                 setGoto('/post/' + action.data.data.replace('_', '#'))
                 pid = action.data.data.split('_')[0]
             } else if (action.action === ActionType.Comment) {
                 setGoto(
-                    data.error === undefined
-                        ? '/post/' + action.data.data + '#' + data.transaction
+                    data?.error === undefined
+                        ? '/post/' + action.data.data + '#' + data?.transaction
                         : '/post/' + action.data.data
                 )
                 pid = action.data.data
             } else if (action.action === ActionType.UST) {
                 setGoto('/')
             }
-            setTx(data.transaction)
+            setTx(data?.transaction)
 
             if (pid.length > 0) {
                 const postRet = await getPostById(pid)
@@ -265,7 +180,7 @@ const LoadingWidget = () => {
             setIsLoading(false)
         }
 
-        if (action !== null && user !== null && !isLoading) {
+        if (action !== null && !isLoading) {
             console.log('do action')
             doAction()
         }
@@ -278,12 +193,6 @@ const LoadingWidget = () => {
 
         return () => clearTimeout(timer)
     }, [isFlip])
-
-    useEffect(() => {
-        if (user === null) {
-            resetLoading()
-        }
-    }, [user])
 
     const resetLoading = () => {
         if (loadingState === LoadingState.loading) {
