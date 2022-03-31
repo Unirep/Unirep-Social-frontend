@@ -71,9 +71,12 @@ const SignupPage = () => {
         } else if (step === 3) {
             setIsLoading(true)
             if (!userState.identity) throw new Error('Identity not initialized')
+            await userState.waitForSync()
+            console.log('sync complete')
             await userState.calculateAllEpks()
             const currentRep = await userState.loadReputation()
             const { error } = await userState.getAirdrop()
+            console.log('test')
             if (error !== undefined) {
                 console.error(error)
             }

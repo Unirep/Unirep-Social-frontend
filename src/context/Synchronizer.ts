@@ -28,9 +28,10 @@ export class Synchronizer {
     userState?: UserState
     validProofs = {} as { [key: ProofKey]: any }
     spentProofs = {} as { [key: ProofKey]: boolean }
+    latestProcessedBlock = 0
 
     constructor() {
-        makeAutoObservable(this)
+        // makeAutoObservable(this)
         this.load()
     }
 
@@ -51,7 +52,17 @@ export class Synchronizer {
             numEpochKeyNoncePerEpoch: unirepConfig.numEpochKeyNoncePerEpoch,
             maxReputationBudget: unirepConfig.maxReputationBudget,
         })
-        this.startDaemon()
+    }
+
+    // wait until we've synced to the latest known block
+    async waitForSync(blockNumber?: number) {
+        const targetBlock =
+            blockNumber ?? (await DEFAULT_ETH_PROVIDER.getBlockNumber())
+        console.log('waiting for block', targetBlock)
+        for (;;) {
+            if (this.latestProcessedBlock >= targetBlock) return
+            await new Promise((r) => setTimeout(r, 2000))
+        }
     }
 
     async startDaemon() {
@@ -59,9 +70,9 @@ export class Synchronizer {
         DEFAULT_ETH_PROVIDER.on('block', (num) => {
             if (num > latestBlock) latestBlock = num
         })
-        let latestProcessed = 0
+        this.latestProcessedBlock = 0
         for (;;) {
-            if (latestProcessed === latestBlock) {
+            if (this.latestProcessedBlock === latestBlock) {
                 await new Promise((r) => setTimeout(r, 1000))
                 continue
             }
@@ -70,19 +81,19 @@ export class Synchronizer {
                 await Promise.all([
                     unirepConfig.unirep.queryFilter(
                         this.unirepFilter,
-                        latestProcessed + 1,
+                        this.latestProcessedBlock + 1,
                         newLatest
                     ),
                     unirepConfig.unirepSocial.queryFilter(
                         this.unirepSocialFilter,
-                        latestProcessed + 1,
+                        this.latestProcessedBlock + 1,
                         newLatest
                     ),
                 ])
             ).flat() as ethers.Event[]
             // first process historical ones then listen
             await this.processEvents(allEvents)
-            latestProcessed = newLatest
+            this.latestProcessedBlock = newLatest
         }
     }
 
@@ -464,7 +475,7 @@ export class Synchronizer {
             const idCommitment = BigInt(event.topics[2])
             const attesterId = Number(decodedData._attesterId)
             const airdrop = Number(decodedData._airdropAmount)
-            await this.unirepState?.signUp(
+            await this.userState?.signUp(
                 epoch,
                 idCommitment,
                 attesterId,
@@ -474,7 +485,7 @@ export class Synchronizer {
         } else if (event.topics[0] === this.allTopics.UserStateTransitioned) {
             console.log('UserStateTransitioned')
             // await this.USTEvent(event)
-            await this.userStateTransition(event)
+            await this._userStateTransition(event)
         } else if (event.topics[0] === this.allTopics.AttestationSubmitted) {
             console.log('AttestationSubmitted')
             await this.attestationSubmitted(event)
@@ -487,7 +498,7 @@ export class Synchronizer {
         }
     }
 
-    private async userStateTransition(event: any) {
+    private async _userStateTransition(event: any) {
         const decodedData = unirepConfig.unirep.interface.decodeEventLog(
             'UserStateTransitioned',
             event.data

@@ -55,19 +55,6 @@ const decodeIdentity = (identity: string) => {
     }
 }
 
-export const hasSignedUp = async (identity: string) => {
-    const unirepConfig = (UnirepContext as any)._currentValue
-    await unirepConfig.loadingPromise
-
-    const { commitment } = decodeIdentity(identity)
-
-    // If user has signed up in Unirep
-    const hasUserSignUp = await unirepConfig.unirep.hasUserSignedUp(commitment)
-    return {
-        hasSignedUp: hasUserSignUp,
-    }
-}
-
 export const getUserState = async (
     identity: string,
     us?: any,
