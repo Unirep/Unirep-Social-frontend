@@ -9,8 +9,7 @@ import UserContext from '../../context/User'
 
 const LoginPage = () => {
     const history = useHistory()
-    const { user, setUser, setNextUSTTime, isLoading, setIsLoading } =
-        useContext(WebContext)
+    const { isLoading, setIsLoading } = useContext(WebContext)
     const [input, setInput] = useState<string>('')
     const [errorMsg, setErrorMsg] = useState<string>('')
     const [isButtonLoading, setButtonLoading] = useState<boolean>(false)

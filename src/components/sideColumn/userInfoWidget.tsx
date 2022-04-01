@@ -8,24 +8,26 @@ import HelpWidget from '../helpWidget/helpWidget'
 import { ActionType, InfoType } from '../../constants'
 import UserContext from '../../context/User'
 import { observer } from 'mobx-react-lite'
+import EpochContext from '../../context/EpochManager'
 
 const UserInfoWidget = () => {
+    const epochManager = useContext(EpochContext)
     const userContext = useContext(UserContext)
-    const { user, nextUSTTime, action, setAction, isLoading, setIsLoading } =
+    const { action, setAction, isLoading, setIsLoading } =
         useContext(WebContext)
     const [countdownText, setCountdownText] = useState<string>('')
     const [diffTime, setDiffTime] = useState<number>(0)
     const [isAlertOn, setAlertOn] = useState<boolean>(false)
     const nextUSTTimeString = dateformat(
-        new Date(nextUSTTime),
+        new Date(epochManager.nextTransition),
         'dd/mm/yyyy hh:MM TT'
     )
 
     const makeCountdownText = () => {
-        const diff = (nextUSTTime - Date.now()) / 1000
+        const diff = (epochManager.nextTransition - Date.now()) / 1000
         setDiffTime(diff)
 
-        if (diff <= 0 && userContext.userState) {
+        if (epochManager.readyToTransition && userContext.userState) {
             if (action === null && !isAlertOn && !isLoading) {
                 setAlertOn(true)
                 confirmAlert({
@@ -61,24 +63,23 @@ const UserInfoWidget = () => {
             }
 
             return 'Doing UST...'
-        } else {
-            const days = Math.floor(diff / (24 * 60 * 60))
-            if (days > 0) {
-                return days + ' days'
-            } else {
-                const hours = Math.floor(diff / (60 * 60))
-                if (hours > 0) {
-                    return hours + ' hours'
-                } else {
-                    const minutes = Math.floor(diff / 60)
-                    if (minutes > 0) {
-                        return minutes + ' minutes'
-                    } else {
-                        return Math.floor(diff) + ' seconds'
-                    }
-                }
-            }
         }
+        const days = Math.floor(diff / (24 * 60 * 60))
+        if (days > 0) {
+            return days + ' days'
+        }
+        const hours = Math.floor(diff / (60 * 60))
+        if (hours > 0) {
+            return hours + ' hours'
+        }
+        const minutes = Math.floor(diff / 60)
+        if (minutes > 0) {
+            return minutes + ' minutes'
+        }
+        if (diff >= 0) {
+            return Math.floor(diff) + ' seconds'
+        }
+        return 'Awaiting Epoch Change...'
     }
 
     useEffect(() => {
@@ -97,7 +98,7 @@ const UserInfoWidget = () => {
 
     return (
         <div>
-            {user !== null ? (
+            {userContext.userState ? (
                 <div className="user-info-widget widget">
                     <div className="rep-info">
                         <p>My Rep</p>

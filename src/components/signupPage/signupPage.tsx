@@ -12,8 +12,7 @@ import UnirepContext from '../../context/Unirep'
 const SignupPage = () => {
     const userState = useContext(UserState)
     const history = useHistory()
-    const { setUser, setNextUSTTime, isLoading, setIsLoading } =
-        useContext(WebContext)
+    const { setUser, isLoading, setIsLoading } = useContext(WebContext)
     const [invitationCode, setInvitationCode] = useState<string>('')
     const [step, setStep] = useState<number>(0)
     const [isDownloaded, setIsDownloaded] = useState(false)
@@ -91,9 +90,6 @@ const SignupPage = () => {
                 spent: 0,
                 userState: '{}', // userStateResult.userState.toJSON(),
             })
-
-            const nextET = await unirepConfig.nextEpochTime()
-            setNextUSTTime(nextET)
 
             setIsLoading(false)
             history.push('/')

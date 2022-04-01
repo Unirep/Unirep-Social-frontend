@@ -25,7 +25,6 @@ const LoadingWidget = () => {
         setAction,
         tx,
         setTx,
-        setNextUSTTime,
         setDraft,
         shownPosts,
         setShownPosts,
@@ -59,9 +58,6 @@ const LoadingWidget = () => {
                     return
                 }
             }
-
-            const next = await unirepConfig.nextEpochTime()
-            setNextUSTTime(next)
 
             if (!userContext.userState) {
                 throw new Error('User state is not initialized')

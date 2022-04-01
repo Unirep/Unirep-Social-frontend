@@ -284,12 +284,12 @@ export class User extends Synchronizer {
         const r = await fetch(makeURL('userStateTransition'), {
             headers: {
                 'content-type': 'application/json',
-                body: JSON.stringify({
-                    results,
-                    fromEpoch: this.userState.latestTransitionedEpoch,
-                }),
-                method: 'POST',
             },
+            body: JSON.stringify({
+                results,
+                fromEpoch: this.userState.latestTransitionedEpoch,
+            }),
+            method: 'POST',
         })
         const { transaction, error } = await r.json()
         this.epkNonce = 0
