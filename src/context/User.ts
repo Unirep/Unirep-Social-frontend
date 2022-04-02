@@ -41,9 +41,7 @@ export class User extends Synchronizer {
         const storedUser = window.localStorage.getItem('user')
         if (storedUser && storedUser !== 'null') {
             const { identity } = JSON.parse(storedUser)
-            this.id = unSerialiseIdentity(identity)
-            this.userState = new UserState(this.unirepState, this.id)
-            this.startDaemon()
+            this.setIdentity(identity)
         }
         await this.loadReputation()
         // start listening for new epochs
@@ -77,16 +75,16 @@ export class User extends Synchronizer {
     }
 
     setIdentity(identity: string | Identity) {
-        if (typeof identity === 'string') {
-            this.id = unSerialiseIdentity(identity)
-        } else {
-            this.id = identity
-        }
         if (this.userState) {
             throw new Error('Identity already set, change is not supported')
         }
         if (!this.unirepState) {
             throw new Error('Unirep state is not initialized')
+        }
+        if (typeof identity === 'string') {
+            this.id = unSerialiseIdentity(identity)
+        } else {
+            this.id = identity
         }
         this.userState = new UserState(this.unirepState, this.id)
         this.startDaemon()
@@ -256,7 +254,6 @@ export class User extends Synchronizer {
         for (let i = amount; i < this.unirepConfig.maxReputationBudget; i++) {
             nonceList.push(BigInt(-1))
         }
-        console.log(nonceList)
         const proveGraffiti = BigInt(0)
         const graffitiPreImage = BigInt(0)
         if (!this.userState) throw new Error('User state not initialized')

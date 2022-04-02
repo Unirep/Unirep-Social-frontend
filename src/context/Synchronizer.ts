@@ -52,15 +52,14 @@ export class Synchronizer {
                 epochLength: unirepConfig.epochLength,
                 numEpochKeyNoncePerEpoch: unirepConfig.numEpochKeyNoncePerEpoch,
                 maxReputationBudget: unirepConfig.maxReputationBudget,
-            },
-            1
+            }
         )
     }
 
     // wait until we've synced to the latest known block
     async waitForSync(blockNumber?: number) {
         const targetBlock =
-            blockNumber ?? (await DEFAULT_ETH_PROVIDER.getBlockNumber())
+            blockNumber ?? (await DEFAULT_ETH_PROVIDER.getBlockNumber());
         console.log('waiting for block', targetBlock)
         for (;;) {
             if (this.latestProcessedBlock >= targetBlock) return
@@ -347,7 +346,7 @@ export class Synchronizer {
 
             if (validNullifiers) {
                 for (let j = 0; j < nullifiersAmount; j++) {
-                    this.unirepState?.addReputationNullifiers(
+                    this.userState?.addReputationNullifiers(
                         nullifiers[j],
                         event.blockNumber
                     )
@@ -574,7 +573,7 @@ export class Synchronizer {
 
     private async attestationSubmitted(event: any) {
         const _epoch = Number(event.topics[1])
-        const _epochKey = BigInt(event.topics[2])
+        const _epochKey = ethers.BigNumber.from(event.topics[2])
         const _attester = event.topics[3]
         const decodedData = unirepConfig.unirep.interface.decodeEventLog(
             'AttestationSubmitted',
@@ -615,10 +614,7 @@ export class Synchronizer {
             BigInt(decodedData._attestation.graffiti),
             BigInt(decodedData._attestation.signUp)
         )
-        if (
-            _epochKey.toString(16).padStart(8, '0') !==
-            attestationProof.epochKey
-        )
+        if (!_epochKey.eq('0x' + attestationProof.epochKey))
             return console.error('epoch key mismatch')
         if (this.unirepState?.isEpochKeySealed(_epochKey.toString()))
             return console.error('epoch key sealed')
