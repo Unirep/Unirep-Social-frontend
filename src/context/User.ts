@@ -31,7 +31,6 @@ export class User extends Synchronizer {
             currentEpoch: observable,
             reputation: observable,
         })
-        this.load()
     }
 
     // must be called in browser, not in SSR
