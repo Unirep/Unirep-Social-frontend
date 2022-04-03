@@ -1,9 +1,4 @@
-import {
-    genIdentity,
-    genIdentityCommitment,
-    serialiseIdentity,
-    unSerialiseIdentity,
-} from '@unirep/crypto'
+import { genIdentityCommitment, unSerialiseIdentity } from '@unirep/crypto'
 import { genEpochKey } from '@unirep/unirep'
 import * as config from './config'
 import { Record, Post, DataType, Vote, Comment, QueryType } from './constants'
@@ -69,31 +64,6 @@ export const checkInvitationCode = async (invitationCode: string) => {
     const apiURL = makeURL('genInvitationCode/' + invitationCode, {})
     const r = await fetch(apiURL)
     return r.ok
-}
-
-export const userSignUp = async () => {
-    const unirepConfig = (UnirepContext as any)._currentValue
-    await unirepConfig.loadingPromise
-    const id = genIdentity()
-    const commitment = genIdentityCommitment(id).toString(16).padStart(64, '0')
-
-    const serializedIdentity = serialiseIdentity(id)
-
-    const currentEpoch = Number(await unirepConfig.currentEpoch())
-    const epk1 = getEpochKey(0, id.identityNullifier, currentEpoch)
-
-    // call server user sign up
-    const apiURL = makeURL('signup', {
-        commitment: commitment,
-        epk: epk1,
-    })
-    const r = await fetch(apiURL)
-    const { epoch } = await r.json()
-    return {
-        i: serializedIdentity,
-        c: commitment,
-        epoch,
-    }
 }
 
 export const publishPost = async (
@@ -318,21 +288,6 @@ export const convertDataToPost = (
     }
 
     return post
-}
-
-export const listAllPosts = async () => {
-    const apiURL = makeURL(`post`, {})
-
-    const r = await fetch(apiURL)
-    const data = await r.json()
-    return data.map((p: any) => convertDataToPost(p)) as Post[]
-}
-
-export const getPostById = async (postid: string) => {
-    const apiURL = makeURL(`post/${postid}`, {})
-    const r = await fetch(apiURL)
-    const data = await r.json()
-    return convertDataToPost(data, false)
 }
 
 export const getPostsByQuery = async (
