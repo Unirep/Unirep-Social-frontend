@@ -2,14 +2,13 @@ import { useHistory } from 'react-router-dom'
 import { useContext, useState, useEffect } from 'react'
 
 import './loginPage.scss'
-import { WebContext } from '../../context/WebContext'
 import LoadingCover from '../loadingCover/loadingCover'
 import LoadingButton from '../loadingButton/loadingButton'
 import UserContext from '../../context/User'
 
 const LoginPage = () => {
     const history = useHistory()
-    const { isLoading, setIsLoading } = useContext(WebContext)
+    const [isLoading, setIsLoading] = useState(false)
     const [input, setInput] = useState<string>('')
     const [errorMsg, setErrorMsg] = useState<string>('')
     const [isButtonLoading, setButtonLoading] = useState<boolean>(false)

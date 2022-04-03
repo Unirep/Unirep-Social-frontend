@@ -6,17 +6,17 @@ import UserContext from '../../context/User'
 import { observer } from 'mobx-react-lite'
 
 const Overlay = () => {
-    const { setIsMenuOpen, isLoading } = useContext(WebContext)
+    const { setIsMenuOpen } = useContext(WebContext)
     const history = useHistory()
     const userContext = useContext(UserContext)
 
     const closeOverlay = () => {
-        if (!isLoading) {
-            console.log('close over lay')
-            setIsMenuOpen(false)
-        } else {
-            console.log('something is loading, no close')
-        }
+        // if (!isLoading) {
+        console.log('close over lay')
+        setIsMenuOpen(false)
+        // } else {
+        //     console.log('something is loading, no close')
+        // }
     }
 
     const gotoUserPage = () => {

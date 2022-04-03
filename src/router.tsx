@@ -19,42 +19,23 @@ import SettingPage from './components/settingPage/settingPage'
 import { WebContext } from './context/WebContext'
 
 const AppRouter = () => {
-    const [tx, setTx] = useLocalStorage('tx', '')
     const [shownPosts, setShownPosts] = useLocalStorage('shownPosts', [])
     const [adminCode, setAdminCode] = useLocalStorage('admin', '')
     const [draft, setDraft] = useLocalStorage('draft', null)
-    const [isLoading, setIsLoading] = useLocalStorage('isLoading', false)
-    const [action, setAction] = useState<any>(null)
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [page, setPage] = useState(Constants.Page.Home)
-
-    window.addEventListener('storage', (e) => {
-        if (e.key === 'isLoading') {
-            if (e.newValue === 'true') {
-                setIsLoading(true)
-            } else {
-                setIsLoading(false)
-            }
-        }
-    })
 
     return (
         <BrowserRouter>
             <div>
                 <WebContext.Provider
                     value={{
-                        tx,
-                        setTx,
                         shownPosts,
                         setShownPosts,
-                        isLoading,
-                        setIsLoading,
                         isMenuOpen,
                         setIsMenuOpen,
                         page,
                         setPage,
-                        action,
-                        setAction,
                         adminCode,
                         setAdminCode,
                         draft,

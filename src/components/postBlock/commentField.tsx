@@ -1,9 +1,10 @@
-import { WebContext } from '../../context/WebContext'
 import { useState, useContext } from 'react'
-import { Post, Comment, DataType, Page, ActionType } from '../../constants'
+import { Post, Comment, DataType, Page } from '../../constants'
 import WritingField from '../writingField/writingField'
 import UserContext from '../../context/User'
 import { observer } from 'mobx-react-lite'
+import QueueContext from '../../context/Queue'
+import { leaveComment } from '../../utils'
 
 type Props = {
     post: Post
@@ -12,8 +13,8 @@ type Props = {
 }
 
 const CommentField = (props: Props) => {
-    const { isLoading, setIsLoading, setAction } = useContext(WebContext)
     const userContext = useContext(UserContext)
+    const queue = useContext(QueueContext)
 
     const preventPropagation = (event: any) => {
         event.stopPropagation()
@@ -30,16 +31,19 @@ const CommentField = (props: Props) => {
         } else if (content.length === 0) {
             console.error('nothing happened, no input.')
         } else {
-            const actionData = {
-                identity: userContext.identity,
-                content,
-                data: props.post.id,
-                epkNonce,
-                reputation,
-                spent: userContext.spent,
-                userState: userContext.userState,
-            }
-            setAction({ action: ActionType.Comment, data: actionData })
+            const data = props.post.id
+            queue.addOp(
+                async () => {
+                    const proofData = await userContext.genRepProof(
+                        reputation,
+                        reputation
+                    )
+                    await leaveComment(proofData, reputation, content, data)
+                },
+                {
+                    successMessage: 'Comment is finalized!',
+                }
+            )
             props.closeComment()
         }
     }

@@ -5,18 +5,20 @@ import UnirepContext from '../../context/Unirep'
 import './header.scss'
 import UserContext from '../../context/User'
 import { observer } from 'mobx-react-lite'
+import QueueContext from '../../context/Queue'
 
 const Header = () => {
     const history = useHistory()
     const location = useLocation()
-    const { isLoading, isMenuOpen, setIsMenuOpen } = useContext(WebContext)
+    const { isMenuOpen, setIsMenuOpen } = useContext(WebContext)
     const [searchInput, setSearchInput] = useState<string>('')
     const unirepConfig = useContext(UnirepContext)
     const userContext = useContext(UserContext)
+    const queue = useContext(QueueContext)
 
     const gotoNewPage = () => {
         if (
-            !isLoading &&
+            !queue.isLoading &&
             userContext.userState &&
             userContext.netReputation >= unirepConfig.postReputation
         ) {
@@ -29,7 +31,7 @@ const Header = () => {
     }
 
     const openMenu = () => {
-        if (!isMenuOpen && !isLoading) {
+        if (!isMenuOpen && !queue.isLoading) {
             console.log('open menu!')
             setIsMenuOpen(true)
         }

@@ -1,9 +1,10 @@
 import { useState, useContext } from 'react'
 import 'react-circular-progressbar/dist/styles.css'
-import { WebContext } from '../../context/WebContext'
-import { Post, Vote, Comment, DataType, ActionType } from '../../constants'
+import { Post, Vote, Comment, DataType } from '../../constants'
 import './voteBox.scss'
 import UserContext from '../../context/User'
+import QueueContext from '../../context/Queue'
+import { vote } from '../../utils'
 
 type Props = {
     isUpvote: boolean
@@ -11,8 +12,8 @@ type Props = {
     closeVote: () => void
 }
 const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
-    const { setAction } = useContext(WebContext)
     const userContext = useContext(UserContext)
+    const queue = useContext(QueueContext)
     const [givenAmount, setGivenAmount] = useState<number>(1)
     const [epkNonce, setEpkNonce] = useState(0)
     const [isHistoriesOpen, setHistoriesOpen] = useState(false)
@@ -49,35 +50,23 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
             console.error('no enter any given amount')
         } else {
             const isPost = data.type === DataType.Post
-            let actionData: any
-            if (isPost) {
-                actionData = {
-                    identity: userContext.identity,
-                    upvote: isUpvote ? givenAmount : 0,
-                    downvote: isUpvote ? 0 : givenAmount,
-                    data: data.id,
-                    epk: data.epoch_key,
-                    epkNonce,
-                    isPost,
-                    spent: userContext.spent,
-                    userState: userContext.userState,
-                }
-            } else {
-                const tmp = data as Comment
-                actionData = {
-                    identity: userContext.identity,
-                    upvote: isUpvote ? givenAmount : 0,
-                    downvote: isUpvote ? 0 : givenAmount,
-                    data: tmp.post_id + '_' + tmp.id,
-                    epk: tmp.epoch_key,
-                    epkNonce,
-                    isPost,
-                    spent: userContext.spent,
-                    userState: userContext.userState,
-                }
-            }
-
-            setAction({ action: ActionType.Vote, data: actionData })
+            const upvote = isUpvote ? givenAmount : 0
+            const downvote = isUpvote ? 0 : givenAmount
+            const amount = upvote + downvote
+            const _data = data.id
+            const epk = data.epoch_key
+            queue.addOp(async () => {
+                const proofData = await userContext.genRepProof(amount, amount)
+                await vote(
+                    proofData,
+                    amount,
+                    upvote,
+                    downvote,
+                    _data,
+                    epk,
+                    isPost
+                )
+            })
             init()
         }
     }

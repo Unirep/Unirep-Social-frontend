@@ -11,6 +11,7 @@ import './postBlock.scss'
 import UnirepContext from '../../context/Unirep'
 import UserContext from '../../context/User'
 import { observer } from 'mobx-react-lite'
+import QueueContext from '../../context/Queue'
 
 type AlertProps = {
     type: AlertType
@@ -38,8 +39,9 @@ type Props = {
 
 const PostBlock = ({ post, page }: Props) => {
     const history = useHistory()
-    const { isLoading, draft } = useContext(WebContext)
+    const { draft } = useContext(WebContext)
     const userContext = useContext(UserContext)
+    const queue = useContext(QueueContext)
 
     const date = dateformat(new Date(post.post_time), 'dd/mm/yyyy hh:MM TT')
     const [showCommentField, setShowCommentField] = useState(
@@ -130,7 +132,7 @@ const PostBlock = ({ post, page }: Props) => {
                             <AlertBox type={AlertType.commentNotLogin} />
                         ) : userContext.netReputation < 3 ? (
                             <AlertBox type={AlertType.commentNotEnoughPoints} />
-                        ) : isLoading ? (
+                        ) : queue.isLoading ? (
                             <AlertBox type={AlertType.commentLoading} />
                         ) : showCommentField ? (
                             <CommentField

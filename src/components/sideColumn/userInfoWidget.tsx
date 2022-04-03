@@ -3,18 +3,17 @@ import dateformat from 'dateformat'
 import { confirmAlert } from 'react-confirm-alert'
 import 'react-confirm-alert/src/react-confirm-alert.css'
 
-import { WebContext } from '../../context/WebContext'
 import HelpWidget from '../helpWidget/helpWidget'
-import { ActionType, InfoType } from '../../constants'
+import { InfoType } from '../../constants'
 import UserContext from '../../context/User'
 import { observer } from 'mobx-react-lite'
 import EpochContext from '../../context/EpochManager'
+import QueueContext from '../../context/Queue'
 
 const UserInfoWidget = () => {
     const epochManager = useContext(EpochContext)
     const userContext = useContext(UserContext)
-    const { action, setAction, isLoading, setIsLoading } =
-        useContext(WebContext)
+    const queue = useContext(QueueContext)
     const [countdownText, setCountdownText] = useState<string>('')
     const [diffTime, setDiffTime] = useState<number>(0)
     const [isAlertOn, setAlertOn] = useState<boolean>(false)
@@ -28,7 +27,7 @@ const UserInfoWidget = () => {
         setDiffTime(diff)
 
         if (epochManager.readyToTransition && userContext.userState) {
-            if (action === null && !isAlertOn && !isLoading) {
+            if (!isAlertOn) {
                 setAlertOn(true)
                 confirmAlert({
                     closeOnClickOutside: true,
@@ -40,16 +39,9 @@ const UserInfoWidget = () => {
                                 <button
                                     className="custom-btn"
                                     onClick={() => {
-                                        const actionData = {
-                                            identity: userContext.identity,
-                                            userState: userContext.userState,
-                                        }
-                                        if (action === null && !isLoading) {
-                                            setAction({
-                                                action: ActionType.UST,
-                                                data: actionData,
-                                            })
-                                        }
+                                        queue.addOp(async () => {
+                                            await userContext.userStateTransition()
+                                        })
                                         setAlertOn(false)
                                         onClose()
                                     }}
@@ -89,12 +81,6 @@ const UserInfoWidget = () => {
 
         return () => clearTimeout(timer)
     }, [diffTime])
-
-    window.addEventListener('storage', (e) => {
-        if (e.key === 'isLoading' && e.newValue === 'true') {
-            setIsLoading(true)
-        }
-    })
 
     return (
         <div>

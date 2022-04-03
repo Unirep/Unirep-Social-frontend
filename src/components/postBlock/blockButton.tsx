@@ -1,9 +1,9 @@
 import { useEffect, useState, useContext } from 'react'
 import { useHistory } from 'react-router-dom'
 import { Post, Comment, ButtonType } from '../../constants'
-import { WebContext } from '../../context/WebContext'
 import VoteBox from '../voteBox/voteBox'
 import UserContext from '../../context/User'
+import QueueContext, { LoadingState } from '../../context/Queue'
 import { observer } from 'mobx-react-lite'
 
 type Props = {
@@ -14,9 +14,8 @@ type Props = {
 
 const BlockButton = ({ type, count, data }: Props) => {
     const history = useHistory()
-    const { isLoading } = useContext(WebContext)
     const userContext = useContext(UserContext)
-
+    const queue = useContext(QueueContext)
     const [isBoostOn, setBoostOn] = useState<boolean>(false)
     const [isSquashOn, setSquashOn] = useState<boolean>(false)
     const [isHover, setIsHover] = useState<boolean>(false) // null, purple1, purple2, grey1, grey2
@@ -32,7 +31,7 @@ const BlockButton = ({ type, count, data }: Props) => {
                 if (data.current_epoch !== userContext.currentEpoch)
                     return false
                 else if (userContext.netReputation < 1) return false
-                else if (isLoading) return false
+                else if (queue.isLoading) return false
                 else return true
             }
         }
@@ -69,7 +68,7 @@ const BlockButton = ({ type, count, data }: Props) => {
             if (data.current_epoch !== userContext.currentEpoch)
                 setReminder('Time out :(')
             else if (userContext.netReputation < 1) setReminder('No enough Rep')
-            else if (isLoading && type !== ButtonType.Share)
+            else if (queue.isLoading && type !== ButtonType.Share)
                 setReminder('loading...')
         }
     }
@@ -87,9 +86,9 @@ const BlockButton = ({ type, count, data }: Props) => {
     }, [isLinkCopied])
 
     useEffect(() => {
-        if (isLoading) setIsAble(false)
+        if (queue.isLoading) setIsAble(false)
         else setIsAble(checkAbility())
-    }, [isLoading])
+    }, [queue.isLoading])
 
     return (
         <div

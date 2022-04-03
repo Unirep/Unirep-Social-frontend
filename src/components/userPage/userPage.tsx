@@ -2,7 +2,6 @@ import { useContext, useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import { getPostsByQuery, getRecords, getCommentsByQuery } from '../../utils'
-import { WebContext } from '../../context/WebContext'
 import BasicPage from '../basicPage/basicPage'
 import {
     Record,
@@ -74,7 +73,6 @@ const UserPage = () => {
     const isConfirmed = state.isConfirmed
 
     const userContext = useContext(UserContext)
-    const { isLoading } = useContext(WebContext)
     const [records, setRecords] = useState<Record[]>([])
     const [tag, setTag] = useState<Tag>(Tag.Posts)
     const [sort, setSort] = useState<QueryType>(QueryType.Boost)

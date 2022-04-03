@@ -1,6 +1,5 @@
 import { useContext, useState, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
-import { WebContext } from '../../context/WebContext'
 import { QueryType, AlertType } from '../../constants'
 import BasicPage from '../basicPage/basicPage'
 import PostsList from '../postsList/postsList'
@@ -14,10 +13,8 @@ import UnirepContext from '../../context/Unirep'
 const MainPage = () => {
     const history = useHistory()
     const posts = useContext(PostContext)
-    const user = useContext(UserContext)
+    const userContext = useContext(UserContext)
     const unirepConfig = useContext(UnirepContext)
-
-    const { isLoading } = useContext(WebContext)
 
     const [query, setQuery] = useState<QueryType>(QueryType.New)
 
@@ -35,9 +32,8 @@ const MainPage = () => {
 
     const gotoNewPost = () => {
         if (
-            !isLoading &&
-            user !== null &&
-            user.reputation - user.spent >= unirepConfig.postReputation
+            userContext.userState &&
+            userContext.netReputation >= unirepConfig.postReputation
         ) {
             history.push('/new', { isConfirmed: true })
         }
@@ -46,9 +42,9 @@ const MainPage = () => {
     return (
         <BasicPage>
             <div className="create-post" onClick={gotoNewPost}>
-                {user === null
+                {!userContext.userState
                     ? AlertType.postNotLogin
-                    : user.reputation - user.spent < unirepConfig.postReputation
+                    : userContext.netReputation < unirepConfig.postReputation
                     ? AlertType.postNotEnoughPoints
                     : 'Create post'}
             </div>

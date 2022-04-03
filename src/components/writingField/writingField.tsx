@@ -22,7 +22,7 @@ type Props = {
 
 const WritingField = (props: Props) => {
     const userContext = useContext(UserContext)
-    const { setIsLoading, draft, setDraft } = useContext(WebContext)
+    const { draft, setDraft } = useContext(WebContext)
     const unirepConfig = useContext(UnirepContext)
     const [title, setTitle] = useState<string>('')
     const [content, setContent] = useState<string>('')

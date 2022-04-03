@@ -2,12 +2,13 @@ import { useEffect, useContext } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 
 import './newPage.scss'
-import { WebContext } from '../../context/WebContext'
 import WritingField from '../writingField/writingField'
 import BasicPage from '../basicPage/basicPage'
-import { DataType, ActionType } from '../../constants'
+import { DataType } from '../../constants'
 import UserContext from '../../context/User'
 import { observer } from 'mobx-react-lite'
+import QueueContext from '../../context/Queue'
+import { publishPost } from '../../utils'
 
 const NewPage = () => {
     const history = useHistory()
@@ -15,8 +16,7 @@ const NewPage = () => {
     const state = JSON.parse(JSON.stringify(location.state))
     const isConfirmed = state.isConfirmed
     const userContext = useContext(UserContext)
-
-    const { setAction } = useContext(WebContext)
+    const queue = useContext(QueueContext)
 
     useEffect(() => {
         console.log('Is this new page being confirmd? ' + isConfirmed)
@@ -36,15 +36,18 @@ const NewPage = () => {
         if (!userContext.userState) {
             console.log('not login yet.')
         } else {
-            const actionData = {
-                title,
-                content,
-                epkNonce,
-                identity: userContext.identity,
-                reputation,
-                spent: userContext.spent,
-            }
-            setAction({ action: ActionType.Post, data: actionData })
+            queue.addOp(
+                async () => {
+                    const proofData = await userContext.genRepProof(
+                        reputation,
+                        reputation
+                    )
+                    await publishPost(proofData, reputation, content, title)
+                },
+                {
+                    successMessage: 'Post is finalized',
+                }
+            )
         }
         history.push('/')
     }
