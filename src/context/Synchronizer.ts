@@ -47,31 +47,32 @@ export class Synchronizer {
         // now start syncing
         const storedState = localStorage.getItem('sync-latestBlock')
         if (storedState) {
-          Object.assign(this, JSON.parse(storedState))
+            Object.assign(this, JSON.parse(storedState))
         }
-        this.unirepState = new UnirepState(
-            {
-                globalStateTreeDepth: unirepConfig.globalStateTreeDepth,
-                userStateTreeDepth: unirepConfig.userStateTreeDepth,
-                epochTreeDepth: unirepConfig.epochTreeDepth,
-                attestingFee: unirepConfig.attestingFee,
-                epochLength: unirepConfig.epochLength,
-                numEpochKeyNoncePerEpoch: unirepConfig.numEpochKeyNoncePerEpoch,
-                maxReputationBudget: unirepConfig.maxReputationBudget,
-            }
-        )
+        this.unirepState = new UnirepState({
+            globalStateTreeDepth: unirepConfig.globalStateTreeDepth,
+            userStateTreeDepth: unirepConfig.userStateTreeDepth,
+            epochTreeDepth: unirepConfig.epochTreeDepth,
+            attestingFee: unirepConfig.attestingFee,
+            epochLength: unirepConfig.epochLength,
+            numEpochKeyNoncePerEpoch: unirepConfig.numEpochKeyNoncePerEpoch,
+            maxReputationBudget: unirepConfig.maxReputationBudget,
+        })
     }
 
     save() {
-      localStorage.setItem('sync-latestBlock', JSON.stringify({
-        latestProcessedBlock: this.latestProcessedBlock,
-      }))
+        localStorage.setItem(
+            'sync-latestBlock',
+            JSON.stringify({
+                latestProcessedBlock: this.latestProcessedBlock,
+            })
+        )
     }
 
     // wait until we've synced to the latest known block
     async waitForSync(blockNumber?: number) {
         const targetBlock =
-            blockNumber ?? (await DEFAULT_ETH_PROVIDER.getBlockNumber());
+            blockNumber ?? (await DEFAULT_ETH_PROVIDER.getBlockNumber())
         console.log('waiting for block', targetBlock)
         for (;;) {
             if (this.latestProcessedBlock >= targetBlock) return
@@ -81,7 +82,7 @@ export class Synchronizer {
 
     async startDaemon() {
         if (this.daemonRunning) {
-          throw new Error('Cannot start multiple daemons')
+            throw new Error('Cannot start multiple daemons')
         }
         this.daemonRunning = true
         let latestBlock = await DEFAULT_ETH_PROVIDER.getBlockNumber()

@@ -25,7 +25,7 @@ class EpochManager {
         }
         this.currentEpoch = await unirepConfig.currentEpoch()
         // load the last transition time
-        ;(this as any).nextTransition = (await this._nextTransition())
+        ;(this as any).nextTransition = await this._nextTransition()
         const waitTime = Math.max(this.nextTransition - +new Date(), 0)
         console.log(
             `Next epoch transition in ${waitTime / (60 * 60 * 1000)} hours`

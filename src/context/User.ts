@@ -38,7 +38,7 @@ export class User extends Synchronizer {
     }
 
     get netReputation() {
-      return this.reputation - this.spent
+        return this.reputation - this.spent
     }
 
     // must be called in browser, not in SSR
@@ -47,43 +47,46 @@ export class User extends Synchronizer {
         if (!this.unirepState) throw new Error('Unirep state not initialized')
         const storedState = window.localStorage.getItem('user.state')
         if (storedState) {
-          const data = JSON.parse(storedState)
-          const id = unSerialiseIdentity(data.id)
-          const userState = UserState.fromJSON(data.id, data.userState)
-          Object.assign(this, {
-            ...data,
-            id,
-            userState,
-            unirepState: userState.getUnirepState(),
-          })
+            const data = JSON.parse(storedState)
+            const id = unSerialiseIdentity(data.id)
+            const userState = UserState.fromJSON(data.id, data.userState)
+            Object.assign(this, {
+                ...data,
+                id,
+                userState,
+                unirepState: userState.getUnirepState(),
+            })
         }
         if (this.id) {
-          this.startDaemon()
+            this.startDaemon()
         }
         await this.loadReputation()
         // start listening for new epochs
-        this.unirepConfig.unirep.on('EpochEnded', this.loadCurrentEpoch.bind(this))
+        this.unirepConfig.unirep.on(
+            'EpochEnded',
+            this.loadCurrentEpoch.bind(this)
+        )
         await this.loadCurrentEpoch()
         this.waitForSync().then(() => {
-          this.loadReputation()
-          this.save()
+            this.loadReputation()
+            this.save()
         })
     }
 
     save() {
-      super.save()
-      // save user state
-      const data = {
-        userState: this.userState,
-        id: this.identity,
-        currentEpoch: this.currentEpoch,
-        epkNonce: this.epkNonce,
-        spent: this.spent,
-      }
-      if (typeof this.userState?.toJSON(0) === 'string') {
-        throw new Error('Invalid user state toJSON return value')
-      }
-      window.localStorage.setItem('user.state', JSON.stringify(data))
+        super.save()
+        // save user state
+        const data = {
+            userState: this.userState,
+            id: this.identity,
+            currentEpoch: this.currentEpoch,
+            epkNonce: this.epkNonce,
+            spent: this.spent,
+        }
+        if (typeof this.userState?.toJSON(0) === 'string') {
+            throw new Error('Invalid user state toJSON return value')
+        }
+        window.localStorage.setItem('user.state', JSON.stringify(data))
     }
 
     async loadCurrentEpoch() {
@@ -321,7 +324,9 @@ export class User extends Synchronizer {
             method: 'POST',
         })
         const { transaction, error } = await r.json()
-        const receipt = await config.DEFAULT_ETH_PROVIDER.waitForTransaction(transaction)
+        const receipt = await config.DEFAULT_ETH_PROVIDER.waitForTransaction(
+            transaction
+        )
         await this.waitForSync(receipt.blockNumber)
         this.epkNonce = 0
         this.spent = 0
