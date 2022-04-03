@@ -19,7 +19,7 @@ export enum ActionType {
 }
 
 interface Operation {
-    fn: () => void | Promise<void>
+    fn: () => void | Promise<any>
     successMessage: string
     failureMessage: string
     type?: ActionType
@@ -30,6 +30,7 @@ class Queue {
     loadingState = LoadingState.none
     latestMessage = ''
     daemonRunning = false
+    private activeOp?: Operation
 
     constructor() {
         makeAutoObservable(this)
@@ -47,6 +48,7 @@ class Queue {
     }
 
     queuedOp(type: ActionType) {
+        if (this.activeOp && this.activeOp.type === type) return true
         return !!this.operations.find((o) => o.type === type)
     }
 
@@ -61,7 +63,7 @@ class Queue {
         }
     }
 
-    addOp(operation: () => void | Promise<void>, options = {}) {
+    addOp(operation: () => void | Promise<any>, options = {}) {
         this.operations.push({
             fn: operation,
             ...{
@@ -86,6 +88,7 @@ class Queue {
         this.daemonRunning = true
         for (;;) {
             const op = this.operations.shift()
+            this.activeOp = op
             if (op === undefined) break
             try {
                 this.loadingState = LoadingState.loading
@@ -98,6 +101,7 @@ class Queue {
                 console.log('Error in queue operation', err)
             }
         }
+        this.activeOp = undefined
         this.daemonRunning = false
     }
 }

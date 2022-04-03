@@ -197,6 +197,10 @@ export class User extends Synchronizer {
             method: 'POST',
         })
         const { error, transaction } = await r.json()
+        const { blockNumber } =
+            await config.DEFAULT_ETH_PROVIDER.waitForTransaction(transaction)
+        await this.waitForSync(blockNumber)
+        await this.loadReputation()
         return { error, transaction }
     }
 
@@ -337,6 +341,7 @@ export class User extends Synchronizer {
         await this.waitForSync(receipt.blockNumber)
         this.epkNonce = 0
         this.spent = 0
+        await this.loadReputation()
         return { error, transaction }
     }
 }

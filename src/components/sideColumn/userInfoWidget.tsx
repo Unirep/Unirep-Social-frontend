@@ -1,7 +1,5 @@
 import { useContext, useEffect, useState } from 'react'
 import dateformat from 'dateformat'
-import { confirmAlert } from 'react-confirm-alert'
-import 'react-confirm-alert/src/react-confirm-alert.css'
 
 import HelpWidget from '../helpWidget/helpWidget'
 import { InfoType } from '../../constants'
@@ -16,7 +14,6 @@ const UserInfoWidget = () => {
     const queue = useContext(QueueContext)
     const [countdownText, setCountdownText] = useState<string>('')
     const [diffTime, setDiffTime] = useState<number>(0)
-    const [isAlertOn, setAlertOn] = useState<boolean>(false)
     const nextUSTTimeString = dateformat(
         new Date(epochManager.nextTransition),
         'dd/mm/yyyy hh:MM TT'
@@ -26,37 +23,10 @@ const UserInfoWidget = () => {
         const diff = (epochManager.nextTransition - Date.now()) / 1000
         setDiffTime(diff)
 
-        if (userContext.userState && (
-          epochManager.readyToTransition || userContext.needsUST)) {
-            if (!isAlertOn && !queue.queuedOp(ActionType.UST)) {
-                setAlertOn(true)
-                confirmAlert({
-                    closeOnClickOutside: true,
-                    customUI: ({ onClose }) => {
-                        return (
-                            <div className="custom-ui">
-                                <p>User State Transition</p>
-                                <h2>It’s time to move on to the new cycle!</h2>
-                                <button
-                                    className="custom-btn"
-                                    onClick={() => {
-                                        queue.addOp(async () => {
-                                            await userContext.userStateTransition()
-                                        }, {
-                                          type: ActionType.UST,
-                                        })
-                                        setAlertOn(false)
-                                        onClose()
-                                    }}
-                                >
-                                    Let's go
-                                </button>
-                            </div>
-                        )
-                    },
-                })
-            }
-
+        if (
+            userContext.userState &&
+            (epochManager.readyToTransition || userContext.needsUST)
+        ) {
             return 'Doing UST...'
         }
         const days = Math.floor(diff / (24 * 60 * 60))
@@ -126,6 +96,36 @@ const UserInfoWidget = () => {
             ) : (
                 <div></div>
             )}
+            {userContext.userState &&
+                (epochManager.readyToTransition || userContext.needsUST) &&
+                !queue.queuedOp(ActionType.UST) && (
+                    <div className="custom-ui">
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                maxWidth: '400px',
+                                alignSelf: 'center',
+                            }}
+                        >
+                            <p>User State Transition</p>
+                            <h2>It’s time to move on to the new cycle!</h2>
+                            <button
+                                className="custom-btn"
+                                onClick={() => {
+                                    queue.addOp(
+                                        () => userContext.userStateTransition(),
+                                        {
+                                            type: ActionType.UST,
+                                        }
+                                    )
+                                }}
+                            >
+                                Let's go
+                            </button>
+                        </div>
+                    </div>
+                )}
         </div>
     )
 }
