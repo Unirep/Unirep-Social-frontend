@@ -8,7 +8,7 @@ import { InfoType } from '../../constants'
 import UserContext from '../../context/User'
 import { observer } from 'mobx-react-lite'
 import EpochContext from '../../context/EpochManager'
-import QueueContext from '../../context/Queue'
+import QueueContext, { ActionType } from '../../context/Queue'
 
 const UserInfoWidget = () => {
     const epochManager = useContext(EpochContext)
@@ -26,8 +26,9 @@ const UserInfoWidget = () => {
         const diff = (epochManager.nextTransition - Date.now()) / 1000
         setDiffTime(diff)
 
-        if (epochManager.readyToTransition && userContext.userState) {
-            if (!isAlertOn) {
+        if (userContext.userState && (
+          epochManager.readyToTransition || userContext.needsUST)) {
+            if (!isAlertOn && !queue.queuedOp(ActionType.UST)) {
                 setAlertOn(true)
                 confirmAlert({
                     closeOnClickOutside: true,
@@ -41,6 +42,8 @@ const UserInfoWidget = () => {
                                     onClick={() => {
                                         queue.addOp(async () => {
                                             await userContext.userStateTransition()
+                                        }, {
+                                          type: ActionType.UST,
                                         })
                                         setAlertOn(false)
                                         onClose()

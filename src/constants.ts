@@ -1,3 +1,5 @@
+import { ActionType } from './context/Queue'
+
 export const isVotedText = "You've already voted."
 export const isAuthorText = 'You cannot vote on your own post or comment.'
 export const notLoginText = 'Sign in to participate.'
@@ -102,14 +104,6 @@ export enum PageStatus {
 export enum DataType {
     Post,
     Comment,
-}
-
-export enum ActionType {
-    Post = 'Post',
-    Comment = 'Comment',
-    Vote = 'Vote',
-    UST = 'UST',
-    Signup = 'Signup',
 }
 
 export enum Page {

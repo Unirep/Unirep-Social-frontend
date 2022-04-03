@@ -10,10 +10,19 @@ export enum LoadingState {
     none,
 }
 
+export enum ActionType {
+    Post = 'Post',
+    Comment = 'Comment',
+    Vote = 'Vote',
+    UST = 'UST',
+    Signup = 'Signup',
+}
+
 interface Operation {
     fn: () => void | Promise<void>
     successMessage: string
     failureMessage: string
+    type?: ActionType
 }
 
 class Queue {
@@ -35,6 +44,10 @@ class Queue {
 
     get isLoading() {
         return this.loadingState === LoadingState.loading
+    }
+
+    queuedOp(type: ActionType) {
+        return !!this.operations.find((o) => o.type === type)
     }
 
     async afterTx(tx: string) {

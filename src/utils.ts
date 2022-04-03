@@ -6,16 +6,9 @@ import {
 } from '@unirep/crypto'
 import { genEpochKey } from '@unirep/unirep'
 import * as config from './config'
-import {
-    Record,
-    Post,
-    DataType,
-    Vote,
-    Comment,
-    ActionType,
-    QueryType,
-} from './constants'
+import { Record, Post, DataType, Vote, Comment, QueryType } from './constants'
 import UnirepContext from './context/Unirep'
+import { ActionType } from './context/Queue'
 
 const decodeIdentity = (identity: string) => {
     try {

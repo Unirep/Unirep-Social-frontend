@@ -108,6 +108,11 @@ export class User extends Synchronizer {
         return serialiseIdentity(this.id)
     }
 
+    get needsUST() {
+        if (!this.userState) return false
+        return this.currentEpoch > this.userState.latestTransitionedEpoch
+    }
+
     setIdentity(identity: string | Identity) {
         if (this.userState) {
             throw new Error('Identity already set, change is not supported')

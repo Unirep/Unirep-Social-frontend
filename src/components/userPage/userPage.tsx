@@ -3,20 +3,14 @@ import { useLocation } from 'react-router-dom'
 
 import { getPostsByQuery, getRecords, getCommentsByQuery } from '../../utils'
 import BasicPage from '../basicPage/basicPage'
-import {
-    Record,
-    ActionType,
-    Page,
-    QueryType,
-    Post,
-    Comment,
-} from '../../constants'
+import { Record, Page, QueryType, Post, Comment } from '../../constants'
 import ActivityWidget from './activityWidget'
 import PostsList from '../postsList/postsList'
 import CommentsList from '../postsList/commentsList'
 import './userPage.scss'
 import UserContext from '../../context/User'
 import { observer } from 'mobx-react-lite'
+import { ActionType } from '../../context/Queue'
 
 enum Tag {
     Posts = 'Posts',
