@@ -1,5 +1,5 @@
 import { createContext } from 'react'
-import { makeObservable, observable } from 'mobx'
+import { makeObservable, observable, computed } from 'mobx'
 import * as config from '../config'
 import { ethers } from 'ethers'
 import {
@@ -11,7 +11,8 @@ import {
 } from '@unirep/crypto'
 import { UnirepFactory } from '@unirep/unirep-social'
 import { makeURL } from '../utils'
-import { genEpochKey, UserState } from '@unirep/unirep'
+import { genEpochKey } from '@unirep/unirep'
+import { UnirepState, UserState } from '../overrides/unirep'
 import { formatProofForVerifierContract } from '@unirep/circuits'
 import UnirepContext from './Unirep'
 import { Synchronizer } from './Synchronizer'
@@ -30,28 +31,59 @@ export class User extends Synchronizer {
         makeObservable(this, {
             currentEpoch: observable,
             reputation: observable,
+            spent: observable,
+            netReputation: computed,
+            userState: observable,
         })
+    }
+
+    get netReputation() {
+      return this.reputation - this.spent
     }
 
     // must be called in browser, not in SSR
     async load() {
         await super.load() // loads the unirep state
         if (!this.unirepState) throw new Error('Unirep state not initialized')
-        const storedUser = window.localStorage.getItem('user')
-        if (storedUser && storedUser !== 'null') {
-            const { identity } = JSON.parse(storedUser)
-            this.setIdentity(identity)
+        const storedState = window.localStorage.getItem('user.state')
+        if (storedState) {
+          const data = JSON.parse(storedState)
+          const id = unSerialiseIdentity(data.id)
+          const userState = UserState.fromJSON(data.id, data.userState)
+          Object.assign(this, {
+            ...data,
+            id,
+            userState,
+            unirepState: userState.getUnirepState(),
+          })
+        }
+        if (this.id) {
+          this.startDaemon()
         }
         await this.loadReputation()
         // start listening for new epochs
-        const unirep = new ethers.Contract(
-            this.unirepConfig.unirepAddress,
-            config.UNIREP_ABI,
-            config.DEFAULT_ETH_PROVIDER
-        )
-        unirep.on('EpochEnded', this.loadCurrentEpoch.bind(this))
+        this.unirepConfig.unirep.on('EpochEnded', this.loadCurrentEpoch.bind(this))
         await this.loadCurrentEpoch()
-        this.waitForSync().then(() => this.loadReputation())
+        this.waitForSync().then(() => {
+          this.loadReputation()
+          this.save()
+        })
+    }
+
+    save() {
+      super.save()
+      // save user state
+      const data = {
+        userState: this.userState,
+        id: this.identity,
+        currentEpoch: this.currentEpoch,
+        epkNonce: this.epkNonce,
+        spent: this.spent,
+      }
+      if (typeof this.userState?.toJSON(0) === 'string') {
+        throw new Error('Invalid user state toJSON return value')
+      }
+      window.localStorage.setItem('user.state', JSON.stringify(data))
     }
 
     async loadCurrentEpoch() {
@@ -86,7 +118,6 @@ export class User extends Synchronizer {
             this.id = identity
         }
         this.userState = new UserState(this.unirepState, this.id)
-        this.startDaemon()
     }
 
     async calculateAllEpks() {
@@ -192,6 +223,7 @@ export class User extends Synchronizer {
         const id = genIdentity()
         this.setIdentity(id)
         if (!this.id) throw new Error('Iden is not set')
+        this.startDaemon()
         const commitment = genIdentityCommitment(this.id)
             .toString(16)
             .padStart(64, '0')
@@ -269,6 +301,7 @@ export class User extends Synchronizer {
         const publicSignals = results.publicSignals
         this.spent += spentNonces
         this.epkNonce++
+        this.save()
         return { epk, proof, publicSignals, currentEpoch }
     }
 
@@ -288,6 +321,8 @@ export class User extends Synchronizer {
             method: 'POST',
         })
         const { transaction, error } = await r.json()
+        const receipt = await config.DEFAULT_ETH_PROVIDER.waitForTransaction(transaction)
+        await this.waitForSync(receipt.blockNumber)
         this.epkNonce = 0
         this.spent = 0
         return { error, transaction }

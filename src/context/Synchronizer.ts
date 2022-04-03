@@ -3,7 +3,8 @@ import { makeAutoObservable } from 'mobx'
 import { ethers } from 'ethers'
 import UnirepContext from './Unirep'
 import { DEFAULT_ETH_PROVIDER } from '../config'
-import { UnirepState, UserState, Attestation } from '@unirep/unirep'
+import { Attestation } from '@unirep/unirep'
+import { UnirepState, UserState } from '../overrides/unirep'
 import {
     Circuit,
     formatProofForSnarkjsVerification,
@@ -29,6 +30,7 @@ export class Synchronizer {
     validProofs = {} as { [key: ProofKey]: any }
     spentProofs = {} as { [key: ProofKey]: boolean }
     latestProcessedBlock = 0
+    private daemonRunning = false
 
     constructor() {
         // makeAutoObservable(this)
@@ -43,6 +45,10 @@ export class Synchronizer {
     async load() {
         await unirepConfig.loadingPromise
         // now start syncing
+        const storedState = localStorage.getItem('sync-latestBlock')
+        if (storedState) {
+          Object.assign(this, JSON.parse(storedState))
+        }
         this.unirepState = new UnirepState(
             {
                 globalStateTreeDepth: unirepConfig.globalStateTreeDepth,
@@ -54,6 +60,12 @@ export class Synchronizer {
                 maxReputationBudget: unirepConfig.maxReputationBudget,
             }
         )
+    }
+
+    save() {
+      localStorage.setItem('sync-latestBlock', JSON.stringify({
+        latestProcessedBlock: this.latestProcessedBlock,
+      }))
     }
 
     // wait until we've synced to the latest known block
@@ -68,11 +80,14 @@ export class Synchronizer {
     }
 
     async startDaemon() {
+        if (this.daemonRunning) {
+          throw new Error('Cannot start multiple daemons')
+        }
+        this.daemonRunning = true
         let latestBlock = await DEFAULT_ETH_PROVIDER.getBlockNumber()
         DEFAULT_ETH_PROVIDER.on('block', (num) => {
             if (num > latestBlock) latestBlock = num
         })
-        this.latestProcessedBlock = 0
         for (;;) {
             if (this.latestProcessedBlock === latestBlock) {
                 await new Promise((r) => setTimeout(r, 1000))
@@ -96,6 +111,7 @@ export class Synchronizer {
             // first process historical ones then listen
             await this.processEvents(allEvents)
             this.latestProcessedBlock = newLatest
+            this.save()
         }
     }
 
