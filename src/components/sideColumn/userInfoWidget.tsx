@@ -106,7 +106,7 @@ const UserInfoWidget = () => {
                             <img
                                 src={require('../../../public/images/lighting.svg')}
                             />
-                            {userContext.reputation}
+                            {userContext.netReputation}
                         </h3>
                     </div>
                     <div className="ust-info">

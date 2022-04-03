@@ -9,6 +9,8 @@ import CommentBlock from './commentBlock'
 import BlockButton from './blockButton'
 import './postBlock.scss'
 import UnirepContext from '../../context/Unirep'
+import UserContext from '../../context/User'
+import { observer } from 'mobx-react-lite'
 
 type AlertProps = {
     type: AlertType
@@ -36,7 +38,8 @@ type Props = {
 
 const PostBlock = ({ post, page }: Props) => {
     const history = useHistory()
-    const { isLoading, user, draft } = useContext(WebContext)
+    const { isLoading, draft } = useContext(WebContext)
+    const userContext = useContext(UserContext)
 
     const date = dateformat(new Date(post.post_time), 'dd/mm/yyyy hh:MM TT')
     const [showCommentField, setShowCommentField] = useState(
@@ -123,9 +126,9 @@ const PostBlock = ({ post, page }: Props) => {
             ) : (
                 <div className="comment">
                     <div className="comment-block">
-                        {user === null ? (
+                        {!userContext.userState ? (
                             <AlertBox type={AlertType.commentNotLogin} />
-                        ) : user.reputation - user.spent < 3 ? (
+                        ) : userContext.netReputation < 3 ? (
                             <AlertBox type={AlertType.commentNotEnoughPoints} />
                         ) : isLoading ? (
                             <AlertBox type={AlertType.commentLoading} />
@@ -174,4 +177,4 @@ const PostBlock = ({ post, page }: Props) => {
     )
 }
 
-export default PostBlock
+export default observer(PostBlock)

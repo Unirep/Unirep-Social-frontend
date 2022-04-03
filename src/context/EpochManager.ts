@@ -17,7 +17,7 @@ class EpochManager {
         this.updateWatch()
     }
 
-    private async updateWatch() {
+    async updateWatch() {
         await unirepConfig.loadingPromise
         if (this.timer) {
             clearTimeout(this.timer)

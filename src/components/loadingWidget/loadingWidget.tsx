@@ -9,6 +9,7 @@ import * as config from '../../config'
 import { getPostById } from '../../utils'
 import UnirepContext from '../../context/Unirep'
 import UserContext from '../../context/User'
+import EpochContext from '../../context/EpochManager'
 
 enum LoadingState {
     loading,
@@ -36,6 +37,7 @@ const LoadingWidget = () => {
     const [goto, setGoto] = useState<string>('')
     const unirepConfig = useContext(UnirepContext)
     const userContext = useContext(UserContext)
+    const epochManager = useContext(EpochContext)
 
     useEffect(() => {
         const doAction = async () => {
@@ -76,6 +78,7 @@ const LoadingWidget = () => {
                         transaction
                     )
                 }
+                await epochManager.updateWatch()
                 await userContext.getAirdrop()
             }
             // generate the proof here and then pass to api call fn
