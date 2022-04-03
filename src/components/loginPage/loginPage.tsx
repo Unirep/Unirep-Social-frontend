@@ -33,20 +33,13 @@ const LoginPage = () => {
         }
         setIsLoading(true)
         userContext.setIdentity(input)
+        userContext.startDaemon()
         await userContext.waitForSync()
         const currentEpoch = await userContext.loadCurrentEpoch()
 
-        if (userContext.userState?.latestTransitionedEpoch !== currentEpoch) {
-            console.log(
-                'user epoch is not the same as current epoch, do user state transition, ' +
-                    userContext.userState?.latestTransitionedEpoch +
-                    ' != ' +
-                    currentEpoch
-            )
-
-            await userContext.userStateTransition()
+        if (userContext.userState?.latestTransitionedEpoch === currentEpoch) {
+            await userContext.getAirdrop()
         }
-        await userContext.getAirdrop()
         setIsLoading(false)
         history.push('/')
     }

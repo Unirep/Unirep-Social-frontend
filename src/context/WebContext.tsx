@@ -2,8 +2,6 @@ import { createContext } from 'react'
 import { Post, User, Page, Draft } from '../constants'
 
 type GlobalContent = {
-    shownPosts: Post[]
-    setShownPosts: (posts: Post[]) => void
     isMenuOpen: boolean
     setIsMenuOpen: (value: boolean) => void
     page: Page
@@ -15,8 +13,6 @@ type GlobalContent = {
 }
 
 export const WebContext = createContext<GlobalContent>({
-    shownPosts: [],
-    setShownPosts: () => {},
     isMenuOpen: false,
     setIsMenuOpen: () => {},
     page: Page.Home,

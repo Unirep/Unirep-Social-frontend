@@ -1,9 +1,9 @@
 import { useContext, useState } from 'react'
 import { useHistory } from 'react-router-dom'
-import { WebContext } from '../../context/WebContext'
-import { Post } from '../../constants'
+import { Post, QueryType } from '../../constants'
 import UserContext from '../../context/User'
 import { observer } from 'mobx-react-lite'
+import PostContext from '../../context/Post'
 
 type Props = {
     post: Post
@@ -58,46 +58,17 @@ type RankedPost = {
 
 const PostsWidget = () => {
     const userContext = useContext(UserContext)
-    const { shownPosts } = useContext(WebContext)
-    const [posts, setPosts] = useState<RankedPost[]>(() => {
-        let posts: RankedPost[] = []
-
-        const sortedPosts = shownPosts.sort((a, b) =>
-            a.upvote > b.upvote ? -1 : 1
-        )
-        let hasUserPost: boolean = false
-        sortedPosts.forEach((post, i) => {
-            if (i < 3) {
-                // console.log('i < 3, add post! ' + i);
-                const p = { post, rank: i }
-                posts = [...posts, p]
-            } else {
-                // console.log('i >= 3, check post!');
-                // console.log(i);
-                if (
-                    !hasUserPost &&
-                    isAuthor(post, userContext.currentEpochKeys)
-                ) {
-                    const p = { post, rank: i }
-                    posts = [...posts, p]
-                }
-            }
-            hasUserPost =
-                hasUserPost || isAuthor(post, userContext.currentEpochKeys)
-        })
-
-        return posts
-    }) // top3 and 1 your most popular post, if yours is in the top3 or you don't have post, then only 3 posts or less.
+    const postContext = useContext(PostContext)
 
     return (
         <div className="posts-widget widget">
             <h3>Post ranking</h3>
-            {posts.map((post, i) => (
+            {Object.values(postContext.postsById).map((post, i) => (
                 <RankingBlock
-                    post={post.post}
-                    ranking={post.rank}
-                    hasUnderline={i < posts.length - 1}
-                    key={post.post.id}
+                    post={post}
+                    ranking={i}
+                    hasUnderline={true}
+                    key={post.id}
                 />
             ))}
         </div>

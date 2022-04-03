@@ -21,6 +21,14 @@ export class Data {
         }
     }
 
+    async loadPost(id: string) {
+        const apiURL = makeURL(`post/${id}`, {})
+        const r = await fetch(apiURL)
+        const data = await r.json()
+        const post = convertDataToPost(data, false)
+        this.ingestPosts(post)
+    }
+
     async loadFeed(query: string, lastRead = '0', epks = [] as string[]) {
         const apiURL = makeURL(`post`, {
             query,
