@@ -9,14 +9,19 @@ import UserContext from '../../context/User'
 import { observer } from 'mobx-react-lite'
 import QueueContext from '../../context/Queue'
 import { publishPost } from '../../utils'
+import PostContext from '../../context/Post'
+import { QueryType } from '../../constants'
+import { WebContext } from '../../context/WebContext'
 
 const NewPage = () => {
+    const { setDraft } = useContext(WebContext)
     const history = useHistory()
     const location = useLocation<Location>()
     const state = JSON.parse(JSON.stringify(location.state))
     const isConfirmed = state.isConfirmed
     const userContext = useContext(UserContext)
     const queue = useContext(QueueContext)
+    const postContext = useContext(PostContext)
 
     useEffect(() => {
         console.log('Is this new page being confirmd? ' + isConfirmed)
@@ -42,13 +47,21 @@ const NewPage = () => {
                         reputation,
                         reputation
                     )
-                    await publishPost(proofData, reputation, content, title)
+                    const { transaction } = await publishPost(
+                        proofData,
+                        reputation,
+                        content,
+                        title
+                    )
+                    await queue.afterTx(transaction)
+                    await postContext.loadFeed(QueryType.New)
                 },
                 {
                     successMessage: 'Post is finalized',
                 }
             )
         }
+        setDraft('')
         history.push('/')
     }
 

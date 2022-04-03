@@ -125,11 +125,7 @@ export const publishPost = async (
         }),
         method: 'POST',
     })
-    const { transaction, error } = await r.json()
-    return {
-        error,
-        transaction,
-    }
+    return r.json()
 }
 
 export const vote = async (
@@ -191,12 +187,7 @@ export const leaveComment = async (
         body: stringifiedData,
         method: 'POST',
     })
-    const { transaction, commentId, error } = await r.json()
-    return {
-        error,
-        transaction,
-        commentId,
-    }
+    return r.json()
 }
 
 export const getRecords = async (currentEpoch: number, identity: string) => {

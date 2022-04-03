@@ -1,5 +1,7 @@
 import { createContext } from 'react'
 import { makeAutoObservable } from 'mobx'
+import { makeURL } from '../utils'
+import { DEFAULT_ETH_PROVIDER } from '../config'
 
 export enum LoadingState {
     loading,
@@ -33,6 +35,17 @@ class Queue {
 
     get isLoading() {
         return this.loadingState === LoadingState.loading
+    }
+
+    async afterTx(tx: string) {
+        const { blockNumber: target } =
+            await DEFAULT_ETH_PROVIDER.waitForTransaction(tx)
+        for (;;) {
+            const r = await fetch(makeURL('/block'))
+            const { blockNumber } = await r.json()
+            if (blockNumber >= target) return
+            await new Promise((r) => setTimeout(r, 2000))
+        }
     }
 
     addOp(operation: () => void | Promise<void>, options = {}) {

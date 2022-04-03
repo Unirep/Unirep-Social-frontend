@@ -148,7 +148,7 @@ const WritingField = (props: Props) => {
                                         i === epkNonce ? 'epk chosen' : 'epk'
                                     }
                                     onClick={() => setEpkNonce(i)}
-                                    key={i}
+                                    key={epk}
                                 >
                                     {epk}
                                 </div>

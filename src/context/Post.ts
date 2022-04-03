@@ -36,8 +36,8 @@ export class Data {
         }
         const ids = {} as { [key: string]: boolean }
         this.feedsByQuery[query] = [
-            ...this.feedsByQuery[query],
             ...posts,
+            ...this.feedsByQuery[query],
         ].filter((p) => {
             if (ids[p.id]) return false
             ids[p.id] = true

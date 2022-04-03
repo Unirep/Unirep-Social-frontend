@@ -151,7 +151,7 @@ const PostBlock = ({ post, page }: Props) => {
                     {post.comments.length > 0 ? (
                         <div className="comments-list">
                             {post.comments.map((c, i) => (
-                                <div key={i} id={c.id}>
+                                <div key={c.id} id={c.id}>
                                     <CommentBlock page={page} comment={c} />
                                     {i < post.comments.length - 1 ? (
                                         <div className="divider"></div>

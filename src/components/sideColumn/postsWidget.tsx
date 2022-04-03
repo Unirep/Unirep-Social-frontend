@@ -97,7 +97,7 @@ const PostsWidget = () => {
                     post={post.post}
                     ranking={post.rank}
                     hasUnderline={i < posts.length - 1}
-                    key={i}
+                    key={post.post.id}
                 />
             ))}
         </div>

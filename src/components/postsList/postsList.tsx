@@ -2,6 +2,7 @@ import PostBlock from '../postBlock/postBlock'
 import { Post, Page } from '../../constants'
 import { LOAD_POST_COUNT } from '../../config'
 import './postsList.scss'
+import { observer } from 'mobx-react-lite'
 
 type Props = {
     posts: Post[]
@@ -13,7 +14,7 @@ const PostsList = ({ posts, loadMorePosts }: Props) => {
         <div className="post-list">
             {posts.length > 0 ? (
                 posts.map((post, i) => (
-                    <PostBlock key={post.id + i} post={post} page={Page.Home} />
+                    <PostBlock key={post.id} post={post} page={Page.Home} />
                 ))
             ) : (
                 <div className="no-posts">
@@ -36,4 +37,4 @@ const PostsList = ({ posts, loadMorePosts }: Props) => {
     )
 }
 
-export default PostsList
+export default observer(PostsList)
