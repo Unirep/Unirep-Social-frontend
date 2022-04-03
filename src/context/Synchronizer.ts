@@ -34,7 +34,9 @@ export class Synchronizer {
 
     constructor() {
         // makeAutoObservable(this)
-        this.load()
+        if (typeof window !== 'undefined') {
+            this.load()
+        }
     }
 
     // calculate a key for storing/accessing a proof

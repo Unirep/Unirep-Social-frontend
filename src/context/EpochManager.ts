@@ -14,7 +14,9 @@ class EpochManager {
 
     constructor() {
         makeAutoObservable(this)
-        this.updateWatch()
+        if (typeof window !== 'undefined') {
+            this.updateWatch()
+        }
     }
 
     async updateWatch() {
