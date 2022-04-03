@@ -114,7 +114,10 @@ const UserInfoWidget = () => {
                                 className="custom-btn"
                                 onClick={() => {
                                     queue.addOp(
-                                        () => userContext.userStateTransition(),
+                                        async () => {
+                                            await userContext.userStateTransition()
+                                            await epochManager.updateWatch()
+                                        },
                                         {
                                             type: ActionType.UST,
                                         }

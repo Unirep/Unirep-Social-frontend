@@ -5,6 +5,7 @@ import UserContext from '../../context/User'
 import { observer } from 'mobx-react-lite'
 import QueueContext from '../../context/Queue'
 import { leaveComment } from '../../utils'
+import { WebContext } from '../../context/WebContext'
 
 type Props = {
     post: Post
@@ -15,6 +16,7 @@ type Props = {
 const CommentField = (props: Props) => {
     const userContext = useContext(UserContext)
     const queue = useContext(QueueContext)
+    const { setDraft } = useContext(WebContext)
 
     const preventPropagation = (event: any) => {
         event.stopPropagation()
@@ -44,6 +46,7 @@ const CommentField = (props: Props) => {
                     successMessage: 'Comment is finalized!',
                 }
             )
+            setDraft('')
             props.closeComment()
         }
     }
