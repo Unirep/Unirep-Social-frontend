@@ -6,14 +6,17 @@ import { WebContext } from '../../context/WebContext'
 import WritingField from '../writingField/writingField'
 import BasicPage from '../basicPage/basicPage'
 import { DataType, ActionType } from '../../constants'
+import UserContext from '../../context/User'
+import { observer } from 'mobx-react-lite'
 
 const NewPage = () => {
     const history = useHistory()
     const location = useLocation<Location>()
     const state = JSON.parse(JSON.stringify(location.state))
     const isConfirmed = state.isConfirmed
+    const userContext = useContext(UserContext)
 
-    const { setAction, user } = useContext(WebContext)
+    const { setAction } = useContext(WebContext)
 
     useEffect(() => {
         console.log('Is this new page being confirmd? ' + isConfirmed)
@@ -30,16 +33,16 @@ const NewPage = () => {
         reputation: number
     ) => {
         console.log('submit post')
-        if (user === null) {
+        if (!userContext.userState) {
             console.log('not login yet.')
         } else {
             const actionData = {
                 title,
                 content,
                 epkNonce,
-                identity: user.identity,
+                identity: userContext.identity,
                 reputation,
-                spent: user.spent,
+                spent: userContext.spent,
             }
             setAction({ action: ActionType.Post, data: actionData })
         }
@@ -59,4 +62,4 @@ const NewPage = () => {
     )
 }
 
-export default NewPage
+export default observer(NewPage)

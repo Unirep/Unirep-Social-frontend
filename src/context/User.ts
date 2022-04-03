@@ -285,6 +285,8 @@ export class User extends Synchronizer {
             nonceList.push(BigInt(this.spent + i))
         }
         const spentNonces = nonceList.length
+        // console.log(nonceList)
+        // console.log(this.unirepConfig.maxReputationBudget)
         for (let i = amount; i < this.unirepConfig.maxReputationBudget; i++) {
             nonceList.push(BigInt(-1))
         }

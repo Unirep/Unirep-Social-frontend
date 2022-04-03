@@ -5,6 +5,8 @@ import HelpWidget from '../helpWidget/helpWidget'
 import { DataType, InfoType, Draft } from '../../constants'
 import './writingField.scss'
 import UnirepContext from '../../context/Unirep'
+import UserContext from '../../context/User'
+import { observer } from 'mobx-react-lite'
 
 type Props = {
     type: DataType
@@ -19,7 +21,8 @@ type Props = {
 }
 
 const WritingField = (props: Props) => {
-    const { user, setIsLoading, draft, setDraft } = useContext(WebContext)
+    const userContext = useContext(UserContext)
+    const { setIsLoading, draft, setDraft } = useContext(WebContext)
     const unirepConfig = useContext(UnirepContext)
     const [title, setTitle] = useState<string>('')
     const [content, setContent] = useState<string>('')
@@ -98,7 +101,7 @@ const WritingField = (props: Props) => {
     }
 
     const submit = () => {
-        if (user === null) {
+        if (!userContext.userState) {
             setErrorMsg('Please sign up or sign in')
         } else {
             if (title.length === 0 && content.length === 0) {
@@ -136,10 +139,10 @@ const WritingField = (props: Props) => {
                         Post as <HelpWidget type={InfoType.epk4Post} />
                     </div>
                     <div className="epks">
-                        {user === null ? (
+                        {!userContext.userState ? (
                             <div>somethings wrong...</div>
                         ) : (
-                            user.epoch_keys.map((epk, i) => (
+                            userContext.currentEpochKeys.map((epk, i) => (
                                 <div
                                     className={
                                         i === epkNonce ? 'epk chosen' : 'epk'
@@ -162,7 +165,9 @@ const WritingField = (props: Props) => {
                             type="range"
                             min={defaultRep}
                             max={
-                                user ? user.reputation - user.spent : defaultRep
+                                userContext.userState
+                                    ? userContext.netReputation
+                                    : defaultRep
                             }
                             onChange={handleRepInput}
                             value={reputation}
@@ -187,4 +192,4 @@ const WritingField = (props: Props) => {
     )
 }
 
-export default WritingField
+export default observer(WritingField)

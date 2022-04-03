@@ -1,11 +1,12 @@
 import { useEffect, useState, useContext } from 'react'
 
 import './banner.scss'
-import { WebContext } from '../../context/WebContext'
 import { ABOUT_URL } from '../../config'
+import UserContext from '../../context/User'
+import { observer } from 'mobx-react-lite'
 
 const Banner = () => {
-    const { user } = useContext(WebContext)
+    const userContext = useContext(UserContext)
     const [on, setOn] = useState<boolean>(false)
 
     useEffect(() => {
@@ -32,7 +33,7 @@ const Banner = () => {
                         >
                             How it works
                         </a>
-                        {user === null ? (
+                        {!userContext.userState ? (
                             <a className="banner-button" href="/signup">
                                 Join us
                             </a>
@@ -53,4 +54,4 @@ const Banner = () => {
     )
 }
 
-export default Banner
+export default observer(Banner)

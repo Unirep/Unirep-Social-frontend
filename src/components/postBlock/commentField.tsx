@@ -2,6 +2,8 @@ import { WebContext } from '../../context/WebContext'
 import { useState, useContext } from 'react'
 import { Post, Comment, DataType, Page, ActionType } from '../../constants'
 import WritingField from '../writingField/writingField'
+import UserContext from '../../context/User'
+import { observer } from 'mobx-react-lite'
 
 type Props = {
     post: Post
@@ -10,7 +12,8 @@ type Props = {
 }
 
 const CommentField = (props: Props) => {
-    const { user, isLoading, setIsLoading, setAction } = useContext(WebContext)
+    const { isLoading, setIsLoading, setAction } = useContext(WebContext)
+    const userContext = useContext(UserContext)
 
     const preventPropagation = (event: any) => {
         event.stopPropagation()
@@ -22,19 +25,19 @@ const CommentField = (props: Props) => {
         epkNonce: number,
         reputation: number
     ) => {
-        if (user === null) {
+        if (!userContext.userState) {
             console.error('user not login!')
         } else if (content.length === 0) {
             console.error('nothing happened, no input.')
         } else {
             const actionData = {
-                identity: user.identity,
+                identity: userContext.identity,
                 content,
                 data: props.post.id,
                 epkNonce,
                 reputation,
-                spent: user.spent,
-                userState: user.userState,
+                spent: userContext.spent,
+                userState: userContext.userState,
             }
             setAction({ action: ActionType.Comment, data: actionData })
             props.closeComment()
@@ -53,4 +56,4 @@ const CommentField = (props: Props) => {
     )
 }
 
-export default CommentField
+export default observer(CommentField)

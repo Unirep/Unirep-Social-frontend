@@ -12,7 +12,7 @@ import UnirepContext from '../../context/Unirep'
 const SignupPage = () => {
     const userState = useContext(UserState)
     const history = useHistory()
-    const { setUser, isLoading, setIsLoading } = useContext(WebContext)
+    const { isLoading, setIsLoading } = useContext(WebContext)
     const [invitationCode, setInvitationCode] = useState<string>('')
     const [step, setStep] = useState<number>(0)
     const [isDownloaded, setIsDownloaded] = useState(false)
@@ -73,23 +73,10 @@ const SignupPage = () => {
             await userState.waitForSync()
             console.log('sync complete')
             await userState.calculateAllEpks()
-            const currentRep = await userState.loadReputation()
             const { error } = await userState.getAirdrop()
             if (error !== undefined) {
                 console.error(error)
             }
-
-            setUser({
-                identity: userState.identity,
-                epoch_keys: userState.currentEpochKeys,
-                all_epoch_keys: userState.allEpks,
-                reputation:
-                    Number(currentRep.posRep) - Number(currentRep.negRep),
-                current_epoch: userState.currentEpoch,
-                isConfirmed: true,
-                spent: 0,
-                userState: '{}', // userStateResult.userState.toJSON(),
-            })
 
             setIsLoading(false)
             history.push('/')

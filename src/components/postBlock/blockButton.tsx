@@ -3,6 +3,8 @@ import { useHistory } from 'react-router-dom'
 import { Post, Comment, ButtonType } from '../../constants'
 import { WebContext } from '../../context/WebContext'
 import VoteBox from '../voteBox/voteBox'
+import UserContext from '../../context/User'
+import { observer } from 'mobx-react-lite'
 
 type Props = {
     type: ButtonType
@@ -12,7 +14,8 @@ type Props = {
 
 const BlockButton = ({ type, count, data }: Props) => {
     const history = useHistory()
-    const { user, isLoading } = useContext(WebContext)
+    const { isLoading } = useContext(WebContext)
+    const userContext = useContext(UserContext)
 
     const [isBoostOn, setBoostOn] = useState<boolean>(false)
     const [isSquashOn, setSquashOn] = useState<boolean>(false)
@@ -24,10 +27,11 @@ const BlockButton = ({ type, count, data }: Props) => {
         if (type === ButtonType.Comments || type === ButtonType.Share) {
             return true
         } else {
-            if (user === null) return false
+            if (!userContext.userState) return false
             else {
-                if (data.current_epoch !== user.current_epoch) return false
-                else if (user.reputation - user.spent < 1) return false
+                if (data.current_epoch !== userContext.currentEpoch)
+                    return false
+                else if (userContext.netReputation < 1) return false
                 else if (isLoading) return false
                 else return true
             }
@@ -60,12 +64,11 @@ const BlockButton = ({ type, count, data }: Props) => {
     }
 
     const setReminderMessage = () => {
-        if (user === null) setReminder('Join us :)')
+        if (!userContext.userState) setReminder('Join us :)')
         else {
-            if (data.current_epoch !== user.current_epoch)
+            if (data.current_epoch !== userContext.currentEpoch)
                 setReminder('Time out :(')
-            else if (user.reputation - user.spent < 1)
-                setReminder('No enough Rep')
+            else if (userContext.netReputation < 1) setReminder('No enough Rep')
             else if (isLoading && type !== ButtonType.Share)
                 setReminder('loading...')
         }
@@ -145,4 +148,4 @@ const BlockButton = ({ type, count, data }: Props) => {
     )
 }
 
-export default BlockButton
+export default observer(BlockButton)

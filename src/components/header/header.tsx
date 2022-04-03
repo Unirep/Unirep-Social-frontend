@@ -3,20 +3,22 @@ import { NavLink, useHistory, useLocation } from 'react-router-dom'
 import { WebContext } from '../../context/WebContext'
 import UnirepContext from '../../context/Unirep'
 import './header.scss'
+import UserContext from '../../context/User'
+import { observer } from 'mobx-react-lite'
 
 const Header = () => {
     const history = useHistory()
     const location = useLocation()
-    const { user, isLoading, isMenuOpen, setIsMenuOpen } =
-        useContext(WebContext)
+    const { isLoading, isMenuOpen, setIsMenuOpen } = useContext(WebContext)
     const [searchInput, setSearchInput] = useState<string>('')
     const unirepConfig = useContext(UnirepContext)
+    const userContext = useContext(UserContext)
 
     const gotoNewPage = () => {
         if (
             !isLoading &&
-            user !== null &&
-            user.reputation - user.spent >= unirepConfig.postReputation
+            userContext.userState &&
+            userContext.netReputation >= unirepConfig.postReputation
         ) {
             history.push(`/new`, { isConfirmed: true })
         }
@@ -52,13 +54,13 @@ const Header = () => {
                     <input type="text" name="searchInput" placeholder="Search by keyword, user names or epoch key" onChange={handleSearchInput} />
                 </form>
             </div> */}
-            {user && user.identity ? (
+            {userContext.userState ? (
                 <div className="navButtons">
                     <div id="rep" onClick={gotoUserPage}>
                         <img
                             src={require('../../../public/images/lighting.svg')}
                         />
-                        {user?.reputation - user?.spent}
+                        {userContext.netReputation}
                     </div>
                     <div
                         id="new"
@@ -121,4 +123,4 @@ const Header = () => {
     )
 }
 
-export default Header
+export default observer(Header)

@@ -19,7 +19,6 @@ import SettingPage from './components/settingPage/settingPage'
 import { WebContext } from './context/WebContext'
 
 const AppRouter = () => {
-    const [user, setUser] = useLocalStorage('user', null)
     const [tx, setTx] = useLocalStorage('tx', '')
     const [shownPosts, setShownPosts] = useLocalStorage('shownPosts', [])
     const [adminCode, setAdminCode] = useLocalStorage('admin', '')
@@ -44,8 +43,6 @@ const AppRouter = () => {
             <div>
                 <WebContext.Provider
                     value={{
-                        user,
-                        setUser,
                         tx,
                         setTx,
                         shownPosts,

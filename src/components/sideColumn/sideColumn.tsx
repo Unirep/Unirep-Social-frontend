@@ -2,21 +2,22 @@ import { useContext } from 'react'
 import { useHistory } from 'react-router-dom'
 
 import './sideColumn.scss'
-import { WebContext } from '../../context/WebContext'
 import DefaultWidget from './defaultWidget'
 import UserInfoWidget from './userInfoWidget'
 import ReminderWidget from './reminderWidget'
 import PostsWidget from './postsWidget'
 import { Page } from '../../constants'
+import UserContext from '../../context/User'
+import { observer } from 'mobx-react-lite'
 
 const SideColumn = () => {
-    const { user } = useContext(WebContext)
     const history = useHistory()
+    const userContext = useContext(UserContext)
 
     const page = window.location.pathname as any
 
     const gotoSetting = () => {
-        if (user !== null) {
+        if (userContext.userState) {
             history.push('/setting', { isConfirmed: true })
         }
     }
@@ -38,17 +39,18 @@ const SideColumn = () => {
             ) : (
                 <div></div>
             )}
-            {user !== null && page !== Page.Setting ? (
+            {userContext.userState && page !== Page.Setting ? (
                 <UserInfoWidget />
             ) : (
                 <div></div>
             )}
-            {user !== null && (page === Page.New || page === Page.Post) ? (
+            {userContext.userState &&
+            (page === Page.New || page === Page.Post) ? (
                 <ReminderWidget page={page} />
             ) : (
                 <div></div>
             )}
-            {user !== null && page === Page.User ? (
+            {userContext.userState && page === Page.User ? (
                 <PostsWidget />
             ) : (
                 <div></div>
@@ -61,4 +63,4 @@ const SideColumn = () => {
     )
 }
 
-export default SideColumn
+export default observer(SideColumn)

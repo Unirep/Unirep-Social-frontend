@@ -2,6 +2,8 @@ import { useContext, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { WebContext } from '../../context/WebContext'
 import { Post } from '../../constants'
+import UserContext from '../../context/User'
+import { observer } from 'mobx-react-lite'
 
 type Props = {
     post: Post
@@ -17,8 +19,8 @@ const isAuthor = (p: Post, epks: undefined | string[]) => {
     }
 }
 
-const RankingBlock = ({ post, ranking, hasUnderline }: Props) => {
-    const { user } = useContext(WebContext)
+const RankingBlock = observer(({ post, ranking, hasUnderline }: Props) => {
+    const userContext = useContext(UserContext)
     const history = useHistory()
 
     return (
@@ -34,7 +36,9 @@ const RankingBlock = ({ post, ranking, hasUnderline }: Props) => {
                         src={require('../../../public/images/boost-fill.svg')}
                     />
                     {`#${ranking + 1}${
-                        isAuthor(post, user?.all_epoch_keys) ? ', by you' : ''
+                        isAuthor(post, userContext.currentEpochKeys)
+                            ? ', by you'
+                            : ''
                     }`}
                 </div>
                 <div className="boost">{post.upvote}</div>
@@ -45,7 +49,7 @@ const RankingBlock = ({ post, ranking, hasUnderline }: Props) => {
             </div>
         </div>
     )
-}
+})
 
 type RankedPost = {
     post: Post
@@ -53,7 +57,8 @@ type RankedPost = {
 }
 
 const PostsWidget = () => {
-    const { shownPosts, user } = useContext(WebContext)
+    const userContext = useContext(UserContext)
+    const { shownPosts } = useContext(WebContext)
     const [posts, setPosts] = useState<RankedPost[]>(() => {
         let posts: RankedPost[] = []
 
@@ -69,12 +74,16 @@ const PostsWidget = () => {
             } else {
                 // console.log('i >= 3, check post!');
                 // console.log(i);
-                if (!hasUserPost && isAuthor(post, user?.all_epoch_keys)) {
+                if (
+                    !hasUserPost &&
+                    isAuthor(post, userContext.currentEpochKeys)
+                ) {
                     const p = { post, rank: i }
                     posts = [...posts, p]
                 }
             }
-            hasUserPost = hasUserPost || isAuthor(post, user?.all_epoch_keys)
+            hasUserPost =
+                hasUserPost || isAuthor(post, userContext.currentEpochKeys)
         })
 
         return posts
@@ -95,4 +104,4 @@ const PostsWidget = () => {
     )
 }
 
-export default PostsWidget
+export default observer(PostsWidget)

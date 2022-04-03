@@ -2,10 +2,13 @@ import React, { useContext } from 'react'
 import { useHistory } from 'react-router-dom'
 import { WebContext } from '../../context/WebContext'
 import './overlay.scss'
+import UserContext from '../../context/User'
+import { observer } from 'mobx-react-lite'
 
 const Overlay = () => {
-    const { setIsMenuOpen, isLoading, user, setUser } = useContext(WebContext)
+    const { setIsMenuOpen, isLoading } = useContext(WebContext)
     const history = useHistory()
+    const userContext = useContext(UserContext)
 
     const closeOverlay = () => {
         if (!isLoading) {
@@ -21,7 +24,8 @@ const Overlay = () => {
     }
 
     const signout = () => {
-        setUser(null)
+        // TODO: sign out logic
+        // setUser(null)
         setIsMenuOpen(false)
         history.push('/')
     }
@@ -42,7 +46,7 @@ const Overlay = () => {
                     </a>
                     <a href="https://about.unirep.social">About</a>
                 </div>
-                {user === null ? (
+                {!userContext.userState ? (
                     <div className="dynamic-info">
                         <a href="/feedback">Send feedback</a>
                         <a href="/login">Sign in</a>
@@ -60,4 +64,4 @@ const Overlay = () => {
     )
 }
 
-export default Overlay
+export default observer(Overlay)
