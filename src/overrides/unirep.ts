@@ -14,8 +14,8 @@ import {
     serialiseIdentity,
 } from '@unirep/crypto'
 
-// export const UnirepState = _UnirepState
-// export const UserState = _UserState
+// TODO: merge this into the unirep package
+// more info here: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#tojson_behavior
 
 export class UnirepState extends _UnirepState {
     toJSON = (space = 0): string => {
