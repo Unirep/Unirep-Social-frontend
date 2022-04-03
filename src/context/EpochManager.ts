@@ -25,6 +25,7 @@ class EpochManager {
             clearTimeout(this.timer)
             this.timer = null
         }
+        this.readyToTransition = false
         this.currentEpoch = await unirepConfig.currentEpoch()
         // load the last transition time
         ;(this as any).nextTransition = await this._nextTransition()
