@@ -1,17 +1,13 @@
 import { BigNumberish } from 'ethers'
 import {
-    genIdentity,
-    genIdentityCommitment,
-    serialiseIdentity,
-    unSerialiseIdentity,
-} from '@unirep/crypto'
+    crypto,
+    contracts,
+    circuits,
+    core,
+} from 'unirep'
 import {
-    genUserStateFromContract,
-    genEpochKey,
-    genUserStateFromParams,
-} from '@unirep/unirep'
-import { UnirepSocialFacory, UnirepFactory } from '@unirep/unirep-social'
-import { formatProofForVerifierContract } from '@unirep/circuits'
+    UnirepSocialFactory
+} from 'unirep-social'
 import * as config from './config'
 import {
     Record,
@@ -24,7 +20,7 @@ import {
 } from './constants'
 
 export const getCurrentEpoch = async () => {
-    const unirepContract = UnirepFactory.connect(
+    const unirepContract = contracts.UnirepFactory.connect(
         config.UNIREP,
         config.DEFAULT_ETH_PROVIDER
     )
@@ -34,9 +30,12 @@ export const getCurrentEpoch = async () => {
 
 const decodeIdentity = (identity: string) => {
     try {
-        const id = unSerialiseIdentity(identity)
-        const commitment = genIdentityCommitment(id)
-        return { id, commitment, identityNullifier: id.identityNullifier }
+        const id = new crypto.ZkIdentity(
+            crypto.Strategy.SERIALIZED,
+            identity
+        )
+        const commitment = id.genIdentityCommitment()
+        return { id, commitment, identityNullifier: id.getNullifier() }
     } catch (e) {
         console.log('Incorrect Identity format\n', e)
         return {
@@ -48,7 +47,7 @@ const decodeIdentity = (identity: string) => {
 }
 
 export const hasSignedUp = async (identity: string) => {
-    const unirepContract = UnirepFactory.connect(
+    const unirepContract = contracts.UnirepFactory.connect(
         config.UNIREP,
         config.DEFAULT_ETH_PROVIDER
     )
@@ -65,7 +64,7 @@ export const hasSignedUp = async (identity: string) => {
 }
 
 const hasSignedUpInUnirepSocial = async (identityCommitment: BigInt) => {
-    const unirepSocial = UnirepSocialFacory.connect(
+    const unirepSocial = UnirepSocialFactory.connect(
         config.UNIREP_SOCIAL,
         config.DEFAULT_ETH_PROVIDER
     )
@@ -75,7 +74,7 @@ const hasSignedUpInUnirepSocial = async (identityCommitment: BigInt) => {
     )
     const userSignUpEvent = await unirepSocial.queryFilter(userSignUpFilter)
     if (userSignUpEvent.length === 1)
-        return { epoch: userSignUpEvent[0]?.args?._epoch, hasSignedUp: true }
+        return { epoch: userSignUpEvent[0]?.args?.epoch, hasSignedUp: true }
     return { epoch: 0, hasSignedUp: false }
 }
 
@@ -89,7 +88,7 @@ export const getUserState = async (
     const startTime = new Date().getTime()
     if ((us === undefined || us === null) && update === false) {
         console.log('gen user state from stored us')
-        userState = genUserStateFromParams(id, JSON.parse(us))
+        userState = core.genUserStateFromParams(id, JSON.parse(us))
         const endTime = new Date().getTime()
         console.log(
             `Gen us time: ${endTime - startTime} ms (${Math.floor(
@@ -99,7 +98,7 @@ export const getUserState = async (
     } else {
         const parsedUserState = us !== undefined ? JSON.parse(us) : us
         console.log('update user state from stored us')
-        userState = await genUserStateFromContract(
+        userState = await core.genUserStateFromContract(
             config.DEFAULT_ETH_PROVIDER,
             config.UNIREP,
             id,
@@ -133,11 +132,11 @@ const getEpochKey = (
     identityNullifier: any,
     epoch: number
 ) => {
-    const epochKey = genEpochKey(
+    const epochKey = core.genEpochKey(
         identityNullifier,
         epoch,
         epkNonce,
-        config.circuitEpochTreeDepth
+        config.EPOCH_TREE_DEPTH
     )
 
     return epochKey.toString(16)
@@ -174,7 +173,7 @@ const genAirdropProof = async (identity: string, us: any) => {
     }
 
     return {
-        proof: formatProofForVerifierContract(results.proof),
+        proof: circuits.formatProofForVerifierContract(results.proof),
         publicSignals: results.publicSignals,
         userState: userState,
     }
@@ -204,7 +203,7 @@ const genAirdropProof = async (identity: string, us: any) => {
 // }
 
 export const getAirdrop = async (identity: string, us: any) => {
-    const unirepSocial = UnirepSocialFacory.connect(
+    const unirepSocial = UnirepSocialFactory.connect(
         config.UNIREP_SOCIAL,
         config.DEFAULT_ETH_PROVIDER
     )
@@ -213,7 +212,7 @@ export const getAirdrop = async (identity: string, us: any) => {
         us
     )
     const { identityNullifier } = decodeIdentity(identity)
-    const epk = genEpochKey(
+    const epk = core.genEpochKey(
         identityNullifier,
         userState.getUnirepStateCurrentEpoch(),
         0
@@ -257,7 +256,7 @@ const genProof = async (
         const ret = await getUserState(identity, us, false)
         userState = ret.userState
     }
-    const unirepContract = UnirepFactory.connect(
+    const unirepContract = contracts.UnirepFactory.connect(
         config.UNIREP,
         config.DEFAULT_ETH_PROVIDER
     )
@@ -330,7 +329,7 @@ const genProof = async (
         )} s)`
     )
 
-    const proof = formatProofForVerifierContract(results.proof)
+    const proof = circuits.formatProofForVerifierContract(results.proof)
     const publicSignals = results.publicSignals
 
     return { epk, proof, publicSignals, currentEpoch, userState }
@@ -354,17 +353,19 @@ export const checkInvitationCode = async (invitationCode: string) => {
 }
 
 export const userSignUp = async () => {
-    const id = genIdentity()
-    const commitment = genIdentityCommitment(id).toString(16).padStart(64, '0')
+    const id = new crypto.ZkIdentity()
+    const commitment = id.genIdentityCommitment()
+        .toString(16)
+        .padStart(64, '0')
 
-    const serializedIdentity = serialiseIdentity(id)
+    const serializedIdentity = id.serializeIdentity()
 
-    const unirepContract = UnirepFactory.connect(
+    const unirepContract = contracts.UnirepFactory.connect(
         config.UNIREP,
         config.DEFAULT_ETH_PROVIDER
     )
     const currentEpoch = Number(await unirepContract.currentEpoch())
-    const epk1 = getEpochKey(0, id.identityNullifier, currentEpoch)
+    const epk1 = getEpochKey(0, id.getNullifier(), currentEpoch)
 
     // call server user sign up
     const apiURL = makeURL('signup', {

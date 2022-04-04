@@ -31,6 +31,7 @@ module.exports = {
             os: require.resolve('os-browserify/browser'),
             fs: false,
             dotenv: false,
+            path: require.resolve("path-browserify"),
         },
     },
     module: {

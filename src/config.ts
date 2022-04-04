@@ -1,10 +1,8 @@
 import { ethers } from 'ethers'
 import {
-    circuitUserStateTreeDepth,
-    circuitGlobalStateTreeDepth,
-    circuitEpochTreeDepth,
-} from '@unirep/unirep'
-import UnirepSocial from '@unirep/unirep-social/artifacts/contracts/UnirepSocial.sol/UnirepSocial.json'
+    config
+} from 'unirep'
+import UnirepSocial from 'unirep-social/artifacts/contracts/UnirepSocial.sol/UnirepSocial.json'
 
 // const SERVER = 'http://localhost:3001/'
 const DEFAULT_ETH_PROVIDER_URL = 'ws://localhost:8545'
@@ -24,6 +22,9 @@ const DEFAULT_POST_KARMA = 5
 const DEFAULT_COMMENT_KARMA = 3
 const MAX_KARMA_BUDGET = 10
 const DEFAULT_AIRDROPPED_KARMA = 30
+const EPOCH_TREE_DEPTH = config.EPOCH_TREE_DEPTH
+const GLOBAL_STATE_TREE_DEPTH = config.GLOBAL_STATE_TREE_DEPTH
+const USER_STATE_TREE_DEPTH = config.USER_STATE_TREE_DEPTH
 
 const UNIREP = '0x0165878A594ca255338adfa4d48449f69242Eb8F'
 const UNIREP_SOCIAL = '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853'
@@ -63,9 +64,9 @@ export {
     UNIREP_SOCIAL,
     UNIREP_SOCIAL_ABI,
     UNIREP_SOCIAL_ATTESTER_ID,
-    circuitGlobalStateTreeDepth,
-    circuitUserStateTreeDepth,
-    circuitEpochTreeDepth,
+    GLOBAL_STATE_TREE_DEPTH,
+    USER_STATE_TREE_DEPTH,
+    EPOCH_TREE_DEPTH,
     circuitNullifierTreeDepth,
     userStateTreeDepth,
     epochTreeDepth,
