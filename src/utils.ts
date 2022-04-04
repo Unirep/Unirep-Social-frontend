@@ -1,13 +1,6 @@
 import { BigNumberish } from 'ethers'
-import {
-    crypto,
-    contracts,
-    circuits,
-    core,
-} from 'unirep'
-import {
-    UnirepSocialFactory
-} from 'unirep-social'
+import { crypto, contracts, circuits, core } from 'unirep'
+import { UnirepSocialFactory } from 'unirep-social'
 import * as config from './config'
 import {
     Record,
@@ -30,10 +23,7 @@ export const getCurrentEpoch = async () => {
 
 const decodeIdentity = (identity: string) => {
     try {
-        const id = new crypto.ZkIdentity(
-            crypto.Strategy.SERIALIZED,
-            identity
-        )
+        const id = new crypto.ZkIdentity(crypto.Strategy.SERIALIZED, identity)
         const commitment = id.genIdentityCommitment()
         return { id, commitment, identityNullifier: id.getNullifier() }
     } catch (e) {
@@ -354,9 +344,7 @@ export const checkInvitationCode = async (invitationCode: string) => {
 
 export const userSignUp = async () => {
     const id = new crypto.ZkIdentity()
-    const commitment = id.genIdentityCommitment()
-        .toString(16)
-        .padStart(64, '0')
+    const commitment = id.genIdentityCommitment().toString(16).padStart(64, '0')
 
     const serializedIdentity = id.serializeIdentity()
 

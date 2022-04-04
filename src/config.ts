@@ -1,7 +1,5 @@
 import { ethers } from 'ethers'
-import {
-    config
-} from 'unirep'
+import { config } from 'unirep'
 import UnirepSocial from 'unirep-social/artifacts/contracts/UnirepSocial.sol/UnirepSocial.json'
 
 // const SERVER = 'http://localhost:3001/'
