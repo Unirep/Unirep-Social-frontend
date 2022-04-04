@@ -35,7 +35,6 @@
         "snarkjs": "^0.3.59"
     },
     "devDependencies": {
-        "unirep": "git+https://github.com/Unirep/Unirep.git#alpha-monorepo",
         "unirep-social": "git+https://github.com/Unirep/Unirep-Social.git#feat/refactor-packages",
         "@babel/core": "^7.17.7",
         "@babel/preset-react": "^7.16.7",
