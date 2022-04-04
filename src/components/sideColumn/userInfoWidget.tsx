@@ -114,8 +114,20 @@ const UserInfoWidget = () => {
                                 className="custom-btn"
                                 onClick={() => {
                                     queue.addOp(
-                                        async () => {
-                                            await userContext.userStateTransition()
+                                        async (updateStatus) => {
+                                            updateStatus({
+                                                title: 'Performing UST',
+                                                details:
+                                                    'Generating ZK proof...',
+                                            })
+                                            const { transaction } =
+                                                await userContext.userStateTransition()
+                                            updateStatus({
+                                                title: 'Performing UST',
+                                                details:
+                                                    'Waiting for transaction...',
+                                            })
+                                            await queue.afterTx(transaction)
                                             await epochManager.updateWatch()
                                         },
                                         {

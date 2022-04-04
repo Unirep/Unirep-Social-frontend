@@ -6,7 +6,6 @@ import LoadingCover from '../loadingCover/loadingCover'
 import LoadingButton from '../loadingButton/loadingButton'
 import UserState from '../../context/User'
 import { observer } from 'mobx-react-lite'
-import UnirepContext from '../../context/Unirep'
 
 const SignupPage = () => {
     const userState = useContext(UserState)

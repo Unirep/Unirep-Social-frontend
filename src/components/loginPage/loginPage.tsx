@@ -38,7 +38,8 @@ const LoginPage = () => {
         const currentEpoch = await userContext.loadCurrentEpoch()
 
         if (userContext.userState?.latestTransitionedEpoch === currentEpoch) {
-            await userContext.getAirdrop()
+            // TODO: airdrop if first epoch that user has registered
+            // await userContext.getAirdrop()
         }
         setIsLoading(false)
         history.push('/')

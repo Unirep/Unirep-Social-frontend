@@ -35,12 +35,26 @@ const CommentField = (props: Props) => {
         } else {
             const data = props.post.id
             queue.addOp(
-                async () => {
+                async (updateStatus) => {
+                    updateStatus({
+                        title: 'Creating comment',
+                        details: 'Generating ZK proof...',
+                    })
                     const proofData = await userContext.genRepProof(
                         reputation,
                         reputation
                     )
-                    await leaveComment(proofData, reputation, content, data)
+                    updateStatus({
+                        title: 'Creating comment',
+                        details: 'Waiting for transaction...',
+                    })
+                    const { transaction } = await leaveComment(
+                        proofData,
+                        reputation,
+                        content,
+                        data
+                    )
+                    await queue.afterTx(transaction)
                 },
                 {
                     successMessage: 'Comment is finalized!',

@@ -42,11 +42,19 @@ const NewPage = () => {
             console.log('not login yet.')
         } else {
             queue.addOp(
-                async () => {
+                async (updateStatus) => {
+                    updateStatus({
+                        title: 'Creating post',
+                        details: 'Generating zk proof...',
+                    })
                     const proofData = await userContext.genRepProof(
                         reputation,
                         reputation
                     )
+                    updateStatus({
+                        title: 'Creating post',
+                        details: 'Waiting for TX inclusion...',
+                    })
                     const { transaction } = await publishPost(
                         proofData,
                         reputation,

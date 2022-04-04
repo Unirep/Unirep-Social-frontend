@@ -335,10 +335,6 @@ export class User extends Synchronizer {
             method: 'POST',
         })
         const { transaction, error } = await r.json()
-        const receipt = await config.DEFAULT_ETH_PROVIDER.waitForTransaction(
-            transaction
-        )
-        await this.waitForSync(receipt.blockNumber)
         this.epkNonce = 0
         this.spent = 0
         await this.loadReputation()

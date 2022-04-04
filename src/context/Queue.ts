@@ -18,17 +18,33 @@ export enum ActionType {
     Signup = 'Signup',
 }
 
+interface Status {
+    title?: string
+    details?: string
+}
+
+type OperationFn = (
+    updateStatus: (status: Status) => void
+) => void | Promise<any>
+
 interface Operation {
-    fn: () => void | Promise<any>
+    fn: OperationFn
     successMessage: string
     failureMessage: string
+    status?: Status
     type?: ActionType
+}
+
+const defaultStatus: Status = {
+    title: 'Submitting your content',
+    details: `Please wait 'til this transaction complete for creating post, comment, boost, or squash. This is the life of blockchain :P`,
 }
 
 class Queue {
     operations = [] as Operation[]
     loadingState = LoadingState.none
     latestMessage = ''
+    status = defaultStatus
     daemonRunning = false
     private activeOp?: Operation
 
@@ -63,7 +79,7 @@ class Queue {
         }
     }
 
-    addOp(operation: () => void | Promise<any>, options = {}) {
+    addOp(operation: OperationFn, options = {}) {
         this.operations.push({
             fn: operation,
             ...{
@@ -92,7 +108,13 @@ class Queue {
             if (op === undefined) break
             try {
                 this.loadingState = LoadingState.loading
-                await op.fn()
+                await op.fn(
+                    (s) =>
+                        (this.status = {
+                            ...defaultStatus,
+                            ...s,
+                        })
+                )
                 this.latestMessage = op.successMessage
                 this.loadingState = LoadingState.success
             } catch (err) {

@@ -39,12 +39,8 @@ const LoadingWidget = () => {
                         src={require('../../../public/images/loader.svg')}
                         style={{ transform: `scaleX(${isFlip ? '-1' : '1'})` }}
                     />
-                    <span>Submitting your content...</span>
-                    <div className="info-row">
-                        Please wait 'til this transaction complete for creating
-                        post, comment, boost, or squash. This is the life of
-                        blockchain :P{' '}
-                    </div>
+                    <span>{queue.status.title}</span>
+                    <div className="info-row">{queue.status.details}</div>
                 </div>
             </div>
         )

@@ -55,9 +55,17 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
             const amount = upvote + downvote
             const _data = data.id
             const epk = data.epoch_key
-            queue.addOp(async () => {
+            queue.addOp(async (updateStatus) => {
+                updateStatus({
+                    title: 'Creating Vote',
+                    details: 'Generating ZK proof...',
+                })
                 const proofData = await userContext.genRepProof(amount, amount)
-                await vote(
+                updateStatus({
+                    title: 'Creating Vote',
+                    details: 'Broadcasting vote...',
+                })
+                const { transaction } = await vote(
                     proofData,
                     amount,
                     upvote,
@@ -66,6 +74,11 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
                     epk,
                     isPost
                 )
+                updateStatus({
+                    title: 'Creating Vote',
+                    details: 'Waiting for transaction...',
+                })
+                await queue.afterTx(transaction)
             })
             init()
         }
