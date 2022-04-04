@@ -35,7 +35,7 @@
         "snarkjs": "^0.3.59"
     },
     "devDependencies": {
-        "unirep-social": "git+https://github.com/Unirep/Unirep-Social.git#feat/refactor-packages",
+        "unirep-social": "git+https://github.com/Unirep/Unirep-Social.git#v1.0.0-alpha",
         "@babel/core": "^7.17.7",
         "@babel/preset-react": "^7.16.7",
         "@cloudflare/kv-asset-handler": "^0.2.0",
