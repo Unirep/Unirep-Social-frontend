@@ -34,6 +34,8 @@ export class User extends Synchronizer {
             spent: observable,
             netReputation: computed,
             userState: observable,
+            currentEpochKeys: computed,
+            allEpks: observable,
         })
     }
 
@@ -56,6 +58,7 @@ export class User extends Synchronizer {
                 userState,
                 unirepState: userState.getUnirepState(),
             })
+            await this.calculateAllEpks()
         }
         if (this.id) {
             this.startDaemon()
@@ -144,7 +147,9 @@ export class User extends Synchronizer {
                     epoch,
                     i,
                     this.unirepConfig.epochTreeDepth
-                ).toString(16)
+                )
+                    .toString(16)
+                    .padStart(8, '0')
                 epks.push(tmp)
             }
             return epks
