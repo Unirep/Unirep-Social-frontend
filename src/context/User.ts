@@ -36,6 +36,9 @@ export class User extends Synchronizer {
             currentEpochKeys: computed,
             allEpks: observable,
         })
+        if (typeof window !== 'undefined') {
+            this.load()
+        }
     }
 
     get netReputation() {

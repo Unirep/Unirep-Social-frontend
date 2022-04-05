@@ -34,9 +34,6 @@ export class Synchronizer {
 
     constructor() {
         // makeAutoObservable(this)
-        if (typeof window !== 'undefined') {
-            this.load()
-        }
     }
 
     // calculate a key for storing/accessing a proof
@@ -49,7 +46,17 @@ export class Synchronizer {
         // now start syncing
         const storedState = localStorage.getItem('sync-latestBlock')
         if (storedState) {
-            Object.assign(this, JSON.parse(storedState))
+            const data = JSON.parse(storedState, (key, value) => {
+                if (
+                    typeof value === 'object' &&
+                    value &&
+                    value.type === 'BigNumber'
+                ) {
+                    return ethers.BigNumber.from(value.hex)
+                }
+                return value
+            })
+            Object.assign(this, data)
         }
         this.unirepState = new UnirepState({
             globalStateTreeDepth: unirepConfig.globalStateTreeDepth,
@@ -67,6 +74,8 @@ export class Synchronizer {
             'sync-latestBlock',
             JSON.stringify({
                 latestProcessedBlock: this.latestProcessedBlock,
+                validProofs: this.validProofs,
+                spentProofs: this.spentProofs,
             })
         )
     }
@@ -557,7 +566,7 @@ export class Synchronizer {
             }
         }
         const fromEpoch = Number(proof._proof.transitionFromEpoch.toString())
-        this.userState?.userStateTransition(
+        await this.userState?.userStateTransition(
             fromEpoch,
             leaf,
             epkNullifiers,
