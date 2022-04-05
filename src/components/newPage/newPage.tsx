@@ -1,24 +1,27 @@
 import { useEffect, useContext } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
+import { observer } from 'mobx-react-lite'
 
 import './newPage.scss'
-import { WebContext } from '../../context/WebContext'
-import UserContext from '../../context/User'
-import PostContext from '../../context/Post'
-
 import WritingField from '../writingField/writingField'
 import BasicPage from '../basicPage/basicPage'
-import { DataType, ActionType } from '../../constants'
+import { DataType } from '../../constants'
+import UserContext from '../../context/User'
+import QueueContext from '../../context/Queue'
+import { publishPost } from '../../utils'
+import PostContext from '../../context/Post'
+import { QueryType } from '../../constants'
+import { WebContext } from '../../context/WebContext'
 
 const NewPage = () => {
+    const { setDraft } = useContext(WebContext)
     const history = useHistory()
     const location = useLocation<Location>()
     const state = JSON.parse(JSON.stringify(location.state))
     const isConfirmed = state.isConfirmed
-
-    const { setIsLoading } = useContext(WebContext)
-    const user = useContext(UserContext)
-    const postController = useContext(PostContext)
+    const userContext = useContext(UserContext)
+    const queue = useContext(QueueContext)
+    const postContext = useContext(PostContext)
 
     useEffect(() => {
         console.log('Is this new page being confirmd? ' + isConfirmed)
@@ -35,21 +38,39 @@ const NewPage = () => {
         reputation: number
     ) => {
         console.log('submit post')
-        setIsLoading(true)
-
-        const ret = await user.genProof(epkNonce, reputation)
-        if (!ret) {
-            console.log('gen proof error')
+        if (!userContext.userState) {
+            console.log('not login yet.')
         } else {
-            const postRet = await postController.publishPost(title, content, reputation, ret.proof, ret.publicSignals)
-            if (!postRet) {
-                console.log('publish post error')
-            } else {
-                console.log('publish post return: ' + JSON.stringify(postRet))
-            }
+            queue.addOp(
+                async (updateStatus) => {
+                    updateStatus({
+                        title: 'Creating post',
+                        details: 'Generating zk proof...',
+                    })
+                    const proofData = await userContext.genRepProof(
+                        reputation,
+                        reputation,
+                        epkNonce
+                    )
+                    updateStatus({
+                        title: 'Creating post',
+                        details: 'Waiting for TX inclusion...',
+                    })
+                    const { transaction } = await publishPost(
+                        proofData,
+                        reputation,
+                        content,
+                        title
+                    )
+                    await queue.afterTx(transaction)
+                    await postContext.loadFeed(QueryType.New)
+                },
+                {
+                    successMessage: 'Post is finalized',
+                }
+            )
         }
-
-        setIsLoading(false)
+        setDraft('')
         history.push('/')
     }
 
@@ -66,4 +87,4 @@ const NewPage = () => {
     )
 }
 
-export default NewPage
+export default observer(NewPage)

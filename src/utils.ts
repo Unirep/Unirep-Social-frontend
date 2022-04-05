@@ -1,44 +1,9 @@
-import {
-    genIdentity,
-    genIdentityCommitment,
-    serialiseIdentity,
-    unSerialiseIdentity,
-} from '@unirep/crypto'
-import {
-    genUserStateFromContract,
-    genEpochKey,
-    genUserStateFromParams,
-} from '@unirep/unirep'
-import { formatProofForVerifierContract } from '@unirep/circuits'
+import { genIdentityCommitment, unSerialiseIdentity } from '@unirep/crypto'
+import { genEpochKey } from '@unirep/unirep'
 import * as config from './config'
-import {
-    Record,
-    Post,
-    DataType,
-    Vote,
-    Comment,
-    ActionType,
-    QueryType,
-} from './constants'
+import { Record, Post, DataType, Vote, Comment, QueryType } from './constants'
 import UnirepContext from './context/Unirep'
-
-const snarkjs = require('snarkjs')
-
-const add0x = (str: string): string => {
-    return str.startsWith('0x') ? str : '0x' + str
-}
-
-const verifyProof = async (
-    circuitName: string,
-    proof: any,
-    publicSignals: any
-) => {
-    const vkeyJsonPath = `/build/${circuitName}.vkey.json`
-    const vKey = await fetch(vkeyJsonPath).then((res) => res.json())
-    const res = await snarkjs.groth16.verify(vKey, publicSignals, proof)
-    return res
-}
-/* circuit functions */
+import { ActionType } from './context/Queue'
 
 const decodeIdentity = (identity: string) => {
     try {
@@ -52,70 +17,6 @@ const decodeIdentity = (identity: string) => {
             commitment: BigInt(0),
             identityNullifier: BigInt(0),
         }
-    }
-}
-
-export const hasSignedUp = async (identity: string) => {
-    const unirepConfig = (UnirepContext as any)._currentValue
-    await unirepConfig.loadingPromise
-
-    const { commitment } = decodeIdentity(identity)
-
-    // If user has signed up in Unirep
-    const hasUserSignUp = await unirepConfig.unirep.hasUserSignedUp(commitment)
-    return {
-        hasSignedUp: hasUserSignUp,
-    }
-}
-
-export const getUserState = async (
-    identity: string,
-    us?: any,
-    update?: boolean
-) => {
-    const unirepConfig = (UnirepContext as any)._currentValue
-    await unirepConfig.loadingPromise
-    const { id } = decodeIdentity(identity)
-    let userState
-    const startTime = new Date().getTime()
-    if ((us === undefined || us === null) && update === false) {
-        console.log('gen user state from stored us')
-        userState = genUserStateFromParams(id, JSON.parse(us))
-        const endTime = new Date().getTime()
-        console.log(
-            `Gen us time: ${endTime - startTime} ms (${Math.floor(
-                (endTime - startTime) / 1000
-            )} s)`
-        )
-    } else {
-        const parsedUserState = us !== undefined ? JSON.parse(us) : us
-        console.log('update user state from stored us')
-        userState = await genUserStateFromContract(
-            config.DEFAULT_ETH_PROVIDER,
-            unirepConfig.unirepAddress,
-            id,
-            parsedUserState
-        )
-        const endTime = new Date().getTime()
-        console.log(
-            `Gen us time: ${endTime - startTime} ms (${Math.floor(
-                (endTime - startTime) / 1000
-            )} s)`
-        )
-    }
-
-    const numEpochKeyNoncePerEpoch = unirepConfig.numEpochKeyNoncePerEpoch
-    const attesterId = unirepConfig.attesterId
-    const jsonedUserState = JSON.parse(userState.toJSON())
-    const currentEpoch = userState.getUnirepStateCurrentEpoch()
-
-    return {
-        id,
-        userState: userState,
-        numEpochKeyNoncePerEpoch,
-        currentEpoch: Number(currentEpoch),
-        attesterId,
-        hasSignedUp: jsonedUserState.hasSignedUp,
     }
 }
 
@@ -136,7 +37,7 @@ const getEpochKey = (
     return epochKey.toString(16)
 }
 
-export const getEpochKeys = (identity: string, epoch: number) => {
+const getEpochKeys = (identity: string, epoch: number) => {
     const unirepConfig = (UnirepContext as any)._currentValue
     if (!unirepConfig.loaded) throw new Error('Unirep config not loaded')
     const { identityNullifier } = decodeIdentity(identity)
@@ -146,181 +47,6 @@ export const getEpochKeys = (identity: string, epoch: number) => {
         epks.push(tmp)
     }
     return epks
-}
-
-const genAirdropProof = async (identity: string, us: any) => {
-    const unirepConfig = (UnirepContext as any)._currentValue
-    await unirepConfig.loadingPromise
-    let userState: any = us
-    if (userState === null || userState === undefined) {
-        const ret = await getUserState(identity, us, false)
-        userState = ret.userState
-    }
-    const attesterId = unirepConfig.attesterId
-    let results: any
-    try {
-        results = await userState.genUserSignUpProof(BigInt(attesterId))
-        console.log(results)
-        console.log('---userState---')
-        console.log(userState.toJSON())
-    } catch (e) {
-        const ret = await getUserState(identity, us, true)
-        userState = ret.userState
-        results = await userState.genUserSignUpProof(BigInt(attesterId))
-        console.log(results)
-    }
-
-    return {
-        proof: formatProofForVerifierContract(results.proof),
-        publicSignals: results.publicSignals,
-        userState: userState,
-    }
-}
-
-// export const signUpUnirepUser = async (identity: string, us: any) => {
-//     const { proof, publicSignals, userState } = await genAirdropProof(identity, us);
-
-//     const apiURL = makeURL('signup', {})
-//     const data = {
-//         proof: proof,
-//         publicSignals: publicSignals,
-//     }
-//     const stringifiedData = JSON.stringify(data)
-//     let transaction: string = ''
-//     await fetch(apiURL, {
-//             headers: header,
-//             body: stringifiedData,
-//             method: 'POST',
-//         }).then(response => response.json())
-//         .then(function(data){
-//             console.log(JSON.stringify(data))
-//             transaction = data.transaction
-//         });
-
-//     return { transaction, userState }
-// }
-
-export const getAirdrop = async (identity: string, us: any) => {
-    const unirepConfig = (UnirepContext as any)._currentValue
-    await unirepConfig.loadingPromise
-    const { proof, publicSignals, userState } = await genAirdropProof(
-        identity,
-        us
-    )
-    const { identityNullifier } = decodeIdentity(identity)
-    const epk = genEpochKey(
-        identityNullifier,
-        userState.getUnirepStateCurrentEpoch(),
-        0
-    )
-    const gotAirdrop = await unirepConfig.unirepSocial.isEpochKeyGotAirdrop(epk)
-    if (gotAirdrop) return { error: 'The epoch key has been airdropped.' }
-
-    const apiURL = makeURL('airdrop', {})
-    const data = {
-        proof: proof,
-        publicSignals: publicSignals,
-    }
-    const stringifiedData = JSON.stringify(data)
-    const r = await fetch(apiURL, {
-        headers: header,
-        body: stringifiedData,
-        method: 'POST',
-    })
-    const { error, transaction } = await r.json()
-    return { error, transaction, userState }
-}
-
-const genProof = async (
-    identity: string,
-    epkNonce: number = 0,
-    proveKarmaAmount: number,
-    minRep: number = 0,
-    us: any,
-    spent: number = -1
-) => {
-    const unirepConfig = (UnirepContext as any)._currentValue
-    await unirepConfig.loadingPromise
-    let userState: any = us
-    let currentEpoch: number
-    if (userState === null || userState === undefined) {
-        const ret = await getUserState(identity, us, true)
-        userState = ret.userState
-    } else {
-        const ret = await getUserState(identity, us, false)
-        userState = ret.userState
-    }
-    const { identityNullifier } = decodeIdentity(identity)
-
-    currentEpoch = Number(await unirepConfig.currentEpoch())
-    const epk = getEpochKey(epkNonce, identityNullifier, currentEpoch)
-
-    if (epkNonce >= unirepConfig.numEpochKeyNoncePerEpoch) {
-        console.error('no such epknonce available')
-    }
-
-    let rep: any
-    try {
-        rep = userState.getRepByAttester(unirepConfig.attesterId)
-    } catch (e) {
-        const ret = await getUserState(identity)
-        userState = ret.userState
-        rep = userState.getRepByAttester(unirepConfig.attesterId)
-    }
-
-    console.log(userState.toJSON(4))
-
-    // find valid nonce starter
-    const nonceList: BigInt[] = []
-    let nonceStarter: number = spent
-
-    if (nonceStarter === -1) {
-        console.error('Error: All nullifiers are spent')
-    }
-    if (
-        nonceStarter + proveKarmaAmount >
-        Number(rep.posRep) - Number(rep.negRep)
-    ) {
-        console.error('Error: Not enough reputation to spend')
-    }
-    for (let i = 0; i < proveKarmaAmount; i++) {
-        nonceList.push(BigInt(nonceStarter + i))
-    }
-    for (let i = proveKarmaAmount; i < unirepConfig.maxReputationBudget; i++) {
-        nonceList.push(BigInt(-1))
-    }
-
-    // gen proof
-    const startTime = new Date().getTime()
-    const proveGraffiti = BigInt(0)
-    const graffitiPreImage = BigInt(0)
-    let results
-    try {
-        results = await userState.genProveReputationProof(
-            BigInt(unirepConfig.attesterId),
-            epkNonce,
-            BigInt(minRep),
-            proveGraffiti,
-            graffitiPreImage,
-            nonceList
-        )
-    } catch (e) {
-        console.log(e)
-        return undefined
-    }
-
-    console.log(results)
-    const endTime = new Date().getTime()
-    console.log(
-        `Gen proof time: ${endTime - startTime} ms (${Math.floor(
-            (endTime - startTime) / 1000
-        )} s)`
-    )
-
-    const proof = formatProofForVerifierContract(results.proof)
-    const publicSignals = results.publicSignals
-
-    return { epk, proof, publicSignals, currentEpoch, userState }
 }
 
 export const makeURL = (action: string, data: any = {}) => {
@@ -340,61 +66,14 @@ export const checkInvitationCode = async (invitationCode: string) => {
     return r.ok
 }
 
-export const userSignUp = async () => {
-    const unirepConfig = (UnirepContext as any)._currentValue
-    await unirepConfig.loadingPromise
-    const id = genIdentity()
-    const commitment = genIdentityCommitment(id).toString(16).padStart(64, '0')
-
-    const serializedIdentity = serialiseIdentity(id)
-
-    const currentEpoch = Number(await unirepConfig.currentEpoch())
-    const epk1 = getEpochKey(0, id.identityNullifier, currentEpoch)
-
-    // call server user sign up
-    const apiURL = makeURL('signup', {
-        commitment: commitment,
-        epk: epk1,
-    })
-    const r = await fetch(apiURL)
-    const { epoch } = await r.json()
-    return {
-        i: serializedIdentity,
-        c: commitment,
-        epoch,
-    }
-}
-
 export const publishPost = async (
+    proofData: any,
+    minRep: number,
     content: string,
-    epkNonce: number,
-    identity: string,
-    minRep?: number,
-    spent: number = 0,
-    us?: any,
     title: string = ''
 ) => {
     const unirepConfig = (UnirepContext as any)._currentValue
     await unirepConfig.loadingPromise
-    if (typeof minRep === 'undefined') minRep = unirepConfig.postReputation
-    const ret = await genProof(
-        identity,
-        epkNonce,
-        unirepConfig.postReputation,
-        minRep,
-        us,
-        spent
-    )
-
-    if (ret === undefined) {
-        return {
-            error: 'genProof error, ret is undefined',
-            transaction: undefined,
-            currentEpoch: 0,
-            epk: '',
-            userState: undefined,
-        }
-    }
 
     // to backend: proof, publicSignals, content
     const apiURL = makeURL('post', {})
@@ -403,54 +82,32 @@ export const publishPost = async (
         body: JSON.stringify({
             title,
             content,
-            proof: ret.proof,
+            proof: proofData.proof,
             minRep,
-            publicSignals: ret.publicSignals,
+            publicSignals: proofData.publicSignals,
         }),
         method: 'POST',
     })
-    const { transaction, error } = await r.json()
-    return {
-        error,
-        transaction,
-        currentEpoch: ret.currentEpoch,
-        epk: ret.epk,
-        userState: ret.userState,
-    }
+    return r.json()
 }
 
 export const vote = async (
-    identity: string,
+    proofData: any,
+    minRep: number,
     upvote: number,
     downvote: number,
     dataId: string,
     receiver: string,
-    epkNonce: number = 0,
-    minRep: number = 0,
-    isPost: boolean = true,
-    spent: number = 0,
-    us: any
+    isPost: boolean = true
 ) => {
-    // upvote / downvote user
-    const voteValue = upvote + downvote
-    const ret = await genProof(identity, epkNonce, voteValue, minRep, us, spent)
-    if (ret === undefined) {
-        return {
-            error: 'genProof error, ret is undefined',
-            epk: '',
-            transaction: undefined,
-            userState: undefined,
-        }
-    }
-
     // send publicsignals, proof, voted post id, receiver epoch key, graffiti to backend
     const apiURL = makeURL('vote', {})
     const data = {
         upvote,
         downvote,
-        proof: ret.proof,
+        proof: proofData.proof,
         minRep,
-        publicSignals: ret.publicSignals,
+        publicSignals: proofData.publicSignals,
         receiver,
         dataId,
         isPost,
@@ -464,49 +121,26 @@ export const vote = async (
         method: 'POST',
     })
     const { error, transaction } = await r.json()
-    return { error, epk: ret.epk, transaction, userState: ret.userState }
+    return { error, transaction }
 }
 
 export const leaveComment = async (
-    identity: string,
+    proofData: any,
+    minRep: number,
     content: string,
-    postId: string,
-    epkNonce: number = 0,
-    minRep?: number,
-    spent: number = 0,
-    us?: any
+    postId: string
 ) => {
     const unirepConfig = (UnirepContext as any)._currentValue
     await unirepConfig.loadingPromise
-    if (typeof minRep === 'undefined') minRep = unirepConfig.commentReputation
-    const ret = await genProof(
-        identity,
-        epkNonce,
-        unirepConfig.commentReputation,
-        minRep,
-        us,
-        spent
-    )
-
-    if (ret === undefined) {
-        return {
-            error: 'genProof error, ret is undefined',
-            transaction: '',
-            commentId: '',
-            currentEpoch: 0,
-            epk: '',
-            userState: undefined,
-        }
-    }
 
     // to backend: proof, publicSignals, content
     const apiURL = makeURL('comment', {})
     const data = {
         content,
-        proof: ret.proof,
+        proof: proofData.proof,
         minRep,
         postId,
-        publicSignals: ret.publicSignals,
+        publicSignals: proofData.publicSignals,
     }
     const stringifiedData = JSON.stringify(data)
     console.log('before leave comment api: ' + stringifiedData)
@@ -516,61 +150,7 @@ export const leaveComment = async (
         body: stringifiedData,
         method: 'POST',
     })
-    const { transaction, commentId, error } = await r.json()
-    return {
-        error,
-        transaction,
-        commentId,
-        currentEpoch: ret.currentEpoch,
-        epk: ret.epk,
-        userState: ret.userState,
-    }
-}
-
-export const updateUserState = async (identity: string, us?: any) => {
-    let airdropRet
-    const ret = await getUserState(identity, us, true)
-    if (ret.currentEpoch !== ret.userState.latestTransitionedEpoch) {
-        const transitionRet = await userStateTransition(
-            identity,
-            ret.userState.toJSON()
-        )
-        const userStateResult = await getUserState(
-            identity,
-            transitionRet.userState.toJSON(),
-            true
-        )
-        airdropRet = await getAirdrop(identity, userStateResult.userState)
-    }
-    const epks = getEpochKeys(identity, ret.currentEpoch)
-    const spent = await getEpochSpent(epks)
-    return { error: airdropRet?.error, userState: ret.userState, spent: spent }
-}
-
-export const userStateTransition = async (identity: string, us: any) => {
-    const { userState } = await getUserState(identity)
-    const results = await userState.genUserStateTransitionProofs()
-
-    const fromEpoch = userState.latestTransitionedEpoch
-    const toEpoch = userState.getUnirepStateCurrentEpoch()
-
-    const apiURL = makeURL('userStateTransition', {})
-    const data = {
-        results,
-        fromEpoch,
-    }
-
-    const stringifiedData = JSON.stringify(data)
-    console.log('before UST api: ' + stringifiedData)
-
-    const r = await fetch(apiURL, {
-        headers: header,
-        body: stringifiedData,
-        method: 'POST',
-    })
-    const { transaction, error } = await r.json()
-
-    return { error, transaction, toEpoch, userState }
+    return r.json()
 }
 
 export const getRecords = async (currentEpoch: number, identity: string) => {
@@ -630,19 +210,6 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
     const allRecords = await Promise.all([getCommitment, getGeneralRecords])
 
     return allRecords.flat()
-}
-
-export const getEpochSpent = async (epks: string[]) => {
-    const paramStr = epks.join('_')
-    const apiURL = makeURL(`records/${paramStr}`, { spentonly: true })
-    console.log(apiURL)
-
-    const r = await fetch(apiURL)
-    const data = await r.json()
-    const totalSpent = data.reduce((acc: number, v: any) => {
-        return acc + v.spent
-    }, 0)
-    return totalSpent
 }
 
 const convertDataToVotes = (data: any) => {
@@ -721,21 +288,6 @@ export const convertDataToPost = (
     }
 
     return post
-}
-
-export const listAllPosts = async () => {
-    const apiURL = makeURL(`post`, {})
-
-    const r = await fetch(apiURL)
-    const data = await r.json()
-    return data.map((p: any) => convertDataToPost(p)) as Post[]
-}
-
-export const getPostById = async (postid: string) => {
-    const apiURL = makeURL(`post/${postid}`, {})
-    const r = await fetch(apiURL)
-    const data = await r.json()
-    return convertDataToPost(data, false)
 }
 
 export const getPostsByQuery = async (

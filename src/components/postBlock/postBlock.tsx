@@ -1,16 +1,18 @@
 import { useState, useContext } from 'react'
 import { useHistory } from 'react-router-dom'
 import dateformat from 'dateformat'
+import { observer } from 'mobx-react-lite'
 
 import { WebContext } from '../../context/WebContext'
 import UserContext from '../../context/User'
+import UnirepContext from '../../context/Unirep'
+import QueueContext from '../../context/Queue'
 
 import { Post, Page, ButtonType, AlertType, DataType } from '../../constants'
 import CommentField from './commentField'
 import CommentBlock from './commentBlock'
 import BlockButton from './blockButton'
 import './postBlock.scss'
-import UnirepContext from '../../context/Unirep'
 
 type AlertProps = {
     type: AlertType
@@ -38,8 +40,9 @@ type Props = {
 
 const PostBlock = ({ post, page }: Props) => {
     const history = useHistory()
-    const { isLoading, draft } = useContext(WebContext)
-    const user = useContext(UserContext)
+    const { draft } = useContext(WebContext)
+    const userContext = useContext(UserContext)
+    const queue = useContext(QueueContext)
 
     const date = dateformat(new Date(post.post_time), 'dd/mm/yyyy hh:MM TT')
     const [showCommentField, setShowCommentField] = useState(
@@ -126,12 +129,10 @@ const PostBlock = ({ post, page }: Props) => {
             ) : (
                 <div className="comment">
                     <div className="comment-block">
-                        {user === null ? (
+                        {!userContext.userState ? (
                             <AlertBox type={AlertType.commentNotLogin} />
-                        ) : user.reputation - user.spent < 3 ? (
+                        ) : userContext.netReputation < 3 ? (
                             <AlertBox type={AlertType.commentNotEnoughPoints} />
-                        ) : isLoading ? (
-                            <AlertBox type={AlertType.commentLoading} />
                         ) : showCommentField ? (
                             <CommentField
                                 post={post}
@@ -149,7 +150,7 @@ const PostBlock = ({ post, page }: Props) => {
                     {post.comments.length > 0 ? (
                         <div className="comments-list">
                             {post.comments.map((c, i) => (
-                                <div key={i} id={c.id}>
+                                <div key={c.id} id={c.id}>
                                     <CommentBlock page={page} comment={c} />
                                     {i < post.comments.length - 1 ? (
                                         <div className="divider"></div>
@@ -177,4 +178,4 @@ const PostBlock = ({ post, page }: Props) => {
     )
 }
 
-export default PostBlock
+export default observer(PostBlock)

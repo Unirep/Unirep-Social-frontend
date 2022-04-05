@@ -4,14 +4,10 @@ import { Post, User, Page, Draft } from '../constants'
 type GlobalContent = {
     tx: string
     setTx: (t: string) => void
-    isLoading: boolean
-    setIsLoading: (value: boolean) => void
     isMenuOpen: boolean
     setIsMenuOpen: (value: boolean) => void
     page: Page
     setPage: (value: Page) => void
-    action: any
-    setAction: (value: any) => void
     adminCode: string
     setAdminCode: (value: string) => void
     draft: null | Draft
@@ -21,14 +17,10 @@ type GlobalContent = {
 export const WebContext = createContext<GlobalContent>({
     tx: '',
     setTx: () => {},
-    isLoading: false,
-    setIsLoading: () => {},
     isMenuOpen: false,
     setIsMenuOpen: () => {},
     page: Page.Home,
     setPage: () => {},
-    action: null,
-    setAction: () => {},
     adminCode: '',
     setAdminCode: () => {},
     draft: null,

@@ -104,7 +104,7 @@ const WritingField = (props: Props) => {
     }
 
     const submit = () => {
-        if (user === null) {
+        if (!user.userState) {
             setErrorMsg('Please sign up or sign in')
         } else {
             if (title.length === 0 && content.length === 0) {
@@ -142,7 +142,7 @@ const WritingField = (props: Props) => {
                         Post as <HelpWidget type={InfoType.epk4Post} />
                     </div>
                     <div className="epks">
-                        {user === null ? (
+                        {!user.userState ? (
                             <div>somethings wrong...</div>
                         ) : (
                             user.currentEpochKeys.map((epk, i) => (
@@ -151,7 +151,7 @@ const WritingField = (props: Props) => {
                                         i === epkNonce ? 'epk chosen' : 'epk'
                                     }
                                     onClick={() => setEpkNonce(i)}
-                                    key={i}
+                                    key={epk}
                                 >
                                     {epk}
                                 </div>
@@ -168,7 +168,9 @@ const WritingField = (props: Props) => {
                             type="range"
                             min={defaultRep}
                             max={
-                                user ? user.reputation - user.spent : defaultRep
+                                user.userState
+                                    ? user.netReputation
+                                    : defaultRep
                             }
                             onChange={handleRepInput}
                             value={reputation}

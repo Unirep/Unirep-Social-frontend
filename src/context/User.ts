@@ -1,5 +1,5 @@
 import { createContext } from 'react'
-import { makeAutoObservable } from 'mobx'
+import { makeObservable, observable, computed } from 'mobx'
 import * as config from '../config'
 import { ethers } from 'ethers'
 import {
@@ -10,51 +10,92 @@ import {
     Identity,
 } from '@unirep/crypto'
 import { UnirepFactory } from '@unirep/unirep-social'
-import { makeURL, userStateTransition } from '../utils'
+import { makeURL } from '../utils'
 import { genUserStateFromContract, genEpochKey } from '@unirep/unirep'
+import { UserState } from '../overrides/unirep'
 import { formatProofForVerifierContract } from '@unirep/circuits'
 import UnirepContext from './Unirep'
+import { Synchronizer } from './Synchronizer'
 
-export class UserState {
+export class User extends Synchronizer {
     id?: Identity
     allEpks = [] as string[]
     currentEpoch = 0
-    reputation = 0
-    spent = 0
+    reputation = 30
     unirepConfig = (UnirepContext as any)._currentValue
+    spent = 0
 
     constructor() {
-        makeAutoObservable(this)
-        this.load()
+        super()
+        makeObservable(this, {
+            currentEpoch: observable,
+            reputation: observable,
+            spent: observable,
+            netReputation: computed,
+            userState: observable,
+            currentEpochKeys: computed,
+            allEpks: observable,
+        })
+    }
+
+    get netReputation() {
+        return this.reputation - this.spent
     }
 
     // must be called in browser, not in SSR
     async load() {
-        const storedUser = window.localStorage.getItem('user')
-        if (storedUser && storedUser !== 'null') {
-            const { identity } = JSON.parse(storedUser)
-            this.id = unSerialiseIdentity(identity)
+        await super.load() // loads the unirep state
+        if (!this.unirepState) throw new Error('Unirep state not initialized')
+        const storedState = window.localStorage.getItem('user.state')
+        if (storedState) {
+            const data = JSON.parse(storedState)
+            const id = unSerialiseIdentity(data.id)
+            const userState = UserState.fromJSON(data.id, data.userState)
+            Object.assign(this, {
+                ...data,
+                id,
+                userState,
+                unirepState: userState.getUnirepState(),
+            })
+            await this.calculateAllEpks()
+        }
+        if (this.id) {
+            this.startDaemon()
         }
         await this.unirepConfig.loadingPromise
 
+        await this.loadReputation()
         // start listening for new epochs
-        const unirep = new ethers.Contract(
-            this.unirepConfig.unirepAddress,
-            config.UNIREP_ABI,
-            config.DEFAULT_ETH_PROVIDER
+        this.unirepConfig.unirep.on(
+            'EpochEnded',
+            this.loadCurrentEpoch.bind(this)
         )
-        unirep.on('EpochEnded', this.loadCurrentEpoch.bind(this))
         await this.loadCurrentEpoch()
+        this.waitForSync().then(() => {
+            this.loadReputation()
+            this.save()
+        })
+    }
 
-        if (this.id) {
-            await this.calculateAllEpks()
-            await this.loadReputation()
-            await this.loadSpent()
+    save() {
+        super.save()
+        // save user state
+        const data = {
+            userState: this.userState,
+            id: this.identity,
+            currentEpoch: this.currentEpoch,
+            spent: this.spent,
         }
+        if (typeof this.userState?.toJSON(0) === 'string') {
+            throw new Error('Invalid user state toJSON return value')
+        }
+        window.localStorage.setItem('user.state', JSON.stringify(data))
     }
 
     get currentEpochKeys() {
-        return this.allEpks.slice(-3)
+        return this.allEpks.slice(
+            -1 * this.unirepConfig.numEpochKeyNoncePerEpoch
+        )
     }
 
     get identity() {
@@ -101,7 +142,7 @@ export class UserState {
         }
     }
 
-    private async loadCurrentEpoch() {
+    async loadCurrentEpoch() {
         await this.unirepConfig.loadingPromise
         const unirepContract = UnirepFactory.connect(
             this.unirepConfig.unirepAddress,
@@ -110,7 +151,27 @@ export class UserState {
         this.currentEpoch = Number(await unirepContract.currentEpoch())
     }
 
-    private async calculateAllEpks() {
+    get needsUST() {
+        if (!this.userState) return false
+        return this.currentEpoch > this.userState.latestTransitionedEpoch
+    }
+
+    setIdentity(identity: string | Identity) {
+        if (this.userState) {
+            throw new Error('Identity already set, change is not supported')
+        }
+        if (!this.unirepState) {
+            throw new Error('Unirep state is not initialized')
+        }
+        if (typeof identity === 'string') {
+            this.id = unSerialiseIdentity(identity)
+        } else {
+            this.id = identity
+        }
+        this.userState = new UserState(this.unirepState, this.id)
+    }
+
+    async calculateAllEpks() {
         if (!this.id) throw new Error('No identity loaded')
         await this.unirepConfig.loadingPromise
         const { identityNullifier } = this.id
@@ -126,7 +187,9 @@ export class UserState {
                     epoch,
                     i,
                     this.unirepConfig.epochTreeDepth
-                ).toString(16)
+                )
+                    .toString(16)
+                    .padStart(8, '0')
                 epks.push(tmp)
             }
             return epks
@@ -147,8 +210,8 @@ export class UserState {
         return epochKey.toString(16)
     }
 
-    private async loadReputation() {
-        if (!this.id) return { posRep: 0, negRep: 0 }
+    async loadReputation() {
+        if (!this.id || !this.userState) return { posRep: 0, negRep: 0 }
         const { userState } = await this.genUserState()
         const rep = userState.getRepByAttester(
             BigInt(this.unirepConfig.attesterId)
@@ -246,7 +309,7 @@ export class UserState {
     }
 
     async getAirdrop() {
-        if (!this.id) throw new Error('Identity not loaded')
+        if (!this.id || !this.userState) throw new Error('Identity not loaded')
         await this.unirepConfig.loadingPromise
         const unirepSocial = new ethers.Contract(
             this.unirepConfig.unirepSocialAddress,
@@ -254,15 +317,13 @@ export class UserState {
             config.DEFAULT_ETH_PROVIDER
         )
         // generate an airdrop proof
-        const { userState } = await this.genUserState()
         const attesterId = this.unirepConfig.attesterId
-        const { proof, publicSignals } = await userState.genUserSignUpProof(
-            BigInt(attesterId)
-        )
+        const { proof, publicSignals } =
+            await this.userState.genUserSignUpProof(BigInt(attesterId))
 
         const epk = genEpochKey(
             this.id.identityNullifier,
-            userState.getUnirepStateCurrentEpoch(),
+            this.userState.getUnirepStateCurrentEpoch(),
             0
         )
         const gotAirdrop = await unirepSocial.isEpochKeyGotAirdrop(epk)
@@ -280,7 +341,11 @@ export class UserState {
             method: 'POST',
         })
         const { error, transaction } = await r.json()
-        return { error, transaction, userState }
+        const { blockNumber } =
+            await config.DEFAULT_ETH_PROVIDER.waitForTransaction(transaction)
+        await this.waitForSync(blockNumber)
+        await this.loadReputation()
+        return { error, transaction }
     }
 
     async checkInvitationCode(invitationCode: string): Promise<boolean> {
@@ -291,10 +356,20 @@ export class UserState {
         return r.json()
     }
 
+    async hasSignedUp(identity: string) {
+        const unirepConfig = (UnirepContext as any)._currentValue
+        await unirepConfig.loadingPromise
+        const id = unSerialiseIdentity(identity)
+        const commitment = genIdentityCommitment(id)
+        return unirepConfig.unirep.hasUserSignedUp(commitment)
+    }
+
     async signUp(invitationCode: string) {
         if (this.id) {
             throw new Error('Identity already exists!')
         }
+        const unirepConfig = (UnirepContext as any)._currentValue
+        await unirepConfig.loadingPromise
         // check the invitation code
         // TODO: integrate this in the signup endpoint
         {
@@ -304,14 +379,17 @@ export class UserState {
             // }
         }
 
-        this.id = genIdentity()
+        const id = genIdentity()
+        this.setIdentity(id)
+        if (!this.id) throw new Error('Iden is not set')
+        this.startDaemon()
         const commitment = genIdentityCommitment(this.id)
             .toString(16)
             .padStart(64, '0')
 
         const epk1 = this.getEpochKey(
             0,
-            this.id.identityNullifier,
+            (this.id as any).identityNullifier,
             this.currentEpoch
         )
 
@@ -325,27 +403,6 @@ export class UserState {
         const { epoch } = await r.json()
 
         return await this.updateUser(epoch)
-    }
-
-    async hasSignedUp(inputIdentity: string) {
-        await this.unirepConfig.loadingPromise
-
-        let unSerializedId: Identity | undefined
-        let commitment: BigInt = BigInt(0)
-        try {
-            unSerializedId = unSerialiseIdentity(inputIdentity)
-            commitment = genIdentityCommitment(unSerializedId)
-            // If user has signed up in Unirep
-            const hasUserSignUp =
-                await this.unirepConfig.unirep.hasUserSignedUp(commitment)
-            if (hasUserSignUp) {
-                this.id = unSerializedId
-            }
-            return hasUserSignUp
-        } catch (e) {
-            console.log('unserialise id error.')
-            return false
-        }
     }
 
     async login() {
@@ -397,21 +454,6 @@ export class UserState {
         }
     }
 
-    async userStateTransition() { // not test yet
-        if (this.id) {
-            console.log('user state transition')
-            const ret = await userStateTransition(serialiseIdentity(this.id), {})
-            if (ret.error && ret.error.length > 0) {
-                console.log(ret.error)
-            } else {
-                await this.loadCurrentEpoch()
-                await this.calculateAllEpks()
-                await this.loadReputation()
-                this.spent = 0
-            }
-        }
-    }
-
     logout() {
         console.log('log out')
         this.id = undefined
@@ -422,6 +464,80 @@ export class UserState {
 
         window.localStorage.setItem('user', 'null')
     }
+
+    async genRepProof(amount: number, min: number, epkNonce: number) {
+        if (epkNonce >= this.unirepConfig.numEpochKeyNoncePerEpoch) {
+            throw new Error('Invalid epk nonce')
+        }
+        const currentEpoch = await this.loadCurrentEpoch()
+        const epk = this.getEpochKey(
+            epkNonce,
+            this.id?.identityNullifier,
+            this.currentEpoch
+        )
+        const rep = await this.loadReputation()
+        if (this.spent === -1) {
+            throw new Error('All nullifiers are spent')
+        }
+        if (this.spent + amount > Number(rep.posRep) - Number(rep.negRep)) {
+            throw new Error('Not enough reputation')
+        }
+        const nonceList = [] as BigInt[]
+        for (let i = 0; i < amount; i++) {
+            nonceList.push(BigInt(this.spent + i))
+        }
+        // console.log(nonceList)
+        // console.log(this.unirepConfig.maxReputationBudget)
+        for (let i = amount; i < this.unirepConfig.maxReputationBudget; i++) {
+            nonceList.push(BigInt(-1))
+        }
+        const proveGraffiti = BigInt(0)
+        const graffitiPreImage = BigInt(0)
+        if (!this.userState) throw new Error('User state not initialized')
+        const results = await this.userState.genProveReputationProof(
+            BigInt(this.unirepConfig.attesterId),
+            epkNonce,
+            min,
+            proveGraffiti,
+            graffitiPreImage,
+            nonceList
+        )
+
+        const proof = formatProofForVerifierContract(results.proof)
+        const publicSignals = results.publicSignals
+        this.spent += amount
+        this.save()
+        return { epk, proof, publicSignals, currentEpoch }
+    }
+
+    async userStateTransition() {
+        if (!this.userState) {
+            throw new Error('User state not initialized')
+        }
+        const results = await this.userState.genUserStateTransitionProofs()
+        const r = await fetch(makeURL('userStateTransition'), {
+            headers: {
+                'content-type': 'application/json',
+            },
+            body: JSON.stringify({
+                results,
+                fromEpoch: this.userState.latestTransitionedEpoch,
+            }),
+            method: 'POST',
+        })
+        const { transaction, error } = await r.json()
+
+        if (error && error.length > 0) {
+            console.log(error)
+        } else {
+            await this.loadCurrentEpoch()
+            await this.calculateAllEpks()
+            await this.loadReputation()
+            this.spent = 0
+        } // store user state in local storage
+
+        return { error, transaction }
+    }
 }
 
-export default createContext(new UserState())
+export default createContext(new User())

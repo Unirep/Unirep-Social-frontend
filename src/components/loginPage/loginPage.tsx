@@ -2,20 +2,17 @@ import { useHistory } from 'react-router-dom'
 import { useContext, useState, useEffect } from 'react'
 
 import './loginPage.scss'
-import { WebContext } from '../../context/WebContext'
-import UserContext from '../../context/User'
-
 import LoadingCover from '../loadingCover/loadingCover'
 import LoadingButton from '../loadingButton/loadingButton'
+import UserContext from '../../context/User'
 
 const LoginPage = () => {
     const history = useHistory()
-    const { isLoading, setIsLoading } = useContext(WebContext)
-    const user = useContext(UserContext)
-
+    const [isLoading, setIsLoading] = useState(false)
     const [input, setInput] = useState<string>('')
     const [errorMsg, setErrorMsg] = useState<string>('')
     const [isButtonLoading, setButtonLoading] = useState<boolean>(false)
+    const userContext = useContext(UserContext)
 
     useEffect(() => {
         setErrorMsg('')
@@ -27,17 +24,25 @@ const LoginPage = () => {
 
     const login = async () => {
         setButtonLoading(true)
-        const userSignUpResult = await user.hasSignedUp(input)
+        const hasSignedUp = await userContext.hasSignedUp(input)
         setButtonLoading(false)
 
-        if (!userSignUpResult) {
+        if (!hasSignedUp) {
             setErrorMsg('Incorrect private key. Please try again.')
-        } else {
-            setIsLoading(true)
-            await user.login()
-            setIsLoading(false)
-            history.push('/')
+            return
         }
+        setIsLoading(true)
+        userContext.setIdentity(input)
+        userContext.startDaemon()
+        await userContext.waitForSync()
+        const currentEpoch = await userContext.loadCurrentEpoch()
+
+        if (userContext.userState?.latestTransitionedEpoch === currentEpoch) {
+            // TODO: airdrop if first epoch that user has registered
+            // await userContext.getAirdrop()
+        }
+        setIsLoading(false)
+        history.push('/')
     }
 
     return (

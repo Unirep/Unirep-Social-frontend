@@ -1,21 +1,24 @@
 import { useContext } from 'react'
 import { useHistory } from 'react-router-dom'
+import { observer } from 'mobx-react-lite'
+
 import { WebContext } from '../../context/WebContext'
 import UserContext from '../../context/User'
 import './overlay.scss'
 
+
 const Overlay = () => {
-    const { setIsMenuOpen, isLoading } = useContext(WebContext)
-    const user = useContext(UserContext)
+    const { setIsMenuOpen } = useContext(WebContext)
     const history = useHistory()
+    const userContext = useContext(UserContext)
 
     const closeOverlay = () => {
-        if (!isLoading) {
-            console.log('close over lay')
-            setIsMenuOpen(false)
-        } else {
-            console.log('something is loading, no close')
-        }
+        // if (!isLoading) {
+        console.log('close over lay')
+        setIsMenuOpen(false)
+        // } else {
+        //     console.log('something is loading, no close')
+        // }
     }
 
     const gotoUserPage = () => {
@@ -23,7 +26,7 @@ const Overlay = () => {
     }
 
     const signout = () => {
-        user.logout()
+        userContext.logout()
         setIsMenuOpen(false)
         history.push('/')
     }
@@ -44,7 +47,7 @@ const Overlay = () => {
                     </a>
                     <a href="https://about.unirep.social">About</a>
                 </div>
-                {user.id ? (
+                {!userContext.userState ? (
                     <div className="dynamic-info">
                         <a href="/feedback">Send feedback</a>
                         <p onClick={gotoUserPage}>My stuff</p>
@@ -62,4 +65,4 @@ const Overlay = () => {
     )
 }
 
-export default Overlay
+export default observer(Overlay)

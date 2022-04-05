@@ -2,24 +2,20 @@ import { useContext, useState, useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 
-import { WebContext } from '../../context/WebContext'
+import { QueryType, AlertType } from '../../constants'
+import BasicPage from '../basicPage/basicPage'
+import PostsList from '../postsList/postsList'
+import Feed from '../feed/feed'
 import './mainPage.scss'
 import PostContext from '../../context/Post'
 import UserContext from '../../context/User'
 import UnirepContext from '../../context/Unirep'
 
-import { QueryType, AlertType } from '../../constants'
-import BasicPage from '../basicPage/basicPage'
-import PostsList from '../postsList/postsList'
-import Feed from '../feed/feed'
-
 const MainPage = () => {
     const history = useHistory()
     const postController = useContext(PostContext)
-    const user = useContext(UserContext)
+    const userContext = useContext(UserContext)
     const unirepConfig = useContext(UnirepContext)
-
-    const { isLoading } = useContext(WebContext)
 
     const [query, setQuery] = useState<QueryType>(QueryType.New)
 
@@ -38,22 +34,21 @@ const MainPage = () => {
 
     const gotoNewPost = () => {
         if (
-            !isLoading &&
-            user !== null &&
-            user.reputation - user.spent >= unirepConfig.postReputation
+            userContext.userState &&
+            userContext.netReputation >= unirepConfig.postReputation
         ) {
             history.push('/new', { isConfirmed: true })
         } else {
-            console.log(user.id)
+            console.log(userContext.id)
         }
     }
 
     return (
         <BasicPage>
             <div className="create-post" onClick={gotoNewPost}>
-                {user.id === undefined
+                {!userContext.userState
                     ? AlertType.postNotLogin
-                    : user.reputation - user.spent < unirepConfig.postReputation
+                    : userContext.netReputation < unirepConfig.postReputation
                     ? AlertType.postNotEnoughPoints
                     : 'Create post'}
             </div>

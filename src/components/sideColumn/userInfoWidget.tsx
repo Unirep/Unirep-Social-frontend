@@ -1,87 +1,50 @@
 import { useContext, useEffect, useState } from 'react'
 import dateformat from 'dateformat'
-import { confirmAlert } from 'react-confirm-alert'
-import 'react-confirm-alert/src/react-confirm-alert.css'
-
-import { WebContext } from '../../context/WebContext'
-import UserContext from '../../context/User'
-import UnirepContext from '../../context/Unirep'
 
 import HelpWidget from '../helpWidget/helpWidget'
 import { InfoType } from '../../constants'
+import UserContext from '../../context/User'
+import { observer } from 'mobx-react-lite'
+import EpochContext from '../../context/EpochManager'
+import QueueContext, { ActionType } from '../../context/Queue'
 
 const UserInfoWidget = () => {
-    const { action, isLoading, setIsLoading } = useContext(WebContext)
+    const epochManager = useContext(EpochContext)
     const user = useContext(UserContext)
-    const unirepConfig = useContext(UnirepContext)
-
+    const queue = useContext(QueueContext)
     const [countdownText, setCountdownText] = useState<string>('')
     const [diffTime, setDiffTime] = useState<number>(0)
-    const [isAlertOn, setAlertOn] = useState<boolean>(false)
-    const [nextUSTTime, setNextUSTTime] = useState<number>(4789220745000)
-    const [nextUSTTimeString, setNextUSTTimeString] = useState<string>('')
-
-    useEffect(() => {
-        const getEpochTime = async () => {
-            const nextEpochTime = await unirepConfig.nextEpochTime()
-            setNextUSTTime(nextEpochTime)
-            setNextUSTTimeString(
-                dateformat(new Date(nextEpochTime), 'dd/mm/yyyy hh:MM TT')
-            )
-        }
-
-        getEpochTime()
-    }, [])
+    const nextUSTTimeString = dateformat(
+        new Date(epochManager.nextTransition),
+        'dd/mm/yyyy hh:MM TT'
+    )
 
     const makeCountdownText = () => {
-        const diff = (nextUSTTime - Date.now()) / 1000
+        const diff = (epochManager.nextTransition - Date.now()) / 1000
         setDiffTime(diff)
 
-        if (diff <= 0 && user !== null) {
-            if (action === null && !isAlertOn && !isLoading) {
-                setAlertOn(true)
-                confirmAlert({
-                    closeOnClickOutside: true,
-                    customUI: ({ onClose }) => {
-                        return (
-                            <div className="custom-ui">
-                                <p>User State Transition</p>
-                                <h2>It’s time to move on to the new cycle!</h2>
-                                <button
-                                    className="custom-btn"
-                                    onClick={() => {
-                                        user.userStateTransition()
-                                        setAlertOn(false)
-                                        onClose()
-                                    }}
-                                >
-                                    Let's go
-                                </button>
-                            </div>
-                        )
-                    },
-                })
-            }
-
+        if (
+            user.userState &&
+            (epochManager.readyToTransition || user.needsUST)
+        ) {
             return 'Doing UST...'
-        } else {
-            const days = Math.floor(diff / (24 * 60 * 60))
-            if (days > 0) {
-                return days + ' days'
-            } else {
-                const hours = Math.floor(diff / (60 * 60))
-                if (hours > 0) {
-                    return hours + ' hours'
-                } else {
-                    const minutes = Math.floor(diff / 60)
-                    if (minutes > 0) {
-                        return minutes + ' minutes'
-                    } else {
-                        return Math.floor(diff) + ' seconds'
-                    }
-                }
-            }
         }
+        const days = Math.floor(diff / (24 * 60 * 60))
+        if (days > 0) {
+            return days + ' days'
+        }
+        const hours = Math.floor(diff / (60 * 60))
+        if (hours > 0) {
+            return hours + ' hours'
+        }
+        const minutes = Math.floor(diff / 60)
+        if (minutes > 0) {
+            return minutes + ' minutes'
+        }
+        if (diff >= 0) {
+            return Math.floor(diff) + ' seconds'
+        }
+        return 'Awaiting Epoch Change...'
     }
 
     useEffect(() => {
@@ -92,15 +55,9 @@ const UserInfoWidget = () => {
         return () => clearTimeout(timer)
     }, [diffTime])
 
-    window.addEventListener('storage', (e) => {
-        if (e.key === 'isLoading' && e.newValue === 'true') {
-            setIsLoading(true)
-        }
-    })
-
     return (
         <div>
-            {user !== null ? (
+            {user.userState ? (
                 <div className="user-info-widget widget">
                     <div className="rep-info">
                         <p>My Rep</p>
@@ -108,7 +65,7 @@ const UserInfoWidget = () => {
                             <img
                                 src={require('../../../public/images/lighting.svg')}
                             />
-                            {user.reputation - user.spent}
+                            {user.netReputation}
                         </h3>
                     </div>
                     <div className="ust-info">
@@ -139,8 +96,55 @@ const UserInfoWidget = () => {
             ) : (
                 <div></div>
             )}
+            {user.userState &&
+                (epochManager.readyToTransition || user.needsUST) &&
+                !queue.queuedOp(ActionType.UST) && (
+                    <div className="custom-ui">
+                        <div
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                maxWidth: '400px',
+                                alignSelf: 'center',
+                            }}
+                        >
+                            <p>User State Transition</p>
+                            <h2>It’s time to move on to the new cycle!</h2>
+                            <button
+                                className="custom-btn"
+                                onClick={() => {
+                                    queue.addOp(
+                                        async (updateStatus) => {
+                                            updateStatus({
+                                                title: 'Performing UST',
+                                                details:
+                                                    'Generating ZK proof...',
+                                            })
+                                            const { transaction } =
+                                                await user.userStateTransition()
+                                            updateStatus({
+                                                title: 'Performing UST',
+                                                details:
+                                                    'Waiting for transaction...',
+                                            })
+                                            await queue.afterTx(transaction)
+                                            await user.calculateAllEpks()
+                                            await user.loadReputation()
+                                            await epochManager.updateWatch()
+                                        },
+                                        {
+                                            type: ActionType.UST,
+                                        }
+                                    )
+                                }}
+                            >
+                                Let's go
+                            </button>
+                        </div>
+                    </div>
+                )}
         </div>
     )
 }
 
-export default UserInfoWidget
+export default observer(UserInfoWidget)

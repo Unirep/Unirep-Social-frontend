@@ -1025,7 +1025,7 @@
     maci-crypto "^0.9.1"
     typescript "^4.4.2"
 
-"@unirep/unirep-social@git+https://github.com/Unirep/unirep-social.git":
+"@unirep/unirep-social@git+https://github.com/Unirep/unirep-social.git#alpha":
   version "1.0.0"
   resolved "git+https://github.com/Unirep/unirep-social.git#2d63c0b94ac966fa26136e388c8de2bfc6bec7b8"
   dependencies:
@@ -1043,7 +1043,7 @@
     prettier "^2.6.0"
     typescript "^4.0.5"
 
-"@unirep/unirep@git+https://github.com/Unirep/unirep.git":
+"@unirep/unirep@git+https://github.com/Unirep/unirep.git", "@unirep/unirep@git+https://github.com/Unirep/unirep.git#alpha":
   version "1.0.0"
   resolved "git+https://github.com/Unirep/unirep.git#60d7bad732b2b0580e6357b4cb290534dcb43297"
   dependencies:
@@ -5568,11 +5568,6 @@ react-circular-progressbar@^2.0.4:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/react-circular-progressbar/-/react-circular-progressbar-2.0.4.tgz#5b04a9cf6be8c522c180e4e99ec6db63677335b0"
   integrity sha512-OfX0ThSxRYEVGaQSt0DlXfyl5w4DbXHsXetyeivmoQrh9xA9bzVPHNf8aAhOIiwiaxX2WYWpLDB3gcpsDJ9oww==
-
-react-confirm-alert@^2.8.0:
-  version "2.8.0"
-  resolved "https://registry.yarnpkg.com/react-confirm-alert/-/react-confirm-alert-2.8.0.tgz#b3538c412432226e817478d3a2614538196ab204"
-  integrity sha512-qvNjJWuWUpTh+q4NecUjCMIWLNDl8IwW6JRIky5pzoiFBXsLWSA2Z1VsaDsQedwgyxEpKnMEJFETkDogBpv/kA==
 
 react-dom@^17.0.2:
   version "17.0.2"

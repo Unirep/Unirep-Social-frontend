@@ -5,21 +5,23 @@ import { observer } from 'mobx-react-lite'
 import { WebContext } from '../../context/WebContext'
 import UnirepContext from '../../context/Unirep'
 import UserContext from '../../context/User'
+import QueueContext from '../../context/Queue'
 import './header.scss'
+
 
 const Header = () => {
     const history = useHistory()
     const location = useLocation()
-    const { isLoading, isMenuOpen, setIsMenuOpen } = useContext(WebContext)
-    const user = useContext(UserContext)
+    const { isMenuOpen, setIsMenuOpen } = useContext(WebContext)
     const [searchInput, setSearchInput] = useState<string>('')
     const unirepConfig = useContext(UnirepContext)
+    const userContext = useContext(UserContext)
+    const queue = useContext(QueueContext)
 
     const gotoNewPage = () => {
         if (
-            !isLoading &&
-            user.id &&
-            user.reputation - user.spent >= unirepConfig.postReputation
+            userContext.userState &&
+            userContext.netReputation >= unirepConfig.postReputation
         ) {
             history.push(`/new`, { isConfirmed: true })
         }
@@ -30,7 +32,7 @@ const Header = () => {
     }
 
     const openMenu = () => {
-        if (!isMenuOpen && !isLoading) {
+        if (!isMenuOpen && !queue.isLoading) {
             console.log('open menu!')
             setIsMenuOpen(true)
         }
@@ -55,13 +57,13 @@ const Header = () => {
                     <input type="text" name="searchInput" placeholder="Search by keyword, user names or epoch key" onChange={handleSearchInput} />
                 </form>
             </div> */}
-            {user.id ? (
+            {userContext.userState ? (
                 <div className="navButtons">
                     <div id="rep" onClick={gotoUserPage}>
                         <img
                             src={require('../../../public/images/lighting.svg')}
                         />
-                        {user?.reputation - user?.spent}
+                        {userContext.netReputation}
                     </div>
                     <div
                         id="new"

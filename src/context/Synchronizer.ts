@@ -3,7 +3,8 @@ import { makeAutoObservable } from 'mobx'
 import { ethers } from 'ethers'
 import UnirepContext from './Unirep'
 import { DEFAULT_ETH_PROVIDER } from '../config'
-import { UnirepState, UserState, Attestation } from '@unirep/unirep'
+import { Attestation } from '@unirep/unirep'
+import { UnirepState, UserState } from '../overrides/unirep'
 import {
     Circuit,
     formatProofForSnarkjsVerification,
@@ -28,10 +29,14 @@ export class Synchronizer {
     userState?: UserState
     validProofs = {} as { [key: ProofKey]: any }
     spentProofs = {} as { [key: ProofKey]: boolean }
+    latestProcessedBlock = 0
+    private daemonRunning = false
 
     constructor() {
-        makeAutoObservable(this)
-        this.load()
+        // makeAutoObservable(this)
+        if (typeof window !== 'undefined') {
+            this.load()
+        }
     }
 
     // calculate a key for storing/accessing a proof
@@ -42,6 +47,10 @@ export class Synchronizer {
     async load() {
         await unirepConfig.loadingPromise
         // now start syncing
+        const storedState = localStorage.getItem('sync-latestBlock')
+        if (storedState) {
+            Object.assign(this, JSON.parse(storedState))
+        }
         this.unirepState = new UnirepState({
             globalStateTreeDepth: unirepConfig.globalStateTreeDepth,
             userStateTreeDepth: unirepConfig.userStateTreeDepth,
@@ -51,17 +60,40 @@ export class Synchronizer {
             numEpochKeyNoncePerEpoch: unirepConfig.numEpochKeyNoncePerEpoch,
             maxReputationBudget: unirepConfig.maxReputationBudget,
         })
-        this.startDaemon()
+    }
+
+    save() {
+        localStorage.setItem(
+            'sync-latestBlock',
+            JSON.stringify({
+                latestProcessedBlock: this.latestProcessedBlock,
+            })
+        )
+    }
+
+    // wait until we've synced to the latest known block
+    async waitForSync(blockNumber?: number) {
+        const targetBlock =
+            blockNumber ?? (await DEFAULT_ETH_PROVIDER.getBlockNumber())
+        console.log('waiting for block', targetBlock)
+        for (;;) {
+            if (this.latestProcessedBlock >= targetBlock) return
+            await new Promise((r) => setTimeout(r, 2000))
+        }
     }
 
     async startDaemon() {
+        if (this.daemonRunning) {
+            throw new Error('Cannot start multiple daemons')
+        }
+        console.log('Starting daemon')
+        this.daemonRunning = true
         let latestBlock = await DEFAULT_ETH_PROVIDER.getBlockNumber()
         DEFAULT_ETH_PROVIDER.on('block', (num) => {
             if (num > latestBlock) latestBlock = num
         })
-        let latestProcessed = 0
         for (;;) {
-            if (latestProcessed === latestBlock) {
+            if (this.latestProcessedBlock === latestBlock) {
                 await new Promise((r) => setTimeout(r, 1000))
                 continue
             }
@@ -70,19 +102,20 @@ export class Synchronizer {
                 await Promise.all([
                     unirepConfig.unirep.queryFilter(
                         this.unirepFilter,
-                        latestProcessed + 1,
+                        this.latestProcessedBlock + 1,
                         newLatest
                     ),
                     unirepConfig.unirepSocial.queryFilter(
                         this.unirepSocialFilter,
-                        latestProcessed + 1,
+                        this.latestProcessedBlock + 1,
                         newLatest
                     ),
                 ])
             ).flat() as ethers.Event[]
             // first process historical ones then listen
             await this.processEvents(allEvents)
-            latestProcessed = newLatest
+            this.latestProcessedBlock = newLatest
+            this.save()
         }
     }
 
@@ -237,7 +270,12 @@ export class Synchronizer {
         })
 
         for (const event of events) {
-            await this._processEvent(event)
+            try {
+                await this._processEvent(event)
+            } catch (err) {
+                console.log('Error processing event', err)
+                console.log(event)
+            }
         }
     }
 
@@ -275,6 +313,8 @@ export class Synchronizer {
                 console.log('mark', decodedData)
                 this.validProofs[this.proofKey(_epoch, _proofIndex)] =
                     decodedData
+            } else {
+                console.error('Invalid gst 1')
             }
         } else if (event.topics[0] === this.allTopics.IndexedReputationProof) {
             console.log('IndexedReputationProof')
@@ -328,7 +368,7 @@ export class Synchronizer {
 
             if (validNullifiers) {
                 for (let j = 0; j < nullifiersAmount; j++) {
-                    this.unirepState?.addReputationNullifiers(
+                    this.userState?.addReputationNullifiers(
                         nullifiers[j],
                         event.blockNumber
                     )
@@ -340,7 +380,10 @@ export class Synchronizer {
                     epoch: _epoch,
                     proof: decodedData._proof,
                     proofIndex: _proofIndex,
+                    isReputation: true,
                 }
+            } else {
+                console.error('Invalid gst 2')
             }
         } else if (
             event.topics[0] === this.allTopics.IndexedUserSignedUpProof
@@ -384,6 +427,8 @@ export class Synchronizer {
                     proof: decodedData._proof,
                     proofIndex: _proofIndex,
                 }
+            } else {
+                console.error('Invalid gst 3')
             }
         } else if (
             event.topics[0] === this.allTopics.IndexedStartedTransitionProof
@@ -412,7 +457,9 @@ export class Synchronizer {
                 formatPublicSignals
             )
             if (isValid) {
-                this.validProofs[this.proofKey(null, _proofIndex)] = {}
+                this.validProofs[this.proofKey(null, _proofIndex)] = decodedData
+            } else {
+                console.error('Invalid gst 4')
             }
         } else if (
             event.topics[0] === this.allTopics.IndexedProcessedAttestationsProof
@@ -448,7 +495,9 @@ export class Synchronizer {
             )
             // verify the GST root when it's used in a transition
             if (isValid) {
-                this.validProofs[this.proofKey(null, _proofIndex)] = {}
+                this.validProofs[this.proofKey(null, _proofIndex)] = decodedData
+            } else {
+                console.error('Invalid gst 5')
             }
         } else if (
             event.topics[0] === this.allTopics.IndexedUserStateTransitionProof
@@ -464,7 +513,7 @@ export class Synchronizer {
             const idCommitment = BigInt(event.topics[2])
             const attesterId = Number(decodedData._attesterId)
             const airdrop = Number(decodedData._airdropAmount)
-            await this.unirepState?.signUp(
+            await this.userState?.signUp(
                 epoch,
                 idCommitment,
                 attesterId,
@@ -474,7 +523,7 @@ export class Synchronizer {
         } else if (event.topics[0] === this.allTopics.UserStateTransitioned) {
             console.log('UserStateTransitioned')
             // await this.USTEvent(event)
-            await this.userStateTransition(event)
+            await this._userStateTransition(event)
         } else if (event.topics[0] === this.allTopics.AttestationSubmitted) {
             console.log('AttestationSubmitted')
             await this.attestationSubmitted(event)
@@ -487,7 +536,7 @@ export class Synchronizer {
         }
     }
 
-    private async userStateTransition(event: any) {
+    private async _userStateTransition(event: any) {
         const decodedData = unirepConfig.unirep.interface.decodeEventLog(
             'UserStateTransitioned',
             event.data
@@ -497,18 +546,19 @@ export class Synchronizer {
         const epoch = Number(event.topics[1])
         const leaf = BigInt(event.topics[2])
         const proofIndex = Number(decodedData._proofIndex)
-
-        if (!this.validProofs[this.proofKey(epoch, proofIndex)]) return
-        const epkNullifiers = decodedData.epkNullifiers.map((n: any) =>
+        const proof = this.validProofs[this.proofKey(null, proofIndex)]
+        if (!proof) return console.error('Invalid proof')
+        const epkNullifiers = proof._proof.epkNullifiers.map((n: any) =>
             BigInt(n)
         )
         for (const nullifier of epkNullifiers) {
             if (this.unirepState?.nullifierExist(nullifier)) {
-                return console.log('duplicate nullifier')
+                return console.error('duplicate nullifier')
             }
         }
-        this.unirepState?.userStateTransition(
-            epoch,
+        const fromEpoch = Number(proof._proof.transitionFromEpoch.toString())
+        this.userState?.userStateTransition(
+            fromEpoch,
             leaf,
             epkNullifiers,
             event.blockNumber
@@ -549,13 +599,15 @@ export class Synchronizer {
             formatPublicSignals
         )
         if (isValid) {
-            this.validProofs[this.proofKey(null, _proofIndex)] = {}
+            this.validProofs[this.proofKey(null, _proofIndex)] = decodedData
+        } else {
+            console.error('Invalid gst root 5')
         }
     }
 
     private async attestationSubmitted(event: any) {
         const _epoch = Number(event.topics[1])
-        const _epochKey = BigInt(event.topics[2])
+        const _epochKey = ethers.BigNumber.from(event.topics[2])
         const _attester = event.topics[3]
         const decodedData = unirepConfig.unirep.interface.decodeEventLog(
             'AttestationSubmitted',
@@ -563,29 +615,30 @@ export class Synchronizer {
         )
         const toProofIndex = Number(decodedData.toProofIndex)
         const fromProofIndex = Number(decodedData.fromProofIndex)
-        if (!this.validProofs[this.proofKey(_epoch, toProofIndex)]) return
+        if (!this.validProofs[this.proofKey(_epoch, toProofIndex)])
+            return console.error('Invalid attestation 1')
         const attestationProof =
             this.validProofs[this.proofKey(_epoch, toProofIndex)]
         if (
             fromProofIndex &&
             this.spentProofs[this.proofKey(_epoch, fromProofIndex)]
         )
-            return
+            return console.error('Invalid attestation 2')
         if (fromProofIndex) {
             if (!this.validProofs[this.proofKey(_epoch, fromProofIndex)]) return
             const proof =
                 this.validProofs[this.proofKey(_epoch, fromProofIndex)]
-            console.log(proof)
-            if (!proof.isReputation) return
+            if (!proof.isReputation) return console.error('non-rep proof')
             const proveReputationAmount = Number(
-                proof.args._proof.proveReputationAmount
+                proof.proof.proveReputationAmount
             )
-            if (!attestationProof) return console.log('No to proof')
-            const repInAttestation =
-                Number(attestationProof.args.posRep) +
-                Number(attestationProof.args.negRep)
-            if (proveReputationAmount < repInAttestation)
-                return console.log('not enough rep')
+            if (!attestationProof) return console.error('No to proof')
+            if (
+                proveReputationAmount !==
+                Number(decodedData._attestation.posRep) +
+                    Number(decodedData._attestation.negRep)
+            )
+                return console.error('not enough rep')
         }
         if (fromProofIndex)
             this.spentProofs[this.proofKey(_epoch, fromProofIndex)] = true
@@ -596,10 +649,7 @@ export class Synchronizer {
             BigInt(decodedData._attestation.graffiti),
             BigInt(decodedData._attestation.signUp)
         )
-        if (
-            _epochKey.toString(16).padStart(8, '0') !==
-            attestationProof.epochKey
-        )
+        if (!_epochKey.eq('0x' + attestationProof.epochKey))
             return console.error('epoch key mismatch')
         if (this.unirepState?.isEpochKeySealed(_epochKey.toString()))
             return console.error('epoch key sealed')
@@ -612,7 +662,7 @@ export class Synchronizer {
 
     private async epochEnded(event: any) {
         const epoch = Number(event.topics[1])
-        await this.unirepState?.epochTransition(epoch, event.blockNumber)
+        await this.userState?.epochTransition(epoch, event.blockNumber)
     }
 }
 

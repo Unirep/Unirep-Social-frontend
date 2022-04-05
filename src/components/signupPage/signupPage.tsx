@@ -2,7 +2,6 @@ import { useHistory } from 'react-router-dom'
 import { useContext, useState, useEffect } from 'react'
 
 import './signupPage.scss'
-import { WebContext } from '../../context/WebContext'
 import LoadingCover from '../loadingCover/loadingCover'
 import LoadingButton from '../loadingButton/loadingButton'
 import UserState from '../../context/User'
@@ -13,14 +12,13 @@ import UserContext from '../../context/User'
 const SignupPage = () => {
     const userState = useContext(UserState)
     const history = useHistory()
-    const { isLoading, setIsLoading } = useContext(WebContext)
     const [invitationCode, setInvitationCode] = useState<string>('')
     const [step, setStep] = useState<number>(0)
     const [isDownloaded, setIsDownloaded] = useState(false)
     const [userEnterIdentity, setUserEnterIdentity] = useState<string>('')
     const [errorMsg, setErrorMsg] = useState<string>('')
     const [isButtonLoading, setButtonLoading] = useState<boolean>(false)
-    const unirepConfig = useContext(UnirepContext)
+    const [isLoading, setIsLoading] = useState(false)
 
     const title = [
         'Join us',
@@ -71,7 +69,9 @@ const SignupPage = () => {
         } else if (step === 3) {
             setIsLoading(true)
             if (!userState.identity) throw new Error('Identity not initialized')
-
+            await userState.waitForSync()
+            console.log('sync complete')
+            await userState.calculateAllEpks()
             const { error } = await userState.getAirdrop()
             if (error !== undefined) {
                 console.error(error)
