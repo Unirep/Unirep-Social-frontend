@@ -42,7 +42,8 @@ const CommentField = (props: Props) => {
                     })
                     const proofData = await userContext.genRepProof(
                         reputation,
-                        reputation
+                        reputation,
+                        epkNonce
                     )
                     updateStatus({
                         title: 'Creating comment',

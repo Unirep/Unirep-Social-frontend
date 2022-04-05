@@ -60,7 +60,11 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
                     title: 'Creating Vote',
                     details: 'Generating ZK proof...',
                 })
-                const proofData = await userContext.genRepProof(amount, amount)
+                const proofData = await userContext.genRepProof(
+                    amount,
+                    amount,
+                    epkNonce
+                )
                 updateStatus({
                     title: 'Creating Vote',
                     details: 'Broadcasting vote...',

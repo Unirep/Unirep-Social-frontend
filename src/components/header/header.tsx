@@ -18,7 +18,6 @@ const Header = () => {
 
     const gotoNewPage = () => {
         if (
-            !queue.isLoading &&
             userContext.userState &&
             userContext.netReputation >= unirepConfig.postReputation
         ) {

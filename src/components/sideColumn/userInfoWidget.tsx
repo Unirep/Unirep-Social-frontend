@@ -128,6 +128,8 @@ const UserInfoWidget = () => {
                                                     'Waiting for transaction...',
                                             })
                                             await queue.afterTx(transaction)
+                                            await userContext.calculateAllEpks()
+                                            await userContext.loadReputation()
                                             await epochManager.updateWatch()
                                         },
                                         {

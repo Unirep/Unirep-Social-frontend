@@ -31,16 +31,13 @@ const BlockButton = ({ type, count, data }: Props) => {
                 if (data.current_epoch !== userContext.currentEpoch)
                     return false
                 else if (userContext.netReputation < 1) return false
-                else if (queue.isLoading) return false
                 else return true
             }
         }
     }
 
-    const [isAble, setIsAble] = useState<boolean>(() => checkAbility())
-
     const onClick = () => {
-        if (isAble) {
+        if (checkAbility()) {
             if (type === ButtonType.Comments) {
                 history.push(`/post/${data.id}`, { commentId: '' })
             } else if (type === ButtonType.Boost) {
@@ -68,8 +65,7 @@ const BlockButton = ({ type, count, data }: Props) => {
             if (data.current_epoch !== userContext.currentEpoch)
                 setReminder('Time out :(')
             else if (userContext.netReputation < 1) setReminder('No enough Rep')
-            else if (queue.isLoading && type !== ButtonType.Share)
-                setReminder('loading...')
+            else if (type !== ButtonType.Share) setReminder('loading...')
         }
     }
 
@@ -85,11 +81,6 @@ const BlockButton = ({ type, count, data }: Props) => {
         }
     }, [isLinkCopied])
 
-    useEffect(() => {
-        if (queue.isLoading) setIsAble(false)
-        else setIsAble(checkAbility())
-    }, [queue.isLoading])
-
     return (
         <div
             className={
@@ -103,7 +94,7 @@ const BlockButton = ({ type, count, data }: Props) => {
         >
             <img
                 src={require(`../../../public/images/${type}${
-                    isHover && isAble ? '-fill' : ''
+                    isHover && checkAbility() ? '-fill' : ''
                 }.svg`)}
             />
             {type !== ButtonType.Share ? (
@@ -115,7 +106,7 @@ const BlockButton = ({ type, count, data }: Props) => {
                 {type.charAt(0).toUpperCase() + type.slice(1)}
             </span>
 
-            {isAble ? (
+            {checkAbility() ? (
                 <div></div>
             ) : (
                 <div

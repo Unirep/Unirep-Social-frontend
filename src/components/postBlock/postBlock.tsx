@@ -132,8 +132,6 @@ const PostBlock = ({ post, page }: Props) => {
                             <AlertBox type={AlertType.commentNotLogin} />
                         ) : userContext.netReputation < 3 ? (
                             <AlertBox type={AlertType.commentNotEnoughPoints} />
-                        ) : queue.isLoading ? (
-                            <AlertBox type={AlertType.commentLoading} />
                         ) : showCommentField ? (
                             <CommentField
                                 post={post}

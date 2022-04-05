@@ -49,7 +49,8 @@ const NewPage = () => {
                     })
                     const proofData = await userContext.genRepProof(
                         reputation,
-                        reputation
+                        reputation,
+                        epkNonce
                     )
                     updateStatus({
                         title: 'Creating post',
