@@ -399,6 +399,7 @@ export class UserState {
 
     async userStateTransition() { // not test yet
         if (this.id) {
+            console.log('user state transition')
             const ret = await userStateTransition(serialiseIdentity(this.id), {})
             if (ret.error && ret.error.length > 0) {
                 console.log(ret.error)

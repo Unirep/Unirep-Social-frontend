@@ -36,7 +36,7 @@ const BlockButton = ({ type, count, data }: Props) => {
         }
     }
 
-    const [isAble, setIsAble] = useState<boolean>(() => checkAbility())
+    const [isAble, setIsAble] = useState<boolean>(() => checkAbility()) // maybe remove
 
     const onClick = () => {
         if (isAble) {
