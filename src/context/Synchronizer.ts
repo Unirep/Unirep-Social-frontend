@@ -634,8 +634,9 @@ export class Synchronizer {
             )
             if (!attestationProof) return console.error('No to proof')
             if (
-                proveReputationAmount <
-                attestationProof.proof.proveReputationAmount.toNumber()
+                proveReputationAmount !==
+                Number(decodedData._attestation.posRep) +
+                    Number(decodedData._attestation.negRep)
             )
                 return console.error('not enough rep')
         }

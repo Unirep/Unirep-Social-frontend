@@ -25,7 +25,7 @@ export class Data {
         const apiURL = makeURL(`post/${id}`, {})
         const r = await fetch(apiURL)
         const data = await r.json()
-        const post = convertDataToPost(data, false)
+        const post = convertDataToPost(data[0], false)
         this.ingestPosts(post)
     }
 

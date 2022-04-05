@@ -23,7 +23,6 @@ export class User extends Synchronizer {
     currentEpoch = 0
     reputation = 30
     unirepConfig = (UnirepContext as any)._currentValue
-    epkNonce = 0
     spent = 0
 
     constructor() {
@@ -83,7 +82,6 @@ export class User extends Synchronizer {
             userState: this.userState,
             id: this.identity,
             currentEpoch: this.currentEpoch,
-            epkNonce: this.epkNonce,
             spent: this.spent,
         }
         if (typeof this.userState?.toJSON(0) === 'string') {
@@ -103,7 +101,9 @@ export class User extends Synchronizer {
     }
 
     get currentEpochKeys() {
-        return this.allEpks.slice(-3)
+        return this.allEpks.slice(
+            -1 * this.unirepConfig.numEpochKeyNoncePerEpoch
+        )
     }
 
     get identity() {
@@ -277,16 +277,16 @@ export class User extends Synchronizer {
         return epochKey.toString(16)
     }
 
-    async genRepProof(amount: number, min: number) {
+    async genRepProof(amount: number, min: number, epkNonce: number) {
+        if (epkNonce >= this.unirepConfig.numEpochKeyNoncePerEpoch) {
+            throw new Error('Invalid epk nonce')
+        }
         const currentEpoch = await this.loadCurrentEpoch()
         const epk = this.getEpochKey(
-            this.epkNonce,
+            epkNonce,
             this.id?.identityNullifier,
             currentEpoch
         )
-        if (this.epkNonce >= this.unirepConfig.numEpochKeyNoncePerEpoch) {
-            throw new Error('Max epk nonce reached')
-        }
         const rep = await this.loadReputation()
         if (this.spent === -1) {
             throw new Error('All nullifiers are spent')
@@ -298,7 +298,6 @@ export class User extends Synchronizer {
         for (let i = 0; i < amount; i++) {
             nonceList.push(BigInt(this.spent + i))
         }
-        const spentNonces = nonceList.length
         // console.log(nonceList)
         // console.log(this.unirepConfig.maxReputationBudget)
         for (let i = amount; i < this.unirepConfig.maxReputationBudget; i++) {
@@ -309,7 +308,7 @@ export class User extends Synchronizer {
         if (!this.userState) throw new Error('User state not initialized')
         const results = await this.userState.genProveReputationProof(
             BigInt(this.unirepConfig.attesterId),
-            this.epkNonce,
+            epkNonce,
             min,
             proveGraffiti,
             graffitiPreImage,
@@ -318,8 +317,7 @@ export class User extends Synchronizer {
 
         const proof = formatProofForVerifierContract(results.proof)
         const publicSignals = results.publicSignals
-        this.spent += spentNonces
-        this.epkNonce++
+        this.spent += amount
         this.save()
         return { epk, proof, publicSignals, currentEpoch }
     }
@@ -340,9 +338,7 @@ export class User extends Synchronizer {
             method: 'POST',
         })
         const { transaction, error } = await r.json()
-        this.epkNonce = 0
         this.spent = 0
-        await this.loadReputation()
         return { error, transaction }
     }
 }
