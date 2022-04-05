@@ -1,5 +1,4 @@
 import { createContext } from 'react'
-import { makeAutoObservable } from 'mobx'
 import { ethers } from 'ethers'
 import UnirepContext from './Unirep'
 import { DEFAULT_ETH_PROVIDER } from '../config'
@@ -114,11 +113,11 @@ export class Synchronizer {
                         this.latestProcessedBlock + 1,
                         newLatest
                     ),
-                    unirepConfig.unirepSocial.queryFilter(
-                        this.unirepSocialFilter,
-                        this.latestProcessedBlock + 1,
-                        newLatest
-                    ),
+                    // unirepConfig.unirepSocial.queryFilter(
+                    //     this.unirepSocialFilter,
+                    //     this.latestProcessedBlock + 1,
+                    //     newLatest
+                    // ),
                 ])
             ).flat() as ethers.Event[]
             // first process historical ones then listen
@@ -514,6 +513,7 @@ export class Synchronizer {
             console.log('IndexedUserStateTransitionProof')
             await this.userStateTransitionProof(event)
         } else if (event.topics[0] === this.allTopics.UserSignedUp) {
+            console.log('UserSignedUp')
             const decodedData = unirepConfig.unirep.interface.decodeEventLog(
                 'UserSignedUp',
                 event.data
@@ -540,8 +540,8 @@ export class Synchronizer {
             console.log('EpochEnded')
             await this.epochEnded(event)
         } else {
-            // console.log(event)
-            // throw new Error(`Unrecognized event topic "${event.topics[0]}"`)
+            console.log(event)
+            throw new Error(`Unrecognized event topic "${event.topics[0]}"`)
         }
     }
 

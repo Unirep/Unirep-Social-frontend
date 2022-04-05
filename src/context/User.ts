@@ -13,7 +13,11 @@ import { UnirepFactory } from '@unirep/unirep-social'
 import { makeURL } from '../utils'
 import { genEpochKey } from '@unirep/unirep'
 import { UnirepState, UserState } from '../overrides/unirep'
-import { formatProofForVerifierContract } from '@unirep/circuits'
+import {
+    formatProofForVerifierContract,
+    formatProofForSnarkjsVerification,
+    verifyProof,
+} from '@unirep/circuits'
 import UnirepContext from './Unirep'
 import { Synchronizer } from './Synchronizer'
 
@@ -64,6 +68,10 @@ export class User extends Synchronizer {
         }
         if (this.id) {
             this.startDaemon()
+            this.waitForSync().then(() => {
+                this.loadReputation()
+                this.save()
+            })
         }
         await this.loadReputation()
         // start listening for new epochs
@@ -72,10 +80,6 @@ export class User extends Synchronizer {
             this.loadCurrentEpoch.bind(this)
         )
         await this.loadCurrentEpoch()
-        this.waitForSync().then(() => {
-            this.loadReputation()
-            this.save()
-        })
     }
 
     save() {
