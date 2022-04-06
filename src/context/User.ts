@@ -53,6 +53,10 @@ export class User extends Synchronizer {
         return this.reputation - this.spent
     }
 
+    get isSynced() {
+        return this.currentEpoch === this.unirepState?.currentEpoch
+    }
+
     // must be called in browser, not in SSR
     async load() {
         await super.load() // loads the unirep state

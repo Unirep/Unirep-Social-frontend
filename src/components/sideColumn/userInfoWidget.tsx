@@ -97,7 +97,9 @@ const UserInfoWidget = () => {
                 <div></div>
             )}
             {userContext.userState &&
-                (epochManager.readyToTransition || userContext.needsUST) &&
+                userContext.isSynced &&
+                epochManager.readyToTransition &&
+                userContext.needsUST &&
                 !queue.queuedOp(ActionType.UST) && (
                     <div className="custom-ui">
                         <div

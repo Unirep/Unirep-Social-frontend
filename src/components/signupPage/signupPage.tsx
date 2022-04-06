@@ -71,6 +71,7 @@ const SignupPage = () => {
             queue.addOp(async (update) => {
                 update({
                     title: 'Waiting to generate Airdrop',
+                    details: 'Synchronizing with blockchain...',
                 })
                 await userState.waitForSync()
                 console.log('sync complete')
