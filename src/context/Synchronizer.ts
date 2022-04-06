@@ -29,7 +29,7 @@ export class Synchronizer {
     validProofs = {} as { [key: ProofKey]: any }
     spentProofs = {} as { [key: ProofKey]: boolean }
     latestProcessedBlock = 0
-    private daemonRunning = false
+    protected daemonRunning = false
     // progress management
     startBlock = 0
     latestBlock = 0
@@ -314,7 +314,7 @@ export class Synchronizer {
         }
     }
 
-    private async _processEvent(event: any) {
+    protected async _processEvent(event: any) {
         // no, i don't know what a switch statement is...
         if (event.topics[0] === this.allTopics.IndexedEpochKeyProof) {
             console.log('IndexedEpochKeyProof')
@@ -572,7 +572,7 @@ export class Synchronizer {
         }
     }
 
-    private async _userStateTransition(event: any) {
+    protected async _userStateTransition(event: any) {
         const decodedData = unirepConfig.unirep.interface.decodeEventLog(
             'UserStateTransitioned',
             event.data
@@ -601,7 +601,7 @@ export class Synchronizer {
         )
     }
 
-    private async userStateTransitionProof(event: any) {
+    protected async userStateTransitionProof(event: any) {
         const _proofIndex = Number(event.topics[1])
         const decodedData = unirepConfig.unirep.interface.decodeEventLog(
             'IndexedUserStateTransitionProof',
@@ -641,7 +641,7 @@ export class Synchronizer {
         }
     }
 
-    private async attestationSubmitted(event: any) {
+    protected async attestationSubmitted(event: any) {
         const _epoch = Number(event.topics[1])
         const _epochKey = ethers.BigNumber.from(event.topics[2])
         const _attester = event.topics[3]
@@ -696,7 +696,7 @@ export class Synchronizer {
         )
     }
 
-    private async epochEnded(event: any) {
+    protected async epochEnded(event: any) {
         const epoch = Number(event.topics[1])
         await this.userState?.epochTransition(epoch, event.blockNumber)
     }

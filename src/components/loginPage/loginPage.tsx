@@ -5,9 +5,11 @@ import './loginPage.scss'
 import LoadingCover from '../loadingCover/loadingCover'
 import LoadingButton from '../loadingButton/loadingButton'
 import UserContext from '../../context/User'
+import QueueContext from '../../context/Queue'
 
 const LoginPage = () => {
     const history = useHistory()
+    const queue = useContext(QueueContext)
     const [isLoading, setIsLoading] = useState(false)
     const [input, setInput] = useState<string>('')
     const [errorMsg, setErrorMsg] = useState<string>('')
@@ -31,17 +33,16 @@ const LoginPage = () => {
             setErrorMsg('Incorrect private key. Please try again.')
             return
         }
-        setIsLoading(true)
         userContext.setIdentity(input)
         userContext.startDaemon()
-        await userContext.waitForSync()
-        const currentEpoch = await userContext.loadCurrentEpoch()
-
-        if (userContext.userState?.latestTransitionedEpoch === currentEpoch) {
-            // TODO: airdrop if first epoch that user has registered
-            // await userContext.getAirdrop()
-        }
-        setIsLoading(false)
+        queue.addOp(async (status) => {
+            status({
+                title: 'Synchronizing',
+                details: 'Please wait for your user state to be built...',
+            })
+            await userContext.waitForSync()
+            await userContext.loadReputation()
+        })
         history.push('/')
     }
 
