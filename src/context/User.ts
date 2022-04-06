@@ -39,6 +39,10 @@ export class User extends Synchronizer {
             userState: observable,
             currentEpochKeys: computed,
             allEpks: observable,
+            syncPercent: computed,
+            startBlock: observable,
+            latestBlock: observable,
+            latestProcessedBlock: observable,
         })
         if (typeof window !== 'undefined') {
             this.load()

@@ -30,6 +30,9 @@ export class Synchronizer {
     spentProofs = {} as { [key: ProofKey]: boolean }
     latestProcessedBlock = 0
     private daemonRunning = false
+    // progress management
+    startBlock = 0
+    latestBlock = 0
 
     constructor() {
         // makeAutoObservable(this)
@@ -38,6 +41,20 @@ export class Synchronizer {
     // calculate a key for storing/accessing a proof
     proofKey(epoch: number | null, index: number): ProofKey {
         return `epoch-${epoch}-index-${index}`
+    }
+
+    get syncPercent() {
+        if (
+            this.startBlock === 0 ||
+            this.latestBlock === 0 ||
+            this.latestProcessedBlock === 0
+        ) {
+            return 0
+        }
+        return (
+            (100 * (this.latestProcessedBlock - this.startBlock)) /
+            (this.latestBlock - this.startBlock)
+        )
     }
 
     async load() {
@@ -73,6 +90,8 @@ export class Synchronizer {
             'sync-latestBlock',
             JSON.stringify({
                 latestProcessedBlock: this.latestProcessedBlock,
+                latestBlock: this.latestBlock,
+                startBlock: this.startBlock,
                 validProofs: this.validProofs,
                 spentProofs: this.spentProofs,
             })
@@ -97,8 +116,12 @@ export class Synchronizer {
         console.log('Starting daemon')
         this.daemonRunning = true
         let latestBlock = await DEFAULT_ETH_PROVIDER.getBlockNumber()
+        this.latestBlock = latestBlock
         DEFAULT_ETH_PROVIDER.on('block', (num) => {
-            if (num > latestBlock) latestBlock = num
+            if (num > latestBlock) {
+                latestBlock = num
+                this.latestBlock = num
+            }
         })
         for (;;) {
             if (this.latestProcessedBlock === latestBlock) {
@@ -276,10 +299,14 @@ export class Synchronizer {
             }
             return a.logIndex - b.logIndex
         })
+        if (this.startBlock === 0) {
+            this.startBlock = events[0].blockNumber
+        }
 
         for (const event of events) {
             try {
                 await this._processEvent(event)
+                this.latestProcessedBlock = event.blockNumber
             } catch (err) {
                 console.log('Error processing event', err)
                 console.log(event)
