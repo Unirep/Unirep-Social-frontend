@@ -10,7 +10,7 @@ import {
     genEpochKey,
     genUserStateFromParams,
 } from '@unirep/unirep'
-import { UnirepSocialFacory, UnirepFactory } from '@unirep/unirep-social'
+import { UnirepSocialFactory, UnirepFactory } from '@unirep/unirep-social'
 import { formatProofForVerifierContract } from '@unirep/circuits'
 import * as config from './config'
 import {
@@ -65,7 +65,7 @@ export const hasSignedUp = async (identity: string) => {
 }
 
 const hasSignedUpInUnirepSocial = async (identityCommitment: BigInt) => {
-    const unirepSocial = UnirepSocialFacory.connect(
+    const unirepSocial = UnirepSocialFactory.connect(
         config.UNIREP_SOCIAL,
         config.DEFAULT_ETH_PROVIDER
     )
@@ -204,7 +204,7 @@ const genAirdropProof = async (identity: string, us: any) => {
 // }
 
 export const getAirdrop = async (identity: string, us: any) => {
-    const unirepSocial = UnirepSocialFacory.connect(
+    const unirepSocial = UnirepSocialFactory.connect(
         config.UNIREP_SOCIAL,
         config.DEFAULT_ETH_PROVIDER
     )
