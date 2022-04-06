@@ -26,7 +26,7 @@ const Overlay = () => {
     }
 
     const signout = () => {
-        userContext.logout()
+        // userContext.logout()
         setIsMenuOpen(false)
         history.push('/')
     }

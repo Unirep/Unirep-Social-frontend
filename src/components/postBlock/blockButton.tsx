@@ -1,10 +1,12 @@
 import { useEffect, useState, useContext } from 'react'
 import { useHistory } from 'react-router-dom'
-import { Post, Comment, ButtonType } from '../../constants'
-import VoteBox from '../voteBox/voteBox'
+import { observer } from 'mobx-react-lite'
+
 import UserContext from '../../context/User'
 import QueueContext, { LoadingState } from '../../context/Queue'
-import { observer } from 'mobx-react-lite'
+
+import { Post, Comment, ButtonType } from '../../constants'
+import VoteBox from '../voteBox/voteBox'
 
 type Props = {
     type: ButtonType

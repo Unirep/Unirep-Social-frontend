@@ -1,9 +1,10 @@
 import { useEffect, useState, useContext } from 'react'
-
-import './banner.scss'
-import { ABOUT_URL } from '../../config'
-import UserContext from '../../context/User'
 import { observer } from 'mobx-react-lite'
+
+import UserContext from '../../context/User'
+import './banner.scss'
+
+import { ABOUT_URL } from '../../config'
 
 const Banner = () => {
     const userContext = useContext(UserContext)

@@ -2,16 +2,17 @@ import { useEffect, useContext } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 
+import UserContext from '../../context/User'
+import QueueContext from '../../context/Queue'
+import PostContext from '../../context/Post'
+import { WebContext } from '../../context/WebContext'
 import './newPage.scss'
+
 import WritingField from '../writingField/writingField'
 import BasicPage from '../basicPage/basicPage'
 import { DataType } from '../../constants'
-import UserContext from '../../context/User'
-import QueueContext from '../../context/Queue'
 import { publishPost } from '../../utils'
-import PostContext from '../../context/Post'
 import { QueryType } from '../../constants'
-import { WebContext } from '../../context/WebContext'
 
 const NewPage = () => {
     const { setDraft } = useContext(WebContext)

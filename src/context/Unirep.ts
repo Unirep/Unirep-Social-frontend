@@ -11,8 +11,8 @@ import {
 export class UnirepConfig {
     unirepAddress = ''
     unirepSocialAddress = ''
-    globalStateTreeDepth = 4
-    userStateTreeDepth = 4
+    globalStateTreeDepth = 11
+    userStateTreeDepth = 5
     epochTreeDepth = 32
     attestingFee = 1
     numEpochKeyNoncePerEpoch = 3

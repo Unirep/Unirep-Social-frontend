@@ -1,10 +1,10 @@
-import { useContext, useEffect, useState } from 'react'
+import { useContext } from 'react'
 import { useHistory } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 
 import UserContext from '../../context/User'
 import PostContext from '../../context/Post'
-import { Post, QueryType } from '../../constants'
+import { Post } from '../../constants'
 
 type Props = {
     post: Post

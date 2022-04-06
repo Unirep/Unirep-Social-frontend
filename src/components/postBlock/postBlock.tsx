@@ -7,12 +7,12 @@ import { WebContext } from '../../context/WebContext'
 import UserContext from '../../context/User'
 import UnirepContext from '../../context/Unirep'
 import QueueContext from '../../context/Queue'
+import './postBlock.scss'
 
 import { Post, Page, ButtonType, AlertType, DataType } from '../../constants'
 import CommentField from './commentField'
 import CommentBlock from './commentBlock'
 import BlockButton from './blockButton'
-import './postBlock.scss'
 
 type AlertProps = {
     type: AlertType

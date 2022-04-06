@@ -1,16 +1,17 @@
 import { useContext, useEffect, useState } from 'react'
 import dateformat from 'dateformat'
-
-import HelpWidget from '../helpWidget/helpWidget'
-import { InfoType } from '../../constants'
-import UserContext from '../../context/User'
 import { observer } from 'mobx-react-lite'
+
+import UserContext from '../../context/User'
 import EpochContext from '../../context/EpochManager'
 import QueueContext, { ActionType } from '../../context/Queue'
 
+import HelpWidget from '../helpWidget/helpWidget'
+import { InfoType } from '../../constants'
+
 const UserInfoWidget = () => {
     const epochManager = useContext(EpochContext)
-    const user = useContext(UserContext)
+    const userContext = useContext(UserContext)
     const queue = useContext(QueueContext)
     const [countdownText, setCountdownText] = useState<string>('')
     const [diffTime, setDiffTime] = useState<number>(0)
@@ -24,8 +25,8 @@ const UserInfoWidget = () => {
         setDiffTime(diff)
 
         if (
-            user.userState &&
-            (epochManager.readyToTransition || user.needsUST)
+            userContext.userState &&
+            (epochManager.readyToTransition || userContext.needsUST)
         ) {
             return 'Doing UST...'
         }
@@ -57,7 +58,7 @@ const UserInfoWidget = () => {
 
     return (
         <div>
-            {user.userState ? (
+            {userContext.userState ? (
                 <div className="user-info-widget widget">
                     <div className="rep-info">
                         <p>My Rep</p>
@@ -65,7 +66,7 @@ const UserInfoWidget = () => {
                             <img
                                 src={require('../../../public/images/lighting.svg')}
                             />
-                            {user.netReputation}
+                            {userContext.netReputation}
                         </h3>
                     </div>
                     <div className="ust-info">
@@ -74,7 +75,7 @@ const UserInfoWidget = () => {
                             <HelpWidget type={InfoType.persona} />
                         </div>
                         <div className="epks">
-                            {user.currentEpochKeys.map((key) => (
+                            {userContext.currentEpochKeys.map((key) => (
                                 <div className="epk" key={key}>
                                     {key}
                                 </div>
@@ -96,8 +97,9 @@ const UserInfoWidget = () => {
             ) : (
                 <div></div>
             )}
-            {user.userState &&
-                (epochManager.readyToTransition || user.needsUST) &&
+            {userContext.userState &&
+                userContext.isSynced &&
+                (epochManager.readyToTransition || userContext.needsUST) &&
                 !queue.queuedOp(ActionType.UST) && (
                     <div className="custom-ui">
                         <div
@@ -121,15 +123,15 @@ const UserInfoWidget = () => {
                                                     'Generating ZK proof...',
                                             })
                                             const { transaction } =
-                                                await user.userStateTransition()
+                                                await userContext.userStateTransition()
                                             updateStatus({
                                                 title: 'Performing UST',
                                                 details:
                                                     'Waiting for transaction...',
                                             })
                                             await queue.afterTx(transaction)
-                                            await user.calculateAllEpks()
-                                            await user.loadReputation()
+                                            await userContext.calculateAllEpks()
+                                            await userContext.loadReputation()
                                             await epochManager.updateWatch()
                                         },
                                         {

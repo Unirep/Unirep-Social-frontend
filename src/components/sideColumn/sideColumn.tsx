@@ -2,16 +2,17 @@ import { useContext } from 'react'
 import { useHistory } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 
+import UserContext from '../../context/User'
 import './sideColumn.scss'
+
 import DefaultWidget from './defaultWidget'
 import UserInfoWidget from './userInfoWidget'
 import ReminderWidget from './reminderWidget'
 import PostsWidget from './postsWidget'
 import { Page } from '../../constants'
-import UserContext from '../../context/User'
+
 
 const SideColumn = () => {
-    const user = useContext(UserContext)
     const history = useHistory()
     const userContext = useContext(UserContext)
 
@@ -40,7 +41,7 @@ const SideColumn = () => {
             ) : (
                 <div></div>
             )}
-            {user.identity && page !== Page.Setting ? (
+            {userContext.identity && page !== Page.Setting ? (
                 <UserInfoWidget />
             ) : (
                 <div></div>

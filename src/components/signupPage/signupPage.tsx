@@ -1,16 +1,18 @@
 import { useHistory } from 'react-router-dom'
 import { useContext, useState, useEffect } from 'react'
+import { observer } from 'mobx-react-lite'
 
+import UserState from '../../context/User'
+import QueueContext from '../../context/Queue'
 import './signupPage.scss'
+
 import LoadingCover from '../loadingCover/loadingCover'
 import LoadingButton from '../loadingButton/loadingButton'
-import UserState from '../../context/User'
-import { observer } from 'mobx-react-lite'
-import UnirepContext from '../../context/Unirep'
-import UserContext from '../../context/User'
+
 
 const SignupPage = () => {
     const userState = useContext(UserState)
+    const queue = useContext(QueueContext)
     const history = useHistory()
     const [invitationCode, setInvitationCode] = useState<string>('')
     const [step, setStep] = useState<number>(0)
@@ -67,17 +69,26 @@ const SignupPage = () => {
                 setStep(3)
             }
         } else if (step === 3) {
-            setIsLoading(true)
             if (!userState.identity) throw new Error('Identity not initialized')
-            await userState.waitForSync()
-            console.log('sync complete')
-            await userState.calculateAllEpks()
-            const { error } = await userState.getAirdrop()
-            if (error !== undefined) {
-                console.error(error)
-            }
-
-            setIsLoading(false)
+            queue.addOp(async (update) => {
+                update({
+                    title: 'Waiting to generate Airdrop',
+                    details: 'Synchronizing with blockchain...',
+                })
+                await userState.waitForSync()
+                console.log('sync complete')
+                await userState.calculateAllEpks()
+                update({
+                    title: 'Creating Airdrop',
+                    details: 'Generating ZK proof...',
+                })
+                const { transaction } = await userState.getAirdrop()
+                update({
+                    title: 'Creating Airdrop',
+                    details: 'Waiting for TX inclusion...',
+                })
+                await queue.afterTx(transaction)
+            })
             history.push('/')
         }
     }

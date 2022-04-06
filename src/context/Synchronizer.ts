@@ -1,5 +1,4 @@
 import { createContext } from 'react'
-import { makeAutoObservable } from 'mobx'
 import { ethers } from 'ethers'
 import UnirepContext from './Unirep'
 import { DEFAULT_ETH_PROVIDER } from '../config'
@@ -30,13 +29,13 @@ export class Synchronizer {
     validProofs = {} as { [key: ProofKey]: any }
     spentProofs = {} as { [key: ProofKey]: boolean }
     latestProcessedBlock = 0
-    private daemonRunning = false
+    protected daemonRunning = false
+    // progress management
+    startBlock = 0
+    latestBlock = 0
 
     constructor() {
         // makeAutoObservable(this)
-        if (typeof window !== 'undefined') {
-            this.load()
-        }
     }
 
     // calculate a key for storing/accessing a proof
@@ -44,12 +43,36 @@ export class Synchronizer {
         return `epoch-${epoch}-index-${index}`
     }
 
+    get syncPercent() {
+        if (
+            this.startBlock === 0 ||
+            this.latestBlock === 0 ||
+            this.latestProcessedBlock === 0
+        ) {
+            return 0
+        }
+        return (
+            (100 * (this.latestProcessedBlock - this.startBlock)) /
+            (this.latestBlock - this.startBlock)
+        )
+    }
+
     async load() {
         await unirepConfig.loadingPromise
         // now start syncing
         const storedState = localStorage.getItem('sync-latestBlock')
         if (storedState) {
-            Object.assign(this, JSON.parse(storedState))
+            const data = JSON.parse(storedState, (key, value) => {
+                if (
+                    typeof value === 'object' &&
+                    value &&
+                    value.type === 'BigNumber'
+                ) {
+                    return ethers.BigNumber.from(value.hex)
+                }
+                return value
+            })
+            Object.assign(this, data)
         }
         this.unirepState = new UnirepState({
             globalStateTreeDepth: unirepConfig.globalStateTreeDepth,
@@ -67,6 +90,10 @@ export class Synchronizer {
             'sync-latestBlock',
             JSON.stringify({
                 latestProcessedBlock: this.latestProcessedBlock,
+                latestBlock: this.latestBlock,
+                startBlock: this.startBlock,
+                validProofs: this.validProofs,
+                spentProofs: this.spentProofs,
             })
         )
     }
@@ -89,8 +116,12 @@ export class Synchronizer {
         console.log('Starting daemon')
         this.daemonRunning = true
         let latestBlock = await DEFAULT_ETH_PROVIDER.getBlockNumber()
+        this.latestBlock = latestBlock
         DEFAULT_ETH_PROVIDER.on('block', (num) => {
-            if (num > latestBlock) latestBlock = num
+            if (num > latestBlock) {
+                latestBlock = num
+                this.latestBlock = num
+            }
         })
         for (;;) {
             if (this.latestProcessedBlock === latestBlock) {
@@ -105,11 +136,11 @@ export class Synchronizer {
                         this.latestProcessedBlock + 1,
                         newLatest
                     ),
-                    unirepConfig.unirepSocial.queryFilter(
-                        this.unirepSocialFilter,
-                        this.latestProcessedBlock + 1,
-                        newLatest
-                    ),
+                    // unirepConfig.unirepSocial.queryFilter(
+                    //     this.unirepSocialFilter,
+                    //     this.latestProcessedBlock + 1,
+                    //     newLatest
+                    // ),
                 ])
             ).flat() as ethers.Event[]
             // first process historical ones then listen
@@ -268,10 +299,14 @@ export class Synchronizer {
             }
             return a.logIndex - b.logIndex
         })
+        if (this.startBlock === 0) {
+            this.startBlock = events[0].blockNumber
+        }
 
         for (const event of events) {
             try {
                 await this._processEvent(event)
+                this.latestProcessedBlock = event.blockNumber
             } catch (err) {
                 console.log('Error processing event', err)
                 console.log(event)
@@ -279,7 +314,7 @@ export class Synchronizer {
         }
     }
 
-    private async _processEvent(event: any) {
+    protected async _processEvent(event: any) {
         // no, i don't know what a switch statement is...
         if (event.topics[0] === this.allTopics.IndexedEpochKeyProof) {
             console.log('IndexedEpochKeyProof')
@@ -505,6 +540,7 @@ export class Synchronizer {
             console.log('IndexedUserStateTransitionProof')
             await this.userStateTransitionProof(event)
         } else if (event.topics[0] === this.allTopics.UserSignedUp) {
+            console.log('UserSignedUp')
             const decodedData = unirepConfig.unirep.interface.decodeEventLog(
                 'UserSignedUp',
                 event.data
@@ -531,12 +567,12 @@ export class Synchronizer {
             console.log('EpochEnded')
             await this.epochEnded(event)
         } else {
-            // console.log(event)
-            // throw new Error(`Unrecognized event topic "${event.topics[0]}"`)
+            console.log(event)
+            throw new Error(`Unrecognized event topic "${event.topics[0]}"`)
         }
     }
 
-    private async _userStateTransition(event: any) {
+    protected async _userStateTransition(event: any) {
         const decodedData = unirepConfig.unirep.interface.decodeEventLog(
             'UserStateTransitioned',
             event.data
@@ -557,7 +593,7 @@ export class Synchronizer {
             }
         }
         const fromEpoch = Number(proof._proof.transitionFromEpoch.toString())
-        this.userState?.userStateTransition(
+        await this.userState?.userStateTransition(
             fromEpoch,
             leaf,
             epkNullifiers,
@@ -565,7 +601,7 @@ export class Synchronizer {
         )
     }
 
-    private async userStateTransitionProof(event: any) {
+    protected async userStateTransitionProof(event: any) {
         const _proofIndex = Number(event.topics[1])
         const decodedData = unirepConfig.unirep.interface.decodeEventLog(
             'IndexedUserStateTransitionProof',
@@ -605,7 +641,7 @@ export class Synchronizer {
         }
     }
 
-    private async attestationSubmitted(event: any) {
+    protected async attestationSubmitted(event: any) {
         const _epoch = Number(event.topics[1])
         const _epochKey = ethers.BigNumber.from(event.topics[2])
         const _attester = event.topics[3]
@@ -660,7 +696,7 @@ export class Synchronizer {
         )
     }
 
-    private async epochEnded(event: any) {
+    protected async epochEnded(event: any) {
         const epoch = Number(event.topics[1])
         await this.userState?.epochTransition(epoch, event.blockNumber)
     }

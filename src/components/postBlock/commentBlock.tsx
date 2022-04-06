@@ -1,10 +1,12 @@
 // import BlockButton from './blockButton';
 import { useState, useContext } from 'react'
-import { Comment, Page, ButtonType } from '../../constants'
-import dateformat from 'dateformat'
 import { useHistory } from 'react-router-dom'
-import BlockButton from './blockButton'
+import dateformat from 'dateformat'
+
 import UnirepContext from '../../context/Unirep'
+
+import { Comment, Page, ButtonType } from '../../constants'
+import BlockButton from './blockButton'
 
 type Props = {
     comment: Comment

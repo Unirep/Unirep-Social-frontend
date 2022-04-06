@@ -8,7 +8,6 @@ import Header from './components/header/header'
 import MainPage from './components/mainPage/mainPage'
 import PostPage from './components/postPage/postPage'
 import UserPage from './components/userPage/userPage'
-import HelpPage from './components/helpPage/helpPage'
 import LoginPage from './components/loginPage/loginPage'
 import SignupPage from './components/signupPage/signupPage'
 import NewPage from './components/newPage/newPage'
@@ -49,7 +48,6 @@ const AppRouter = () => {
                         <Route component={MainPage} path="/" exact={true} />
                         <Route component={PostPage} path="/post/:id" />
                         <Route component={UserPage} path="/user" />
-                        <Route component={HelpPage} path="/help" />
                         <Route component={LoginPage} path="/login" />
                         <Route component={SignupPage} path="/signup" />
                         <Route component={NewPage} path="/new" />

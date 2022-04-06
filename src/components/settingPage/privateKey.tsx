@@ -1,6 +1,7 @@
 import { useState, useContext } from 'react'
-import './settingPage.scss'
+
 import UserContext from '../../context/User'
+import './settingPage.scss'
 
 const PrivateKey = () => {
     const [isRevealed, setRevealed] = useState<boolean>(false)

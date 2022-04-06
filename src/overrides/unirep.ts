@@ -10,6 +10,7 @@ import {
 } from '@unirep/unirep'
 import {
     stringifyBigInts,
+    unstringifyBigInts,
     unSerialiseIdentity,
     serialiseIdentity,
 } from '@unirep/crypto'
@@ -48,7 +49,7 @@ export class UnirepState extends _UnirepState {
             },
             currentEpoch: this.currentEpoch,
             latestProcessedBlock: this.latestProcessedBlock,
-            GSTLeaves: Object(stringifyBigInts((this as any).GSTLeaves)),
+            GSTLeaves: stringifyBigInts((this as any).GSTLeaves),
             epochTreeLeaves: Object(epochTreeLeavesToString),
             latestEpochKeyToAttestationsMap: attestationsMapToString,
             nullifiers: Object.keys((this as any).nullifiers),
@@ -62,8 +63,8 @@ export class UnirepState extends _UnirepState {
         const parsedAttestationsMap = {} as any
 
         for (let key in _unirepState.GSTLeaves) {
-            parsedGSTLeaves[key] = _unirepState.GSTLeaves[key].map((n: any) =>
-                BigInt(n)
+            parsedGSTLeaves[key] = unstringifyBigInts(
+                _unirepState.GSTLeaves[key]
             )
         }
 

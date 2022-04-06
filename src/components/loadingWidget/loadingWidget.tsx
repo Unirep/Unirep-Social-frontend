@@ -1,8 +1,9 @@
 import { useState, useContext, useEffect } from 'react'
 import { HashLink as Link } from 'react-router-hash-link'
-import './loadingWidget.scss'
-import QueueContext, { LoadingState } from '../../context/Queue'
 import { observer } from 'mobx-react-lite'
+
+import QueueContext, { LoadingState } from '../../context/Queue'
+import './loadingWidget.scss'
 
 const LoadingWidget = () => {
     const [isFlip, setFlip] = useState<boolean>(false)

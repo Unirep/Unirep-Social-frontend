@@ -1,10 +1,11 @@
 import { useState, useContext } from 'react'
 import 'react-circular-progressbar/dist/styles.css'
-import { WebContext } from '../../context/WebContext'
+
 import UserContext from '../../context/User'
-import { Post, Vote, Comment, DataType } from '../../constants'
-import './voteBox.scss'
 import QueueContext from '../../context/Queue'
+import './voteBox.scss'
+
+import { Post, Vote, Comment, DataType } from '../../constants'
 import { vote } from '../../utils'
 
 type Props = {
