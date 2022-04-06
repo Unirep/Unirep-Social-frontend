@@ -9,7 +9,8 @@
         "lint": "prettier .",
         "build:worker": "webpack --config webpack.worker.js",
         "test": "echo 'No tests found' && exit 1",
-        "postinstall": "link-module-alias"
+        "postinstall": "link-module-alias && yarn copyCircuits",
+        "copyCircuits": "cp ./node_modules/@unirep/circuits/build/* ./public/build"
     },
     "_moduleAliases": {
         "worker_threads": "./externals/worker_threads.js"
