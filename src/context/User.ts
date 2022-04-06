@@ -21,7 +21,7 @@ import {
 import UnirepContext from './Unirep'
 import { Synchronizer } from './Synchronizer'
 
-export class User extends Synchronizer {
+class User extends Synchronizer {
     id?: Identity
     allEpks = [] as string[]
     currentEpoch = 0
@@ -61,7 +61,7 @@ export class User extends Synchronizer {
     async load() {
         await super.load() // loads the unirep state
         if (!this.unirepState) throw new Error('Unirep state not initialized')
-        const storedState = window.localStorage.getItem('user.state')
+        const storedState = window.localStorage.getItem('user')
         if (storedState) {
             const data = JSON.parse(storedState)
             const id = unSerialiseIdentity(data.id)
@@ -78,12 +78,12 @@ export class User extends Synchronizer {
             this.startDaemon()
             this.waitForSync().then(() => {
                 this.loadReputation()
+                this.loadSpent()
                 this.save()
             })
         }
         await this.unirepConfig.loadingPromise
 
-        await this.loadReputation()
         // start listening for new epochs
         this.unirepConfig.unirep.on(
             'EpochEnded',
@@ -104,7 +104,7 @@ export class User extends Synchronizer {
         if (typeof this.userState?.toJSON(0) === 'string') {
             throw new Error('Invalid user state toJSON return value')
         }
-        window.localStorage.setItem('user.state', JSON.stringify(data))
+        window.localStorage.setItem('user', JSON.stringify(data))
     }
 
     async loadCurrentEpoch() {
@@ -229,51 +229,6 @@ export class User extends Synchronizer {
                 })
             )
         }
-    }
-
-    async genProof(amount: number, min: number, epkNonce: number) {
-        if (epkNonce >= this.unirepConfig.numEpochKeyNoncePerEpoch) {
-            throw new Error('Invalid epk nonce')
-        }
-        const currentEpoch = await this.loadCurrentEpoch()
-        const epk = this.getEpochKey(
-            epkNonce,
-            this.id?.identityNullifier,
-            currentEpoch
-        )
-        const rep = await this.loadReputation()
-        if (this.spent === -1) {
-            throw new Error('All nullifiers are spent')
-        }
-        if (this.spent + amount > Number(rep.posRep) - Number(rep.negRep)) {
-            throw new Error('Not enough reputation')
-        }
-        const nonceList = [] as BigInt[]
-        for (let i = 0; i < amount; i++) {
-            nonceList.push(BigInt(this.spent + i))
-        }
-        // console.log(nonceList)
-        // console.log(this.unirepConfig.maxReputationBudget)
-        for (let i = amount; i < this.unirepConfig.maxReputationBudget; i++) {
-            nonceList.push(BigInt(-1))
-        }
-        const proveGraffiti = BigInt(0)
-        const graffitiPreImage = BigInt(0)
-        if (!this.userState) throw new Error('User state not initialized')
-        const results = await this.userState.genProveReputationProof(
-            BigInt(this.unirepConfig.attesterId),
-            epkNonce,
-            min,
-            proveGraffiti,
-            graffitiPreImage,
-            nonceList
-        )
-
-        const proof = formatProofForVerifierContract(results.proof)
-        const publicSignals = results.publicSignals
-        this.spent += amount
-        this.save()
-        return { epk, proof, publicSignals, currentEpoch }
     }
 
     async getAirdrop() {
@@ -440,7 +395,7 @@ export class User extends Synchronizer {
     //     window.localStorage.setItem('user', 'null')
     // }
 
-    async genRepProof(amount: number, min: number, epkNonce: number) {
+    async genRepProof(proveKarma: number, epkNonce: number) {
         if (epkNonce >= this.unirepConfig.numEpochKeyNoncePerEpoch) {
             throw new Error('Invalid epk nonce')
         }
@@ -450,20 +405,24 @@ export class User extends Synchronizer {
             this.id?.identityNullifier,
             this.currentEpoch
         )
-        const rep = await this.loadReputation()
+
+        // is this necessary???
+        await this.loadReputation()
+        await this.loadSpent()
+
         if (this.spent === -1) {
             throw new Error('All nullifiers are spent')
         }
-        if (this.spent + amount > Number(rep.posRep) - Number(rep.negRep)) {
+        if (this.spent + proveKarma > this.reputation) {
             throw new Error('Not enough reputation')
         }
         const nonceList = [] as BigInt[]
-        for (let i = 0; i < amount; i++) {
+        for (let i = 0; i < proveKarma; i++) {
             nonceList.push(BigInt(this.spent + i))
         }
         // console.log(nonceList)
         // console.log(this.unirepConfig.maxReputationBudget)
-        for (let i = amount; i < this.unirepConfig.maxReputationBudget; i++) {
+        for (let i = proveKarma; i < this.unirepConfig.maxReputationBudget; i++) {
             nonceList.push(BigInt(-1))
         }
         const proveGraffiti = BigInt(0)
@@ -472,7 +431,7 @@ export class User extends Synchronizer {
         const results = await this.userState.genProveReputationProof(
             BigInt(this.unirepConfig.attesterId),
             epkNonce,
-            min,
+            proveKarma,
             proveGraffiti,
             graffitiPreImage,
             nonceList
@@ -480,7 +439,7 @@ export class User extends Synchronizer {
 
         const proof = formatProofForVerifierContract(results.proof)
         const publicSignals = results.publicSignals
-        this.spent += amount
+        // this.spent += amount
         this.save()
         return { epk, proof, publicSignals, currentEpoch }
     }

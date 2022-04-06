@@ -1,7 +1,9 @@
 import { createContext } from 'react'
 import { makeAutoObservable } from 'mobx'
-import { makeURL } from '../utils'
+import { makeURL, publishPost, vote, leaveComment } from '../utils'
 import { DEFAULT_ETH_PROVIDER } from '../config'
+import UserContext from './User'
+import PostContext from './Post'
 
 export enum LoadingState {
     loading,
@@ -99,14 +101,123 @@ class Queue {
         }
     }
 
+    publishPost(title: string = '', content: string = '', epkNonce: number = 0, proveKarma: number = 5) {
+        const user = (UserContext as any)._currentValue
+
+        this.addOp(
+            async (updateStatus) => {
+                updateStatus({
+                    title: 'Creating post',
+                    details: 'Generating zk proof...',
+                })
+                const proofData = await user.genRepProof(
+                    proveKarma,
+                    epkNonce
+                )
+                updateStatus({
+                    title: 'Creating post',
+                    details: 'Waiting for TX inclusion...',
+                })
+                const { transaction } = await publishPost(
+                    proofData,
+                    proveKarma,
+                    content,
+                    title
+                )
+                await this.afterTx(transaction)
+            },
+            {
+                successMessage: 'Post is finalized',
+            }
+        )
+
+        return true
+    }
+
+    vote(postId: string = '', commentId: string = '', receiver: string, epkNonce: number = 0, upvote: number = 0, downvote: number = 0) {
+        if ((upvote === 0 && downvote === 0) || !receiver) return false
+
+        const user = (UserContext as any)._currentValue
+
+        this.addOp(async (updateStatus) => {
+            updateStatus({
+                title: 'Creating Vote',
+                details: 'Generating ZK proof...',
+            })
+            const proofData = await user.genRepProof(
+                upvote + downvote,
+                epkNonce
+            )
+            updateStatus({
+                title: 'Creating Vote',
+                details: 'Broadcasting vote...',
+            })
+            const { transaction } = await vote(
+                proofData,
+                upvote + downvote,
+                upvote,
+                downvote,
+                postId.length > 0? postId : commentId,
+                receiver,
+                postId.length > 0
+            )
+            updateStatus({
+                title: 'Creating Vote',
+                details: 'Waiting for transaction...',
+            })
+            await this.afterTx(transaction)
+        })
+
+        return true
+    }
+
+    leaveComment(content: string, postId: string, epkNonce: number = 0, proveKarma: number = 3) {
+        if (!postId || !content) return false
+        
+        const user = (UserContext as any)._currentValue
+
+        this.addOp(
+            async (updateStatus) => {
+                updateStatus({
+                    title: 'Creating comment',
+                    details: 'Generating ZK proof...',
+                })
+                const proofData = await user.genRepProof(
+                    proveKarma,
+                    epkNonce
+                )
+                updateStatus({
+                    title: 'Creating comment',
+                    details: 'Waiting for transaction...',
+                })
+                const { transaction } = await leaveComment(
+                    proofData,
+                    proveKarma,
+                    content,
+                    postId
+                )
+                await this.afterTx(transaction)
+            },
+            {
+                successMessage: 'Comment is finalized!',
+            }
+        )
+
+        return true
+
+    }
+
     async startDaemon() {
         if (this.daemonRunning) return
         this.daemonRunning = true
+
         for (;;) {
             const op = this.operations.shift()
             this.activeOp = op
             if (op === undefined) break
+            const user = (UserContext as any)._currentValue
             try {
+                console.log('has things to processed')
                 this.loadingState = LoadingState.loading
                 await op.fn(
                     (s) =>
@@ -115,8 +226,10 @@ class Queue {
                             ...s,
                         })
                 )
+                console.log('after op')
                 this.latestMessage = op.successMessage
                 this.loadingState = LoadingState.success
+                await user.loadSpent()
             } catch (err) {
                 this.loadingState = LoadingState.failed
                 this.latestMessage = op.failureMessage

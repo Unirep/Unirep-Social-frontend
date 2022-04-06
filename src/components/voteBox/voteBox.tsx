@@ -6,7 +6,6 @@ import QueueContext from '../../context/Queue'
 import './voteBox.scss'
 
 import { Post, Vote, Comment, DataType } from '../../constants'
-import { vote } from '../../utils'
 
 type Props = {
     isUpvote: boolean
@@ -44,11 +43,6 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
         } 
     })
 
-    const init = () => {
-        // setIsLoading(false);
-        closeVote()
-    }
-
     const doVote = async () => {
         if (!user.userState) {
             console.error('user not login!')
@@ -58,39 +52,12 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
             const isPost = data.type === DataType.Post
             const upvote = isUpvote ? givenAmount : 0
             const downvote = isUpvote ? 0 : givenAmount
-            const amount = upvote + downvote
-            const _data = data.id
-            const epk = data.epoch_key
-            queue.addOp(async (updateStatus) => {
-                updateStatus({
-                    title: 'Creating Vote',
-                    details: 'Generating ZK proof...',
-                })
-                const proofData = await user.genRepProof(
-                    amount,
-                    amount,
-                    epkNonce
-                )
-                updateStatus({
-                    title: 'Creating Vote',
-                    details: 'Broadcasting vote...',
-                })
-                const { transaction } = await vote(
-                    proofData,
-                    amount,
-                    upvote,
-                    downvote,
-                    _data,
-                    epk,
-                    isPost
-                )
-                updateStatus({
-                    title: 'Creating Vote',
-                    details: 'Waiting for transaction...',
-                })
-                await queue.afterTx(transaction)
-            })
-            init()
+            const ret = queue.vote(isPost? data.id : '', isPost? '' : data.id, data.epoch_key, epkNonce, upvote, downvote)
+            if (ret) {
+                closeVote()
+            } else {
+                console.log('vote failed') // need a UI to show that
+            }
         }
     }
 

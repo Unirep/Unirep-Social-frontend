@@ -4,15 +4,12 @@ import { observer } from 'mobx-react-lite'
 
 import UserContext from '../../context/User'
 import QueueContext from '../../context/Queue'
-import PostContext from '../../context/Post'
 import { WebContext } from '../../context/WebContext'
 import './newPage.scss'
 
 import WritingField from '../writingField/writingField'
 import BasicPage from '../basicPage/basicPage'
 import { DataType } from '../../constants'
-import { publishPost } from '../../utils'
-import { QueryType } from '../../constants'
 
 const NewPage = () => {
     const { setDraft } = useContext(WebContext)
@@ -22,7 +19,6 @@ const NewPage = () => {
     const isConfirmed = state.isConfirmed
     const userContext = useContext(UserContext)
     const queue = useContext(QueueContext)
-    const postContext = useContext(PostContext)
 
     useEffect(() => {
         console.log('Is this new page being confirmd? ' + isConfirmed)
@@ -42,37 +38,14 @@ const NewPage = () => {
         if (!userContext.userState) {
             console.log('not login yet.')
         } else {
-            queue.addOp(
-                async (updateStatus) => {
-                    updateStatus({
-                        title: 'Creating post',
-                        details: 'Generating zk proof...',
-                    })
-                    const proofData = await userContext.genRepProof(
-                        reputation,
-                        reputation,
-                        epkNonce
-                    )
-                    updateStatus({
-                        title: 'Creating post',
-                        details: 'Waiting for TX inclusion...',
-                    })
-                    const { transaction } = await publishPost(
-                        proofData,
-                        reputation,
-                        content,
-                        title
-                    )
-                    await queue.afterTx(transaction)
-                    await postContext.loadFeed(QueryType.New)
-                },
-                {
-                    successMessage: 'Post is finalized',
-                }
-            )
+            const ret = queue.publishPost(title, content, epkNonce, reputation)
+            if (ret) {
+                setDraft('')
+                history.push('/')
+            } else {
+                console.log('post failed')
+            }
         }
-        setDraft('')
-        history.push('/')
     }
 
     return (

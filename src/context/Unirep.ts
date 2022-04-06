@@ -8,7 +8,7 @@ import {
     DEFAULT_ETH_PROVIDER,
 } from '../config'
 
-export class UnirepConfig {
+class UnirepConfig {
     unirepAddress = ''
     unirepSocialAddress = ''
     globalStateTreeDepth = 11

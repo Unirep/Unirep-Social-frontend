@@ -1,5 +1,6 @@
 import { createContext } from 'react'
 import { makeAutoObservable } from 'mobx'
+
 import { Post } from '../constants'
 import { makeURL, convertDataToPost } from '../utils'
 
@@ -58,17 +59,6 @@ export class Data {
             ids[p.id] = true
             return true
         })
-    }
-
-    async loadPost(id: string) {
-        const apiURL = makeURL(`post/${id}`, {})
-        const r = await fetch(apiURL)
-        const data = await r.json()
-        const posts = data.map((p: any) =>
-            convertDataToPost(p, false)
-        ) as Post[]
-        console.log(posts)
-        this.ingestPosts(posts)
     }
 
     async publishPost(title: string = '', content: string = '', minRep: number = 0, proof: any = undefined, publicSignals: any = undefined) {

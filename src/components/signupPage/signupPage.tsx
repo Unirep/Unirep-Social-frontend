@@ -2,7 +2,7 @@ import { useHistory } from 'react-router-dom'
 import { useContext, useState, useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 
-import UserState from '../../context/User'
+import UserContext from '../../context/User'
 import QueueContext from '../../context/Queue'
 import './signupPage.scss'
 
@@ -11,7 +11,7 @@ import LoadingButton from '../loadingButton/loadingButton'
 
 
 const SignupPage = () => {
-    const userState = useContext(UserState)
+    const userContext = useContext(UserContext)
     const queue = useContext(QueueContext)
     const history = useHistory()
     const [invitationCode, setInvitationCode] = useState<string>('')
@@ -47,9 +47,9 @@ const SignupPage = () => {
             // send to server to check if invitation code does exist
             // if exists, get identity and commitment
             setButtonLoading(true)
-            const ret = await userState.checkInvitationCode(invitationCode)
+            const ret = await userContext.checkInvitationCode(invitationCode)
             if (ret) {
-                await userState.signUp(invitationCode)
+                await userContext.signUp(invitationCode)
                 setStep(1)
             } else {
                 setErrorMsg(
@@ -59,30 +59,30 @@ const SignupPage = () => {
             setButtonLoading(false)
         } else if (step === 1) {
             if (isDownloaded) {
-                navigator.clipboard.writeText(userState.identity || '')
+                navigator.clipboard.writeText(userContext.identity || '')
                 setStep(2)
             }
         } else if (step === 2) {
-            if (userEnterIdentity !== userState.identity) {
+            if (userEnterIdentity !== userContext.identity) {
                 setErrorMsg('Incorrect private key. Please try again.')
             } else {
                 setStep(3)
             }
         } else if (step === 3) {
-            if (!userState.identity) throw new Error('Identity not initialized')
+            if (!userContext.identity) throw new Error('Identity not initialized')
             queue.addOp(async (update) => {
                 update({
                     title: 'Waiting to generate Airdrop',
                     details: 'Synchronizing with blockchain...',
                 })
-                await userState.waitForSync()
+                await userContext.waitForSync()
                 console.log('sync complete')
-                await userState.calculateAllEpks()
+                await userContext.calculateAllEpks()
                 update({
                     title: 'Creating Airdrop',
                     details: 'Generating ZK proof...',
                 })
-                const { transaction } = await userState.getAirdrop()
+                const { transaction } = await userContext.getAirdrop()
                 update({
                     title: 'Creating Airdrop',
                     details: 'Waiting for TX inclusion...',
@@ -102,9 +102,9 @@ const SignupPage = () => {
     }
 
     const downloadPrivateKey = () => {
-        if (!userState.identity) throw new Error('Identity not initialized')
+        if (!userContext.identity) throw new Error('Identity not initialized')
         const element = document.createElement('a')
-        const file = new Blob([userState.identity], { type: 'text/plain' })
+        const file = new Blob([userContext.identity], { type: 'text/plain' })
         element.href = URL.createObjectURL(file)
         element.download = 'unirep-social-identity.txt'
         document.body.appendChild(element)
@@ -156,7 +156,7 @@ const SignupPage = () => {
                                 step === 0
                                     ? invitationCode
                                     : step === 1
-                                    ? userState.identity
+                                    ? userContext.identity
                                     : step === 2
                                     ? userEnterIdentity
                                     : ''

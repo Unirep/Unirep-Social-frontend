@@ -47,7 +47,7 @@ const Overlay = () => {
                     </a>
                     <a href="https://about.unirep.social">About</a>
                 </div>
-                {!userContext.userState ? (
+                {userContext.userState ? (
                     <div className="dynamic-info">
                         <a href="/feedback">Send feedback</a>
                         <p onClick={gotoUserPage}>My stuff</p>

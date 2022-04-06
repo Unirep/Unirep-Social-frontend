@@ -7,7 +7,6 @@ import UserContext from '../../context/User'
 
 import { Post, DataType, Page } from '../../constants'
 import WritingField from '../writingField/writingField'
-import { leaveComment } from '../../utils'
 
 type Props = {
     post: Post
@@ -35,36 +34,13 @@ const CommentField = (props: Props) => {
         } else if (content.length === 0) {
             console.error('nothing happened, no input.')
         } else {
-            const data = props.post.id
-            queue.addOp(
-                async (updateStatus) => {
-                    updateStatus({
-                        title: 'Creating comment',
-                        details: 'Generating ZK proof...',
-                    })
-                    const proofData = await userContext.genRepProof(
-                        reputation,
-                        reputation,
-                        epkNonce
-                    )
-                    updateStatus({
-                        title: 'Creating comment',
-                        details: 'Waiting for transaction...',
-                    })
-                    const { transaction } = await leaveComment(
-                        proofData,
-                        reputation,
-                        content,
-                        data
-                    )
-                    await queue.afterTx(transaction)
-                },
-                {
-                    successMessage: 'Comment is finalized!',
-                }
-            )
-            setDraft('')
-            props.closeComment()
+            const ret = queue.leaveComment(content, props.post.id, epkNonce, reputation)
+            if (ret) {
+                setDraft('')
+                props.closeComment()
+            } else {
+                console.log('comment failed')
+            }
         }
     }
 
