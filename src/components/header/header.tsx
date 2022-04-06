@@ -16,7 +16,6 @@ const Header = () => {
     const [searchInput, setSearchInput] = useState<string>('')
     const unirepConfig = useContext(UnirepContext)
     const userContext = useContext(UserContext)
-    const queue = useContext(QueueContext)
 
     const gotoNewPage = () => {
         if (
@@ -32,7 +31,7 @@ const Header = () => {
     }
 
     const openMenu = () => {
-        if (!isMenuOpen && !queue.isLoading) {
+        if (!isMenuOpen) {
             console.log('open menu!')
             setIsMenuOpen(true)
         }

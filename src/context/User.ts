@@ -209,28 +209,6 @@ class User extends Synchronizer {
         }, 0)
     }
 
-    private async updateUser(currentEpoch: number) {
-        if (this.id) {
-            // write user to localStorage
-            await this.calculateAllEpks()
-            await this.loadReputation()
-
-            window.localStorage.setItem(
-                'user',
-                JSON.stringify({
-                    identity: serialiseIdentity(this.id),
-                    epoch_keys: this.allEpks[-3],
-                    all_epoch_keys: this.allEpks,
-                    reputation: this.reputation,
-                    current_epoch: currentEpoch,
-                    isConfirmed: true,
-                    spent: 0,
-                    userState: '{}', // userStateResult.userState.toJSON(),
-                })
-            )
-        }
-    }
-
     async getAirdrop() {
         if (!this.id || !this.userState) throw new Error('Identity not loaded')
         await this.unirepConfig.loadingPromise
@@ -335,65 +313,16 @@ class User extends Synchronizer {
         // return await this.updateUser(epoch)
     }
 
-    // async login() {
-    //     console.log('login, get user state')
-    //     const userStateResult = await this.genUserState()
-    //     const userEpoch = userStateResult.userState.latestTransitionedEpoch
-    //     let userState: any = userStateResult.userState
+    logout() {
+        console.log('log out')
+        this.id = undefined
+        this.userState = undefined
+        this.allEpks = [] as string[]
+        this.reputation = 0
+        this.spent = 0
 
-    //     if (userEpoch !== userStateResult.currentEpoch) {
-    //         console.log(
-    //             'user epoch is not the same as current epoch, do user state transition, ' +
-    //                 userEpoch +
-    //                 ' != ' +
-    //                 userStateResult.currentEpoch
-    //         )
-    //         await this.userStateTransition()
-    //         const retAfterUST = await this.genUserState()
-
-    //         userState = retAfterUST.userState
-    //     }
-
-    //     // no matter is same epoch or not, try get airdrop
-    //     try {
-    //         console.log('get airdrop')
-    //         await this.getAirdrop()
-    //     } catch (e) {
-    //         console.log('airdrop error: ', e)
-    //     }
-
-    //     await this.loadCurrentEpoch()
-    //     await this.calculateAllEpks()
-    //     await this.loadReputation()
-    //     await this.loadSpent()
-
-    //     if (this.id) {
-    //         window.localStorage.setItem(
-    //             'user',
-    //             JSON.stringify({
-    //                 identity: serialiseIdentity(this.id),
-    //                 epoch_keys: this.currentEpochKeys,
-    //                 all_epoch_keys: this.allEpks,
-    //                 reputation: this.reputation,
-    //                 current_epoch: userStateResult.currentEpoch,
-    //                 isConfirmed: true,
-    //                 spent: this.spent,
-    //                 userState: userState.toJSON(),
-    //             })
-    //         )
-    //     }
-    // }
-
-    // logout() {
-    //     console.log('log out')
-    //     this.id = undefined
-    //     this.allEpks = [] as string[]
-    //     this.currentEpoch = 0
-    //     this.reputation = 0
-    //     this.spent = 0
-
-    //     window.localStorage.setItem('user', 'null')
-    // }
+        this.save()
+    }
 
     async genRepProof(proveKarma: number, epkNonce: number) {
         if (epkNonce >= this.unirepConfig.numEpochKeyNoncePerEpoch) {

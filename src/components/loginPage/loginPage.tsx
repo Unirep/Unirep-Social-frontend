@@ -42,6 +42,8 @@ const LoginPage = () => {
             })
             await userContext.waitForSync()
             await userContext.loadReputation()
+            await userContext.loadCurrentEpoch()
+            await userContext.save()
         })
         history.push('/')
     }

@@ -15,9 +15,7 @@ const PostPage = () => {
     const postContext = useContext(PostContext)
 
     useEffect(() => {
-        if (!postContext.postsById[id]) {
-            postContext.loadPost(id)
-        }
+        postContext.loadPost(id)
     }, [])
 
     return (

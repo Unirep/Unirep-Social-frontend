@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite'
 
 import { WebContext } from '../../context/WebContext'
 import UserContext from '../../context/User'
+import QueueContext from '../../context/Queue'
 import './overlay.scss'
 
 
@@ -11,14 +12,11 @@ const Overlay = () => {
     const { setIsMenuOpen } = useContext(WebContext)
     const history = useHistory()
     const userContext = useContext(UserContext)
+    const queue = useContext(QueueContext)
 
     const closeOverlay = () => {
-        // if (!isLoading) {
         console.log('close over lay')
         setIsMenuOpen(false)
-        // } else {
-        //     console.log('something is loading, no close')
-        // }
     }
 
     const gotoUserPage = () => {
@@ -26,9 +24,11 @@ const Overlay = () => {
     }
 
     const signout = () => {
-        // userContext.logout()
-        setIsMenuOpen(false)
-        history.push('/')
+        if (!queue.isLoading) {
+            userContext.logout()
+            setIsMenuOpen(false)
+            history.push('/')
+        }
     }
 
     return (
