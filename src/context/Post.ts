@@ -61,7 +61,13 @@ export class Data {
         })
     }
 
-    async publishPost(title: string = '', content: string = '', minRep: number = 0, proof: any = undefined, publicSignals: any = undefined) {
+    async publishPost(
+        title: string = '',
+        content: string = '',
+        minRep: number = 0,
+        proof: any = undefined,
+        publicSignals: any = undefined
+    ) {
         if (!proof || !publicSignals) return undefined
 
         const apiURL = makeURL('post', {})
@@ -79,7 +85,7 @@ export class Data {
         const { transaction, error } = await r.json()
         return {
             error,
-            transaction
+            transaction,
         }
     }
 }

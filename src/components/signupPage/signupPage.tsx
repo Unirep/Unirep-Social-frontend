@@ -9,7 +9,6 @@ import './signupPage.scss'
 import LoadingCover from '../loadingCover/loadingCover'
 import LoadingButton from '../loadingButton/loadingButton'
 
-
 const SignupPage = () => {
     const userContext = useContext(UserContext)
     const queue = useContext(QueueContext)
@@ -69,7 +68,8 @@ const SignupPage = () => {
                 setStep(3)
             }
         } else if (step === 3) {
-            if (!userContext.identity) throw new Error('Identity not initialized')
+            if (!userContext.identity)
+                throw new Error('Identity not initialized')
             queue.addOp(async (update) => {
                 update({
                     title: 'Waiting to generate Airdrop',

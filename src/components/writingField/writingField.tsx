@@ -168,9 +168,7 @@ const WritingField = (props: Props) => {
                             type="range"
                             min={defaultRep}
                             max={
-                                user.userState
-                                    ? user.netReputation
-                                    : defaultRep
+                                user.userState ? user.netReputation : defaultRep
                             }
                             onChange={handleRepInput}
                             value={reputation}

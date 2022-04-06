@@ -40,7 +40,7 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
                 return ret
             }
             return []
-        } 
+        }
     })
 
     const doVote = async () => {
@@ -52,7 +52,14 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
             const isPost = data.type === DataType.Post
             const upvote = isUpvote ? givenAmount : 0
             const downvote = isUpvote ? 0 : givenAmount
-            const ret = queue.vote(isPost? data.id : '', isPost? '' : data.id, data.epoch_key, epkNonce, upvote, downvote)
+            const ret = queue.vote(
+                isPost ? data.id : '',
+                isPost ? '' : data.id,
+                data.epoch_key,
+                epkNonce,
+                upvote,
+                downvote
+            )
             if (ret) {
                 closeVote()
             } else {
@@ -197,6 +204,7 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
                                     </div>
                                 ))}
                             </div>
+                        ) : (
                             // <div className="epks">
                             //     {user.allEpks.map((key, i) => (
                             //         <div
@@ -212,7 +220,6 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
                             //         </div>
                             //     ))}
                             // </div>
-                        ) : (
                             <div></div>
                         )}
                     </div>

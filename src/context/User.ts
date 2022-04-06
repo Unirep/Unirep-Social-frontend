@@ -178,7 +178,11 @@ class User extends Synchronizer {
         }
     }
 
-    private getEpochKey(epkNonce: number, identityNullifier: any, epoch: number) {
+    private getEpochKey(
+        epkNonce: number,
+        identityNullifier: any,
+        epoch: number
+    ) {
         const epochKey = genEpochKey(
             identityNullifier,
             epoch,
@@ -190,7 +194,7 @@ class User extends Synchronizer {
 
     async loadReputation() {
         if (!this.id || !this.userState) return { posRep: 0, negRep: 0 }
-    
+
         const rep = this.userState.getRepByAttester(
             BigInt(this.unirepConfig.attesterId)
         )
@@ -351,7 +355,11 @@ class User extends Synchronizer {
         }
         // console.log(nonceList)
         // console.log(this.unirepConfig.maxReputationBudget)
-        for (let i = proveKarma; i < this.unirepConfig.maxReputationBudget; i++) {
+        for (
+            let i = proveKarma;
+            i < this.unirepConfig.maxReputationBudget;
+            i++
+        ) {
             nonceList.push(BigInt(-1))
         }
         const proveGraffiti = BigInt(0)

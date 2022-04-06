@@ -38,7 +38,9 @@ const Banner = () => {
                             <a className="banner-button" href="/signup">
                                 Join us
                             </a>
-                        ) : <div></div>}
+                        ) : (
+                            <div></div>
+                        )}
                     </div>
                     <div className="banner-close" onClick={() => setOn(false)}>
                         <img

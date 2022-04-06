@@ -9,7 +9,6 @@ import { Page, Params } from '../../constants'
 import PostBlock from '../postBlock/postBlock'
 import BasicPage from '../basicPage/basicPage'
 
-
 const PostPage = () => {
     const { id } = useParams<Params>()
     const postContext = useContext(PostContext)

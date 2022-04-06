@@ -13,8 +13,6 @@ import ActivityWidget from './activityWidget'
 import PostsList from '../postsList/postsList'
 import CommentsList from '../postsList/commentsList'
 
-
-
 enum Tag {
     Posts = 'Posts',
     Comments = 'Comments',
@@ -81,11 +79,7 @@ const UserPage = () => {
     const [spent, setSpent] = useState<number[]>([0, 0, 0, 0]) // post, comment, boost, squash
 
     const getUserPosts = async (sort: QueryType, lastRead: string = '0') => {
-        const ret = await getPostsByQuery(
-            sort,
-            lastRead,
-            user.currentEpochKeys
-        )
+        const ret = await getPostsByQuery(sort, lastRead, user.currentEpochKeys)
         if (lastRead !== '0') {
             setMyPosts([...myPosts, ...ret])
         } else {
@@ -108,10 +102,7 @@ const UserPage = () => {
 
     const getUserRecords = async () => {
         if (!user.userState || !user.identity) return
-        const ret = await getRecords(
-            user.currentEpoch,
-            user.identity
-        )
+        const ret = await getRecords(user.currentEpoch, user.identity)
         const isParsable = !ret.some((h) => h === undefined)
         if (isParsable) {
             setRecords(ret)

@@ -34,7 +34,12 @@ const CommentField = (props: Props) => {
         } else if (content.length === 0) {
             console.error('nothing happened, no input.')
         } else {
-            const ret = queue.leaveComment(content, props.post.id, epkNonce, reputation)
+            const ret = queue.leaveComment(
+                content,
+                props.post.id,
+                epkNonce,
+                reputation
+            )
             if (ret) {
                 setDraft('')
                 props.closeComment()

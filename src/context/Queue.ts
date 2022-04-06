@@ -101,7 +101,12 @@ class Queue {
         }
     }
 
-    publishPost(title: string = '', content: string = '', epkNonce: number = 0, proveKarma: number = 5) {
+    publishPost(
+        title: string = '',
+        content: string = '',
+        epkNonce: number = 0,
+        proveKarma: number = 5
+    ) {
         const user = (UserContext as any)._currentValue
 
         this.addOp(
@@ -110,10 +115,7 @@ class Queue {
                     title: 'Creating post',
                     details: 'Generating zk proof...',
                 })
-                const proofData = await user.genRepProof(
-                    proveKarma,
-                    epkNonce
-                )
+                const proofData = await user.genRepProof(proveKarma, epkNonce)
                 updateStatus({
                     title: 'Creating post',
                     details: 'Waiting for TX inclusion...',
@@ -134,7 +136,14 @@ class Queue {
         return true
     }
 
-    vote(postId: string = '', commentId: string = '', receiver: string, epkNonce: number = 0, upvote: number = 0, downvote: number = 0) {
+    vote(
+        postId: string = '',
+        commentId: string = '',
+        receiver: string,
+        epkNonce: number = 0,
+        upvote: number = 0,
+        downvote: number = 0
+    ) {
         if ((upvote === 0 && downvote === 0) || !receiver) return false
 
         const user = (UserContext as any)._currentValue
@@ -157,7 +166,7 @@ class Queue {
                 upvote + downvote,
                 upvote,
                 downvote,
-                postId.length > 0? postId : commentId,
+                postId.length > 0 ? postId : commentId,
                 receiver,
                 postId.length > 0
             )
@@ -171,9 +180,14 @@ class Queue {
         return true
     }
 
-    leaveComment(content: string, postId: string, epkNonce: number = 0, proveKarma: number = 3) {
+    leaveComment(
+        content: string,
+        postId: string,
+        epkNonce: number = 0,
+        proveKarma: number = 3
+    ) {
         if (!postId || !content) return false
-        
+
         const user = (UserContext as any)._currentValue
 
         this.addOp(
@@ -182,10 +196,7 @@ class Queue {
                     title: 'Creating comment',
                     details: 'Generating ZK proof...',
                 })
-                const proofData = await user.genRepProof(
-                    proveKarma,
-                    epkNonce
-                )
+                const proofData = await user.genRepProof(proveKarma, epkNonce)
                 updateStatus({
                     title: 'Creating comment',
                     details: 'Waiting for transaction...',
@@ -204,7 +215,6 @@ class Queue {
         )
 
         return true
-
     }
 
     async startDaemon() {

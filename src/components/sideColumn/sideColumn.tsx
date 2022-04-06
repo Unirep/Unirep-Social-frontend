@@ -11,7 +11,6 @@ import ReminderWidget from './reminderWidget'
 import PostsWidget from './postsWidget'
 import { Page } from '../../constants'
 
-
 const SideColumn = () => {
     const history = useHistory()
     const userContext = useContext(UserContext)

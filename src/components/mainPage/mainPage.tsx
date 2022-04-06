@@ -12,7 +12,6 @@ import BasicPage from '../basicPage/basicPage'
 import PostsList from '../postsList/postsList'
 import Feed from '../feed/feed'
 
-
 const MainPage = () => {
     const history = useHistory()
     const postController = useContext(PostContext)

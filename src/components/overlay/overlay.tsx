@@ -7,7 +7,6 @@ import UserContext from '../../context/User'
 import QueueContext from '../../context/Queue'
 import './overlay.scss'
 
-
 const Overlay = () => {
     const { setIsMenuOpen } = useContext(WebContext)
     const history = useHistory()

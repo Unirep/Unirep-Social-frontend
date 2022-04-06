@@ -8,7 +8,6 @@ import UserContext from '../../context/User'
 import QueueContext from '../../context/Queue'
 import './header.scss'
 
-
 const Header = () => {
     const history = useHistory()
     const location = useLocation()
