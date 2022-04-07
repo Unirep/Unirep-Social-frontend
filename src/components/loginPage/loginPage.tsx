@@ -26,25 +26,15 @@ const LoginPage = () => {
 
     const login = async () => {
         setButtonLoading(true)
-        const hasSignedUp = await userContext.hasSignedUp(input)
+        const hasSignedUp = await userContext.login(input)
         setButtonLoading(false)
 
         if (!hasSignedUp) {
             setErrorMsg('Incorrect private key. Please try again.')
             return
         }
-        userContext.setIdentity(input)
-        userContext.startDaemon()
-        queue.addOp(async (status) => {
-            status({
-                title: 'Synchronizing',
-                details: 'Please wait for your user state to be built...',
-            })
-            await userContext.waitForSync()
-            await userContext.loadReputation()
-            await userContext.loadCurrentEpoch()
-            await userContext.save()
-        })
+
+        queue.getAirdrop()
         history.push('/')
     }
 

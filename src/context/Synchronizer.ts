@@ -85,6 +85,14 @@ export class Synchronizer {
         })
     }
 
+    init() {
+        this.latestProcessedBlock = 0
+        this.latestBlock = 0
+        this.startBlock = 0
+        this.validProofs = {}
+        this.spentProofs = {}
+    }
+
     save() {
         localStorage.setItem(
             'sync-latestBlock',

@@ -68,27 +68,10 @@ const SignupPage = () => {
                 setStep(3)
             }
         } else if (step === 3) {
-            if (!userContext.identity)
-                throw new Error('Identity not initialized')
-            queue.addOp(async (update) => {
-                update({
-                    title: 'Waiting to generate Airdrop',
-                    details: 'Synchronizing with blockchain...',
-                })
-                await userContext.waitForSync()
-                console.log('sync complete')
-                await userContext.calculateAllEpks()
-                update({
-                    title: 'Creating Airdrop',
-                    details: 'Generating ZK proof...',
-                })
-                const { transaction } = await userContext.getAirdrop()
-                update({
-                    title: 'Creating Airdrop',
-                    details: 'Waiting for TX inclusion...',
-                })
-                await queue.afterTx(transaction)
-            })
+            const ret = queue.getAirdrop()
+            if (!ret) {
+                console.log('get airdrop failed')
+            }
             history.push('/')
         }
     }

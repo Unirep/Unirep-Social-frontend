@@ -3,7 +3,6 @@ import { makeAutoObservable } from 'mobx'
 import { makeURL, publishPost, vote, leaveComment } from '../utils'
 import { DEFAULT_ETH_PROVIDER } from '../config'
 import UserContext from './User'
-import PostContext from './Post'
 
 export enum LoadingState {
     loading,
@@ -99,6 +98,40 @@ class Queue {
             this.loadingState = LoadingState.none
             this.latestMessage = ''
         }
+    }
+
+    getAirdrop() {
+        const user = (UserContext as any)._currentValue
+
+        this.addOp(async (update) => {
+            if (!user.userState) return false
+
+            update({
+                title: 'Waiting to generate Airdrop',
+                details: 'Synchronizing with blockchain...',
+            })
+
+            console.log('before user wait for sync')
+            await user.waitForSync()
+            console.log('sync complete')
+
+            await user.calculateAllEpks()
+            await user.loadSpent()
+            update({
+                title: 'Creating Airdrop',
+                details: 'Generating ZK proof...',
+            })
+
+            const { transaction } = await user.getAirdrop()
+            update({
+                title: 'Creating Airdrop',
+                details: 'Waiting for TX inclusion...',
+            })
+
+            await this.afterTx(transaction)
+        })
+
+        return true
     }
 
     publishPost(

@@ -202,7 +202,7 @@ class User extends Synchronizer {
         return rep
     }
 
-    private async loadSpent() {
+    async loadSpent() {
         const paramStr = this.allEpks.join('_')
         const apiURL = makeURL(`records/${paramStr}`, { spentonly: true })
 
@@ -261,7 +261,7 @@ class User extends Synchronizer {
         return r.json()
     }
 
-    async hasSignedUp(identity: string) {
+    private async _hasSignedUp(identity: string) {
         const unirepConfig = (UnirepContext as any)._currentValue
         await unirepConfig.loadingPromise
         const id = unSerialiseIdentity(identity)
@@ -275,18 +275,11 @@ class User extends Synchronizer {
         }
         const unirepConfig = (UnirepContext as any)._currentValue
         await unirepConfig.loadingPromise
-        // check the invitation code
-        // TODO: integrate this in the signup endpoint
-        {
-            // const r = await fetch(makeURL(`genInvitationCode/${invitationCode}`))
-            // if (!r.ok) {
-            //   throw new Error('Invalid invitation code')
-            // }
-        }
 
         const id = genIdentity()
         this.setIdentity(id)
         if (!this.id) throw new Error('Iden is not set')
+
         this.startDaemon()
         const commitment = genIdentityCommitment(this.id)
             .toString(16)
@@ -305,6 +298,7 @@ class User extends Synchronizer {
             epk: epk1,
             invitationCode,
         })
+        console.log(apiURL)
         const r = await fetch(apiURL)
         const { epoch, transaction } = await r.json()
         await config.DEFAULT_ETH_PROVIDER.waitForTransaction(transaction)
@@ -317,6 +311,15 @@ class User extends Synchronizer {
         // return await this.updateUser(epoch)
     }
 
+    async login(idInput: string) {
+        const hasSignedUp = await this._hasSignedUp(idInput)
+        if (!hasSignedUp) return false
+
+        this.setIdentity(idInput)
+        this.startDaemon()
+        return true
+    }
+
     logout() {
         console.log('log out')
         this.id = undefined
@@ -325,6 +328,7 @@ class User extends Synchronizer {
         this.reputation = 0
         this.spent = 0
 
+        this.init()
         this.save()
     }
 
