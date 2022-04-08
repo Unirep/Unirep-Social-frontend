@@ -12,7 +12,7 @@ import {
 import { UnirepFactory } from '@unirep/unirep-social'
 import { makeURL } from '../utils'
 import { genEpochKey } from '@unirep/unirep'
-import { UnirepState, UserState } from '../overrides/unirep'
+import { UserState } from '../overrides/unirep'
 import {
     formatProofForVerifierContract,
     formatProofForSnarkjsVerification,
@@ -20,6 +20,7 @@ import {
 } from '@unirep/circuits'
 import UnirepContext from './Unirep'
 import { Synchronizer } from './Synchronizer'
+import Queue from './Queue'
 
 class User extends Synchronizer {
     id?: Identity
@@ -212,49 +213,80 @@ class User extends Synchronizer {
         }, 0)
     }
 
-    async getAirdrop() {
-        if (!this.id || !this.userState) throw new Error('Identity not loaded')
-        await this.unirepConfig.loadingPromise
-        const unirepSocial = new ethers.Contract(
-            this.unirepConfig.unirepSocialAddress,
-            config.UNIREP_SOCIAL_ABI,
-            config.DEFAULT_ETH_PROVIDER
-        )
-        // generate an airdrop proof
-        const attesterId = this.unirepConfig.attesterId
-        const { proof, publicSignals } =
-            await this.userState.genUserSignUpProof(BigInt(attesterId))
+    getAirdrop() {
+        const queue = (Queue as any)._currentValue
+        queue.addOp(async (updateStatue: any) => {
+            if (!this.id || !this.userState)
+                throw new Error('Identity not loaded')
 
-        const epk = genEpochKey(
-            this.id.identityNullifier,
-            this.userState.getUnirepStateCurrentEpoch(),
-            0
-        )
-        const gotAirdrop = await unirepSocial.isEpochKeyGotAirdrop(epk)
-        if (gotAirdrop) {
-            return {
-                error: 'The epoch key has been airdropped.',
-                transaction: undefined,
+            updateStatue({
+                title: 'Waiting to generate Airdrop',
+                details: 'Synchronizing with blockchain...',
+            })
+
+            console.log('before user wait for sync')
+            await this.waitForSync()
+            console.log('sync complete')
+
+            await this.calculateAllEpks()
+            await this.loadSpent()
+            updateStatue({
+                title: 'Creating Airdrop',
+                details: 'Generating ZK proof...',
+            })
+
+            await this.unirepConfig.loadingPromise
+            const unirepSocial = new ethers.Contract(
+                this.unirepConfig.unirepSocialAddress,
+                config.UNIREP_SOCIAL_ABI,
+                config.DEFAULT_ETH_PROVIDER
+            )
+            // generate an airdrop proof
+            const attesterId = this.unirepConfig.attesterId
+            const { proof, publicSignals } =
+                await this.userState.genUserSignUpProof(BigInt(attesterId))
+
+            const epk = genEpochKey(
+                this.id.identityNullifier,
+                this.userState.getUnirepStateCurrentEpoch(),
+                0
+            )
+            const gotAirdrop = await unirepSocial.isEpochKeyGotAirdrop(epk)
+            if (gotAirdrop) {
+                console.log('The epoch key has been airdropped.')
+                return
             }
-        }
 
-        const apiURL = makeURL('airdrop', {})
-        const r = await fetch(apiURL, {
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify({
-                proof: formatProofForVerifierContract(proof),
-                publicSignals,
-            }),
-            method: 'POST',
+            const apiURL = makeURL('airdrop', {})
+            const r = await fetch(apiURL, {
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    proof: formatProofForVerifierContract(proof),
+                    publicSignals,
+                }),
+                method: 'POST',
+            })
+            const { error, transaction } = await r.json()
+            const { blockNumber } =
+                await config.DEFAULT_ETH_PROVIDER.waitForTransaction(
+                    transaction
+                )
+            await this.waitForSync(blockNumber)
+            await this.loadReputation()
+
+            updateStatue({
+                title: 'Creating Airdrop',
+                details: 'Waiting for TX inclusion...',
+            })
+
+            if (!transaction) {
+                console.log(error)
+            } else {
+                await queue.afterTx(transaction)
+            }
         })
-        const { error, transaction } = await r.json()
-        const { blockNumber } =
-            await config.DEFAULT_ETH_PROVIDER.waitForTransaction(transaction)
-        await this.waitForSync(blockNumber)
-        await this.loadReputation()
-        return { error, transaction }
     }
 
     async checkInvitationCode(invitationCode: string): Promise<boolean> {

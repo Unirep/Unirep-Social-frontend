@@ -100,44 +100,6 @@ class Queue {
         }
     }
 
-    getAirdrop() {
-        const user = (UserContext as any)._currentValue
-
-        this.addOp(async (update) => {
-            if (!user.userState) return false
-
-            update({
-                title: 'Waiting to generate Airdrop',
-                details: 'Synchronizing with blockchain...',
-            })
-
-            console.log('before user wait for sync')
-            await user.waitForSync()
-            console.log('sync complete')
-
-            await user.calculateAllEpks()
-            await user.loadSpent()
-            update({
-                title: 'Creating Airdrop',
-                details: 'Generating ZK proof...',
-            })
-
-            const { transaction, error } = await user.getAirdrop()
-
-            update({
-                title: 'Creating Airdrop',
-                details: 'Waiting for TX inclusion...',
-            })
-            if (!transaction) {
-                console.log(error)
-            } else {
-                await this.afterTx(transaction)
-            }
-        })
-
-        return true
-    }
-
     async startDaemon() {
         if (this.daemonRunning) return
         this.daemonRunning = true

@@ -5,11 +5,9 @@ import './loginPage.scss'
 import LoadingCover from '../loadingCover/loadingCover'
 import LoadingButton from '../loadingButton/loadingButton'
 import UserContext from '../../context/User'
-import QueueContext from '../../context/Queue'
 
 const LoginPage = () => {
     const history = useHistory()
-    const queue = useContext(QueueContext)
     const [isLoading, setIsLoading] = useState(false)
     const [input, setInput] = useState<string>('')
     const [errorMsg, setErrorMsg] = useState<string>('')
@@ -34,7 +32,7 @@ const LoginPage = () => {
             return
         }
 
-        queue.getAirdrop()
+        userContext.getAirdrop()
         history.push('/')
     }
 
