@@ -18,8 +18,6 @@ import SettingPage from './components/settingPage/settingPage'
 import { WebContext } from './context/WebContext'
 
 const AppRouter = () => {
-    const [tx, setTx] = useLocalStorage('tx', '')
-
     const [adminCode, setAdminCode] = useLocalStorage('admin', '')
     const [draft, setDraft] = useLocalStorage('draft', null)
     const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -30,8 +28,6 @@ const AppRouter = () => {
             <div>
                 <WebContext.Provider
                     value={{
-                        tx,
-                        setTx,
                         isMenuOpen,
                         setIsMenuOpen,
                         page,

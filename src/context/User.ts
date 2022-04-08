@@ -82,7 +82,6 @@ class User extends Synchronizer {
                 this.save()
             })
         }
-        await this.unirepConfig.loadingPromise
 
         // start listening for new epochs
         this.unirepConfig.unirep.on(

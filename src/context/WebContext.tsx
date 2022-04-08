@@ -1,9 +1,7 @@
 import { createContext } from 'react'
-import { Post, User, Page, Draft } from '../constants'
+import { Page, Draft } from '../constants'
 
 type GlobalContent = {
-    tx: string
-    setTx: (t: string) => void
     isMenuOpen: boolean
     setIsMenuOpen: (value: boolean) => void
     page: Page
@@ -15,8 +13,6 @@ type GlobalContent = {
 }
 
 export const WebContext = createContext<GlobalContent>({
-    tx: '',
-    setTx: () => {},
     isMenuOpen: false,
     setIsMenuOpen: () => {},
     page: Page.Home,
