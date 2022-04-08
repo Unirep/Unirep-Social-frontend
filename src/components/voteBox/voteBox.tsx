@@ -13,38 +13,38 @@ type Props = {
     closeVote: () => void
 }
 const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
-    const user = useContext(UserContext)
+    const userContext = useContext(UserContext)
     const queue = useContext(QueueContext)
     const [givenAmount, setGivenAmount] = useState<number>(1)
     const [epkNonce, setEpkNonce] = useState(0)
     const [isHistoriesOpen, setHistoriesOpen] = useState(false)
     const [voteHistories, setVoteHistories] = useState(() => {
-        if (data.votes.length === 0 || !user.userState) {
+        if (data.votes.length === 0 || !userContext.userState) {
             return []
-        } else {
-            if (user.identity) {
-                let ret: Vote[] = []
-                for (var i = 0; i < data.votes.length; i++) {
-                    if (
-                        (isUpvote && data.votes[i].upvote > 0) ||
-                        (!isUpvote && data.votes[i].downvote > 0)
-                    ) {
-                        const e = user.allEpks.find(
-                            (_e) => _e === data.votes[i].epoch_key
-                        )
-                        if (e !== null) {
-                            ret = [...ret, data.votes[i]]
-                        }
+        } 
+
+        if (userContext.identity) {
+            let ret: Vote[] = []
+            for (var i = 0; i < data.votes.length; i++) {
+                if (
+                    (isUpvote && data.votes[i].upvote > 0) ||
+                    (!isUpvote && data.votes[i].downvote > 0)
+                ) {
+                    const e = userContext.allEpks.find(
+                        (_e) => _e === data.votes[i].epoch_key
+                    )
+                    if (e !== null) {
+                        ret = [...ret, data.votes[i]]
                     }
                 }
-                return ret
             }
-            return []
+            return ret
         }
+        return []
     })
 
     const doVote = async () => {
-        if (!user.userState) {
+        if (!userContext.userState) {
             console.error('user not login!')
         } else if (givenAmount === undefined) {
             console.error('no enter any given amount')
@@ -52,7 +52,11 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
             const isPost = data.type === DataType.Post
             const upvote = isUpvote ? givenAmount : 0
             const downvote = isUpvote ? 0 : givenAmount
-            const ret = queue.vote(
+            if ((upvote === 0 && downvote === 0) || !data.epoch_key) {
+                throw new Error('invalid data for vote')
+            }
+
+            queue.vote(
                 isPost ? data.id : '',
                 isPost ? '' : data.id,
                 data.epoch_key,
@@ -60,11 +64,7 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
                 upvote,
                 downvote
             )
-            if (ret) {
-                closeVote()
-            } else {
-                console.log('vote failed') // need a UI to show that
-            }
+            closeVote()
         }
     }
 
@@ -85,7 +85,7 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
         preventClose(event)
         closeVote()
     }
-    if (!user.userState) return <div />
+    if (!userContext.userState) return <div />
 
     return (
         <div className="vote-overlay" onClick={close}>
@@ -150,7 +150,7 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
                         </div>
                     </div>
                     <div className="epks">
-                        {user.currentEpochKeys.map((key, i) => (
+                        {userContext.currentEpochKeys.map((key, i) => (
                             <div
                                 className={
                                     epkNonce === i ? 'epk chosen' : 'epk'

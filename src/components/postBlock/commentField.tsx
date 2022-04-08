@@ -34,18 +34,19 @@ const CommentField = (props: Props) => {
         } else if (content.length === 0) {
             console.error('nothing happened, no input.')
         } else {
-            const ret = queue.leaveComment(
+            if (!props.post.id || !content) {
+                throw new Error('invalid data for comment')
+            }
+
+            queue.leaveComment(
                 content,
                 props.post.id,
                 epkNonce,
                 reputation
             )
-            if (ret) {
-                setDraft('')
-                props.closeComment()
-            } else {
-                console.log('comment failed')
-            }
+            setDraft('')
+            props.closeComment()
+            
         }
     }
 

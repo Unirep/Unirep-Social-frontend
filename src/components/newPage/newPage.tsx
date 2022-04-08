@@ -38,13 +38,9 @@ const NewPage = () => {
         if (!userContext.userState) {
             console.log('not login yet.')
         } else {
-            const ret = queue.publishPost(title, content, epkNonce, reputation)
-            if (ret) {
-                setDraft('')
-                history.push('/')
-            } else {
-                console.log('post failed')
-            }
+            queue.publishPost(title, content, epkNonce, reputation)
+            setDraft('')
+            history.push('/')
         }
     }
 

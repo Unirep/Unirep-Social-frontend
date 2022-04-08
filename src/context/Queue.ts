@@ -169,8 +169,6 @@ class Queue {
                 successMessage: 'Post is finalized',
             }
         )
-
-        return true
     }
 
     vote(
@@ -181,8 +179,6 @@ class Queue {
         upvote: number = 0,
         downvote: number = 0
     ) {
-        if ((upvote === 0 && downvote === 0) || !receiver) return false
-
         const user = (UserContext as any)._currentValue
 
         this.addOp(async (updateStatus) => {
@@ -213,8 +209,6 @@ class Queue {
             })
             await this.afterTx(transaction)
         })
-
-        return true
     }
 
     leaveComment(
@@ -223,8 +217,6 @@ class Queue {
         epkNonce: number = 0,
         proveKarma: number = 3
     ) {
-        if (!postId || !content) return false
-
         const user = (UserContext as any)._currentValue
 
         this.addOp(
@@ -250,8 +242,6 @@ class Queue {
                 successMessage: 'Comment is finalized!',
             }
         )
-
-        return true
     }
 
     async startDaemon() {
