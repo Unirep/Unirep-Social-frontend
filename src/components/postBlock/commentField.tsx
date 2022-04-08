@@ -38,15 +38,9 @@ const CommentField = (props: Props) => {
                 throw new Error('invalid data for comment')
             }
 
-            queue.leaveComment(
-                content,
-                props.post.id,
-                epkNonce,
-                reputation
-            )
+            queue.leaveComment(content, props.post.id, epkNonce, reputation)
             setDraft('')
             props.closeComment()
-            
         }
     }
 

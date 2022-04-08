@@ -21,7 +21,7 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
     const [voteHistories, setVoteHistories] = useState(() => {
         if (data.votes.length === 0 || !userContext.userState) {
             return []
-        } 
+        }
 
         if (userContext.identity) {
             let ret: Vote[] = []
