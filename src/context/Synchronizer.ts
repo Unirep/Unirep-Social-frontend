@@ -30,6 +30,7 @@ export class Synchronizer {
     spentProofs = {} as { [key: ProofKey]: boolean }
     latestProcessedBlock = 0
     protected daemonRunning = false
+    protected daemonStop = false
     // progress management
     startBlock = 0
     latestBlock = 0
@@ -91,6 +92,10 @@ export class Synchronizer {
         this.startBlock = 0
         this.validProofs = {}
         this.spentProofs = {}
+        this.daemonStop = true
+
+        this.userState = undefined
+        this.unirepState = undefined
     }
 
     save() {
@@ -132,6 +137,11 @@ export class Synchronizer {
             }
         })
         for (;;) {
+            if (this.daemonStop) {
+                this.daemonStop = false
+                this.daemonRunning = false
+                break
+            }
             if (this.latestProcessedBlock === latestBlock) {
                 await new Promise((r) => setTimeout(r, 1000))
                 continue

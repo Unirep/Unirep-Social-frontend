@@ -232,7 +232,12 @@ class User extends Synchronizer {
             0
         )
         const gotAirdrop = await unirepSocial.isEpochKeyGotAirdrop(epk)
-        if (gotAirdrop) return { error: 'The epoch key has been airdropped.' }
+        if (gotAirdrop) {
+            return {
+                error: 'The epoch key has been airdropped.',
+                transaction: undefined,
+            }
+        }
 
         const apiURL = makeURL('airdrop', {})
         const r = await fetch(apiURL, {
@@ -315,15 +320,22 @@ class User extends Synchronizer {
         const hasSignedUp = await this._hasSignedUp(idInput)
         if (!hasSignedUp) return false
 
+        await super.load()
+        if (!this.unirepState) throw new Error('Unirep state not initialized')
+
         this.setIdentity(idInput)
         this.startDaemon()
+        this.waitForSync().then(() => {
+            this.loadReputation()
+            this.loadSpent()
+            this.save()
+        })
         return true
     }
 
     logout() {
         console.log('log out')
         this.id = undefined
-        this.userState = undefined
         this.allEpks = [] as string[]
         this.reputation = 0
         this.spent = 0

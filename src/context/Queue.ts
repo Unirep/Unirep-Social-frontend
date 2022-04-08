@@ -122,13 +122,17 @@ class Queue {
                 details: 'Generating ZK proof...',
             })
 
-            const { transaction } = await user.getAirdrop()
+            const { transaction, error } = await user.getAirdrop()
+
             update({
                 title: 'Creating Airdrop',
                 details: 'Waiting for TX inclusion...',
             })
-
-            await this.afterTx(transaction)
+            if (!transaction) {
+                console.log(error)
+            } else {
+                await this.afterTx(transaction)
+            }
         })
 
         return true
