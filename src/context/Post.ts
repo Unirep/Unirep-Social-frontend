@@ -1,8 +1,17 @@
 import { createContext } from 'react'
 import { makeAutoObservable } from 'mobx'
 
+import Queue from './Queue'
+import UserContext from './User'
+
 import { Post } from '../constants'
-import { makeURL, convertDataToPost } from '../utils'
+import {
+    makeURL,
+    convertDataToPost,
+    publishPost,
+    vote,
+    leaveComment,
+} from '../utils'
 
 export class Data {
     postsById = {} as { [id: string]: Post }
@@ -61,32 +70,113 @@ export class Data {
         })
     }
 
-    async publishPost(
+    publishPost(
         title: string = '',
         content: string = '',
-        minRep: number = 0,
-        proof: any = undefined,
-        publicSignals: any = undefined
+        epkNonce: number = 0,
+        proveKarma: number = 5
     ) {
-        if (!proof || !publicSignals) return undefined
+        const user = (UserContext as any)._currentValue
+        const queue = (Queue as any)._currentValue
 
-        const apiURL = makeURL('post', {})
-        const r = await fetch(apiURL, {
-            headers: this.header,
-            body: JSON.stringify({
-                title,
-                content,
-                proof,
-                minRep,
-                publicSignals,
-            }),
-            method: 'POST',
+        queue.addOp(
+            async (updateStatus: any) => {
+                updateStatus({
+                    title: 'Creating post',
+                    details: 'Generating zk proof...',
+                })
+                const proofData = await user.genRepProof(proveKarma, epkNonce)
+                updateStatus({
+                    title: 'Creating post',
+                    details: 'Waiting for TX inclusion...',
+                })
+                const { transaction } = await publishPost(
+                    proofData,
+                    proveKarma,
+                    content,
+                    title
+                )
+                await queue.afterTx(transaction)
+            },
+            {
+                successMessage: 'Post is finalized',
+            }
+        )
+    }
+
+    vote(
+        postId: string = '',
+        commentId: string = '',
+        receiver: string,
+        epkNonce: number = 0,
+        upvote: number = 0,
+        downvote: number = 0
+    ) {
+        const user = (UserContext as any)._currentValue
+        const queue = (Queue as any)._currentValue
+
+        queue.addOp(async (updateStatus: any) => {
+            updateStatus({
+                title: 'Creating Vote',
+                details: 'Generating ZK proof...',
+            })
+            const proofData = await user.genRepProof(
+                upvote + downvote,
+                epkNonce
+            )
+            updateStatus({
+                title: 'Creating Vote',
+                details: 'Broadcasting vote...',
+            })
+            const { transaction } = await vote(
+                proofData,
+                upvote + downvote,
+                upvote,
+                downvote,
+                postId.length > 0 ? postId : commentId,
+                receiver,
+                postId.length > 0
+            )
+            updateStatus({
+                title: 'Creating Vote',
+                details: 'Waiting for transaction...',
+            })
+            await queue.afterTx(transaction)
         })
-        const { transaction, error } = await r.json()
-        return {
-            error,
-            transaction,
-        }
+    }
+
+    leaveComment(
+        content: string,
+        postId: string,
+        epkNonce: number = 0,
+        proveKarma: number = 3
+    ) {
+        const user = (UserContext as any)._currentValue
+        const queue = (Queue as any)._currentValue
+
+        queue.addOp(
+            async (updateStatus: any) => {
+                updateStatus({
+                    title: 'Creating comment',
+                    details: 'Generating ZK proof...',
+                })
+                const proofData = await user.genRepProof(proveKarma, epkNonce)
+                updateStatus({
+                    title: 'Creating comment',
+                    details: 'Waiting for transaction...',
+                })
+                const { transaction } = await leaveComment(
+                    proofData,
+                    proveKarma,
+                    content,
+                    postId
+                )
+                await queue.afterTx(transaction)
+            },
+            {
+                successMessage: 'Comment is finalized!',
+            }
+        )
     }
 }
 

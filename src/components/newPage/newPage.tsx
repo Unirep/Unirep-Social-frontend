@@ -3,7 +3,7 @@ import { useHistory, useLocation } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 
 import UserContext from '../../context/User'
-import QueueContext from '../../context/Queue'
+import PostContext from '../../context/Post'
 import { WebContext } from '../../context/WebContext'
 import './newPage.scss'
 
@@ -18,7 +18,7 @@ const NewPage = () => {
     const state = JSON.parse(JSON.stringify(location.state))
     const isConfirmed = state.isConfirmed
     const userContext = useContext(UserContext)
-    const queue = useContext(QueueContext)
+    const postContext = useContext(PostContext)
 
     useEffect(() => {
         console.log('Is this new page being confirmd? ' + isConfirmed)
@@ -38,7 +38,7 @@ const NewPage = () => {
         if (!userContext.userState) {
             console.log('not login yet.')
         } else {
-            queue.publishPost(title, content, epkNonce, reputation)
+            postContext.publishPost(title, content, epkNonce, reputation)
             setDraft('')
             history.push('/')
         }
