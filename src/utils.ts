@@ -235,15 +235,14 @@ const convertDataToVotes = (data: any) => {
 }
 
 export const convertDataToComment = (data: any) => {
-    const { votes, upvote, downvote } = convertDataToVotes(data.votes)
     const comment = {
         type: DataType.Comment,
         id: data.transactionHash,
         post_id: data.postId,
         content: data.content,
-        votes,
-        upvote,
-        downvote,
+        // votes,
+        upvote: data.posRep,
+        downvote: data.negRep,
         epoch_key: data.epochKey,
         username: '',
         post_time: Date.parse(data.created_at),
@@ -256,15 +255,14 @@ export const convertDataToComment = (data: any) => {
 }
 
 export const convertDataToPost = (data: any) => {
-    const { votes, upvote, downvote } = convertDataToVotes(data.votes)
     const post: Post = {
         type: DataType.Post,
         id: data.transactionHash,
         title: data.title,
         content: data.content,
-        votes,
-        upvote,
-        downvote,
+        // votes,
+        upvote: data.posRep,
+        downvote: data.negRep,
         epoch_key: data.epochKey,
         username: '',
         post_time: Date.parse(data.created_at),

@@ -29,7 +29,6 @@ export interface Comment {
     id: string // === txHash
     post_id: string
     content: string
-    votes: Vote[]
     upvote: number
     downvote: number
     epoch_key: string
@@ -45,7 +44,6 @@ export interface Post {
     id: string // txHash
     title: string
     content: string
-    votes: Vote[]
     upvote: number
     downvote: number
     epoch_key: string

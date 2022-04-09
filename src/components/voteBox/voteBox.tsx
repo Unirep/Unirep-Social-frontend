@@ -19,28 +19,29 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
     const [epkNonce, setEpkNonce] = useState(0)
     const [isHistoriesOpen, setHistoriesOpen] = useState(false)
     const [voteHistories, setVoteHistories] = useState(() => {
-        if (data.votes.length === 0 || !userContext.userState) {
-            return []
-        }
-
-        if (userContext.identity) {
-            let ret: Vote[] = []
-            for (var i = 0; i < data.votes.length; i++) {
-                if (
-                    (isUpvote && data.votes[i].upvote > 0) ||
-                    (!isUpvote && data.votes[i].downvote > 0)
-                ) {
-                    const e = userContext.allEpks.find(
-                        (_e) => _e === data.votes[i].epoch_key
-                    )
-                    if (e !== null) {
-                        ret = [...ret, data.votes[i]]
-                    }
-                }
-            }
-            return ret
-        }
-        return []
+        return [] as any[]
+        // if (data.votes.length === 0 || !userContext.userState) {
+        //     return []
+        // }
+        //
+        // if (userContext.identity) {
+        //     let ret: Vote[] = []
+        //     for (var i = 0; i < data.votes.length; i++) {
+        //         if (
+        //             (isUpvote && data.votes[i].upvote > 0) ||
+        //             (!isUpvote && data.votes[i].downvote > 0)
+        //         ) {
+        //             const e = userContext.allEpks.find(
+        //                 (_e) => _e === data.votes[i].epoch_key
+        //             )
+        //             if (e !== null) {
+        //                 ret = [...ret, data.votes[i]]
+        //             }
+        //         }
+        //     }
+        //     return ret
+        // }
+        // return []
     })
 
     const doVote = async () => {
