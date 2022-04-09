@@ -74,7 +74,7 @@ export class Data {
         title: string = '',
         content: string = '',
         epkNonce: number = 0,
-        proveKarma: number = 5
+        minRep: number = 5
     ) {
         const user = (UserContext as any)._currentValue
         const queue = (Queue as any)._currentValue
@@ -85,14 +85,14 @@ export class Data {
                     title: 'Creating post',
                     details: 'Generating zk proof...',
                 })
-                const proofData = await user.genRepProof(proveKarma, epkNonce)
+                const proofData = await user.genRepProof(5, minRep, epkNonce)
                 updateStatus({
                     title: 'Creating post',
                     details: 'Waiting for TX inclusion...',
                 })
                 const { transaction } = await publishPost(
                     proofData,
-                    proveKarma,
+                    minRep,
                     content,
                     title
                 )
@@ -122,6 +122,7 @@ export class Data {
             })
             const proofData = await user.genRepProof(
                 upvote + downvote,
+                upvote + downvote,
                 epkNonce
             )
             updateStatus({
@@ -149,7 +150,7 @@ export class Data {
         content: string,
         postId: string,
         epkNonce: number = 0,
-        proveKarma: number = 3
+        minRep: number = 3
     ) {
         const user = (UserContext as any)._currentValue
         const queue = (Queue as any)._currentValue
@@ -160,14 +161,14 @@ export class Data {
                     title: 'Creating comment',
                     details: 'Generating ZK proof...',
                 })
-                const proofData = await user.genRepProof(proveKarma, epkNonce)
+                const proofData = await user.genRepProof(3, minRep, epkNonce)
                 updateStatus({
                     title: 'Creating comment',
                     details: 'Waiting for transaction...',
                 })
                 const { transaction } = await leaveComment(
                     proofData,
-                    proveKarma,
+                    minRep,
                     content,
                     postId
                 )

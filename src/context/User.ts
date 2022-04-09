@@ -356,11 +356,16 @@ class User extends Synchronizer {
 
         this.setIdentity(idInput)
         this.startDaemon()
+        // if (this.userState && this.userState.latestTransitionedEpoch < this.currentEpoch) {
+        //     this.userStateTransition()
+        // }
         this.waitForSync().then(() => {
             this.loadReputation()
             this.loadSpent()
+            this.loadCurrentEpoch()
             this.save()
         })
+
         return true
     }
 
@@ -375,7 +380,7 @@ class User extends Synchronizer {
         this.save()
     }
 
-    async genRepProof(proveKarma: number, epkNonce: number) {
+    async genRepProof(proveKarma: number, minRep: number, epkNonce: number) {
         if (epkNonce >= this.unirepConfig.numEpochKeyNoncePerEpoch) {
             throw new Error('Invalid epk nonce')
         }
@@ -400,8 +405,6 @@ class User extends Synchronizer {
         for (let i = 0; i < proveKarma; i++) {
             nonceList.push(BigInt(this.spent + i))
         }
-        // console.log(nonceList)
-        // console.log(this.unirepConfig.maxReputationBudget)
         for (
             let i = proveKarma;
             i < this.unirepConfig.maxReputationBudget;
@@ -415,7 +418,7 @@ class User extends Synchronizer {
         const results = await this.userState.genProveReputationProof(
             BigInt(this.unirepConfig.attesterId),
             epkNonce,
-            proveKarma,
+            minRep,
             proveGraffiti,
             graffitiPreImage,
             nonceList
@@ -428,33 +431,49 @@ class User extends Synchronizer {
         return { epk, proof, publicSignals, currentEpoch }
     }
 
-    async userStateTransition() {
-        if (!this.userState) {
-            throw new Error('User state not initialized')
-        }
-        const results = await this.userState.genUserStateTransitionProofs()
-        const r = await fetch(makeURL('userStateTransition'), {
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify({
-                results,
-                fromEpoch: this.userState.latestTransitionedEpoch,
-            }),
-            method: 'POST',
-        })
-        const { transaction, error } = await r.json()
+    userStateTransition() {
+        const queue = (Queue as any)._currentValue
 
-        if (error && error.length > 0) {
-            console.log(error)
-        } else {
+        queue.addOp(async (updateStatus: any) => {
+            if (!this.userState) {
+                throw new Error('User state not initialized')
+            }
+
+            updateStatus({
+                title: 'Performing UST',
+                details: 'Generating ZK proof...',
+            })
+            const results = await this.userState.genUserStateTransitionProofs()
+            const r = await fetch(makeURL('userStateTransition'), {
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    results,
+                    fromEpoch: this.userState.latestTransitionedEpoch,
+                }),
+                method: 'POST',
+            })
+            const { transaction, error } = await r.json()
+
+            if (error && error.length > 0) {
+                throw new Error(error)
+            }
+
+            updateStatus({
+                title: 'Performing UST',
+                details: 'Waiting for transaction...',
+            })
+            await queue.afterTx(transaction)
             await this.loadCurrentEpoch()
             await this.calculateAllEpks()
             await this.loadReputation()
             this.spent = 0
-        } // store user state in local storage
+            this.save()
 
-        return { error, transaction }
+            // const epochManager = (EpochContext as any)._currentValue
+            // await epochManager.updateWatch()
+        })
     }
 
     // async attestationSubmitted(event: any) {
