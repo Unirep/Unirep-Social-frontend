@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 import { makeAutoObservable } from 'mobx'
-import { makeURL, publishPost, vote, leaveComment } from '../utils'
+import { makeURL } from '../utils'
 import { DEFAULT_ETH_PROVIDER } from '../config'
 import UserContext from './User'
 
