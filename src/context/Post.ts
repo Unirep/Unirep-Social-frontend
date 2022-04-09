@@ -36,7 +36,6 @@ export class Data {
     }
 
     async loadFeed(query: string, lastRead = '0', epks = [] as string[]) {
-        console.log('loadfeed: ' + query)
         const apiURL = makeURL(`post`, {
             query,
             lastRead,
@@ -45,7 +44,6 @@ export class Data {
         const r = await fetch(apiURL)
         const data = await r.json()
         const posts = data.map((p: any) => convertDataToPost(p)) as Post[]
-        console.log(posts)
         this.ingestPosts(posts)
         if (!this.feedsByQuery[query]) {
             this.feedsByQuery[query] = []
