@@ -1,8 +1,8 @@
 import { createContext } from 'react'
 import { makeAutoObservable } from 'mobx'
 
-import { Post } from '../constants'
-import { makeURL, convertDataToPost } from '../utils'
+import { Post, Comment } from '../constants'
+import { makeURL, convertDataToPost, convertDataToComment } from '../utils'
 import UserContext, { User } from './User'
 import QueueContext, { Queue } from './Queue'
 
@@ -10,8 +10,10 @@ const queueContext = (QueueContext as any)._currentValue as Queue
 const userContext = (UserContext as any)._currentValue as User
 
 export class Data {
+    commentsById = {} as { [id: string]: Comment }
     postsById = {} as { [id: string]: Post }
     feedsByQuery = {} as { [query: string]: string[] }
+    commentsByPostId = {} as { [postId: string]: string[] }
     header = {
         'content-type': 'application/json',
         // 'Access-Control-Allow-Origin': config.SERVER,
@@ -32,11 +34,18 @@ export class Data {
         }
     }
 
+    private ingestComments(_comments: Comment | Comment[]) {
+        const comments = [_comments].flat()
+        for (const comment of comments) {
+            this.commentsById[comment.id] = comment
+        }
+    }
+
     async loadPost(id: string) {
         const apiURL = makeURL(`post/${id}`, {})
         const r = await fetch(apiURL)
         const data = await r.json()
-        const post = convertDataToPost(data[0], false)
+        const post = convertDataToPost(data[0])
         this.ingestPosts(post)
     }
 
@@ -63,6 +72,21 @@ export class Data {
             ids[id] = true
             return true
         })
+    }
+
+    async loadCommentsByPostId(postId: string) {
+        const r = await fetch(makeURL(`post/${postId}/comments`))
+        const _comments = await r.json()
+        const comments = _comments.map(convertDataToComment) as Comment[]
+        this.ingestComments(comments)
+        this.commentsByPostId[postId] = comments.map((c) => c.id)
+    }
+
+    async loadComment(commentId: string) {
+        const r = await fetch(makeURL(`comment/${commentId}`))
+        const comment = await r.json()
+        if (comment === null) return
+        this.ingestComments(convertDataToComment(comment))
     }
 
     getAirdrop() {
@@ -184,7 +208,12 @@ export class Data {
                 details: 'Waiting for transaction...',
             })
             await queueContext.afterTx(transaction)
-            await this.loadPost(postId)
+            if (postId) {
+                await this.loadPost(postId)
+            }
+            if (commentId) {
+                await this.loadComment(commentId)
+            }
         })
     }
 
@@ -224,6 +253,10 @@ export class Data {
                 const { transaction, error } = await r.json()
                 if (error) throw error
                 await queueContext.afterTx(transaction)
+                await Promise.all([
+                    this.loadCommentsByPostId(postId),
+                    this.loadPost(postId),
+                ])
             },
             {
                 successMessage: 'Comment is finalized!',

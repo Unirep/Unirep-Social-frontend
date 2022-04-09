@@ -4,16 +4,19 @@ import { useHistory } from 'react-router-dom'
 import dateformat from 'dateformat'
 
 import UnirepContext from '../../context/Unirep'
+import PostContext from '../../context/Post'
 
 import { Comment, Page, ButtonType } from '../../constants'
 import BlockButton from './blockButton'
 
 type Props = {
-    comment: Comment
+    commentId: string
     page: Page
 }
 
-const CommentBlock = ({ comment, page }: Props) => {
+const CommentBlock = ({ commentId, page }: Props) => {
+    const postContext = useContext(PostContext)
+    const comment = postContext.commentsById[commentId]
     const unirepConfig = useContext(UnirepContext)
     const date = dateformat(new Date(comment.post_time), 'dd/mm/yyyy hh:MM TT')
     const history = useHistory()

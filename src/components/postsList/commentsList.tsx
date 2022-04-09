@@ -6,18 +6,18 @@ import { Comment, Page } from '../../constants'
 import { LOAD_POST_COUNT } from '../../config'
 
 type Props = {
-    comments: Comment[]
+    commentIds: string[]
     page: Page
     loadMoreComments: () => void
 }
 
-const CommentsList = ({ comments, page, loadMoreComments }: Props) => {
+const CommentsList = ({ commentIds, page, loadMoreComments }: Props) => {
     return (
         <div className="post-list">
-            {comments.length > 0 ? (
-                comments.map((comment, i) => (
-                    <div className="post-block" key={comment.id}>
-                        <CommentBlock comment={comment} page={page} />
+            {commentIds.length > 0 ? (
+                commentIds.map((id, i) => (
+                    <div className="post-block" key={id}>
+                        <CommentBlock commentId={id} page={page} />
                     </div>
                 ))
             ) : (
@@ -30,7 +30,8 @@ const CommentsList = ({ comments, page, loadMoreComments }: Props) => {
                     </p>
                 </div>
             )}
-            {comments.length > 0 && comments.length % LOAD_POST_COUNT === 0 ? (
+            {commentIds.length > 0 &&
+            commentIds.length % LOAD_POST_COUNT === 0 ? (
                 <div className="load-more-button" onClick={loadMoreComments}>
                     Load more posts
                 </div>

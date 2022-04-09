@@ -234,7 +234,7 @@ const convertDataToVotes = (data: any) => {
     return { votes, upvote, downvote }
 }
 
-const convertDataToComment = (data: any) => {
+export const convertDataToComment = (data: any) => {
     const { votes, upvote, downvote } = convertDataToVotes(data.votes)
     const comment = {
         type: DataType.Comment,
@@ -255,20 +255,8 @@ const convertDataToComment = (data: any) => {
     return comment
 }
 
-export const convertDataToPost = (
-    data: any,
-    commentsOnlyId: boolean = true
-) => {
+export const convertDataToPost = (data: any) => {
     const { votes, upvote, downvote } = convertDataToVotes(data.votes)
-
-    const comments: Comment[] = []
-    if (!commentsOnlyId) {
-        for (let i = 0; i < data.comments.length; i++) {
-            const comment = convertDataToComment(data.comments[i])
-            comments.push(comment)
-        }
-    }
-
     const post: Post = {
         type: DataType.Post,
         id: data.transactionHash,
@@ -281,8 +269,7 @@ export const convertDataToPost = (
         username: '',
         post_time: Date.parse(data.created_at),
         reputation: data.minRep,
-        comments,
-        commentsCount: data.comments ? data.comments.length : 0,
+        commentCount: data.commentCount,
         current_epoch: data.epoch,
         proofIndex: data.proofIndex,
     }

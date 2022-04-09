@@ -52,8 +52,7 @@ export interface Post {
     username: string
     post_time: number
     reputation: number
-    comments: Comment[]
-    commentsCount: number
+    commentCount: number
     current_epoch: number
     proofIndex: number
 }

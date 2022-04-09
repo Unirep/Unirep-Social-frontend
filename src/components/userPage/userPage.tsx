@@ -415,7 +415,7 @@ const UserPage = () => {
                         />
                     ) : tag === Tag.Comments ? (
                         <CommentsList
-                            comments={myComments}
+                            commentIds={myComments.map((c) => c.id)}
                             page={Page.User}
                             loadMoreComments={loadMoreComments}
                         />

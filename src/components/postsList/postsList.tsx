@@ -19,11 +19,7 @@ const PostsList = ({ postIds, loadMorePosts }: Props) => {
         <div className="post-list">
             {postIds.length > 0 ? (
                 postIds.map((id, i) => (
-                    <PostBlock
-                        key={id}
-                        post={postContext.postsById[id]}
-                        page={Page.Home}
-                    />
+                    <PostBlock key={id} postId={id} page={Page.Home} />
                 ))
             ) : (
                 <div className="no-posts">
