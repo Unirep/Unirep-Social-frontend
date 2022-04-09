@@ -2,7 +2,6 @@ import { createContext } from 'react'
 import { makeAutoObservable } from 'mobx'
 import { makeURL } from '../utils'
 import { DEFAULT_ETH_PROVIDER } from '../config'
-import UserContext from './User'
 
 export enum LoadingState {
     loading,
@@ -108,7 +107,6 @@ export class Queue {
             const op = this.operations.shift()
             this.activeOp = op
             if (op === undefined) break
-            const user = (UserContext as any)._currentValue
             try {
                 this.loadingState = LoadingState.loading
                 await op.fn(
@@ -120,7 +118,6 @@ export class Queue {
                 )
                 this.latestMessage = op.successMessage
                 this.loadingState = LoadingState.success
-                await user.loadSpent()
             } catch (err) {
                 this.loadingState = LoadingState.failed
                 this.latestMessage = op.failureMessage

@@ -157,6 +157,7 @@ export class Data {
                 const { transaction, error } = await r.json()
                 if (error) throw error
                 await queueContext.afterTx(transaction)
+                userContext.spent += proveKarma
             },
             {
                 successMessage: 'Post is finalized',
@@ -208,6 +209,7 @@ export class Data {
                 details: 'Waiting for transaction...',
             })
             await queueContext.afterTx(transaction)
+            userContext.spent += upvote + downvote
             if (postId) {
                 await this.loadPost(postId)
             }
@@ -253,6 +255,7 @@ export class Data {
                 const { transaction, error } = await r.json()
                 if (error) throw error
                 await queueContext.afterTx(transaction)
+                userContext.spent += proveKarma
                 await Promise.all([
                     this.loadCommentsByPostId(postId),
                     this.loadPost(postId),

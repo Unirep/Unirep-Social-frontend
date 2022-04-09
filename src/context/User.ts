@@ -393,7 +393,6 @@ export class User extends Synchronizer {
 
         const proof = formatProofForVerifierContract(results.proof)
         const publicSignals = results.publicSignals
-        // this.spent += amount
         this.save()
         return { epk, proof, publicSignals, currentEpoch }
     }
