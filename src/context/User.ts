@@ -21,7 +21,7 @@ import {
 import UnirepContext from './Unirep'
 import { Synchronizer } from './Synchronizer'
 
-class User extends Synchronizer {
+export class User extends Synchronizer {
     id?: Identity
     allEpks = [] as string[]
     currentEpoch = 0

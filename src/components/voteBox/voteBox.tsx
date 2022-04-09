@@ -2,7 +2,7 @@ import { useState, useContext } from 'react'
 import 'react-circular-progressbar/dist/styles.css'
 
 import UserContext from '../../context/User'
-import QueueContext from '../../context/Queue'
+import PostContext from '../../context/Post'
 import './voteBox.scss'
 
 import { Post, Vote, Comment, DataType } from '../../constants'
@@ -14,7 +14,7 @@ type Props = {
 }
 const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
     const userContext = useContext(UserContext)
-    const queue = useContext(QueueContext)
+    const postContext = useContext(PostContext)
     const [givenAmount, setGivenAmount] = useState<number>(1)
     const [epkNonce, setEpkNonce] = useState(0)
     const [isHistoriesOpen, setHistoriesOpen] = useState(false)
@@ -56,7 +56,7 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
                 throw new Error('invalid data for vote')
             }
 
-            queue.vote(
+            postContext.vote(
                 isPost ? data.id : '',
                 isPost ? '' : data.id,
                 data.epoch_key,

@@ -25,8 +25,8 @@ const MainPage = () => {
             'load more posts, now posts: ' +
                 postController.feedsByQuery[query]?.length
         )
-        const lastPost = [...postController.feedsByQuery[query]].pop()
-        postController.loadFeed(query, lastPost?.id)
+        const lastPostId = [...postController.feedsByQuery[query]].pop()
+        postController.loadFeed(query, lastPostId)
     }
 
     useEffect(() => {
@@ -55,7 +55,7 @@ const MainPage = () => {
             </div>
             <Feed feedChoice={query} setFeedChoice={setQuery} />
             <PostsList
-                posts={postController.feedsByQuery[query] || []}
+                postIds={postController.feedsByQuery[query] || []}
                 loadMorePosts={loadMorePosts}
             />
         </BasicPage>

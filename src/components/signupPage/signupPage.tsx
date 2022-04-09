@@ -2,8 +2,8 @@ import { useHistory } from 'react-router-dom'
 import { useContext, useState, useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 
+import PostContext from '../../context/Post'
 import UserContext from '../../context/User'
-import QueueContext from '../../context/Queue'
 import './signupPage.scss'
 
 import LoadingCover from '../loadingCover/loadingCover'
@@ -11,7 +11,7 @@ import LoadingButton from '../loadingButton/loadingButton'
 
 const SignupPage = () => {
     const userContext = useContext(UserContext)
-    const queue = useContext(QueueContext)
+    const postContext = useContext(PostContext)
     const history = useHistory()
     const [invitationCode, setInvitationCode] = useState<string>('')
     const [step, setStep] = useState<number>(0)
@@ -68,10 +68,7 @@ const SignupPage = () => {
                 setStep(3)
             }
         } else if (step === 3) {
-            const ret = queue.getAirdrop()
-            if (!ret) {
-                console.log('get airdrop failed')
-            }
+            postContext.getAirdrop()
             history.push('/')
         }
     }

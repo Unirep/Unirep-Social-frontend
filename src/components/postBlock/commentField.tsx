@@ -1,9 +1,9 @@
 import { useContext } from 'react'
 import { observer } from 'mobx-react-lite'
 
-import QueueContext from '../../context/Queue'
 import { WebContext } from '../../context/WebContext'
 import UserContext from '../../context/User'
+import PostContext from '../../context/Post'
 
 import { Post, DataType, Page } from '../../constants'
 import WritingField from '../writingField/writingField'
@@ -16,7 +16,7 @@ type Props = {
 
 const CommentField = (props: Props) => {
     const userContext = useContext(UserContext)
-    const queue = useContext(QueueContext)
+    const postContext = useContext(PostContext)
     const { setDraft } = useContext(WebContext)
 
     const preventPropagation = (event: any) => {
@@ -38,7 +38,12 @@ const CommentField = (props: Props) => {
                 throw new Error('invalid data for comment')
             }
 
-            queue.leaveComment(content, props.post.id, epkNonce, reputation)
+            postContext.leaveComment(
+                content,
+                props.post.id,
+                epkNonce,
+                reputation
+            )
             setDraft('')
             props.closeComment()
         }

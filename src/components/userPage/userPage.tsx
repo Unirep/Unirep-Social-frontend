@@ -410,7 +410,7 @@ const UserPage = () => {
                 <div className="user-page-content">
                     {tag === Tag.Posts ? (
                         <PostsList
-                            posts={myPosts}
+                            postIds={myPosts.map((p) => p.id)}
                             loadMorePosts={loadMorePosts}
                         />
                     ) : tag === Tag.Comments ? (

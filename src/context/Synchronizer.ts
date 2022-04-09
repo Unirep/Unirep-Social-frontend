@@ -130,8 +130,7 @@ export class Synchronizer {
         console.log('Starting daemon')
         this.daemonRunning = true
         this.isInitialSyncing = true
-        this.waitForSync()
-          .then(() => this.isInitialSyncing = false)
+        this.waitForSync().then(() => (this.isInitialSyncing = false))
         let latestBlock = await DEFAULT_ETH_PROVIDER.getBlockNumber()
         this.latestBlock = latestBlock
         DEFAULT_ETH_PROVIDER.on('block', (num) => {

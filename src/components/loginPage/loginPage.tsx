@@ -5,11 +5,9 @@ import './loginPage.scss'
 import LoadingCover from '../loadingCover/loadingCover'
 import LoadingButton from '../loadingButton/loadingButton'
 import UserContext from '../../context/User'
-import QueueContext from '../../context/Queue'
 
 const LoginPage = () => {
     const history = useHistory()
-    const queue = useContext(QueueContext)
     const [isLoading, setIsLoading] = useState(false)
     const [input, setInput] = useState<string>('')
     const [errorMsg, setErrorMsg] = useState<string>('')
@@ -33,8 +31,10 @@ const LoginPage = () => {
             setErrorMsg('Incorrect private key. Please try again.')
             return
         }
+        // need to conditionally get an airdrop if the user signed up but has
+        // not claimed an airdrop, and it's the same epoch as when they signed
+        // up
 
-        queue.getAirdrop()
         history.push('/')
     }
 

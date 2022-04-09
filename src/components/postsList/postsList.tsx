@@ -1,22 +1,29 @@
+import { useContext } from 'react'
 import { observer } from 'mobx-react-lite'
 
 import './postsList.scss'
 
 import PostBlock from '../postBlock/postBlock'
-import { Post, Page } from '../../constants'
+import { Page } from '../../constants'
 import { LOAD_POST_COUNT } from '../../config'
+import PostContext from '../../context/Post'
 
 type Props = {
-    posts: Post[]
+    postIds: string[]
     loadMorePosts: () => void
 }
 
-const PostsList = ({ posts, loadMorePosts }: Props) => {
+const PostsList = ({ postIds, loadMorePosts }: Props) => {
+    const postContext = useContext(PostContext)
     return (
         <div className="post-list">
-            {posts.length > 0 ? (
-                posts.map((post, i) => (
-                    <PostBlock key={post.id} post={post} page={Page.Home} />
+            {postIds.length > 0 ? (
+                postIds.map((id, i) => (
+                    <PostBlock
+                        key={id}
+                        post={postContext.postsById[id]}
+                        page={Page.Home}
+                    />
                 ))
             ) : (
                 <div className="no-posts">
@@ -28,7 +35,7 @@ const PostsList = ({ posts, loadMorePosts }: Props) => {
                     </p>
                 </div>
             )}
-            {posts.length > 0 && posts.length % LOAD_POST_COUNT === 0 ? (
+            {postIds.length > 0 && postIds.length % LOAD_POST_COUNT === 0 ? (
                 <div className="load-more-button" onClick={loadMorePosts}>
                     Load more posts
                 </div>
