@@ -94,8 +94,6 @@ export class Data {
             })
             await queueContext.afterTx(transaction)
         })
-
-        return true
     }
 
     publishPost(
@@ -186,6 +184,7 @@ export class Data {
                 details: 'Waiting for transaction...',
             })
             await queueContext.afterTx(transaction)
+            await this.loadPost(postId)
         })
     }
 
