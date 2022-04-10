@@ -715,6 +715,26 @@ export class Synchronizer {
             attestation,
             event.blockNumber
         )
+        // A hack to pass data to the subclass
+        if (fromProofIndex) {
+            // use the spent values in the from proof
+            const proof =
+                this.validProofs[this.proofKey(_epoch, fromProofIndex)]
+            const proveReputationAmount = Number(
+                proof.proof.proveReputationAmount
+            )
+            const epochKey = proof.proof.epochKey
+            return {
+                spentAmount: proveReputationAmount,
+                epochKey,
+            }
+        } else {
+            return {
+                epoch: _epoch,
+                epochKey: _epochKey,
+                spentAmount: attestation.negRep,
+            }
+        }
     }
 
     protected async epochEnded(event: any) {
