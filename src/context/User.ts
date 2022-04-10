@@ -166,7 +166,7 @@ export class User extends Synchronizer {
                     this.unirepConfig.epochTreeDepth
                 )
                     .toString(16)
-                    .padStart(8, '0')
+                    .padStart(this.unirepConfig.epochTreeDepth / 4, '0')
                 epks.push(tmp)
             }
             return epks
@@ -422,7 +422,7 @@ export class User extends Synchronizer {
         const normalizedEpk = epochKey
             .toHexString()
             .replace('0x', '')
-            .padStart(8, '0')
+            .padStart(this.unirepConfig.epochTreeDepth / 4, '0')
         if (this.currentEpochKeys.indexOf(normalizedEpk) !== -1) {
             this.spent += Number(spentAmount)
         }
