@@ -22,7 +22,7 @@ import UnirepContext from './Unirep'
 import { Synchronizer } from './Synchronizer'
 import Queue from './Queue'
 
-class User extends Synchronizer {
+export class User extends Synchronizer {
     id?: Identity
     allEpks = [] as string[]
     currentEpoch = 0
@@ -44,6 +44,7 @@ class User extends Synchronizer {
             startBlock: observable,
             latestBlock: observable,
             latestProcessedBlock: observable,
+            isInitialSyncing: observable,
         })
         if (typeof window !== 'undefined') {
             this.load()
@@ -290,6 +291,7 @@ class User extends Synchronizer {
     }
 
     async checkInvitationCode(invitationCode: string): Promise<boolean> {
+        return true
         // check the code first but don't delete it until we signup --> related to backend
         const apiURL = makeURL(`genInvitationCode/${invitationCode}`, {})
         const r = await fetch(apiURL)
@@ -426,7 +428,6 @@ class User extends Synchronizer {
 
         const proof = formatProofForVerifierContract(results.proof)
         const publicSignals = results.publicSignals
-        // this.spent += amount
         this.save()
         return { epk, proof, publicSignals, currentEpoch }
     }

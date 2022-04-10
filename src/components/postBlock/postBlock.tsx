@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react'
+import { useEffect, useState, useContext } from 'react'
 import { useHistory } from 'react-router-dom'
 import dateformat from 'dateformat'
 import { observer } from 'mobx-react-lite'
@@ -6,7 +6,7 @@ import { observer } from 'mobx-react-lite'
 import { WebContext } from '../../context/WebContext'
 import UserContext from '../../context/User'
 import UnirepContext from '../../context/Unirep'
-import QueueContext from '../../context/Queue'
+import PostContext from '../../context/Post'
 import './postBlock.scss'
 
 import { Post, Page, ButtonType, AlertType, DataType } from '../../constants'
@@ -34,15 +34,17 @@ const AlertBox = ({ type }: AlertProps) => {
 }
 
 type Props = {
-    post: Post
+    postId: string
     page: Page
 }
 
-const PostBlock = ({ post, page }: Props) => {
+const PostBlock = ({ postId, page }: Props) => {
     const history = useHistory()
     const { draft } = useContext(WebContext)
     const userContext = useContext(UserContext)
-    const queue = useContext(QueueContext)
+    const postContext = useContext(PostContext)
+    const post = postContext.postsById[postId]
+    const comments = postContext.commentsByPostId[postId] || []
 
     const date = dateformat(new Date(post.post_time), 'dd/mm/yyyy hh:MM TT')
     const [showCommentField, setShowCommentField] = useState(
@@ -50,6 +52,10 @@ const PostBlock = ({ post, page }: Props) => {
     )
     const [isEpkHovered, setEpkHovered] = useState<boolean>(false)
     const unirepConfig = useContext(UnirepContext)
+
+    useEffect(() => {
+        postContext.loadCommentsByPostId(postId)
+    }, [])
 
     const textLimit = 240
 
@@ -109,7 +115,7 @@ const PostBlock = ({ post, page }: Props) => {
             <div className="block-buttons">
                 <BlockButton
                     type={ButtonType.Comments}
-                    count={post.commentsCount}
+                    count={post.commentCount}
                     data={post}
                 />
                 <BlockButton
@@ -147,12 +153,12 @@ const PostBlock = ({ post, page }: Props) => {
                         )}
                     </div>
                     <div className="divider"></div>
-                    {post.comments.length > 0 ? (
+                    {comments.length > 0 ? (
                         <div className="comments-list">
-                            {post.comments.map((c, i) => (
-                                <div key={c.id} id={c.id}>
-                                    <CommentBlock page={page} comment={c} />
-                                    {i < post.comments.length - 1 ? (
+                            {comments.map((id, i) => (
+                                <div key={id} id={id}>
+                                    <CommentBlock page={page} commentId={id} />
+                                    {i < comments.length - 1 ? (
                                         <div className="divider"></div>
                                     ) : (
                                         <div></div>

@@ -2,6 +2,7 @@ import { useHistory } from 'react-router-dom'
 import { useContext, useState, useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 
+import PostContext from '../../context/Post'
 import UserContext from '../../context/User'
 import './signupPage.scss'
 

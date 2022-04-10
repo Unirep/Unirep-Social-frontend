@@ -1,8 +1,7 @@
 import { createContext } from 'react'
 import { makeAutoObservable } from 'mobx'
-import { makeURL, publishPost, vote, leaveComment } from '../utils'
+import { makeURL } from '../utils'
 import { DEFAULT_ETH_PROVIDER } from '../config'
-import UserContext from './User'
 
 export enum LoadingState {
     loading,
@@ -41,7 +40,7 @@ const defaultStatus: Status = {
     details: `Please wait 'til this transaction complete for creating post, comment, boost, or squash. This is the life of blockchain :P`,
 }
 
-class Queue {
+export class Queue {
     operations = [] as Operation[]
     loadingState = LoadingState.none
     latestMessage = ''
@@ -108,9 +107,7 @@ class Queue {
             const op = this.operations.shift()
             this.activeOp = op
             if (op === undefined) break
-            const user = (UserContext as any)._currentValue
             try {
-                console.log('has things to processed')
                 this.loadingState = LoadingState.loading
                 await op.fn(
                     (s) =>
@@ -119,10 +116,8 @@ class Queue {
                             ...s,
                         })
                 )
-                console.log('after op')
                 this.latestMessage = op.successMessage
                 this.loadingState = LoadingState.success
-                await user.loadSpent()
             } catch (err) {
                 this.loadingState = LoadingState.failed
                 this.latestMessage = op.failureMessage

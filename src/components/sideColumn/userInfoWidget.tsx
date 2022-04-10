@@ -24,6 +24,10 @@ const UserInfoWidget = () => {
         const diff = (epochManager.nextTransition - Date.now()) / 1000
         setDiffTime(diff)
 
+        if (userContext.isInitialSyncing) {
+            return 'Syncing...'
+        }
+
         if (
             userContext.userState &&
             (epochManager.readyToTransition || userContext.needsUST)
@@ -98,7 +102,7 @@ const UserInfoWidget = () => {
                 <div></div>
             )}
             {userContext.userState &&
-                userContext.isSynced &&
+                !userContext.isInitialSyncing &&
                 (epochManager.readyToTransition || userContext.needsUST) &&
                 !queue.queuedOp(ActionType.UST) && (
                     <div className="custom-ui">

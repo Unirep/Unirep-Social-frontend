@@ -31,6 +31,9 @@ const LoginPage = () => {
             setErrorMsg('Incorrect private key. Please try again.')
             return
         }
+        // need to conditionally get an airdrop if the user signed up but has
+        // not claimed an airdrop, and it's the same epoch as when they signed
+        // up
 
         userContext.getAirdrop()
         history.push('/')

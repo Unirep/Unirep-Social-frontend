@@ -54,105 +54,6 @@ export const makeURL = (action: string, data: any = {}) => {
     return `${config.SERVER}/api/${action}?${params}`
 }
 
-const header = {
-    'content-type': 'application/json',
-    // 'Access-Control-Allow-Origin': config.SERVER,
-    // 'Access-Control-Allow-Credentials': 'true',
-}
-
-export const checkInvitationCode = async (invitationCode: string) => {
-    const apiURL = makeURL('genInvitationCode/' + invitationCode, {})
-    const r = await fetch(apiURL)
-    return r.ok
-}
-
-export const publishPost = async (
-    proofData: any,
-    minRep: number,
-    content: string,
-    title: string = ''
-) => {
-    const unirepConfig = (UnirepContext as any)._currentValue
-    await unirepConfig.loadingPromise
-
-    // to backend: proof, publicSignals, content
-    const apiURL = makeURL('post', {})
-    const r = await fetch(apiURL, {
-        headers: header,
-        body: JSON.stringify({
-            title,
-            content,
-            proof: proofData.proof,
-            minRep,
-            publicSignals: proofData.publicSignals,
-        }),
-        method: 'POST',
-    })
-    return r.json()
-}
-
-export const vote = async (
-    proofData: any,
-    minRep: number,
-    upvote: number,
-    downvote: number,
-    dataId: string,
-    receiver: string,
-    isPost: boolean = true
-) => {
-    // send publicsignals, proof, voted post id, receiver epoch key, graffiti to backend
-    const apiURL = makeURL('vote', {})
-    const data = {
-        upvote,
-        downvote,
-        proof: proofData.proof,
-        minRep,
-        publicSignals: proofData.publicSignals,
-        receiver,
-        dataId,
-        isPost,
-    }
-    const stringifiedData = JSON.stringify(data)
-    console.log('before vote api: ' + stringifiedData)
-
-    const r = await fetch(apiURL, {
-        headers: header,
-        body: stringifiedData,
-        method: 'POST',
-    })
-    const { error, transaction } = await r.json()
-    return { error, transaction }
-}
-
-export const leaveComment = async (
-    proofData: any,
-    minRep: number,
-    content: string,
-    postId: string
-) => {
-    const unirepConfig = (UnirepContext as any)._currentValue
-    await unirepConfig.loadingPromise
-
-    // to backend: proof, publicSignals, content
-    const apiURL = makeURL('comment', {})
-    const data = {
-        content,
-        proof: proofData.proof,
-        minRep,
-        postId,
-        publicSignals: proofData.publicSignals,
-    }
-    const stringifiedData = JSON.stringify(data)
-    console.log('before leave comment api: ' + stringifiedData)
-
-    const r = await fetch(apiURL, {
-        headers: header,
-        body: stringifiedData,
-        method: 'POST',
-    })
-    return r.json()
-}
-
 export const getRecords = async (currentEpoch: number, identity: string) => {
     const unirepConfig = (UnirepContext as any)._currentValue
     await unirepConfig.loadingPromise
@@ -234,16 +135,15 @@ const convertDataToVotes = (data: any) => {
     return { votes, upvote, downvote }
 }
 
-const convertDataToComment = (data: any) => {
-    const { votes, upvote, downvote } = convertDataToVotes(data.votes)
+export const convertDataToComment = (data: any) => {
     const comment = {
         type: DataType.Comment,
         id: data.transactionHash,
         post_id: data.postId,
         content: data.content,
-        votes,
-        upvote,
-        downvote,
+        // votes,
+        upvote: data.posRep,
+        downvote: data.negRep,
         epoch_key: data.epochKey,
         username: '',
         post_time: Date.parse(data.created_at),
@@ -255,34 +155,20 @@ const convertDataToComment = (data: any) => {
     return comment
 }
 
-export const convertDataToPost = (
-    data: any,
-    commentsOnlyId: boolean = true
-) => {
-    const { votes, upvote, downvote } = convertDataToVotes(data.votes)
-
-    const comments: Comment[] = []
-    if (!commentsOnlyId) {
-        for (let i = 0; i < data.comments.length; i++) {
-            const comment = convertDataToComment(data.comments[i])
-            comments.push(comment)
-        }
-    }
-
+export const convertDataToPost = (data: any) => {
     const post: Post = {
         type: DataType.Post,
         id: data.transactionHash,
         title: data.title,
         content: data.content,
-        votes,
-        upvote,
-        downvote,
+        // votes,
+        upvote: data.posRep,
+        downvote: data.negRep,
         epoch_key: data.epochKey,
         username: '',
         post_time: Date.parse(data.created_at),
         reputation: data.minRep,
-        comments,
-        commentsCount: data.comments ? data.comments.length : 0,
+        commentCount: data.commentCount,
         current_epoch: data.epoch,
         proofIndex: data.proofIndex,
     }

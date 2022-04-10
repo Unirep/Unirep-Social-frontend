@@ -1,21 +1,19 @@
 import { createContext } from 'react'
 import { makeAutoObservable } from 'mobx'
 
-import Queue from './Queue'
-import UserContext from './User'
+import { Post, Comment } from '../constants'
+import { makeURL, convertDataToPost, convertDataToComment } from '../utils'
+import UserContext, { User } from './User'
+import QueueContext, { Queue } from './Queue'
 
-import { Post } from '../constants'
-import {
-    makeURL,
-    convertDataToPost,
-    publishPost,
-    vote,
-    leaveComment,
-} from '../utils'
+const queueContext = (QueueContext as any)._currentValue as Queue
+const userContext = (UserContext as any)._currentValue as User
 
 export class Data {
+    commentsById = {} as { [id: string]: Comment }
     postsById = {} as { [id: string]: Post }
-    feedsByQuery = {} as { [query: string]: Post[] }
+    feedsByQuery = {} as { [query: string]: string[] }
+    commentsByPostId = {} as { [postId: string]: string[] }
     header = {
         'content-type': 'application/json',
         // 'Access-Control-Allow-Origin': config.SERVER,
@@ -36,16 +34,22 @@ export class Data {
         }
     }
 
+    private ingestComments(_comments: Comment | Comment[]) {
+        const comments = [_comments].flat()
+        for (const comment of comments) {
+            this.commentsById[comment.id] = comment
+        }
+    }
+
     async loadPost(id: string) {
         const apiURL = makeURL(`post/${id}`, {})
         const r = await fetch(apiURL)
         const data = await r.json()
-        const post = convertDataToPost(data[0], false)
+        const post = convertDataToPost(data[0])
         this.ingestPosts(post)
     }
 
     async loadFeed(query: string, lastRead = '0', epks = [] as string[]) {
-        console.log('loadfeed: ' + query)
         const apiURL = makeURL(`post`, {
             query,
             lastRead,
@@ -54,21 +58,67 @@ export class Data {
         const r = await fetch(apiURL)
         const data = await r.json()
         const posts = data.map((p: any) => convertDataToPost(p)) as Post[]
-        console.log(posts)
         this.ingestPosts(posts)
         if (!this.feedsByQuery[query]) {
             this.feedsByQuery[query] = []
         }
         const ids = {} as { [key: string]: boolean }
+        const postIds = posts.map((p) => p.id)
         this.feedsByQuery[query] = [
-            ...posts,
+            ...postIds,
             ...this.feedsByQuery[query],
-        ].filter((p) => {
-            if (ids[p.id]) return false
-            ids[p.id] = true
+        ].filter((id) => {
+            if (ids[id]) return false
+            ids[id] = true
             return true
         })
     }
+
+    async loadCommentsByPostId(postId: string) {
+        const r = await fetch(makeURL(`post/${postId}/comments`))
+        const _comments = await r.json()
+        const comments = _comments.map(convertDataToComment) as Comment[]
+        this.ingestComments(comments)
+        this.commentsByPostId[postId] = comments.map((c) => c.id)
+    }
+
+    async loadComment(commentId: string) {
+        const r = await fetch(makeURL(`comment/${commentId}`))
+        const comment = await r.json()
+        if (comment === null) return
+        this.ingestComments(convertDataToComment(comment) as Comment)
+    }
+
+    // getAirdrop() {
+    //     queueContext.addOp(async (update) => {
+    //         if (!userContext.userState) return false
+
+    //         update({
+    //             title: 'Waiting to generate Airdrop',
+    //             details: 'Synchronizing with blockchain...',
+    //         })
+
+    //         console.log('before userContext wait for sync')
+    //         await userContext.waitForSync()
+    //         console.log('sync complete')
+
+    //         await userContext.calculateAllEpks()
+    //         await userContext.loadSpent()
+    //         update({
+    //             title: 'Creating Airdrop',
+    //             details: 'Generating ZK proof...',
+    //         })
+
+    //         const { transaction, error } = await userContext.getAirdrop()
+    //         if (error) throw error
+
+    //         update({
+    //             title: 'Creating Airdrop',
+    //             details: 'Waiting for TX inclusion...',
+    //         })
+    //         await queueContext.afterTx(transaction)
+    //     })
+    // }
 
     publishPost(
         title: string = '',
@@ -77,26 +127,34 @@ export class Data {
         minRep: number = 5
     ) {
         const user = (UserContext as any)._currentValue
-        const queue = (Queue as any)._currentValue
 
-        queue.addOp(
-            async (updateStatus: any) => {
+        queueContext.addOp(
+            async (updateStatus) => {
                 updateStatus({
                     title: 'Creating post',
                     details: 'Generating zk proof...',
                 })
-                const proofData = await user.genRepProof(5, minRep, epkNonce)
+                const { proof, publicSignals }  = await user.genRepProof(5, minRep, epkNonce)
                 updateStatus({
                     title: 'Creating post',
                     details: 'Waiting for TX inclusion...',
                 })
-                const { transaction } = await publishPost(
-                    proofData,
-                    minRep,
-                    content,
-                    title
-                )
-                await queue.afterTx(transaction)
+                const apiURL = makeURL('post', {})
+                const r = await fetch(apiURL, {
+                    headers: this.header,
+                    body: JSON.stringify({
+                        title,
+                        content,
+                        proof,
+                        minRep,
+                        publicSignals,
+                    }),
+                    method: 'POST',
+                })
+                const { transaction, error } = await r.json()
+                if (error) throw error
+                await queueContext.afterTx(transaction)
+                userContext.spent += 5
             },
             {
                 successMessage: 'Post is finalized',
@@ -112,15 +170,12 @@ export class Data {
         upvote: number = 0,
         downvote: number = 0
     ) {
-        const user = (UserContext as any)._currentValue
-        const queue = (Queue as any)._currentValue
-
-        queue.addOp(async (updateStatus: any) => {
+        queueContext.addOp(async (updateStatus) => {
             updateStatus({
                 title: 'Creating Vote',
                 details: 'Generating ZK proof...',
             })
-            const proofData = await user.genRepProof(
+            const { proof, publicSignals } = await userContext.genRepProof(
                 upvote + downvote,
                 upvote + downvote,
                 epkNonce
@@ -129,20 +184,36 @@ export class Data {
                 title: 'Creating Vote',
                 details: 'Broadcasting vote...',
             })
-            const { transaction } = await vote(
-                proofData,
-                upvote + downvote,
-                upvote,
-                downvote,
-                postId.length > 0 ? postId : commentId,
-                receiver,
-                postId.length > 0
-            )
+            const r = await fetch(makeURL('vote'), {
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    upvote,
+                    downvote,
+                    proof,
+                    minRep: upvote + downvote,
+                    publicSignals,
+                    receiver,
+                    dataId: postId.length > 0 ? postId : commentId,
+                    isPost: !!postId,
+                }),
+                method: 'POST',
+            })
+            const { error, transaction } = await r.json()
+            if (error) throw error
             updateStatus({
                 title: 'Creating Vote',
                 details: 'Waiting for transaction...',
             })
-            await queue.afterTx(transaction)
+            await queueContext.afterTx(transaction)
+            userContext.spent += upvote + downvote
+            if (postId) {
+                await this.loadPost(postId)
+            }
+            if (commentId) {
+                await this.loadComment(commentId)
+            }
         })
     }
 
@@ -152,27 +223,38 @@ export class Data {
         epkNonce: number = 0,
         minRep: number = 3
     ) {
-        const user = (UserContext as any)._currentValue
-        const queue = (Queue as any)._currentValue
-
-        queue.addOp(
-            async (updateStatus: any) => {
+        queueContext.addOp(
+            async (updateStatus) => {
                 updateStatus({
                     title: 'Creating comment',
                     details: 'Generating ZK proof...',
                 })
-                const proofData = await user.genRepProof(3, minRep, epkNonce)
+                const { proof, publicSignals } = await userContext.genRepProof(3, minRep, epkNonce)
                 updateStatus({
                     title: 'Creating comment',
                     details: 'Waiting for transaction...',
                 })
-                const { transaction } = await leaveComment(
-                    proofData,
-                    minRep,
-                    content,
-                    postId
-                )
-                await queue.afterTx(transaction)
+                const r = await fetch(makeURL('comment'), {
+                    headers: {
+                        'content-type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        content,
+                        proof,
+                        minRep,
+                        postId,
+                        publicSignals,
+                    }),
+                    method: 'POST',
+                })
+                const { transaction, error } = await r.json()
+                if (error) throw error
+                await queueContext.afterTx(transaction)
+                userContext.spent += 3
+                await Promise.all([
+                    this.loadCommentsByPostId(postId),
+                    this.loadPost(postId),
+                ])
             },
             {
                 successMessage: 'Comment is finalized!',

@@ -22,7 +22,7 @@ const PostPage = () => {
             {!postContext.postsById[id] ? (
                 <div>Loading...</div>
             ) : (
-                <PostBlock post={postContext.postsById[id]} page={Page.Post} />
+                <PostBlock postId={id} page={Page.Post} />
             )}
         </BasicPage>
     )
