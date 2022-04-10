@@ -415,13 +415,16 @@ export class User extends Synchronizer {
         const result = await super.attestationSubmitted(event)
         if (!result) return
         const {
-          // epoch,
-          epochKey,
-          spentAmount,
+            // epoch,
+            epochKey,
+            spentAmount,
         } = result
-        const normalizedEpk = epochKey.toHexString().replace('0x', '').padStart(8, '0')
+        const normalizedEpk = epochKey
+            .toHexString()
+            .replace('0x', '')
+            .padStart(8, '0')
         if (this.currentEpochKeys.indexOf(normalizedEpk) !== -1) {
-          this.spent += Number(spentAmount)
+            this.spent += Number(spentAmount)
         }
     }
 
