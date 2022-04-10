@@ -80,7 +80,6 @@ export class User extends Synchronizer {
             this.startDaemon()
             this.waitForSync().then(() => {
                 this.loadReputation()
-                this.loadSpent()
                 this.save()
             })
         }
@@ -168,7 +167,7 @@ export class User extends Synchronizer {
                     this.unirepConfig.epochTreeDepth
                 )
                     .toString(16)
-                    .padStart(8, '0')
+                    .padStart(this.unirepConfig.epochTreeDepth / 4, '0')
                 epks.push(tmp)
             }
             return epks
@@ -363,8 +362,6 @@ export class User extends Synchronizer {
         // }
         this.waitForSync().then(() => {
             this.loadReputation()
-            this.loadSpent()
-            this.loadCurrentEpoch()
             this.save()
         })
 
@@ -395,7 +392,6 @@ export class User extends Synchronizer {
 
         // is this necessary???
         await this.loadReputation()
-        await this.loadSpent()
 
         if (this.spent === -1) {
             throw new Error('All nullifiers are spent')
@@ -469,73 +465,33 @@ export class User extends Synchronizer {
             await this.loadCurrentEpoch()
             await this.calculateAllEpks()
             await this.loadReputation()
-            this.spent = 0
-            this.save()
+        }) // store user state in local storage
 
-            // const epochManager = (EpochContext as any)._currentValue
-            // await epochManager.updateWatch()
-        })
+        // const epochManager = (EpochContext as any)._currentValue
+        // await epochManager.updateWatch()
     }
 
-    // async attestationSubmitted(event: any) {
-    //     await super.attestationSubmitted(event)
-    //     const _epoch = Number(event.topics[1])
-    //     const _epochKey = ethers.BigNumber.from(event.topics[2])
-    //     const _attester = event.topics[3]
-    //     const decodedData = this.unirepConfig.unirep.interface.decodeEventLog(
-    //         'AttestationSubmitted',
-    //         event.data
-    //     )
-    //     const toProofIndex = Number(decodedData.toProofIndex)
-    //     const fromProofIndex = Number(decodedData.fromProofIndex)
-    //     if (!this.validProofs[this.proofKey(_epoch, toProofIndex)])
-    //         return
-    //   console.log('t2')
-    //     const attestationProof =
-    //         this.validProofs[this.proofKey(_epoch, toProofIndex)]
-    //     if (
-    //         fromProofIndex &&
-    //         this.spentProofs[this.proofKey(_epoch, fromProofIndex)]
-    //     )
-    //         return
-    //   console.log('t3')
-    //     if (!_epochKey.eq('0x' + attestationProof.epochKey))
-    //         return
-    //     if (this.unirepState?.isEpochKeySealed(_epochKey.toString()))
-    //         return
-    //   console.log('t4')
-    //   console.log(fromProofIndex)
-    //     if (fromProofIndex) {
-    //   console.log('t6')
-    //         if (!this.validProofs[this.proofKey(_epoch, fromProofIndex)]) return
-    //         const proof =
-    //             this.validProofs[this.proofKey(_epoch, fromProofIndex)]
-    //   console.log('t5')
-    //         if (!proof.isReputation) return
-    //         const proveReputationAmount = Number(
-    //             proof.proof.proveReputationAmount
-    //         )
-    //   console.log('t7')
-    //         if (!attestationProof) return
-    //         if (
-    //             proveReputationAmount !==
-    //             Number(decodedData._attestation.posRep) +
-    //                 Number(decodedData._attestation.negRep)
-    //         )
-    //             return
-    //             console.log('updating spent')
-    //         if (this.currentEpochKeys.indexOf(attestationProof.epochKey.padStart(8, '0')) !== -1) {
-    //           // otherwise add the spent value
-    //           this.spent += proveReputationAmount
-    //         }
-    //     }
-    // }
+    async attestationSubmitted(event: any) {
+        const result = await super.attestationSubmitted(event)
+        if (!result) return
+        const {
+            // epoch,
+            epochKey,
+            spentAmount,
+        } = result
+        const normalizedEpk = epochKey
+            .toHexString()
+            .replace('0x', '')
+            .padStart(this.unirepConfig.epochTreeDepth / 4, '0')
+        if (this.currentEpochKeys.indexOf(normalizedEpk) !== -1) {
+            this.spent += Number(spentAmount)
+        }
+    }
 
     async epochEnded(event: any) {
         await super.epochEnded(event)
         await this.loadReputation()
-        // await this.loadCurrentEpoch()
-        // this.spent = 0
+        this.spent = 0
     }
 }
 

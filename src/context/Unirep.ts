@@ -13,7 +13,7 @@ class UnirepConfig {
     unirepSocialAddress = ''
     globalStateTreeDepth = 11
     userStateTreeDepth = 5
-    epochTreeDepth = 32
+    epochTreeDepth = 64
     attestingFee = 1
     numEpochKeyNoncePerEpoch = 3
     numAttestationsPerEpochKey = 6

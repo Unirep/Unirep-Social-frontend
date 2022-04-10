@@ -431,8 +431,9 @@ export class Synchronizer {
                 }
             }
             if (isValid && isGSTRootExisted && validNullifiers) {
+                const epkLength = unirepConfig.epochTreeDepth / 4
                 this.validProofs[this.proofKey(_epoch, _proofIndex)] = {
-                    epochKey: epochKey.slice(-8),
+                    epochKey: epochKey.slice(-epkLength),
                     epoch: _epoch,
                     proof: decodedData._proof,
                     proofIndex: _proofIndex,
@@ -477,8 +478,9 @@ export class Synchronizer {
                 _epoch
             )
             if (isValid && isGSTRootExisted) {
+                const epkLength = unirepConfig.epochTreeDepth / 4
                 this.validProofs[this.proofKey(_epoch, _proofIndex)] = {
-                    epochKey: epochKey.slice(-8),
+                    epochKey: epochKey.slice(-epkLength),
                     epoch: _epoch,
                     proof: decodedData._proof,
                     proofIndex: _proofIndex,
@@ -706,6 +708,7 @@ export class Synchronizer {
             BigInt(decodedData._attestation.graffiti),
             BigInt(decodedData._attestation.signUp)
         )
+        console.log(attestationProof.epochKey, _epochKey)
         if (!_epochKey.eq('0x' + attestationProof.epochKey))
             return console.error('epoch key mismatch')
         if (this.unirepState?.isEpochKeySealed(_epochKey.toString()))
@@ -715,6 +718,26 @@ export class Synchronizer {
             attestation,
             event.blockNumber
         )
+        // A hack to pass data to the subclass
+        if (fromProofIndex) {
+            // use the spent values in the from proof
+            const proof =
+                this.validProofs[this.proofKey(_epoch, fromProofIndex)]
+            const proveReputationAmount = Number(
+                proof.proof.proveReputationAmount
+            )
+            const epochKey = proof.proof.epochKey
+            return {
+                spentAmount: proveReputationAmount,
+                epochKey,
+            }
+        } else {
+            return {
+                epoch: _epoch,
+                epochKey: _epochKey,
+                spentAmount: attestation.negRep,
+            }
+        }
     }
 
     protected async epochEnded(event: any) {
