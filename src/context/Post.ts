@@ -134,7 +134,11 @@ export class Data {
                     title: 'Creating post',
                     details: 'Generating zk proof...',
                 })
-                const { proof, publicSignals }  = await user.genRepProof(5, minRep, epkNonce)
+                const { proof, publicSignals } = await user.genRepProof(
+                    5,
+                    minRep,
+                    epkNonce
+                )
                 updateStatus({
                     title: 'Creating post',
                     details: 'Waiting for TX inclusion...',
@@ -228,7 +232,11 @@ export class Data {
                     title: 'Creating comment',
                     details: 'Generating ZK proof...',
                 })
-                const { proof, publicSignals } = await userContext.genRepProof(3, minRep, epkNonce)
+                const { proof, publicSignals } = await userContext.genRepProof(
+                    3,
+                    minRep,
+                    epkNonce
+                )
                 updateStatus({
                     title: 'Creating comment',
                     details: 'Waiting for transaction...',
