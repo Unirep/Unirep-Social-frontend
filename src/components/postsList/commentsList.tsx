@@ -1,5 +1,6 @@
 import './postsList.scss'
 import '../postBlock/postBlock.scss'
+import { observer } from 'mobx-react-lite'
 
 import CommentBlock from '../postBlock/commentBlock'
 import { Comment, Page } from '../../constants'
@@ -42,4 +43,4 @@ const CommentsList = ({ commentIds, page, loadMoreComments }: Props) => {
     )
 }
 
-export default CommentsList
+export default observer(CommentsList)

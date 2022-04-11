@@ -2,6 +2,7 @@
 import { useState, useContext } from 'react'
 import { useHistory } from 'react-router-dom'
 import dateformat from 'dateformat'
+import { observer } from 'mobx-react-lite'
 
 import UnirepContext from '../../context/Unirep'
 import PostContext from '../../context/Post'
@@ -88,4 +89,4 @@ const CommentBlock = ({ commentId, page }: Props) => {
     )
 }
 
-export default CommentBlock
+export default observer(CommentBlock)
