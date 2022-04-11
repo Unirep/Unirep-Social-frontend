@@ -1,7 +1,7 @@
 import { createContext } from 'react'
 import { makeAutoObservable } from 'mobx'
 
-import { Post, Comment } from '../constants'
+import { Post, Comment, QueryType } from '../constants'
 import { makeURL, convertDataToPost, convertDataToComment } from '../utils'
 import UserContext, { User } from './User'
 import QueueContext, { Queue } from './Queue'
@@ -188,6 +188,7 @@ export class Data {
                 const { transaction, error } = await r.json()
                 if (error) throw error
                 await queueContext.afterTx(transaction)
+                await this.loadFeed(QueryType.New)
             },
             {
                 successMessage: 'Post is finalized',
