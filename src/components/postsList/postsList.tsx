@@ -1,4 +1,3 @@
-import { useContext } from 'react'
 import { observer } from 'mobx-react-lite'
 
 import './postsList.scss'
@@ -6,7 +5,6 @@ import './postsList.scss'
 import PostBlock from '../postBlock/postBlock'
 import { Page } from '../../constants'
 import { LOAD_POST_COUNT } from '../../config'
-import PostContext from '../../context/Post'
 
 type Props = {
     postIds: string[]
@@ -14,7 +12,6 @@ type Props = {
 }
 
 const PostsList = ({ postIds, loadMorePosts }: Props) => {
-    const postContext = useContext(PostContext)
     return (
         <div className="post-list">
             {postIds.length > 0 ? (
