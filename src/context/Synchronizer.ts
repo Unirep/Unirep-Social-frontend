@@ -708,7 +708,6 @@ export class Synchronizer {
             BigInt(decodedData._attestation.graffiti),
             BigInt(decodedData._attestation.signUp)
         )
-        console.log(attestationProof.epochKey, _epochKey)
         if (!_epochKey.eq('0x' + attestationProof.epochKey))
             return console.error('epoch key mismatch')
         if (this.unirepState?.isEpochKeySealed(_epochKey.toString()))
@@ -719,19 +718,7 @@ export class Synchronizer {
             event.blockNumber
         )
         // A hack to pass data to the subclass
-        if (fromProofIndex) {
-            // use the spent values in the from proof
-            const proof =
-                this.validProofs[this.proofKey(_epoch, fromProofIndex)]
-            const proveReputationAmount = Number(
-                proof.proof.proveReputationAmount
-            )
-            const epochKey = proof.proof.epochKey
-            return {
-                spentAmount: proveReputationAmount,
-                epochKey,
-            }
-        } else {
+        if (!fromProofIndex) {
             return {
                 epoch: _epoch,
                 epochKey: _epochKey,
