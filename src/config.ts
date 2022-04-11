@@ -2,6 +2,8 @@ import { ethers } from 'ethers'
 import UnirepSocial from '@unirep/unirep-social/artifacts/contracts/UnirepSocial.sol/UnirepSocial.json'
 import Unirep from '@unirep/contracts/artifacts/contracts/Unirep.sol/Unirep.json'
 
+const EXPLORER_URL = 'https://kovan-optimistic.etherscan.io'
+
 const SERVER = 'https://unirep.tubby.cloud'
 // const SERVER = 'http://localhost:5000'
 // const DEFAULT_ETH_PROVIDER_URL = 'ws://localhost:8545'
@@ -29,4 +31,5 @@ export {
     UNIREP_SOCIAL_ABI,
     ABOUT_URL,
     LOAD_POST_COUNT,
+    EXPLORER_URL,
 }

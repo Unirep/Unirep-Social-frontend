@@ -9,6 +9,7 @@ import UnirepContext from '../../context/Unirep'
 import PostContext from '../../context/Post'
 import './postBlock.scss'
 
+import { EXPLORER_URL } from '../../config'
 import { Post, Page, ButtonType, AlertType, DataType } from '../../constants'
 import CommentField from './commentField'
 import CommentBlock from './commentBlock'
@@ -89,7 +90,7 @@ const PostBlock = ({ postId, page }: Props) => {
                 <a
                     className="etherscan"
                     target="_blank"
-                    href={`https://goerli.etherscan.io/tx/${post.id}`}
+                    href={`${EXPLORER_URL}/tx/${post.id}`}
                 >
                     <span>Etherscan</span>
                     <img

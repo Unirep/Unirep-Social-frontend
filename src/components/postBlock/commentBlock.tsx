@@ -7,6 +7,7 @@ import { observer } from 'mobx-react-lite'
 import UnirepContext from '../../context/Unirep'
 import PostContext from '../../context/Post'
 
+import { EXPLORER_URL } from '../../config'
 import { Comment, Page, ButtonType } from '../../constants'
 import BlockButton from './blockButton'
 
@@ -58,7 +59,7 @@ const CommentBlock = ({ commentId, page }: Props) => {
                 <a
                     className="etherscan"
                     target="_blank"
-                    href={`https://goerli.etherscan.io/tx/${comment.id}`}
+                    href={`${EXPLORER_URL}/tx/${comment.id}`}
                 >
                     <span>Etherscan</span>
                     <img
