@@ -28,6 +28,7 @@ export class User extends Synchronizer {
     reputation = 30
     unirepConfig = (UnirepContext as any)._currentValue
     spent = 0
+    loadingPromise
 
     constructor() {
         super()
@@ -46,7 +47,9 @@ export class User extends Synchronizer {
             isInitialSyncing: observable,
         })
         if (typeof window !== 'undefined') {
-            this.load()
+            this.loadingPromise = this.load()
+        } else {
+            this.loadingPromise = Promise.resolve()
         }
     }
 
@@ -292,7 +295,6 @@ export class User extends Synchronizer {
             epk: epk1,
             invitationCode,
         })
-        console.log(apiURL)
         const r = await fetch(apiURL)
         const { epoch, transaction } = await r.json()
         await config.DEFAULT_ETH_PROVIDER.waitForTransaction(transaction)

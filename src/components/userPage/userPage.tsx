@@ -12,6 +12,7 @@ import { Record, Page, QueryType, Post, Comment } from '../../constants'
 import ActivityWidget from './activityWidget'
 import PostsList from '../postsList/postsList'
 import CommentsList from '../postsList/commentsList'
+import PostContext from '../../context/Post'
 
 enum Tag {
     Posts = 'Posts',
@@ -63,41 +64,32 @@ const RepPortion = ({ spent, total, action }: Props) => {
 }
 
 const UserPage = () => {
-    const location = useLocation<Location>()
-    const state = JSON.parse(JSON.stringify(location.state))
-    const isConfirmed = state.isConfirmed
-
     const user = useContext(UserContext)
+    const postContext = useContext(PostContext)
     const [records, setRecords] = useState<Record[]>([])
     const [tag, setTag] = useState<Tag>(Tag.Posts)
     const [sort, setSort] = useState<QueryType>(QueryType.Boost)
     const [isDropdown, setIsDropdown] = useState<boolean>(false)
-    const [myPosts, setMyPosts] = useState<Post[]>([])
-    const [myComments, setMyComments] = useState<Comment[]>([])
+    const myPosts =
+        postContext.feedsByQuery[
+            postContext.feedKey(sort, user.currentEpochKeys)
+        ] || []
+    const myComments =
+        postContext.commentsByQuery[
+            postContext.feedKey(sort, user.currentEpochKeys)
+        ] || []
 
     const [received, setReceived] = useState<number[]>([0, 0, 0]) // airdrop, boost, squash
     const [spent, setSpent] = useState<number[]>([0, 0, 0, 0]) // post, comment, boost, squash
 
     const getUserPosts = async (sort: QueryType, lastRead: string = '0') => {
-        const ret = await getPostsByQuery(sort, lastRead, user.currentEpochKeys)
-        if (lastRead !== '0') {
-            setMyPosts([...myPosts, ...ret])
-        } else {
-            setMyPosts(ret)
-        }
+        await user.loadingPromise
+        await postContext.loadFeed(sort, lastRead, user.currentEpochKeys)
     }
 
     const getUserComments = async (sort: QueryType, lastRead: string = '0') => {
-        const ret = await getCommentsByQuery(
-            sort,
-            lastRead,
-            user.currentEpochKeys
-        )
-        if (lastRead !== '0') {
-            setMyComments([...myComments, ...ret])
-        } else {
-            setMyComments(ret)
-        }
+        await user.loadingPromise
+        await postContext.loadComments(sort, lastRead, user.currentEpochKeys)
     }
 
     const getUserRecords = async () => {
@@ -165,10 +157,6 @@ const UserPage = () => {
         getUserData()
     }, [])
 
-    useEffect(() => {
-        console.log('Is this user page being confirmed? ' + isConfirmed)
-    }, [])
-
     const switchDropdown = () => {
         if (isDropdown) {
             setIsDropdown(false)
@@ -200,7 +188,7 @@ const UserPage = () => {
 
     const loadMorePosts = async () => {
         if (myPosts.length > 0) {
-            await getUserPosts(sort, myPosts[myPosts.length - 1].id)
+            await getUserPosts(sort, myPosts[myPosts.length - 1])
         } else {
             await getUserPosts(sort)
         }
@@ -208,7 +196,7 @@ const UserPage = () => {
 
     const loadMoreComments = async () => {
         if (myComments.length > 0) {
-            await getUserComments(sort, myComments[myComments.length - 1].id)
+            await getUserComments(sort, myComments[myComments.length - 1])
         } else {
             await getUserComments(sort)
         }
@@ -410,12 +398,12 @@ const UserPage = () => {
                 <div className="user-page-content">
                     {tag === Tag.Posts ? (
                         <PostsList
-                            postIds={myPosts.map((p) => p.id)}
+                            postIds={myPosts}
                             loadMorePosts={loadMorePosts}
                         />
                     ) : tag === Tag.Comments ? (
                         <CommentsList
-                            commentIds={myComments.map((c) => c.id)}
+                            commentIds={myComments}
                             page={Page.User}
                             loadMoreComments={loadMoreComments}
                         />

@@ -2,8 +2,8 @@ import { ethers } from 'ethers'
 import UnirepSocial from '@unirep/unirep-social/artifacts/contracts/UnirepSocial.sol/UnirepSocial.json'
 import Unirep from '@unirep/contracts/artifacts/contracts/Unirep.sol/Unirep.json'
 
-// const SERVER = 'https://unirep.tubby.cloud'
-const SERVER = 'http://localhost:5000'
+const SERVER = 'https://unirep.tubby.cloud'
+// const SERVER = 'http://localhost:5000'
 // const DEFAULT_ETH_PROVIDER_URL = 'ws://localhost:8545'
 // const DEFAULT_ETH_PROVIDER_URL =
 //     'https://arb-rinkeby.g.alchemy.com/v2/LzkSzVuFVZimTOB45xcCH3Cals4dTzk_'

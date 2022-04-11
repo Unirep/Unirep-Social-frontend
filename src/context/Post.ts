@@ -14,11 +14,7 @@ export class Data {
     postsById = {} as { [id: string]: Post }
     feedsByQuery = {} as { [query: string]: string[] }
     commentsByPostId = {} as { [postId: string]: string[] }
-    header = {
-        'content-type': 'application/json',
-        // 'Access-Control-Allow-Origin': config.SERVER,
-        // 'Access-Control-Allow-Credentials': 'true',
-    }
+    commentsByQuery = {} as { [commentId: string]: string[] }
 
     constructor() {
         makeAutoObservable(this)
@@ -41,6 +37,12 @@ export class Data {
         }
     }
 
+    feedKey(query: string, epks = [] as string[]) {
+        return epks.length === 0
+            ? query
+            : `${query}-${epks.sort((a, b) => (a > b ? -1 : 1)).join('_')}`
+    }
+
     async loadPost(id: string) {
         const apiURL = makeURL(`post/${id}`, {})
         const r = await fetch(apiURL)
@@ -59,14 +61,42 @@ export class Data {
         const data = await r.json()
         const posts = data.map((p: any) => convertDataToPost(p)) as Post[]
         this.ingestPosts(posts)
-        if (!this.feedsByQuery[query]) {
-            this.feedsByQuery[query] = []
+        const key = this.feedKey(query, epks)
+        if (!this.feedsByQuery[key]) {
+            this.feedsByQuery[key] = []
         }
         const ids = {} as { [key: string]: boolean }
         const postIds = posts.map((p) => p.id)
-        this.feedsByQuery[query] = [
-            ...postIds,
-            ...this.feedsByQuery[query],
+        this.feedsByQuery[key] = [...postIds, ...this.feedsByQuery[key]].filter(
+            (id) => {
+                if (ids[id]) return false
+                ids[id] = true
+                return true
+            }
+        )
+    }
+
+    async loadComments(query: string, lastRead = '0', epks = [] as string[]) {
+        const apiURL = makeURL(`comment`, {
+            query,
+            lastRead,
+            epks: epks.join('_'),
+        })
+        const r = await fetch(apiURL)
+        const data = await r.json()
+        const comments = data.map((p: any) =>
+            convertDataToComment(p)
+        ) as Comment[]
+        const key = this.feedKey(query, epks)
+        this.ingestComments(comments)
+        if (!this.commentsByQuery[key]) {
+            this.commentsByQuery[key] = []
+        }
+        const ids = {} as { [key: string]: boolean }
+        const commentIds = comments.map((c) => c.id)
+        this.commentsByQuery[key] = [
+            ...commentIds,
+            ...this.commentsByQuery[key],
         ].filter((id) => {
             if (ids[id]) return false
             ids[id] = true
@@ -143,7 +173,9 @@ export class Data {
                 })
                 const apiURL = makeURL('post', {})
                 const r = await fetch(apiURL, {
-                    headers: this.header,
+                    headers: {
+                        'content-type': 'application/json',
+                    },
                     body: JSON.stringify({
                         title,
                         content,
