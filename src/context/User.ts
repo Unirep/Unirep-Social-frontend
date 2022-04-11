@@ -311,10 +311,8 @@ export class User extends Synchronizer {
         const hasSignedUp = await this._hasSignedUp(idInput)
         if (!hasSignedUp) return false
 
-        await super.load()
-        if (!this.unirepState) throw new Error('Unirep state not initialized')
-
         this.setIdentity(idInput)
+        await this.calculateAllEpks()
         this.startDaemon()
         this.waitForSync().then(() => {
             this.loadReputation()
