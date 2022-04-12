@@ -4,7 +4,10 @@ import Unirep from '@unirep/contracts/artifacts/contracts/Unirep.sol/Unirep.json
 
 const EXPLORER_URL = 'https://kovan-optimistic.etherscan.io'
 
-let localConfig
+let localConfig = {
+    SERVER: 'http://localhost:3001',
+    DEFAULT_ETH_PROVIDER_URL: 'http://localhost:8545',
+}
 try {
     localConfig = require('./localConfig').default
 } catch (_) {}
