@@ -126,6 +126,3 @@ dist
 
 # Private key
 privateKey.ts
-
-# .env
-.env

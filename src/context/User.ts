@@ -168,8 +168,6 @@ export class User extends Synchronizer {
         for (let x = 1; x <= this.currentEpoch; x++) {
             this.allEpks.push(...getEpochKeys(x))
         }
-
-        console.log('all epks: ' + this.allEpks)
     }
 
     async loadReputation() {
