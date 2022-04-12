@@ -19,9 +19,18 @@ export interface User {
 }
 
 export interface Vote {
-    upvote: number
-    downvote: number
-    epoch_key: string
+    _id: string
+    transactionHash: string
+    epoch: number
+    voter: string
+    receiver: string
+    posRep: number
+    negRep: number
+    graffiti: string
+    overwriteGraffiti: boolean
+    postId: string
+    commentId: string
+    status: number // 0: pending, 1: on-chain, 2: disabled
 }
 
 export interface Comment {
