@@ -223,7 +223,7 @@ const SignupPage = () => {
                             <div style={{ height: '20px' }} />
                             <div className="error">
                                 There was a problem signing up, please try again
-                                later! "{errorMsg}"
+                                later! "{signupError}"
                             </div>
                         </>
                     )}
