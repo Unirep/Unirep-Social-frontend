@@ -100,7 +100,7 @@ const WritingField = (props: Props) => {
     }
 
     const handleRepInput = (event: any) => {
-        setReputation(event.target.value)
+        setReputation(+event.target.value)
     }
 
     const submit = () => {

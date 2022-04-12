@@ -153,6 +153,7 @@ export class Data {
         title: string = '',
         content: string = '',
         epkNonce: number = 0,
+        minRep = 0,
         proveKarma: number = 5
     ) {
         const user = (UserContext as any)._currentValue
@@ -165,7 +166,8 @@ export class Data {
                 })
                 const { proof, publicSignals } = await user.genRepProof(
                     proveKarma,
-                    epkNonce
+                    epkNonce,
+                    minRep
                 )
                 updateStatus({
                     title: 'Creating post',
@@ -202,7 +204,8 @@ export class Data {
         receiver: string,
         epkNonce: number = 0,
         upvote: number = 0,
-        downvote: number = 0
+        downvote: number = 0,
+        minRep = 0
     ) {
         queueContext.addOp(async (updateStatus) => {
             updateStatus({
@@ -211,7 +214,8 @@ export class Data {
             })
             const { proof, publicSignals } = await userContext.genRepProof(
                 upvote + downvote,
-                epkNonce
+                epkNonce,
+                Math.max(upvote + downvote, minRep)
             )
             updateStatus({
                 title: 'Creating Vote',
@@ -225,7 +229,7 @@ export class Data {
                     upvote,
                     downvote,
                     proof,
-                    minRep: upvote + downvote,
+                    minRep: Math.max(upvote + downvote, minRep),
                     publicSignals,
                     receiver,
                     dataId: postId.length > 0 ? postId : commentId,
@@ -253,6 +257,7 @@ export class Data {
         content: string,
         postId: string,
         epkNonce: number = 0,
+        minRep = 0,
         proveKarma: number = 3
     ) {
         queueContext.addOp(
@@ -263,7 +268,8 @@ export class Data {
                 })
                 const { proof, publicSignals } = await userContext.genRepProof(
                     proveKarma,
-                    epkNonce
+                    epkNonce,
+                    minRep
                 )
                 updateStatus({
                     title: 'Creating comment',
@@ -276,7 +282,7 @@ export class Data {
                     body: JSON.stringify({
                         content,
                         proof,
-                        minRep: proveKarma,
+                        minRep,
                         postId,
                         publicSignals,
                     }),

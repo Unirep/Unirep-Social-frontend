@@ -34,14 +34,12 @@ const NewPage = () => {
         epkNonce: number,
         reputation: number
     ) => {
-        console.log('submit post')
         if (!userContext.userState) {
-            console.log('not login yet.')
-        } else {
-            postContext.publishPost(title, content, epkNonce, reputation)
-            setDraft('')
-            history.push('/')
+            throw new Error('Should not be able to create post without login')
         }
+        postContext.publishPost(title, content, epkNonce, reputation)
+        setDraft('')
+        history.push('/')
     }
 
     return (

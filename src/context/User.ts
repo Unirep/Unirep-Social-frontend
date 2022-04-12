@@ -332,7 +332,7 @@ export class User extends Synchronizer {
         this.save()
     }
 
-    async genRepProof(proveKarma: number, epkNonce: number) {
+    async genRepProof(proveKarma: number, epkNonce: number, minRep = 0) {
         if (epkNonce >= this.unirepConfig.numEpochKeyNoncePerEpoch) {
             throw new Error('Invalid epk nonce')
         }
@@ -345,15 +345,13 @@ export class User extends Synchronizer {
         if (this.spent === -1) {
             throw new Error('All nullifiers are spent')
         }
-        if (this.spent + proveKarma > this.reputation) {
+        if (this.spent + Math.max(proveKarma, minRep) > this.reputation) {
             throw new Error('Not enough reputation')
         }
         const nonceList = [] as BigInt[]
         for (let i = 0; i < proveKarma; i++) {
             nonceList.push(BigInt(this.spent + i))
         }
-        // console.log(nonceList)
-        // console.log(this.unirepConfig.maxReputationBudget)
         for (
             let i = proveKarma;
             i < this.unirepConfig.maxReputationBudget;
@@ -367,7 +365,7 @@ export class User extends Synchronizer {
         const results = await this.userState.genProveReputationProof(
             BigInt(this.unirepConfig.attesterId),
             epkNonce,
-            proveKarma,
+            minRep,
             proveGraffiti,
             graffitiPreImage,
             nonceList
