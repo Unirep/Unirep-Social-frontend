@@ -3,9 +3,8 @@ import { useHistory } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 
 import UserContext from '../../context/User'
-import QueueContext, { LoadingState } from '../../context/Queue'
 
-import { Post, Comment, ButtonType } from '../../constants'
+import { Post, Comment, ButtonType, DataType } from '../../constants'
 import VoteBox from '../voteBox/voteBox'
 
 type Props = {
@@ -17,7 +16,6 @@ type Props = {
 const BlockButton = ({ type, count, data }: Props) => {
     const history = useHistory()
     const userContext = useContext(UserContext)
-    const queue = useContext(QueueContext)
     const [isBoostOn, setBoostOn] = useState<boolean>(false)
     const [isSquashOn, setSquashOn] = useState<boolean>(false)
     const [isHover, setIsHover] = useState<boolean>(false) // null, purple1, purple2, grey1, grey2
@@ -124,14 +122,16 @@ const BlockButton = ({ type, count, data }: Props) => {
             {isBoostOn ? (
                 <VoteBox
                     isUpvote={true}
-                    data={data}
                     closeVote={() => setBoostOn(false)}
+                    dataId={data.id}
+                    isPost={data.type === DataType.Post}
                 />
             ) : isSquashOn ? (
                 <VoteBox
                     isUpvote={false}
-                    data={data}
                     closeVote={() => setSquashOn(false)}
+                    dataId={data.id}
+                    isPost={data.type === DataType.Post}
                 />
             ) : (
                 <div></div>

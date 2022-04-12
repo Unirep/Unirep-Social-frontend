@@ -1,7 +1,7 @@
 import { createContext } from 'react'
 import { makeAutoObservable } from 'mobx'
 
-import { Post, Comment, QueryType } from '../constants'
+import { Post, Comment, QueryType, Vote } from '../constants'
 import { makeURL, convertDataToPost, convertDataToComment } from '../utils'
 import UserContext, { User } from './User'
 import QueueContext, { Queue } from './Queue'
@@ -17,6 +17,9 @@ export class Data {
     feedsByQuery = {} as { [query: string]: string[] }
     commentsByPostId = {} as { [postId: string]: string[] }
     commentsByQuery = {} as { [commentId: string]: string[] }
+    votesById = {} as { [id: string]: Vote }
+    votesByCommentId = {} as { [commentId: string]: string[] }
+    votesByPostId = {} as { [commentId: string]: string[] }
 
     constructor() {
         makeAutoObservable(this)
@@ -36,6 +39,13 @@ export class Data {
         const comments = [_comments].flat()
         for (const comment of comments) {
             this.commentsById[comment.id] = comment
+        }
+    }
+
+    private ingestVotes(_votes: Vote | Vote[]) {
+        const votes = [_votes].flat()
+        for (const vote of votes) {
+            this.votesById[vote._id] = vote
         }
     }
 
@@ -119,6 +129,22 @@ export class Data {
         const comment = await r.json()
         if (comment === null) return
         this.ingestComments(convertDataToComment(comment))
+    }
+
+    async loadVotesForCommentId(commentId: string) {
+        const r = await fetch(makeURL(`comment/${commentId}/votes`))
+        const votes = await r.json()
+        if (votes === null) return
+        this.ingestVotes(votes as Vote[])
+        this.votesByCommentId[commentId] = votes.map((v: Vote) => v._id)
+    }
+
+    async loadVotesForPostId(postId: string) {
+        const r = await fetch(makeURL(`post/${postId}/votes`))
+        const votes = await r.json()
+        if (votes === null) return
+        this.ingestVotes(votes as Vote[])
+        this.votesByPostId[postId] = votes.map((v: Vote) => v._id)
     }
 
     getAirdrop() {

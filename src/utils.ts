@@ -113,28 +113,6 @@ export const getRecords = async (currentEpoch: number, identity: string) => {
     return allRecords.flat()
 }
 
-const convertDataToVotes = (data: any) => {
-    if (data === null || data === undefined || !data.length)
-        return { votes: [], upvote: 0, downvote: 0 }
-    const votes: Vote[] = []
-    let upvote: number = 0
-    let downvote: number = 0
-    for (let i = 0; i < data.length; i++) {
-        const posRep = Number(data[i].posRep)
-        const negRep = Number(data[i].negRep)
-        const vote: Vote = {
-            upvote: posRep,
-            downvote: negRep,
-            epoch_key: data[i].voter,
-        }
-        upvote += posRep
-        downvote += negRep
-        votes.push(vote)
-    }
-
-    return { votes, upvote, downvote }
-}
-
 export const convertDataToComment = (data: any) => {
     const comment = {
         type: DataType.Comment,
