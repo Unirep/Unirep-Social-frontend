@@ -5,9 +5,11 @@ import { Post, Comment, QueryType } from '../constants'
 import { makeURL, convertDataToPost, convertDataToComment } from '../utils'
 import UserContext, { User } from './User'
 import QueueContext, { Queue } from './Queue'
+import UnirepContext, { UnirepConfig } from './Unirep'
 
 const queueContext = (QueueContext as any)._currentValue as Queue
 const userContext = (UserContext as any)._currentValue as User
+const unirepConfig = (UnirepContext as any)._currentValue as UnirepConfig
 
 export class Data {
     commentsById = {} as { [id: string]: Comment }
@@ -153,8 +155,7 @@ export class Data {
         title: string = '',
         content: string = '',
         epkNonce: number = 0,
-        minRep = 0,
-        proveKarma: number = 5
+        minRep = 0
     ) {
         const user = (UserContext as any)._currentValue
 
@@ -165,7 +166,7 @@ export class Data {
                     details: 'Generating zk proof...',
                 })
                 const { proof, publicSignals } = await user.genRepProof(
-                    proveKarma,
+                    unirepConfig.postReputation,
                     epkNonce,
                     minRep
                 )
@@ -182,7 +183,7 @@ export class Data {
                         title,
                         content,
                         proof,
-                        proveKarma,
+                        proveKarma: unirepConfig.postReputation,
                         publicSignals,
                     }),
                     method: 'POST',
@@ -257,8 +258,7 @@ export class Data {
         content: string,
         postId: string,
         epkNonce: number = 0,
-        minRep = 0,
-        proveKarma: number = 3
+        minRep = 0
     ) {
         queueContext.addOp(
             async (updateStatus) => {
@@ -267,7 +267,7 @@ export class Data {
                     details: 'Generating ZK proof...',
                 })
                 const { proof, publicSignals } = await userContext.genRepProof(
-                    proveKarma,
+                    unirepConfig.commentReputation,
                     epkNonce,
                     minRep
                 )
