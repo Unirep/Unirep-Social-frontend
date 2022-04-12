@@ -69,7 +69,7 @@ export class Data {
         }
         const ids = {} as { [key: string]: boolean }
         const postIds = posts.map((p) => p.id)
-        this.feedsByQuery[key] = [...postIds, ...this.feedsByQuery[key]].filter(
+        this.feedsByQuery[key] = [...this.feedsByQuery[key], ...postIds].filter(
             (id) => {
                 if (ids[id]) return false
                 ids[id] = true
@@ -97,8 +97,8 @@ export class Data {
         const ids = {} as { [key: string]: boolean }
         const commentIds = comments.map((c) => c.id)
         this.commentsByQuery[key] = [
-            ...commentIds,
             ...this.commentsByQuery[key],
+            ...commentIds,
         ].filter((id) => {
             if (ids[id]) return false
             ids[id] = true
