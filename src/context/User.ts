@@ -155,6 +155,8 @@ export class User extends Synchronizer {
         if (!this.id) throw new Error('No identity loaded')
         await this.unirepConfig.loadingPromise
         const { identityNullifier } = this.id
+        console.log('identity nullifier: ' + identityNullifier) // if not console log out, I cannot get my epks, don't know why, please don't delete this.
+
         const getEpochKeys = (epoch: number) => {
             const epks: string[] = []
             for (
@@ -269,6 +271,9 @@ export class User extends Synchronizer {
     async signUp(invitationCode: string) {
         if (this.id) {
             throw new Error('Identity already exists!')
+        }
+        if (!this.unirepState) {
+            await super.load()
         }
         const unirepConfig = (UnirepContext as any)._currentValue
         await unirepConfig.loadingPromise
