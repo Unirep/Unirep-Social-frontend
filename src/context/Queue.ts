@@ -87,6 +87,7 @@ export class Queue {
             ...options,
         })
         // TODO: possibly auto queue a UST if needed?
+        this.startDaemon()
     }
 
     resetLoading() {
