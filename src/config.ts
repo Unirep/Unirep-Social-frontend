@@ -4,14 +4,16 @@ import Unirep from '@unirep/contracts/artifacts/contracts/Unirep.sol/Unirep.json
 
 const EXPLORER_URL = 'https://kovan-optimistic.etherscan.io'
 
-const SERVER = 'https://unirep.tubby.cloud'
-// const SERVER = 'http://localhost:5000'
-// const DEFAULT_ETH_PROVIDER_URL = 'ws://localhost:8545'
-// const DEFAULT_ETH_PROVIDER_URL =
-//     'https://arb-rinkeby.g.alchemy.com/v2/LzkSzVuFVZimTOB45xcCH3Cals4dTzk_'
+let config: any = {}
+try {
+    const TERMINATOR = ''
+    const localConfig = require(`./localConfig.ts${TERMINATOR}`)
+    Object.assign(config, localConfig.default)
+} catch (_) {}
+
+const SERVER = config.SERVER ?? 'http://localhost:3001'
 const DEFAULT_ETH_PROVIDER_URL =
-    'https://opt-kovan.g.alchemy.com/v2/b5eaS0X3OMk54IppGh9ApffGoIOLIHOU'
-// const DEFAULT_ETH_PROVIDER_URL = 'http://localhost:8545'
+    config.DEFAULT_ETH_PROVIDER_URL ?? 'http://localhost:8545'
 const DEFAULT_ETH_PROVIDER = DEFAULT_ETH_PROVIDER_URL.startsWith('http')
     ? new ethers.providers.JsonRpcProvider(DEFAULT_ETH_PROVIDER_URL)
     : new ethers.providers.WebSocketProvider(DEFAULT_ETH_PROVIDER_URL)
