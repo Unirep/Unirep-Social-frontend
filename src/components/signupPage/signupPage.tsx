@@ -23,6 +23,7 @@ const SignupPage = () => {
     const [signupPromise, setSignupPromise] = useState<Promise<any>>(
         Promise.resolve()
     )
+    const [signupError, setSignupError] = useState<string | null>(null)
 
     const title = [
         'Join us',
@@ -51,7 +52,10 @@ const SignupPage = () => {
             setButtonLoading(true)
             const ret = await userContext.checkInvitationCode(invitationCode)
             if (ret) {
-                setSignupPromise(userContext.signUp(invitationCode))
+                const p = userContext
+                    .signUp(invitationCode)
+                    .catch((err) => setSignupError(err.toString()))
+                setSignupPromise(p)
                 setStep(1)
             } else {
                 setErrorMsg(
@@ -73,7 +77,9 @@ const SignupPage = () => {
         } else if (step === 3) {
             setButtonLoading(true)
             await signupPromise
-            postContext.getAirdrop()
+            if (signupError === null) {
+                postContext.getAirdrop()
+            }
             history.push('/')
         }
     }
@@ -211,6 +217,15 @@ const SignupPage = () => {
                                 name={mainButton[step]}
                             />
                         </div>
+                    )}
+                    {signupError && (
+                        <>
+                            <div style={{ height: '20px' }} />
+                            <div className="error">
+                                There was a problem signing up, please try again
+                                later! "{errorMsg}"
+                            </div>
+                        </>
                     )}
                     <div className="added-info">
                         Need an invitation code?{' '}

@@ -296,7 +296,12 @@ export class User extends Synchronizer {
             invitationCode,
         })
         const r = await fetch(apiURL)
-        const { epoch, transaction } = await r.json()
+        const { epoch, transaction, error } = await r.json()
+        if (error) {
+            this.id = undefined
+            this.userState = undefined
+            throw error
+        }
         await config.DEFAULT_ETH_PROVIDER.waitForTransaction(transaction)
         // start the daemon later so the signup ui isn't slow
         this.startDaemon()
