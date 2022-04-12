@@ -127,5 +127,5 @@ dist
 # Private key
 privateKey.ts
 
-# .env
-.env
+# local config file
+src/localConfig.ts
