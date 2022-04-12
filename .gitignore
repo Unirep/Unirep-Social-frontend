@@ -128,4 +128,4 @@ dist
 privateKey.ts
 
 # local config file
-src/localConfig.ts
+localConfig.json

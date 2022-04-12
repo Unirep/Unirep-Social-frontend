@@ -4,17 +4,9 @@ import Unirep from '@unirep/contracts/artifacts/contracts/Unirep.sol/Unirep.json
 
 const EXPLORER_URL = 'https://kovan-optimistic.etherscan.io'
 
-let localConfig = {
-    SERVER: 'http://localhost:3001',
-    DEFAULT_ETH_PROVIDER_URL: 'http://localhost:8545',
-}
-try {
-    localConfig = require('./localConfig').default
-} catch (_) {}
-
-const SERVER = localConfig.SERVER ?? 'http://localhost:3001'
+const SERVER = LOCAL_CONFIG.SERVER ?? 'http://localhost:3001'
 const DEFAULT_ETH_PROVIDER_URL =
-    localConfig.DEFAULT_ETH_PROVIDER_URL ?? 'http://localhost:8545'
+    LOCAL_CONFIG.DEFAULT_ETH_PROVIDER_URL ?? 'http://localhost:8545'
 const DEFAULT_ETH_PROVIDER = DEFAULT_ETH_PROVIDER_URL.startsWith('http')
     ? new ethers.providers.JsonRpcProvider(DEFAULT_ETH_PROVIDER_URL)
     : new ethers.providers.WebSocketProvider(DEFAULT_ETH_PROVIDER_URL)

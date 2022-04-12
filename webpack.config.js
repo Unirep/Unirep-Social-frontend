@@ -4,6 +4,12 @@ const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
 const webpack = require('webpack')
+const fs = require('fs')
+
+let localConfig = {}
+try {
+    localConfig = require('./src/localConfig.json')
+} catch (_) {}
 
 module.exports = {
     entry: ['./src/index.tsx'],
@@ -113,6 +119,7 @@ module.exports = {
                 versions: {},
                 cwd: '(() => "")',
             },
+            LOCAL_CONFIG: localConfig,
         }),
         new webpack.ProvidePlugin({
             Buffer: path.resolve(__dirname, 'externals', 'buffer.js'),
