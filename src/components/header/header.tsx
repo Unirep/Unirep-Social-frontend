@@ -5,8 +5,6 @@ import { observer } from 'mobx-react-lite'
 import { WebContext } from '../../context/WebContext'
 import UnirepContext from '../../context/Unirep'
 import UserContext from '../../context/User'
-import QueueContext from '../../context/Queue'
-import './header.scss'
 
 const Header = () => {
     const history = useHistory()

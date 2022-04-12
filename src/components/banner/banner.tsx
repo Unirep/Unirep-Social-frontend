@@ -2,7 +2,6 @@ import { useEffect, useState, useContext } from 'react'
 import { observer } from 'mobx-react-lite'
 
 import UserContext from '../../context/User'
-import './banner.scss'
 
 import { ABOUT_URL } from '../../config'
 

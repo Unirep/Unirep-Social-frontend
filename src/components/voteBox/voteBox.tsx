@@ -3,9 +3,8 @@ import 'react-circular-progressbar/dist/styles.css'
 
 import UserContext from '../../context/User'
 import PostContext from '../../context/Post'
-import './voteBox.scss'
 
-import { Post, Vote, Comment, DataType } from '../../constants'
+import { Post, Comment, DataType } from '../../constants'
 
 type Props = {
     isUpvote: boolean

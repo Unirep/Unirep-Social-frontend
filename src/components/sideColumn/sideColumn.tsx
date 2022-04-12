@@ -3,7 +3,6 @@ import { useHistory } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 
 import UserContext from '../../context/User'
-import './sideColumn.scss'
 
 import DefaultWidget from './defaultWidget'
 import UserInfoWidget from './userInfoWidget'

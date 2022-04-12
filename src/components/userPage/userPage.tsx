@@ -1,14 +1,12 @@
 import { useContext, useState, useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 
 import UserContext from '../../context/User'
-import './userPage.scss'
 
 import { ActionType } from '../../context/Queue'
-import { getPostsByQuery, getRecords, getCommentsByQuery } from '../../utils'
+import { getRecords } from '../../utils'
 import BasicPage from '../basicPage/basicPage'
-import { Record, Page, QueryType, Post, Comment } from '../../constants'
+import { Record, Page, QueryType } from '../../constants'
 import ActivityWidget from './activityWidget'
 import PostsList from '../postsList/postsList'
 import CommentsList from '../postsList/commentsList'

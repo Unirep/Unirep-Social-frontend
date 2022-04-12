@@ -1,7 +1,6 @@
 import { useHistory } from 'react-router-dom'
 import { useContext, useState, useEffect } from 'react'
 
-import './loginPage.scss'
 import LoadingCover from '../loadingCover/loadingCover'
 import LoadingButton from '../loadingButton/loadingButton'
 import UserContext from '../../context/User'

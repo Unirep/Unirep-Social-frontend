@@ -5,7 +5,6 @@ import { observer } from 'mobx-react-lite'
 import UserContext from '../../context/User'
 import PostContext from '../../context/Post'
 import { WebContext } from '../../context/WebContext'
-import './newPage.scss'
 
 import WritingField from '../writingField/writingField'
 import BasicPage from '../basicPage/basicPage'

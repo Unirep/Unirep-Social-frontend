@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 
 import { WebContext } from '../../context/WebContext'
-import './adminPage.scss'
 
 import { checkIsAdminCodeValid, adminLogin } from '../../utils'
 import AdminTable from './adminTable'

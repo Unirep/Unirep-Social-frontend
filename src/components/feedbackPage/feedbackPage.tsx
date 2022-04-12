@@ -1,5 +1,3 @@
-import './feedbackPage.scss'
-
 const FeedbackPage = () => {
     return (
         <div className="wrapper">

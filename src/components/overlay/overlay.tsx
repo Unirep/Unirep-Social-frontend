@@ -5,7 +5,6 @@ import { observer } from 'mobx-react-lite'
 import { WebContext } from '../../context/WebContext'
 import UserContext from '../../context/User'
 import QueueContext from '../../context/Queue'
-import './overlay.scss'
 
 const Overlay = () => {
     const { setIsMenuOpen } = useContext(WebContext)

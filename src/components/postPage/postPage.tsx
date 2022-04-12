@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 
 import PostContext from '../../context/Post'
-import './postPage.scss'
 
 import { Page, Params } from '../../constants'
 import PostBlock from '../postBlock/postBlock'

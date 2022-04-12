@@ -1,6 +1,5 @@
 import { useHistory, useLocation } from 'react-router-dom'
 
-import './settingPage.scss'
 import BasicPage from '../basicPage/basicPage'
 import PrivateKey from './privateKey'
 

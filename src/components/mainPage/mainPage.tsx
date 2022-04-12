@@ -5,7 +5,6 @@ import { observer } from 'mobx-react-lite'
 import PostContext from '../../context/Post'
 import UserContext from '../../context/User'
 import UnirepContext from '../../context/Unirep'
-import './mainPage.scss'
 
 import { QueryType, AlertType } from '../../constants'
 import BasicPage from '../basicPage/basicPage'

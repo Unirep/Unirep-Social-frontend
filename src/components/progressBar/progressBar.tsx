@@ -2,7 +2,6 @@ import { useContext } from 'react'
 import { observer } from 'mobx-react-lite'
 
 import UserContext from '../../context/User'
-import './progressBar.scss'
 
 const ProgressBar = () => {
     const userContext = useContext(UserContext)

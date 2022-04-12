@@ -1,6 +1,5 @@
 import { useContext } from 'react'
 
-import './basicPage.scss'
 import { WebContext } from '../../context/WebContext'
 
 import Banner from '../banner/banner'

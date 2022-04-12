@@ -4,7 +4,6 @@ import { observer } from 'mobx-react-lite'
 
 import PostContext from '../../context/Post'
 import UserContext from '../../context/User'
-import './signupPage.scss'
 
 import LoadingCover from '../loadingCover/loadingCover'
 import LoadingButton from '../loadingButton/loadingButton'

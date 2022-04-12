@@ -1,7 +1,5 @@
 import { observer } from 'mobx-react-lite'
 
-import './postsList.scss'
-
 import PostBlock from '../postBlock/postBlock'
 import { Page } from '../../constants'
 import { LOAD_POST_COUNT } from '../../config'
