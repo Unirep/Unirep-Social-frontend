@@ -336,15 +336,11 @@ export class User extends Synchronizer {
         if (epkNonce >= this.unirepConfig.numEpochKeyNoncePerEpoch) {
             throw new Error('Invalid epk nonce')
         }
-        const currentEpoch = await this.loadCurrentEpoch()
-        const epk = this.getEpochKey(
-            epkNonce,
-            this.id?.identityNullifier,
-            this.currentEpoch
-        )
-
-        // is this necessary???
-        await this.loadReputation()
+        const [currentEpoch] = await Promise.all([
+            this.loadCurrentEpoch(),
+            this.loadReputation(),
+        ])
+        const epk = this.currentEpochKeys[epkNonce]
 
         if (this.spent === -1) {
             throw new Error('All nullifiers are spent')
