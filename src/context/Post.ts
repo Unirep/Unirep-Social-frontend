@@ -121,36 +121,6 @@ export class Data {
         this.ingestComments(convertDataToComment(comment))
     }
 
-    getAirdrop() {
-        queueContext.addOp(async (update) => {
-            if (!userContext.userState) return false
-
-            update({
-                title: 'Waiting to generate Airdrop',
-                details: 'Synchronizing with blockchain...',
-            })
-
-            console.log('before userContext wait for sync')
-            await userContext.waitForSync()
-            console.log('sync complete')
-
-            await userContext.calculateAllEpks()
-            update({
-                title: 'Creating Airdrop',
-                details: 'Generating ZK proof...',
-            })
-
-            const { transaction, error } = await userContext.getAirdrop()
-            if (error) throw error
-
-            update({
-                title: 'Creating Airdrop',
-                details: 'Waiting for TX inclusion...',
-            })
-            await queueContext.afterTx(transaction)
-        })
-    }
-
     publishPost(
         title: string = '',
         content: string = '',

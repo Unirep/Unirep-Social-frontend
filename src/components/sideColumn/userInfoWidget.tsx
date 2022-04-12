@@ -34,6 +34,7 @@ const UserInfoWidget = () => {
         ) {
             return 'Doing UST...'
         }
+
         const days = Math.floor(diff / (24 * 60 * 60))
         if (days > 0) {
             return days + ' days'
@@ -118,31 +119,9 @@ const UserInfoWidget = () => {
                             <h2>It’s time to move on to the new cycle!</h2>
                             <button
                                 className="custom-btn"
-                                onClick={() => {
-                                    queue.addOp(
-                                        async (updateStatus) => {
-                                            updateStatus({
-                                                title: 'Performing UST',
-                                                details:
-                                                    'Generating ZK proof...',
-                                            })
-                                            const { transaction } =
-                                                await userContext.userStateTransition()
-                                            updateStatus({
-                                                title: 'Performing UST',
-                                                details:
-                                                    'Waiting for transaction...',
-                                            })
-                                            await queue.afterTx(transaction)
-                                            await userContext.calculateAllEpks()
-                                            await userContext.loadReputation()
-                                            await epochManager.updateWatch()
-                                        },
-                                        {
-                                            type: ActionType.UST,
-                                        }
-                                    )
-                                }}
+                                onClick={() =>
+                                    userContext.userStateTransition()
+                                }
                             >
                                 Let's go
                             </button>

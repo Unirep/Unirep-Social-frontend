@@ -9,7 +9,6 @@ import {
     unSerialiseIdentity,
     Identity,
 } from '@unirep/crypto'
-import { UnirepFactory } from '@unirep/unirep-social'
 import { makeURL } from '../utils'
 import { genEpochKey } from '@unirep/unirep'
 import { UnirepState, UserState } from '../overrides/unirep'
@@ -19,7 +18,12 @@ import {
     verifyProof,
 } from '@unirep/circuits'
 import UnirepContext from './Unirep'
+import QueueContext, { Queue } from './Queue'
 import { Synchronizer } from './Synchronizer'
+import EpochContext, { EpochManager } from './EpochManager'
+
+const queueContext = (QueueContext as any)._currentValue as Queue
+const epochManager = (EpochContext as any)._currentValue as EpochManager
 
 export class User extends Synchronizer {
     id?: Identity
@@ -86,12 +90,7 @@ export class User extends Synchronizer {
             })
         }
 
-        // start listening for new epochs
-        this.unirepConfig.unirep.on(
-            'EpochEnded',
-            this.loadCurrentEpoch.bind(this)
-        )
-        await this.loadCurrentEpoch()
+        this.currentEpoch = await epochManager.loadCurrentEpoch()
     }
 
     save() {
@@ -107,16 +106,6 @@ export class User extends Synchronizer {
             throw new Error('Invalid user state toJSON return value')
         }
         window.localStorage.setItem('user', JSON.stringify(data))
-    }
-
-    async loadCurrentEpoch() {
-        await this.unirepConfig.loadingPromise
-        const unirepContract = UnirepFactory.connect(
-            this.unirepConfig.unirepAddress,
-            config.DEFAULT_ETH_PROVIDER
-        )
-        this.currentEpoch = Number(await unirepContract.currentEpoch())
-        return this.currentEpoch
     }
 
     get currentEpochKeys() {
@@ -155,7 +144,6 @@ export class User extends Synchronizer {
         if (!this.id) throw new Error('No identity loaded')
         await this.unirepConfig.loadingPromise
         const { identityNullifier } = this.id
-        console.log('identity nullifier: ' + identityNullifier) // if not console log out, I cannot get my epks, don't know why, please don't delete this.
 
         const getEpochKeys = (epoch: number) => {
             const epks: string[] = []
@@ -180,20 +168,8 @@ export class User extends Synchronizer {
         for (let x = 1; x <= this.currentEpoch; x++) {
             this.allEpks.push(...getEpochKeys(x))
         }
-    }
 
-    private getEpochKey(
-        epkNonce: number,
-        identityNullifier: any,
-        epoch: number
-    ) {
-        const epochKey = genEpochKey(
-            identityNullifier,
-            epoch,
-            epkNonce,
-            this.unirepConfig.epochTreeDepth
-        )
-        return epochKey.toString(16)
+        console.log('all epks: ' + this.allEpks)
     }
 
     async loadReputation() {
@@ -207,48 +183,77 @@ export class User extends Synchronizer {
     }
 
     async getAirdrop() {
-        if (!this.id || !this.userState) throw new Error('Identity not loaded')
-        await this.unirepConfig.loadingPromise
-        const unirepSocial = new ethers.Contract(
-            this.unirepConfig.unirepSocialAddress,
-            config.UNIREP_SOCIAL_ABI,
-            config.DEFAULT_ETH_PROVIDER
-        )
-        // generate an airdrop proof
-        const attesterId = this.unirepConfig.attesterId
-        const { proof, publicSignals } =
-            await this.userState.genUserSignUpProof(BigInt(attesterId))
+        queueContext.addOp(async (update) => {
+            if (!this.id || !this.userState)
+                throw new Error('Identity not loaded')
 
-        const epk = genEpochKey(
-            this.id.identityNullifier,
-            this.userState.getUnirepStateCurrentEpoch(),
-            0
-        )
-        const gotAirdrop = await unirepSocial.isEpochKeyGotAirdrop(epk)
-        if (gotAirdrop) {
-            return {
-                error: 'The epoch key has been airdropped.',
-                transaction: undefined,
+            update({
+                title: 'Waiting to generate Airdrop',
+                details: 'Synchronizing with blockchain...',
+            })
+
+            console.log('before userContext wait for sync')
+            await this.waitForSync()
+            console.log('sync complete')
+
+            update({
+                title: 'Creating Airdrop',
+                details: 'Generating ZK proof...',
+            })
+
+            await this.unirepConfig.loadingPromise
+            const unirepSocial = new ethers.Contract(
+                this.unirepConfig.unirepSocialAddress,
+                config.UNIREP_SOCIAL_ABI,
+                config.DEFAULT_ETH_PROVIDER
+            )
+
+            // check if user is airdropped
+            const epk = genEpochKey(
+                this.id.identityNullifier,
+                this.userState.getUnirepStateCurrentEpoch(),
+                0
+            )
+
+            const gotAirdrop = await unirepSocial.isEpochKeyGotAirdrop(epk)
+            if (gotAirdrop) {
+                console.log('The epoch key has been airdropped.')
+                return
             }
-        }
 
-        const apiURL = makeURL('airdrop', {})
-        const r = await fetch(apiURL, {
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify({
-                proof: formatProofForVerifierContract(proof),
-                publicSignals,
-            }),
-            method: 'POST',
+            // generate an airdrop proof
+            const attesterId = this.unirepConfig.attesterId
+            const { proof, publicSignals } =
+                await this.userState.genUserSignUpProof(BigInt(attesterId))
+
+            const apiURL = makeURL('airdrop', {})
+            const r = await fetch(apiURL, {
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    proof: formatProofForVerifierContract(proof),
+                    publicSignals,
+                }),
+                method: 'POST',
+            })
+            const { error, transaction } = await r.json()
+
+            const { blockNumber } =
+                await config.DEFAULT_ETH_PROVIDER.waitForTransaction(
+                    transaction
+                )
+            await this.waitForSync(blockNumber)
+            await this.loadReputation()
+
+            if (error) throw error
+
+            update({
+                title: 'Creating Airdrop',
+                details: 'Waiting for TX inclusion...',
+            })
+            await queueContext.afterTx(transaction)
         })
-        const { error, transaction } = await r.json()
-        const { blockNumber } =
-            await config.DEFAULT_ETH_PROVIDER.waitForTransaction(transaction)
-        await this.waitForSync(blockNumber)
-        await this.loadReputation()
-        return { error, transaction }
     }
 
     async checkInvitationCode(invitationCode: string): Promise<boolean> {
@@ -288,28 +293,24 @@ export class User extends Synchronizer {
             .padStart(64, '0')
 
         const serializedIdentity = serialiseIdentity(this.id)
-        const epk1 = this.getEpochKey(
-            0,
-            (this.id as any).identityNullifier,
-            this.currentEpoch
-        )
 
         // call server user sign up
         const apiURL = makeURL('signup', {
             commitment: commitment,
-            epk: epk1,
             invitationCode,
         })
         const r = await fetch(apiURL)
         const { epoch, transaction } = await r.json()
         await config.DEFAULT_ETH_PROVIDER.waitForTransaction(transaction)
+        this.waitForSync().then(() => {
+            this.calculateAllEpks()
+            this.save()
+        })
         return {
             i: serializedIdentity,
             c: commitment,
             epoch,
         }
-
-        // return await this.updateUser(epoch)
     }
 
     async login(idInput: string) {
@@ -345,7 +346,7 @@ export class User extends Synchronizer {
             throw new Error('Invalid epk nonce')
         }
         const [currentEpoch] = await Promise.all([
-            this.loadCurrentEpoch(),
+            (this.currentEpoch = await epochManager.loadCurrentEpoch()),
             this.loadReputation(),
         ])
         const epk = this.currentEpochKeys[epkNonce]
@@ -386,31 +387,43 @@ export class User extends Synchronizer {
     }
 
     async userStateTransition() {
-        if (!this.userState) {
-            throw new Error('User state not initialized')
-        }
-        const results = await this.userState.genUserStateTransitionProofs()
-        const r = await fetch(makeURL('userStateTransition'), {
-            headers: {
-                'content-type': 'application/json',
-            },
-            body: JSON.stringify({
-                results,
-                fromEpoch: this.userState.latestTransitionedEpoch,
-            }),
-            method: 'POST',
-        })
-        const { transaction, error } = await r.json()
+        queueContext.addOp(async (update) => {
+            if (!this.userState) {
+                throw new Error('User state not initialized')
+            }
 
-        if (error && error.length > 0) {
-            console.log(error)
-        } else {
-            await this.loadCurrentEpoch()
+            update({
+                title: 'Performing UST',
+                details: 'Generating ZK proof...',
+            })
+
+            const results = await this.userState.genUserStateTransitionProofs()
+            const r = await fetch(makeURL('userStateTransition'), {
+                headers: {
+                    'content-type': 'application/json',
+                },
+                body: JSON.stringify({
+                    results,
+                    fromEpoch: this.userState.latestTransitionedEpoch,
+                }),
+                method: 'POST',
+            })
+            const { transaction, error } = await r.json()
+
+            if (error && error.length > 0) {
+                throw new Error(error)
+            }
+
+            update({
+                title: 'Performing UST',
+                details: 'Waiting for transaction...',
+            })
+            await queueContext.afterTx(transaction)
+            this.currentEpoch = await epochManager.loadCurrentEpoch()
             await this.calculateAllEpks()
             await this.loadReputation()
-        } // store user state in local storage
-
-        return { error, transaction }
+            await epochManager.updateWatch()
+        })
     }
 
     async attestationSubmitted(event: any) {

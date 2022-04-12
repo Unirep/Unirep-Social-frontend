@@ -68,7 +68,7 @@ const SignupPage = () => {
                 setStep(3)
             }
         } else if (step === 3) {
-            postContext.getAirdrop()
+            userContext.getAirdrop()
             history.push('/')
         }
     }

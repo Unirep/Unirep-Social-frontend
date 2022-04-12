@@ -1,12 +1,14 @@
 import { createContext } from 'react'
-import UnirepContext from './Unirep'
-import UserContext from './User'
 import { makeAutoObservable } from 'mobx'
 
-const unirepConfig = (UnirepContext as any)._currentValue
-const userContext = (UserContext as any)._currentValue
+import { DEFAULT_ETH_PROVIDER } from '../config'
+import { UnirepFactory } from '@unirep/unirep-social'
 
-class EpochManager {
+import UnirepContext from './Unirep'
+
+const unirepConfig = (UnirepContext as any)._currentValue
+
+export class EpochManager {
     private timer: NodeJS.Timeout | null = null
     private currentEpoch = 0
     readonly nextTransition = 0
@@ -17,6 +19,13 @@ class EpochManager {
         if (typeof window !== 'undefined') {
             this.updateWatch()
         }
+
+        this.load()
+    }
+
+    async load() {
+        await unirepConfig.loadingPromise
+        unirepConfig.unirep.on('EpochEnded', this.loadCurrentEpoch.bind(this))
     }
 
     async updateWatch() {
@@ -40,6 +49,16 @@ class EpochManager {
         return waitTime
     }
 
+    async loadCurrentEpoch() {
+        await unirepConfig.loadingPromise
+        const unirepContract = UnirepFactory.connect(
+            unirepConfig.unirepAddress,
+            DEFAULT_ETH_PROVIDER
+        )
+        this.currentEpoch = Number(await unirepContract.currentEpoch())
+        return this.currentEpoch
+    }
+
     private async _nextTransition() {
         const [lastTransition, epochLength] = await Promise.all([
             unirepConfig.unirep.latestEpochTransitionTime(),
@@ -52,7 +71,7 @@ class EpochManager {
         // wait for someone to actually execute the epoch transition
         for (;;) {
             // wait for the epoch change to happen
-            const newEpoch = await userContext.loadCurrentEpoch()
+            const newEpoch = await this.loadCurrentEpoch()
             if (newEpoch > this.currentEpoch) {
                 // we're ready to transition,
                 this.currentEpoch = newEpoch
