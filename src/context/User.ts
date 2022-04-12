@@ -190,9 +190,7 @@ export class User extends Synchronizer {
                 details: 'Synchronizing with blockchain...',
             })
 
-            console.log('before userContext wait for sync')
             await this.waitForSync()
-            console.log('sync complete')
 
             update({
                 title: 'Creating Airdrop',
@@ -207,14 +205,11 @@ export class User extends Synchronizer {
             )
 
             // check if user is airdropped
-            const epk = genEpochKey(
-                this.id.identityNullifier,
-                this.userState.getUnirepStateCurrentEpoch(),
-                0
-            )
+            const epk = this.currentEpochKeys[0]
 
             const gotAirdrop = await unirepSocial.isEpochKeyGotAirdrop(epk)
             if (gotAirdrop) {
+                // not an error for now, just checking
                 console.log('The epoch key has been airdropped.')
                 return
             }
@@ -236,21 +231,20 @@ export class User extends Synchronizer {
                 method: 'POST',
             })
             const { error, transaction } = await r.json()
+            if (error) throw error
 
             const { blockNumber } =
                 await config.DEFAULT_ETH_PROVIDER.waitForTransaction(
                     transaction
                 )
-            await this.waitForSync(blockNumber)
-            await this.loadReputation()
-
-            if (error) throw error
-
             update({
                 title: 'Creating Airdrop',
                 details: 'Waiting for TX inclusion...',
             })
+
+            await this.waitForSync(blockNumber)
             await queueContext.afterTx(transaction)
+            await this.loadReputation()
         })
     }
 
@@ -275,11 +269,22 @@ export class User extends Synchronizer {
         if (this.id) {
             throw new Error('Identity already exists!')
         }
-        if (!this.unirepState) {
-            await super.load()
-        }
+
         const unirepConfig = (UnirepContext as any)._currentValue
         await unirepConfig.loadingPromise
+
+        this.unirepState = new UnirepState({
+            globalStateTreeDepth: this.unirepConfig.globalStateTreeDepth,
+            userStateTreeDepth: this.unirepConfig.userStateTreeDepth,
+            epochTreeDepth: this.unirepConfig.epochTreeDepth,
+            attestingFee: this.unirepConfig.attestingFee,
+            epochLength: this.unirepConfig.epochLength,
+            numEpochKeyNoncePerEpoch:
+                this.unirepConfig.numEpochKeyNoncePerEpoch,
+            maxReputationBudget: this.unirepConfig.maxReputationBudget,
+        })
+
+        if (!this.unirepState) throw new Error('Unirep state not initialized')
 
         const id = genIdentity()
         this.setIdentity(id)
@@ -315,8 +320,19 @@ export class User extends Synchronizer {
         const hasSignedUp = await this._hasSignedUp(idInput)
         if (!hasSignedUp) return false
 
-        await super.load()
-        if (!this.unirepState) throw new Error('Unirep state not initialized')
+        const unirepConfig = (UnirepContext as any)._currentValue
+        await unirepConfig.loadingPromise
+
+        this.unirepState = new UnirepState({
+            globalStateTreeDepth: this.unirepConfig.globalStateTreeDepth,
+            userStateTreeDepth: this.unirepConfig.userStateTreeDepth,
+            epochTreeDepth: this.unirepConfig.epochTreeDepth,
+            attestingFee: this.unirepConfig.attestingFee,
+            epochLength: this.unirepConfig.epochLength,
+            numEpochKeyNoncePerEpoch:
+                this.unirepConfig.numEpochKeyNoncePerEpoch,
+            maxReputationBudget: this.unirepConfig.maxReputationBudget,
+        })
 
         this.setIdentity(idInput)
         this.startDaemon()
@@ -343,10 +359,8 @@ export class User extends Synchronizer {
         if (epkNonce >= this.unirepConfig.numEpochKeyNoncePerEpoch) {
             throw new Error('Invalid epk nonce')
         }
-        const [currentEpoch] = await Promise.all([
-            (this.currentEpoch = await epochManager.loadCurrentEpoch()),
-            this.loadReputation(),
-        ])
+        this.currentEpoch = await epochManager.loadCurrentEpoch()
+        await this.loadReputation()
         const epk = this.currentEpochKeys[epkNonce]
 
         if (this.spent === -1) {
@@ -381,7 +395,7 @@ export class User extends Synchronizer {
         const proof = formatProofForVerifierContract(results.proof)
         const publicSignals = results.publicSignals
         this.save()
-        return { epk, proof, publicSignals, currentEpoch }
+        return { epk, proof, publicSignals, currentEpoch: this.currentEpoch }
     }
 
     async userStateTransition() {
