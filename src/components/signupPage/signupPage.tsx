@@ -20,6 +20,9 @@ const SignupPage = () => {
     const [errorMsg, setErrorMsg] = useState<string>('')
     const [isButtonLoading, setButtonLoading] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState(false)
+    const [signupPromise, setSignupPromise] = useState<Promise<any>>(
+        Promise.resolve()
+    )
 
     const title = [
         'Join us',
@@ -48,7 +51,7 @@ const SignupPage = () => {
             setButtonLoading(true)
             const ret = await userContext.checkInvitationCode(invitationCode)
             if (ret) {
-                await userContext.signUp(invitationCode)
+                setSignupPromise(userContext.signUp(invitationCode))
                 setStep(1)
             } else {
                 setErrorMsg(
@@ -68,6 +71,8 @@ const SignupPage = () => {
                 setStep(3)
             }
         } else if (step === 3) {
+            setButtonLoading(true)
+            await signupPromise
             postContext.getAirdrop()
             history.push('/')
         }
