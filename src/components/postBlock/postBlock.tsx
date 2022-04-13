@@ -13,6 +13,12 @@ import { Post, Page, ButtonType, AlertType, DataType } from '../../constants'
 import CommentField from './commentField'
 import CommentBlock from './commentBlock'
 import BlockButton from './blockButton'
+import MarkdownIt from 'markdown-it'
+
+const markdown = new MarkdownIt({
+    html: false,
+    linkify: true,
+})
 
 type AlertProps = {
     type: AlertType
@@ -44,6 +50,7 @@ const PostBlock = ({ postId, page }: Props) => {
     const userContext = useContext(UserContext)
     const postContext = useContext(PostContext)
     const post = postContext.postsById[postId]
+    const postHtml = markdown.render(post.content)
     const comments = postContext.commentsByPostId[postId] || []
 
     const date = dateformat(new Date(post.post_time), 'dd/mm/yyyy hh:MM TT')
@@ -56,8 +63,6 @@ const PostBlock = ({ postId, page }: Props) => {
     useEffect(() => {
         postContext.loadCommentsByPostId(postId)
     }, [])
-
-    const textLimit = 240
 
     return (
         <div className="post-block">
@@ -106,9 +111,15 @@ const PostBlock = ({ postId, page }: Props) => {
             >
                 <div className="title">{post.title}</div>
                 <div className="content">
-                    {post.content.length > textLimit && page == Page.Home
-                        ? post.content.slice(0, textLimit) + '...'
-                        : post.content}
+                    <div
+                        style={{
+                            maxHeight: page == Page.Home ? '300px' : undefined,
+                            overflow: 'hidden',
+                        }}
+                        dangerouslySetInnerHTML={{
+                            __html: postHtml,
+                        }}
+                    />
                 </div>
             </div>
             {page === Page.Home ? <div className="divider"></div> : <div></div>}

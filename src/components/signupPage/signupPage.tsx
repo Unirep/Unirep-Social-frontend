@@ -19,6 +19,10 @@ const SignupPage = () => {
     const [errorMsg, setErrorMsg] = useState<string>('')
     const [isButtonLoading, setButtonLoading] = useState<boolean>(false)
     const [isLoading, setIsLoading] = useState(false)
+    const [signupPromise, setSignupPromise] = useState<Promise<any>>(
+        Promise.resolve()
+    )
+    const [signupError, setSignupError] = useState<string | null>(null)
 
     const title = [
         'Join us',
@@ -47,7 +51,10 @@ const SignupPage = () => {
             setButtonLoading(true)
             const ret = await userContext.checkInvitationCode(invitationCode)
             if (ret) {
-                await userContext.signUp(invitationCode)
+                const p = userContext
+                    .signUp(invitationCode)
+                    .catch((err) => setSignupError(err.toString()))
+                setSignupPromise(p)
                 setStep(1)
             } else {
                 setErrorMsg(
@@ -67,7 +74,11 @@ const SignupPage = () => {
                 setStep(3)
             }
         } else if (step === 3) {
-            postContext.getAirdrop()
+            setButtonLoading(true)
+            await signupPromise
+            if (signupError === null) {
+                postContext.getAirdrop()
+            }
             history.push('/')
         }
     }
@@ -205,6 +216,15 @@ const SignupPage = () => {
                                 name={mainButton[step]}
                             />
                         </div>
+                    )}
+                    {signupError && (
+                        <>
+                            <div style={{ height: '20px' }} />
+                            <div className="error">
+                                There was a problem signing up, please try again
+                                later! "{signupError}"
+                            </div>
+                        </>
                     )}
                     <div className="added-info">
                         Need an invitation code?{' '}

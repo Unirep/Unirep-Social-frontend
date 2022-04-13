@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react'
+import { useState, useContext, useEffect } from 'react'
 import 'react-circular-progressbar/dist/styles.css'
 
 import UserContext from '../../context/User'
@@ -8,10 +8,11 @@ import { Post, Comment, DataType } from '../../constants'
 
 type Props = {
     isUpvote: boolean
-    data: Post | Comment
     closeVote: () => void
+    dataId: string
+    isPost: boolean
 }
-const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
+const VoteBox = ({ isUpvote, closeVote, dataId, isPost }: Props) => {
     const userContext = useContext(UserContext)
     const postContext = useContext(PostContext)
     const [givenAmount, setGivenAmount] = useState<number>(1)
@@ -42,6 +43,18 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
         // }
         // return []
     })
+    const votes =
+        (isPost ? postContext.votesByPostId : postContext.votesByCommentId)[
+            dataId
+        ] || []
+
+    useEffect(() => {
+        if (isPost) {
+            postContext.loadVotesForPostId(dataId)
+        } else {
+            postContext.loadVotesForCommentId(dataId)
+        }
+    }, [])
 
     const doVote = async () => {
         if (!userContext.userState) {
@@ -49,17 +62,19 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
         } else if (givenAmount === undefined) {
             console.error('no enter any given amount')
         } else {
-            const isPost = data.type === DataType.Post
             const upvote = isUpvote ? givenAmount : 0
             const downvote = isUpvote ? 0 : givenAmount
-            if ((upvote === 0 && downvote === 0) || !data.epoch_key) {
+            const obj = isPost
+                ? postContext.postsById[dataId]
+                : postContext.commentsById[dataId]
+            if ((upvote === 0 && downvote === 0) || !obj.epoch_key) {
                 throw new Error('invalid data for vote')
             }
 
             postContext.vote(
-                isPost ? data.id : '',
-                isPost ? '' : data.id,
-                data.epoch_key,
+                isPost ? dataId : '',
+                isPost ? '' : dataId,
+                obj.epoch_key,
                 epkNonce,
                 upvote,
                 downvote
@@ -188,13 +203,17 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
                         </div>
                         {isHistoriesOpen ? (
                             <div className="histories-list">
-                                {voteHistories.map((h, i) => (
+                                {votes.map((id, i) => (
                                     <div className="record" key={i}>
                                         <div className="record-epk">
-                                            {h.epoch_key}
+                                            {postContext.votesById[id].voter}
                                         </div>
                                         <span>
-                                            {isUpvote ? h.upvote : h.downvote}
+                                            {isUpvote
+                                                ? postContext.votesById[id]
+                                                      .posRep
+                                                : postContext.votesById[id]
+                                                      .negRep}
                                         </span>
                                         <img
                                             src={require(`../../../public/images/${

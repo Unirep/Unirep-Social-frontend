@@ -126,3 +126,6 @@ dist
 
 # Private key
 privateKey.ts
+
+# local config file
+src/localConfig.ts

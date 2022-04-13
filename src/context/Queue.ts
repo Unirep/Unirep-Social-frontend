@@ -55,9 +55,7 @@ export class Queue {
         }
     }
 
-    async load() {
-        this.startDaemon()
-    }
+    async load() {}
 
     get isLoading() {
         return this.loadingState === LoadingState.loading

@@ -45,6 +45,7 @@ export class User extends Synchronizer {
             latestBlock: observable,
             latestProcessedBlock: observable,
             isInitialSyncing: observable,
+            id: observable,
         })
         if (typeof window !== 'undefined') {
             this.loadingPromise = this.load()
@@ -277,7 +278,6 @@ export class User extends Synchronizer {
         this.setIdentity(id)
         if (!this.id) throw new Error('Iden is not set')
 
-        this.startDaemon()
         const commitment = genIdentityCommitment(this.id)
             .toString(16)
             .padStart(64, '0')
@@ -296,8 +296,15 @@ export class User extends Synchronizer {
             invitationCode,
         })
         const r = await fetch(apiURL)
-        const { epoch, transaction } = await r.json()
+        const { epoch, transaction, error } = await r.json()
+        if (error) {
+            this.id = undefined
+            this.userState = undefined
+            throw error
+        }
         await config.DEFAULT_ETH_PROVIDER.waitForTransaction(transaction)
+        // start the daemon later so the signup ui isn't slow
+        this.startDaemon()
         return {
             i: serializedIdentity,
             c: commitment,
