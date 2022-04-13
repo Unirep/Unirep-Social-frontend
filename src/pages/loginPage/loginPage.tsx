@@ -1,8 +1,8 @@
 import { useHistory } from 'react-router-dom'
 import { useContext, useState, useEffect } from 'react'
 
-import LoadingCover from '../loadingCover/loadingCover'
-import LoadingButton from '../loadingButton/loadingButton'
+import LoadingCover from '../../components/loadingCover/loadingCover'
+import LoadingButton from '../../components/loadingButton/loadingButton'
 import UserContext from '../../context/User'
 
 const LoginPage = () => {

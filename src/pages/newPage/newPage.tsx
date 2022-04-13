@@ -6,7 +6,7 @@ import UserContext from '../../context/User'
 import PostContext from '../../context/Post'
 import { WebContext } from '../../context/WebContext'
 
-import WritingField from '../writingField/writingField'
+import WritingField from '../../components/writingField/writingField'
 import BasicPage from '../basicPage/basicPage'
 import { DataType } from '../../constants'
 

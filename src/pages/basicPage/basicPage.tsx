@@ -2,11 +2,11 @@ import { useContext } from 'react'
 
 import { WebContext } from '../../context/WebContext'
 
-import Banner from '../banner/banner'
-import SideColumn from '../sideColumn/sideColumn'
-import LoadingWidget from '../loadingWidget/loadingWidget'
-import Overlay from '../overlay/overlay'
-import ProgressBar from '../progressBar/progressBar'
+import Banner from '../../layout/banner/banner'
+import SideColumn from '../../layout/sideColumn/sideColumn'
+import LoadingWidget from '../../components/loadingWidget/loadingWidget'
+import Overlay from '../../layout/overlay/overlay'
+import ProgressBar from '../../layout/progressBar/progressBar'
 
 type Props = {
     children: any

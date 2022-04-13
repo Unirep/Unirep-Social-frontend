@@ -6,7 +6,7 @@ import UserContext from '../../context/User'
 import EpochContext from '../../context/EpochManager'
 import QueueContext, { ActionType } from '../../context/Queue'
 
-import HelpWidget from '../helpWidget/helpWidget'
+import HelpWidget from '../../components/helpWidget/helpWidget'
 import { InfoType } from '../../constants'
 
 const UserInfoWidget = () => {

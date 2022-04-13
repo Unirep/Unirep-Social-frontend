@@ -8,8 +8,8 @@ import UnirepContext from '../../context/Unirep'
 
 import { QueryType, AlertType } from '../../constants'
 import BasicPage from '../basicPage/basicPage'
-import PostsList from '../postsList/postsList'
-import Feed from '../feed/feed'
+import PostsList from '../../components/postsList/postsList'
+import Feed from '../../components/feed/feed'
 
 const MainPage = () => {
     const history = useHistory()

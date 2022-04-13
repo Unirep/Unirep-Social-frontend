@@ -5,7 +5,7 @@ import { observer } from 'mobx-react-lite'
 import PostContext from '../../context/Post'
 
 import { Page, Params } from '../../constants'
-import PostBlock from '../postBlock/postBlock'
+import PostBlock from '../../components/postBlock/postBlock'
 import BasicPage from '../basicPage/basicPage'
 
 const PostPage = () => {

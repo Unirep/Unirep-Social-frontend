@@ -4,8 +4,6 @@ import 'react-circular-progressbar/dist/styles.css'
 import UserContext from '../../context/User'
 import PostContext from '../../context/Post'
 
-import { Post, Comment, DataType } from '../../constants'
-
 type Props = {
     isUpvote: boolean
     closeVote: () => void
@@ -20,28 +18,6 @@ const VoteBox = ({ isUpvote, closeVote, dataId, isPost }: Props) => {
     const [isHistoriesOpen, setHistoriesOpen] = useState(false)
     const [voteHistories, setVoteHistories] = useState(() => {
         return [] as any[]
-        // if (data.votes.length === 0 || !userContext.userState) {
-        //     return []
-        // }
-        //
-        // if (userContext.identity) {
-        //     let ret: Vote[] = []
-        //     for (var i = 0; i < data.votes.length; i++) {
-        //         if (
-        //             (isUpvote && data.votes[i].upvote > 0) ||
-        //             (!isUpvote && data.votes[i].downvote > 0)
-        //         ) {
-        //             const e = userContext.allEpks.find(
-        //                 (_e) => _e === data.votes[i].epoch_key
-        //             )
-        //             if (e !== null) {
-        //                 ret = [...ret, data.votes[i]]
-        //             }
-        //         }
-        //     }
-        //     return ret
-        // }
-        // return []
     })
     const votes =
         (isPost ? postContext.votesByPostId : postContext.votesByCommentId)[

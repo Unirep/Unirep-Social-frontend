@@ -5,8 +5,8 @@ import { observer } from 'mobx-react-lite'
 import PostContext from '../../context/Post'
 import UserContext from '../../context/User'
 
-import LoadingCover from '../loadingCover/loadingCover'
-import LoadingButton from '../loadingButton/loadingButton'
+import LoadingCover from '../../components/loadingCover/loadingCover'
+import LoadingButton from '../../components/loadingButton/loadingButton'
 
 const SignupPage = () => {
     const userContext = useContext(UserContext)
