@@ -171,6 +171,11 @@
                 padding: 17px auto;
             }
 
+            .outdated {
+                background-color: $grey-300;
+                cursor: not-allowed;
+            }
+
             .histories {
                 width: 100%;
                 margin-top: 32px;
