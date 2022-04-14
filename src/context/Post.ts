@@ -63,7 +63,12 @@ export class Data {
         this.ingestPosts(post)
     }
 
-    async loadFeed(query: string, lastRead = '0', epks = [] as string[]) {
+    async loadFeed(
+        query: string,
+        lastRead = '0',
+        epks = [] as string[],
+        afterNewPost: boolean = false
+    ) {
         const apiURL = makeURL(`post`, {
             query,
             lastRead,
@@ -79,13 +84,15 @@ export class Data {
         }
         const ids = {} as { [key: string]: boolean }
         const postIds = posts.map((p) => p.id)
-        this.feedsByQuery[key] = [...this.feedsByQuery[key], ...postIds].filter(
-            (id) => {
-                if (ids[id]) return false
-                ids[id] = true
-                return true
-            }
-        )
+        this.feedsByQuery[key] = (
+            afterNewPost
+                ? [...postIds, ...this.feedsByQuery[key]]
+                : [...this.feedsByQuery[key], ...postIds]
+        ).filter((id) => {
+            if (ids[id]) return false
+            ids[id] = true
+            return true
+        })
     }
 
     async loadComments(query: string, lastRead = '0', epks = [] as string[]) {
@@ -217,7 +224,7 @@ export class Data {
                 const { transaction, error } = await r.json()
                 if (error) throw error
                 await queueContext.afterTx(transaction)
-                await this.loadFeed(QueryType.New)
+                await this.loadFeed(QueryType.New, '0', [], true)
             },
             {
                 successMessage: 'Post is finalized',
