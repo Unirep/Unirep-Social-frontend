@@ -49,8 +49,11 @@ const VoteBox = ({ isUpvote, closeVote, dataId, isPost }: Props) => {
             dataId
         ] || []
 
-    const isAvailable =
-        userContext.currentEpoch === postContext.postsById[dataId].current_epoch
+    const isAvailable = isPost
+        ? userContext.currentEpoch ===
+          postContext.postsById[dataId].current_epoch
+        : userContext.currentEpoch ===
+          postContext.commentsById[dataId].current_epoch
 
     useEffect(() => {
         if (isPost) {
