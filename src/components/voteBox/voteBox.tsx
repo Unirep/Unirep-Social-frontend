@@ -21,28 +21,6 @@ const VoteBox = ({ isUpvote, closeVote, dataId, isPost }: Props) => {
     const [isHistoriesOpen, setHistoriesOpen] = useState(false)
     const [voteHistories, setVoteHistories] = useState(() => {
         return [] as any[]
-        // if (data.votes.length === 0 || !userContext.userState) {
-        //     return []
-        // }
-        //
-        // if (userContext.identity) {
-        //     let ret: Vote[] = []
-        //     for (var i = 0; i < data.votes.length; i++) {
-        //         if (
-        //             (isUpvote && data.votes[i].upvote > 0) ||
-        //             (!isUpvote && data.votes[i].downvote > 0)
-        //         ) {
-        //             const e = userContext.allEpks.find(
-        //                 (_e) => _e === data.votes[i].epoch_key
-        //             )
-        //             if (e !== null) {
-        //                 ret = [...ret, data.votes[i]]
-        //             }
-        //         }
-        //     }
-        //     return ret
-        // }
-        // return []
     })
     const votes =
         (isPost ? postContext.votesByPostId : postContext.votesByCommentId)[
@@ -204,25 +182,32 @@ const VoteBox = ({ isUpvote, closeVote, dataId, isPost }: Props) => {
                         </div>
                         {isHistoriesOpen ? (
                             <div className="histories-list">
-                                {votes.map((id, i) => (
-                                    <div className="record" key={i}>
-                                        <div className="record-epk">
-                                            {postContext.votesById[id].voter}
+                                {votes.map((id, i) => {
+                                    const v = postContext.votesById[id]
+                                    const shown =
+                                        (isUpvote && v.posRep > 0) ||
+                                        (!isUpvote && v.negRep > 0)
+                                    return shown ? (
+                                        <div className="record" key={i}>
+                                            <div className="record-epk">
+                                                {
+                                                    postContext.votesById[id]
+                                                        .voter
+                                                }
+                                            </div>
+                                            <span>
+                                                {isUpvote ? v.posRep : v.negRep}
+                                            </span>
+                                            <img
+                                                src={require(`../../../public/images/${
+                                                    isUpvote
+                                                        ? 'boost'
+                                                        : 'squash'
+                                                }-fill.svg`)}
+                                            />
                                         </div>
-                                        <span>
-                                            {isUpvote
-                                                ? postContext.votesById[id]
-                                                      .posRep
-                                                : postContext.votesById[id]
-                                                      .negRep}
-                                        </span>
-                                        <img
-                                            src={require(`../../../public/images/${
-                                                isUpvote ? 'boost' : 'squash'
-                                            }-fill.svg`)}
-                                        />
-                                    </div>
-                                ))}
+                                    ) : null
+                                })}
                             </div>
                         ) : (
                             // <div className="epks">
