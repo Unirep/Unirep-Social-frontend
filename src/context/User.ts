@@ -274,6 +274,19 @@ export class User extends Synchronizer {
         const unirepConfig = (UnirepContext as any)._currentValue
         await unirepConfig.loadingPromise
 
+        this.unirepState = new UnirepState({
+            globalStateTreeDepth: this.unirepConfig.globalStateTreeDepth,
+            userStateTreeDepth: this.unirepConfig.userStateTreeDepth,
+            epochTreeDepth: this.unirepConfig.epochTreeDepth,
+            attestingFee: this.unirepConfig.attestingFee,
+            epochLength: this.unirepConfig.epochLength,
+            numEpochKeyNoncePerEpoch:
+                this.unirepConfig.numEpochKeyNoncePerEpoch,
+            maxReputationBudget: this.unirepConfig.maxReputationBudget,
+        })
+
+        if (!this.unirepState) throw new Error('Unirep state not initialized')
+
         const id = genIdentity()
         this.setIdentity(id)
         if (!this.id) throw new Error('Iden is not set')
@@ -317,6 +330,19 @@ export class User extends Synchronizer {
     async login(idInput: string) {
         const hasSignedUp = await this._hasSignedUp(idInput)
         if (!hasSignedUp) return false
+
+        this.unirepState = new UnirepState({
+            globalStateTreeDepth: this.unirepConfig.globalStateTreeDepth,
+            userStateTreeDepth: this.unirepConfig.userStateTreeDepth,
+            epochTreeDepth: this.unirepConfig.epochTreeDepth,
+            attestingFee: this.unirepConfig.attestingFee,
+            epochLength: this.unirepConfig.epochLength,
+            numEpochKeyNoncePerEpoch:
+                this.unirepConfig.numEpochKeyNoncePerEpoch,
+            maxReputationBudget: this.unirepConfig.maxReputationBudget,
+        })
+
+        if (!this.unirepState) throw new Error('Unirep state not initialized')
 
         this.setIdentity(idInput)
         await this.calculateAllEpks()
