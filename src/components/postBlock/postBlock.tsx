@@ -17,6 +17,7 @@ import BlockButton from './blockButton'
 import MarkdownIt from 'markdown-it'
 
 const markdown = new MarkdownIt({
+    breaks: true,
     html: false,
     linkify: true,
 })
