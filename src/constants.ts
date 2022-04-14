@@ -1,3 +1,5 @@
+import { ActionType } from './context/Queue'
+
 export const isVotedText = "You've already voted."
 export const isAuthorText = 'You cannot vote on your own post or comment.'
 export const notLoginText = 'Sign in to participate.'
@@ -17,9 +19,18 @@ export interface User {
 }
 
 export interface Vote {
-    upvote: number
-    downvote: number
-    epoch_key: string
+    _id: string
+    transactionHash: string
+    epoch: number
+    voter: string
+    receiver: string
+    posRep: number
+    negRep: number
+    graffiti: string
+    overwriteGraffiti: boolean
+    postId: string
+    commentId: string
+    status: number // 0: pending, 1: on-chain, 2: disabled
 }
 
 export interface Comment {
@@ -27,7 +38,6 @@ export interface Comment {
     id: string // === txHash
     post_id: string
     content: string
-    votes: Vote[]
     upvote: number
     downvote: number
     epoch_key: string
@@ -43,15 +53,13 @@ export interface Post {
     id: string // txHash
     title: string
     content: string
-    votes: Vote[]
     upvote: number
     downvote: number
     epoch_key: string
     username: string
     post_time: number
     reputation: number
-    comments: Comment[]
-    commentsCount: number
+    commentCount: number
     current_epoch: number
     proofIndex: number
 }
@@ -102,14 +110,6 @@ export enum PageStatus {
 export enum DataType {
     Post,
     Comment,
-}
-
-export enum ActionType {
-    Post = 'Post',
-    Comment = 'Comment',
-    Vote = 'Vote',
-    UST = 'UST',
-    Signup = 'Signup',
 }
 
 export enum Page {

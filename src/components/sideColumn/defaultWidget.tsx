@@ -1,4 +1,3 @@
-import { useHistory } from 'react-router-dom'
 import { ABOUT_URL } from '../../config'
 
 type Props = {
@@ -7,8 +6,6 @@ type Props = {
 }
 
 const Choice = ({ name, gotoPage }: Props) => {
-    const history = useHistory()
-
     return (
         <a className="default-widget-choice" href={gotoPage}>
             {name}

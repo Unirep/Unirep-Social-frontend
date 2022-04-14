@@ -1,30 +1,29 @@
 import { useHistory } from 'react-router-dom'
 import { useContext, useState, useEffect } from 'react'
+import { observer } from 'mobx-react-lite'
 
+import PostContext from '../../context/Post'
+import UserContext from '../../context/User'
 import './signupPage.scss'
-import { WebContext } from '../../context/WebContext'
-import {
-    getEpochKeys,
-    getUserState,
-    getAirdrop,
-    getNextEpochTime,
-    checkInvitationCode,
-    userSignUp,
-} from '../../utils'
+
 import LoadingCover from '../loadingCover/loadingCover'
 import LoadingButton from '../loadingButton/loadingButton'
 
 const SignupPage = () => {
+    const userContext = useContext(UserContext)
+    const postContext = useContext(PostContext)
     const history = useHistory()
-    const { user, setUser, setNextUSTTime, isLoading, setIsLoading } =
-        useContext(WebContext)
     const [invitationCode, setInvitationCode] = useState<string>('')
     const [step, setStep] = useState<number>(0)
-    const [identity, setIdentity] = useState<string>('')
     const [isDownloaded, setIsDownloaded] = useState(false)
     const [userEnterIdentity, setUserEnterIdentity] = useState<string>('')
     const [errorMsg, setErrorMsg] = useState<string>('')
     const [isButtonLoading, setButtonLoading] = useState<boolean>(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const [signupPromise, setSignupPromise] = useState<Promise<any>>(
+        Promise.resolve()
+    )
+    const [signupError, setSignupError] = useState<string | null>(null)
 
     const title = [
         'Join us',
@@ -51,10 +50,12 @@ const SignupPage = () => {
             // send to server to check if invitation code does exist
             // if exists, get identity and commitment
             setButtonLoading(true)
-            const ret = await checkInvitationCode(invitationCode)
+            const ret = await userContext.checkInvitationCode(invitationCode)
             if (ret) {
-                const { i, c, epoch } = await userSignUp()
-                setIdentity(i)
+                const p = userContext
+                    .signUp(invitationCode)
+                    .catch((err) => setSignupError(err.toString()))
+                setSignupPromise(p)
                 setStep(1)
             } else {
                 setErrorMsg(
@@ -64,52 +65,21 @@ const SignupPage = () => {
             setButtonLoading(false)
         } else if (step === 1) {
             if (isDownloaded) {
-                navigator.clipboard.writeText(identity)
+                navigator.clipboard.writeText(userContext.identity || '')
                 setStep(2)
             }
         } else if (step === 2) {
-            if (userEnterIdentity !== identity) {
+            if (userEnterIdentity !== userContext.identity) {
                 setErrorMsg('Incorrect private key. Please try again.')
             } else {
                 setStep(3)
             }
         } else if (step === 3) {
-            setIsLoading(true)
-
-            const userStateResult = await getUserState(identity)
-            const currentRep = userStateResult.userState.getRepByAttester(
-                BigInt(userStateResult.attesterId)
-            )
-            const epks = getEpochKeys(identity, userStateResult.currentEpoch)
-            let allEpks: string[] = []
-            for (var i = userStateResult.currentEpoch; i > 0; i--) {
-                const oldEpks = getEpochKeys(identity, i)
-                allEpks = [...allEpks, ...oldEpks]
+            setButtonLoading(true)
+            await signupPromise
+            if (signupError === null) {
+                postContext.getAirdrop()
             }
-            const { error } = await getAirdrop(
-                identity,
-                userStateResult.userState
-            )
-            if (error !== undefined) {
-                console.error(error)
-            }
-
-            setUser({
-                identity: identity,
-                epoch_keys: epks,
-                all_epoch_keys: allEpks,
-                reputation:
-                    Number(currentRep.posRep) - Number(currentRep.negRep),
-                current_epoch: userStateResult.currentEpoch,
-                isConfirmed: true,
-                spent: 0,
-                userState: userStateResult.userState.toJSON(),
-            })
-
-            const nextET = await getNextEpochTime()
-            setNextUSTTime(nextET)
-
-            setIsLoading(false)
             history.push('/')
         }
     }
@@ -123,8 +93,9 @@ const SignupPage = () => {
     }
 
     const downloadPrivateKey = () => {
+        if (!userContext.identity) throw new Error('Identity not initialized')
         const element = document.createElement('a')
-        const file = new Blob([identity], { type: 'text/plain' })
+        const file = new Blob([userContext.identity], { type: 'text/plain' })
         element.href = URL.createObjectURL(file)
         element.download = 'unirep-social-identity.txt'
         document.body.appendChild(element)
@@ -176,7 +147,7 @@ const SignupPage = () => {
                                 step === 0
                                     ? invitationCode
                                     : step === 1
-                                    ? identity
+                                    ? userContext.identity
                                     : step === 2
                                     ? userEnterIdentity
                                     : ''
@@ -247,6 +218,15 @@ const SignupPage = () => {
                             />
                         </div>
                     )}
+                    {signupError && (
+                        <>
+                            <div style={{ height: '20px' }} />
+                            <div className="error">
+                                There was a problem signing up, please try again
+                                later! "{signupError}"
+                            </div>
+                        </>
+                    )}
                     <div className="added-info">
                         Need an invitation code?{' '}
                         <a
@@ -263,4 +243,4 @@ const SignupPage = () => {
     )
 }
 
-export default SignupPage
+export default observer(SignupPage)

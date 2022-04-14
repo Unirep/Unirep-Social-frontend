@@ -1,19 +1,24 @@
 import { useEffect, useContext } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
+import { observer } from 'mobx-react-lite'
 
-import './newPage.scss'
+import UserContext from '../../context/User'
+import PostContext from '../../context/Post'
 import { WebContext } from '../../context/WebContext'
+import './newPage.scss'
+
 import WritingField from '../writingField/writingField'
 import BasicPage from '../basicPage/basicPage'
-import { DataType, ActionType } from '../../constants'
+import { DataType } from '../../constants'
 
 const NewPage = () => {
+    const { setDraft } = useContext(WebContext)
     const history = useHistory()
     const location = useLocation<Location>()
     const state = JSON.parse(JSON.stringify(location.state))
     const isConfirmed = state.isConfirmed
-
-    const { setAction, user } = useContext(WebContext)
+    const userContext = useContext(UserContext)
+    const postContext = useContext(PostContext)
 
     useEffect(() => {
         console.log('Is this new page being confirmd? ' + isConfirmed)
@@ -23,26 +28,17 @@ const NewPage = () => {
         event.stopPropagation()
     }
 
-    const submit = (
+    const submit = async (
         title: string,
         content: string,
         epkNonce: number,
         reputation: number
     ) => {
-        console.log('submit post')
-        if (user === null) {
-            console.log('not login yet.')
-        } else {
-            const actionData = {
-                title,
-                content,
-                epkNonce,
-                identity: user.identity,
-                reputation,
-                spent: user.spent,
-            }
-            setAction({ action: ActionType.Post, data: actionData })
+        if (!userContext.userState) {
+            throw new Error('Should not be able to create post without login')
         }
+        postContext.publishPost(title, content, epkNonce, reputation)
+        setDraft('')
         history.push('/')
     }
 
@@ -59,4 +55,4 @@ const NewPage = () => {
     )
 }
 
-export default NewPage
+export default observer(NewPage)

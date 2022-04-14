@@ -1,7 +1,10 @@
 import { useEffect, useState, useContext } from 'react'
 import { useHistory } from 'react-router-dom'
-import { Post, Comment, ButtonType } from '../../constants'
-import { WebContext } from '../../context/WebContext'
+import { observer } from 'mobx-react-lite'
+
+import UserContext from '../../context/User'
+
+import { Post, Comment, ButtonType, DataType } from '../../constants'
 import VoteBox from '../voteBox/voteBox'
 
 type Props = {
@@ -12,8 +15,7 @@ type Props = {
 
 const BlockButton = ({ type, count, data }: Props) => {
     const history = useHistory()
-    const { user, isLoading } = useContext(WebContext)
-
+    const userContext = useContext(UserContext)
     const [isBoostOn, setBoostOn] = useState<boolean>(false)
     const [isSquashOn, setSquashOn] = useState<boolean>(false)
     const [isHover, setIsHover] = useState<boolean>(false) // null, purple1, purple2, grey1, grey2
@@ -24,34 +26,32 @@ const BlockButton = ({ type, count, data }: Props) => {
         if (type === ButtonType.Comments || type === ButtonType.Share) {
             return true
         } else {
-            if (user === null) return false
+            if (!userContext.userState) return false
             else {
-                if (data.current_epoch !== user.current_epoch) return false
-                else if (user.reputation - user.spent < 1) return false
-                else if (isLoading) return false
+                if (data.current_epoch !== userContext.currentEpoch)
+                    return false
+                else if (userContext.netReputation < 1) return false
                 else return true
             }
         }
     }
 
-    const [isAble, setIsAble] = useState<boolean>(() => checkAbility())
-
     const onClick = () => {
-        if (isAble) {
-            if (type === ButtonType.Comments) {
-                history.push(`/post/${data.id}`, { commentId: '' })
-            } else if (type === ButtonType.Boost) {
-                setBoostOn(true)
-            } else if (type === ButtonType.Squash) {
-                setSquashOn(true)
-            } else if (type === ButtonType.Share) {
-                navigator.clipboard.writeText(
-                    `https://unirep.social/post/${data.id}`
-                )
-                setIsLinkCopied(true)
-            }
-        }
         setIsHover(false)
+        setReminder('')
+
+        if (type === ButtonType.Comments) {
+            history.push(`/post/${data.id}`, { commentId: '' })
+        } else if (type === ButtonType.Boost) {
+            setBoostOn(true)
+        } else if (type === ButtonType.Squash) {
+            setSquashOn(true)
+        } else if (type === ButtonType.Share) {
+            navigator.clipboard.writeText(
+                `https://unirep.social/post/${data.id}`
+            )
+            setIsLinkCopied(true)
+        }
     }
 
     const onMouseOut = () => {
@@ -60,14 +60,12 @@ const BlockButton = ({ type, count, data }: Props) => {
     }
 
     const setReminderMessage = () => {
-        if (user === null) setReminder('Join us :)')
+        if (!userContext.userState) setReminder('Join us :)')
         else {
-            if (data.current_epoch !== user.current_epoch)
+            if (data.current_epoch !== userContext.currentEpoch)
                 setReminder('Time out :(')
-            else if (user.reputation - user.spent < 1)
-                setReminder('No enough Rep')
-            else if (isLoading && type !== ButtonType.Share)
-                setReminder('loading...')
+            else if (userContext.netReputation < 1) setReminder('No enough Rep')
+            else if (type !== ButtonType.Share) setReminder('loading...')
         }
     }
 
@@ -83,11 +81,6 @@ const BlockButton = ({ type, count, data }: Props) => {
         }
     }, [isLinkCopied])
 
-    useEffect(() => {
-        if (isLoading) setIsAble(false)
-        else setIsAble(checkAbility())
-    }, [isLoading])
-
     return (
         <div
             className={
@@ -101,7 +94,7 @@ const BlockButton = ({ type, count, data }: Props) => {
         >
             <img
                 src={require(`../../../public/images/${type}${
-                    isHover && isAble ? '-fill' : ''
+                    isHover && checkAbility() ? '-fill' : ''
                 }.svg`)}
             />
             {type !== ButtonType.Share ? (
@@ -113,7 +106,7 @@ const BlockButton = ({ type, count, data }: Props) => {
                 {type.charAt(0).toUpperCase() + type.slice(1)}
             </span>
 
-            {isAble ? (
+            {checkAbility() ? (
                 <div></div>
             ) : (
                 <div
@@ -129,14 +122,16 @@ const BlockButton = ({ type, count, data }: Props) => {
             {isBoostOn ? (
                 <VoteBox
                     isUpvote={true}
-                    data={data}
                     closeVote={() => setBoostOn(false)}
+                    dataId={data.id}
+                    isPost={data.type === DataType.Post}
                 />
             ) : isSquashOn ? (
                 <VoteBox
                     isUpvote={false}
-                    data={data}
                     closeVote={() => setSquashOn(false)}
+                    dataId={data.id}
+                    isPost={data.type === DataType.Post}
                 />
             ) : (
                 <div></div>
@@ -145,4 +140,4 @@ const BlockButton = ({ type, count, data }: Props) => {
     )
 }
 
-export default BlockButton
+export default observer(BlockButton)

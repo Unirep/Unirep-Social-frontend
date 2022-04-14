@@ -1,8 +1,10 @@
 import { useContext } from 'react'
 import { useHistory } from 'react-router-dom'
+import { observer } from 'mobx-react-lite'
 
+import UserContext from '../../context/User'
 import './sideColumn.scss'
-import { WebContext } from '../../context/WebContext'
+
 import DefaultWidget from './defaultWidget'
 import UserInfoWidget from './userInfoWidget'
 import ReminderWidget from './reminderWidget'
@@ -10,20 +12,20 @@ import PostsWidget from './postsWidget'
 import { Page } from '../../constants'
 
 const SideColumn = () => {
-    const { user } = useContext(WebContext)
     const history = useHistory()
+    const userContext = useContext(UserContext)
 
-    const page = window.location.pathname
+    const page = window.location.pathname as any
 
     const gotoSetting = () => {
-        if (user !== null) {
+        if (userContext.userState) {
             history.push('/setting', { isConfirmed: true })
         }
     }
 
     return (
         <div>
-            {page === (Page.Setting as string) ? (
+            {page === Page.Setting ? (
                 <div className="margin-top widget"></div>
             ) : (
                 <div></div>
@@ -38,17 +40,18 @@ const SideColumn = () => {
             ) : (
                 <div></div>
             )}
-            {user !== null && page !== Page.Setting ? (
+            {userContext.userState && page !== Page.Setting ? (
                 <UserInfoWidget />
             ) : (
                 <div></div>
             )}
-            {user !== null && (page === Page.New || page === Page.Post) ? (
+            {userContext.userState &&
+            (page === Page.New || page === Page.Post) ? (
                 <ReminderWidget page={page} />
             ) : (
                 <div></div>
             )}
-            {user !== null && page === Page.User ? (
+            {userContext.userState && page === Page.User ? (
                 <PostsWidget />
             ) : (
                 <div></div>
@@ -61,4 +64,4 @@ const SideColumn = () => {
     )
 }
 
-export default SideColumn
+export default observer(SideColumn)

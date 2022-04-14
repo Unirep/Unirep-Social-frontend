@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { HashLink as Link } from 'react-router-hash-link'
 import dateformat from 'dateformat'
-import { Record, ActionType, titlePrefix, titlePostfix } from '../../constants'
+
+import { ActionType } from '../../context/Queue'
+import { Record, titlePrefix, titlePostfix } from '../../constants'
 
 type Props = {
     record: Record

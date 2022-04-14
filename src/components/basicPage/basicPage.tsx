@@ -7,6 +7,7 @@ import Banner from '../banner/banner'
 import SideColumn from '../sideColumn/sideColumn'
 import LoadingWidget from '../loadingWidget/loadingWidget'
 import Overlay from '../overlay/overlay'
+import ProgressBar from '../progressBar/progressBar'
 
 type Props = {
     children: any
@@ -28,6 +29,7 @@ const BasicPage = ({ children }: Props) => {
             <div className="margin-box"></div>
 
             <LoadingWidget />
+            <ProgressBar />
 
             {isMenuOpen ? <Overlay /> : <div></div>}
         </div>

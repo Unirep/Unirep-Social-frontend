@@ -1,13 +1,14 @@
 import { useState, useContext } from 'react'
+
+import UserContext from '../../context/User'
 import './settingPage.scss'
-import { WebContext } from '../../context/WebContext'
 
 const PrivateKey = () => {
     const [isRevealed, setRevealed] = useState<boolean>(false)
-    const { user } = useContext(WebContext)
+    const user = useContext(UserContext)
 
     const download = () => {
-        if (user !== null) {
+        if (user.identity) {
             const element = document.createElement('a')
             const file = new Blob([user.identity], { type: 'text/plain' })
             element.href = URL.createObjectURL(file)
@@ -18,7 +19,7 @@ const PrivateKey = () => {
     }
 
     const copy = () => {
-        if (user !== null) {
+        if (user.identity) {
             navigator.clipboard.writeText(user.identity)
         }
     }

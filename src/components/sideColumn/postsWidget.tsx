@@ -1,6 +1,9 @@
-import { useContext, useState } from 'react'
+import { useContext } from 'react'
 import { useHistory } from 'react-router-dom'
-import { WebContext } from '../../context/WebContext'
+import { observer } from 'mobx-react-lite'
+
+import UserContext from '../../context/User'
+import PostContext from '../../context/Post'
 import { Post } from '../../constants'
 
 type Props = {
@@ -17,8 +20,8 @@ const isAuthor = (p: Post, epks: undefined | string[]) => {
     }
 }
 
-const RankingBlock = ({ post, ranking, hasUnderline }: Props) => {
-    const { user } = useContext(WebContext)
+const RankingBlock = observer(({ post, ranking, hasUnderline }: Props) => {
+    const userContext = useContext(UserContext)
     const history = useHistory()
 
     return (
@@ -34,7 +37,9 @@ const RankingBlock = ({ post, ranking, hasUnderline }: Props) => {
                         src={require('../../../public/images/boost-fill.svg')}
                     />
                     {`#${ranking + 1}${
-                        isAuthor(post, user?.all_epoch_keys) ? ', by you' : ''
+                        isAuthor(post, userContext.currentEpochKeys)
+                            ? ', by you'
+                            : ''
                     }`}
                 </div>
                 <div className="boost">{post.upvote}</div>
@@ -45,54 +50,24 @@ const RankingBlock = ({ post, ranking, hasUnderline }: Props) => {
             </div>
         </div>
     )
-}
-
-type RankedPost = {
-    post: Post
-    rank: number
-}
+})
 
 const PostsWidget = () => {
-    const { shownPosts, user } = useContext(WebContext)
-    const [posts, setPosts] = useState<RankedPost[]>(() => {
-        let posts: RankedPost[] = []
-
-        const sortedPosts = shownPosts.sort((a, b) =>
-            a.upvote > b.upvote ? -1 : 1
-        )
-        let hasUserPost: boolean = false
-        sortedPosts.forEach((post, i) => {
-            if (i < 3) {
-                // console.log('i < 3, add post! ' + i);
-                const p = { post, rank: i }
-                posts = [...posts, p]
-            } else {
-                // console.log('i >= 3, check post!');
-                // console.log(i);
-                if (!hasUserPost && isAuthor(post, user?.all_epoch_keys)) {
-                    const p = { post, rank: i }
-                    posts = [...posts, p]
-                }
-            }
-            hasUserPost = hasUserPost || isAuthor(post, user?.all_epoch_keys)
-        })
-
-        return posts
-    }) // top3 and 1 your most popular post, if yours is in the top3 or you don't have post, then only 3 posts or less.
+    const postContext = useContext(PostContext)
 
     return (
         <div className="posts-widget widget">
             <h3>Post ranking</h3>
-            {posts.map((post, i) => (
+            {Object.values(postContext.postsById).map((post, i) => (
                 <RankingBlock
-                    post={post.post}
-                    ranking={post.rank}
-                    hasUnderline={i < posts.length - 1}
-                    key={i}
+                    post={post}
+                    ranking={i}
+                    hasUnderline={true}
+                    key={post.id}
                 />
             ))}
         </div>
     )
 }
 
-export default PostsWidget
+export default observer(PostsWidget)

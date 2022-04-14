@@ -1,21 +1,25 @@
 import { useContext, useState } from 'react'
 import { NavLink, useHistory, useLocation } from 'react-router-dom'
+import { observer } from 'mobx-react-lite'
+
 import { WebContext } from '../../context/WebContext'
-import { DEFAULT_POST_KARMA } from '../../config'
+import UnirepContext from '../../context/Unirep'
+import UserContext from '../../context/User'
+import QueueContext from '../../context/Queue'
 import './header.scss'
 
 const Header = () => {
     const history = useHistory()
     const location = useLocation()
-    const { user, isLoading, isMenuOpen, setIsMenuOpen } =
-        useContext(WebContext)
+    const { isMenuOpen, setIsMenuOpen } = useContext(WebContext)
     const [searchInput, setSearchInput] = useState<string>('')
+    const unirepConfig = useContext(UnirepContext)
+    const userContext = useContext(UserContext)
 
     const gotoNewPage = () => {
         if (
-            !isLoading &&
-            user !== null &&
-            user.reputation - user.spent >= DEFAULT_POST_KARMA
+            userContext.userState &&
+            userContext.netReputation >= unirepConfig.postReputation
         ) {
             history.push(`/new`, { isConfirmed: true })
         }
@@ -26,7 +30,7 @@ const Header = () => {
     }
 
     const openMenu = () => {
-        if (!isMenuOpen && !isLoading) {
+        if (!isMenuOpen) {
             console.log('open menu!')
             setIsMenuOpen(true)
         }
@@ -51,13 +55,13 @@ const Header = () => {
                     <input type="text" name="searchInput" placeholder="Search by keyword, user names or epoch key" onChange={handleSearchInput} />
                 </form>
             </div> */}
-            {user && user.identity ? (
+            {userContext.userState ? (
                 <div className="navButtons">
                     <div id="rep" onClick={gotoUserPage}>
                         <img
                             src={require('../../../public/images/lighting.svg')}
                         />
-                        {user?.reputation - user?.spent}
+                        {userContext.netReputation}
                     </div>
                     <div
                         id="new"
@@ -120,4 +124,4 @@ const Header = () => {
     )
 }
 
-export default Header
+export default observer(Header)

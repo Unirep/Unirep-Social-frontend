@@ -1,19 +1,21 @@
-import React, { useContext } from 'react'
+import { useContext } from 'react'
 import { useHistory } from 'react-router-dom'
+import { observer } from 'mobx-react-lite'
+
 import { WebContext } from '../../context/WebContext'
+import UserContext from '../../context/User'
+import QueueContext from '../../context/Queue'
 import './overlay.scss'
 
 const Overlay = () => {
-    const { setIsMenuOpen, isLoading, user, setUser } = useContext(WebContext)
+    const { setIsMenuOpen } = useContext(WebContext)
     const history = useHistory()
+    const userContext = useContext(UserContext)
+    const queue = useContext(QueueContext)
 
     const closeOverlay = () => {
-        if (!isLoading) {
-            console.log('close over lay')
-            setIsMenuOpen(false)
-        } else {
-            console.log('something is loading, no close')
-        }
+        console.log('close over lay')
+        setIsMenuOpen(false)
     }
 
     const gotoUserPage = () => {
@@ -21,9 +23,11 @@ const Overlay = () => {
     }
 
     const signout = () => {
-        setUser(null)
-        setIsMenuOpen(false)
-        history.push('/')
+        if (!queue.isLoading) {
+            userContext.logout()
+            setIsMenuOpen(false)
+            history.push('/')
+        }
     }
 
     return (
@@ -42,17 +46,17 @@ const Overlay = () => {
                     </a>
                     <a href="https://about.unirep.social">About</a>
                 </div>
-                {user === null ? (
-                    <div className="dynamic-info">
-                        <a href="/feedback">Send feedback</a>
-                        <a href="/login">Sign in</a>
-                        <a href="/signup">Join</a>
-                    </div>
-                ) : (
+                {userContext.userState ? (
                     <div className="dynamic-info">
                         <a href="/feedback">Send feedback</a>
                         <p onClick={gotoUserPage}>My stuff</p>
                         <p onClick={signout}>Sign out</p>
+                    </div>
+                ) : (
+                    <div className="dynamic-info">
+                        <a href="/feedback">Send feedback</a>
+                        <a href="/login">Sign in</a>
+                        <a href="/signup">Join</a>
                     </div>
                 )}
             </div>
@@ -60,4 +64,4 @@ const Overlay = () => {
     )
 }
 
-export default Overlay
+export default observer(Overlay)

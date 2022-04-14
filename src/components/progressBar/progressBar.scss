@@ -1,0 +1,24 @@
+// @import '../../styles.scss';
+
+.progress-bar-container {
+    position: fixed;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    background-color: black;
+    z-index: 1000;
+}
+
+.progress-bar {
+    height: 18px;
+    border: 1px solid black;
+    background-color: black;
+    width: 100%;
+}
+
+.progress-bar-fill {
+    height: 18px;
+    background-repeat: repeat;
+    background-size: 16px;
+    transition: width 0.2s linear;
+}

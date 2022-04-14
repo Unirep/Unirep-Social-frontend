@@ -1,11 +1,14 @@
 import { useState, useContext, useEffect } from 'react'
-import { useHistory } from 'react-router-dom'
 import 'react-circular-progressbar/dist/styles.css'
+import { observer } from 'mobx-react-lite'
+
 import { WebContext } from '../../context/WebContext'
+import UnirepContext from '../../context/Unirep'
+import UserContext from '../../context/User'
+import './writingField.scss'
+
 import HelpWidget from '../helpWidget/helpWidget'
 import { DataType, InfoType, Draft } from '../../constants'
-import './writingField.scss'
-import * as config from '../../config'
 
 type Props = {
     type: DataType
@@ -20,17 +23,20 @@ type Props = {
 }
 
 const WritingField = (props: Props) => {
-    const defaultRep =
-        props.type === DataType.Post
-            ? config.DEFAULT_POST_KARMA
-            : config.DEFAULT_COMMENT_KARMA
+    const { draft, setDraft } = useContext(WebContext)
+    const unirepConfig = useContext(UnirepContext)
+    const user = useContext(UserContext)
 
-    const { user, setIsLoading, draft, setDraft } = useContext(WebContext)
-    const [reputation, setReputation] = useState(defaultRep)
     const [title, setTitle] = useState<string>('')
     const [content, setContent] = useState<string>('')
     const [epkNonce, setEpkNonce] = useState<number>(0)
     const [errorMsg, setErrorMsg] = useState<string>('')
+
+    const defaultRep =
+        props.type === DataType.Post
+            ? unirepConfig.postReputation
+            : unirepConfig.commentReputation
+    const [reputation, setReputation] = useState(defaultRep)
 
     useEffect(() => {
         if (draft !== null && draft.type === props.type) {
@@ -94,11 +100,11 @@ const WritingField = (props: Props) => {
     }
 
     const handleRepInput = (event: any) => {
-        setReputation(event.target.value)
+        setReputation(+event.target.value)
     }
 
     const submit = () => {
-        if (user === null) {
+        if (!user.userState) {
             setErrorMsg('Please sign up or sign in')
         } else {
             if (title.length === 0 && content.length === 0) {
@@ -136,16 +142,16 @@ const WritingField = (props: Props) => {
                         Post as <HelpWidget type={InfoType.epk4Post} />
                     </div>
                     <div className="epks">
-                        {user === null ? (
+                        {!user.userState ? (
                             <div>somethings wrong...</div>
                         ) : (
-                            user.epoch_keys.map((epk, i) => (
+                            user.currentEpochKeys.map((epk, i) => (
                                 <div
                                     className={
                                         i === epkNonce ? 'epk chosen' : 'epk'
                                     }
                                     onClick={() => setEpkNonce(i)}
-                                    key={i}
+                                    key={epk}
                                 >
                                     {epk}
                                 </div>
@@ -162,7 +168,7 @@ const WritingField = (props: Props) => {
                             type="range"
                             min={defaultRep}
                             max={
-                                user ? user.reputation - user.spent : defaultRep
+                                user.userState ? user.netReputation : defaultRep
                             }
                             onChange={handleRepInput}
                             value={reputation}
@@ -187,4 +193,4 @@ const WritingField = (props: Props) => {
     )
 }
 
-export default WritingField
+export default observer(WritingField)

@@ -1,14 +1,26 @@
-import { useState, useContext } from 'react'
+import { useEffect, useState, useContext } from 'react'
 import { useHistory } from 'react-router-dom'
 import dateformat from 'dateformat'
+import { observer } from 'mobx-react-lite'
 
 import { WebContext } from '../../context/WebContext'
+import UserContext from '../../context/User'
+import UnirepContext from '../../context/Unirep'
+import PostContext from '../../context/Post'
+import './postBlock.scss'
+
+import { EXPLORER_URL } from '../../config'
 import { Post, Page, ButtonType, AlertType, DataType } from '../../constants'
-import { DEFAULT_POST_KARMA } from '../../config'
 import CommentField from './commentField'
 import CommentBlock from './commentBlock'
 import BlockButton from './blockButton'
-import './postBlock.scss'
+import MarkdownIt from 'markdown-it'
+
+const markdown = new MarkdownIt({
+    breaks: true,
+    html: false,
+    linkify: true,
+})
 
 type AlertProps = {
     type: AlertType
@@ -30,21 +42,29 @@ const AlertBox = ({ type }: AlertProps) => {
 }
 
 type Props = {
-    post: Post
+    postId: string
     page: Page
 }
 
-const PostBlock = ({ post, page }: Props) => {
+const PostBlock = ({ postId, page }: Props) => {
     const history = useHistory()
-    const { isLoading, user, draft } = useContext(WebContext)
+    const { draft } = useContext(WebContext)
+    const userContext = useContext(UserContext)
+    const postContext = useContext(PostContext)
+    const post = postContext.postsById[postId]
+    const postHtml = markdown.render(post.content)
+    const comments = postContext.commentsByPostId[postId] || []
 
     const date = dateformat(new Date(post.post_time), 'dd/mm/yyyy hh:MM TT')
     const [showCommentField, setShowCommentField] = useState(
         draft !== null && draft.type === DataType.Comment
     )
     const [isEpkHovered, setEpkHovered] = useState<boolean>(false)
+    const unirepConfig = useContext(UnirepContext)
 
-    const textLimit = 240
+    useEffect(() => {
+        postContext.loadCommentsByPostId(postId)
+    }, [])
 
     return (
         <div className="post-block">
@@ -64,8 +84,8 @@ const PostBlock = ({ post, page }: Props) => {
                         />
                         {isEpkHovered ? (
                             <span className="show-off-rep">
-                                {post.reputation === DEFAULT_POST_KARMA
-                                    ? `This person is very modest, showing off only ${DEFAULT_POST_KARMA} Rep.`
+                                {post.reputation === unirepConfig.postReputation
+                                    ? `This person is very modest, showing off only ${unirepConfig.postReputation} Rep.`
                                     : `This person is showing off ${post.reputation} Rep.`}
                             </span>
                         ) : (
@@ -76,7 +96,7 @@ const PostBlock = ({ post, page }: Props) => {
                 <a
                     className="etherscan"
                     target="_blank"
-                    href={`https://goerli.etherscan.io/tx/${post.id}`}
+                    href={`${EXPLORER_URL}/tx/${post.id}`}
                 >
                     <span>Etherscan</span>
                     <img
@@ -93,16 +113,22 @@ const PostBlock = ({ post, page }: Props) => {
             >
                 <div className="title">{post.title}</div>
                 <div className="content">
-                    {post.content.length > textLimit && page == Page.Home
-                        ? post.content.slice(0, textLimit) + '...'
-                        : post.content}
+                    <div
+                        style={{
+                            maxHeight: page == Page.Home ? '300px' : undefined,
+                            overflow: 'hidden',
+                        }}
+                        dangerouslySetInnerHTML={{
+                            __html: postHtml,
+                        }}
+                    />
                 </div>
             </div>
             {page === Page.Home ? <div className="divider"></div> : <div></div>}
             <div className="block-buttons">
                 <BlockButton
                     type={ButtonType.Comments}
-                    count={post.commentsCount}
+                    count={post.commentCount}
                     data={post}
                 />
                 <BlockButton
@@ -122,12 +148,11 @@ const PostBlock = ({ post, page }: Props) => {
             ) : (
                 <div className="comment">
                     <div className="comment-block">
-                        {user === null ? (
+                        {!userContext.userState ? (
                             <AlertBox type={AlertType.commentNotLogin} />
-                        ) : user.reputation - user.spent < 3 ? (
+                        ) : userContext.netReputation <
+                          unirepConfig.commentReputation ? (
                             <AlertBox type={AlertType.commentNotEnoughPoints} />
-                        ) : isLoading ? (
-                            <AlertBox type={AlertType.commentLoading} />
                         ) : showCommentField ? (
                             <CommentField
                                 post={post}
@@ -142,12 +167,12 @@ const PostBlock = ({ post, page }: Props) => {
                         )}
                     </div>
                     <div className="divider"></div>
-                    {post.comments.length > 0 ? (
+                    {comments.length > 0 ? (
                         <div className="comments-list">
-                            {post.comments.map((c, i) => (
-                                <div key={i} id={c.id}>
-                                    <CommentBlock page={page} comment={c} />
-                                    {i < post.comments.length - 1 ? (
+                            {comments.map((id, i) => (
+                                <div key={id} id={id}>
+                                    <CommentBlock page={page} commentId={id} />
+                                    {i < comments.length - 1 ? (
                                         <div className="divider"></div>
                                     ) : (
                                         <div></div>
@@ -173,4 +198,4 @@ const PostBlock = ({ post, page }: Props) => {
     )
 }
 
-export default PostBlock
+export default observer(PostBlock)

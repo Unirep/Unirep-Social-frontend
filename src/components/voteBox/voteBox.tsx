@@ -1,87 +1,70 @@
-import { useState, useContext } from 'react'
+import { useState, useContext, useEffect } from 'react'
 import 'react-circular-progressbar/dist/styles.css'
-import { WebContext } from '../../context/WebContext'
-import { Post, Vote, Comment, DataType, ActionType } from '../../constants'
+
+import UserContext from '../../context/User'
+import PostContext from '../../context/Post'
 import './voteBox.scss'
+
+import { Post, Vote, Comment, DataType } from '../../constants'
 
 type Props = {
     isUpvote: boolean
-    data: Post | Comment
     closeVote: () => void
+    dataId: string
+    isPost: boolean
 }
-const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
-    const { user, setAction } = useContext(WebContext)
+const VoteBox = ({ isUpvote, closeVote, dataId, isPost }: Props) => {
+    const userContext = useContext(UserContext)
+    const postContext = useContext(PostContext)
     const [givenAmount, setGivenAmount] = useState<number>(1)
     const [epkNonce, setEpkNonce] = useState(0)
     const [isHistoriesOpen, setHistoriesOpen] = useState(false)
     const [voteHistories, setVoteHistories] = useState(() => {
-        if (data.votes.length === 0) {
-            return []
-        } else {
-            if (user !== null) {
-                let ret: Vote[] = []
-                for (var i = 0; i < data.votes.length; i++) {
-                    if (
-                        (isUpvote && data.votes[i].upvote > 0) ||
-                        (!isUpvote && data.votes[i].downvote > 0)
-                    ) {
-                        const e = user.epoch_keys.find(
-                            (_e) => _e === data.votes[i].epoch_key
-                        )
-                        if (e !== null) {
-                            ret = [...ret, data.votes[i]]
-                        }
-                    }
-                }
-                return ret
-            } else {
-                return []
-            }
-        }
+        return [] as any[]
     })
+    const votes =
+        (isPost ? postContext.votesByPostId : postContext.votesByCommentId)[
+            dataId
+        ] || []
 
-    const init = () => {
-        // setIsLoading(false);
-        closeVote()
-    }
+    const isAvailable = isPost
+        ? userContext.currentEpoch ===
+          postContext.postsById[dataId].current_epoch
+        : userContext.currentEpoch ===
+          postContext.commentsById[dataId].current_epoch
+
+    useEffect(() => {
+        if (isPost) {
+            postContext.loadVotesForPostId(dataId)
+        } else {
+            postContext.loadVotesForCommentId(dataId)
+        }
+    }, [])
 
     const doVote = async () => {
-        if (user === null) {
+        if (!userContext.userState) {
             console.error('user not login!')
         } else if (givenAmount === undefined) {
             console.error('no enter any given amount')
-        } else {
-            const isPost = data.type === DataType.Post
-            let actionData: any
-            if (isPost) {
-                actionData = {
-                    identity: user.identity,
-                    upvote: isUpvote ? givenAmount : 0,
-                    downvote: isUpvote ? 0 : givenAmount,
-                    data: data.id,
-                    epk: data.epoch_key,
-                    epkNonce,
-                    isPost,
-                    spent: user.spent,
-                    userState: user.userState,
-                }
-            } else {
-                const tmp = data as Comment
-                actionData = {
-                    identity: user.identity,
-                    upvote: isUpvote ? givenAmount : 0,
-                    downvote: isUpvote ? 0 : givenAmount,
-                    data: tmp.post_id + '_' + tmp.id,
-                    epk: tmp.epoch_key,
-                    epkNonce,
-                    isPost,
-                    spent: user.spent,
-                    userState: user.userState,
-                }
+        } else if (isAvailable) {
+            const upvote = isUpvote ? givenAmount : 0
+            const downvote = isUpvote ? 0 : givenAmount
+            const obj = isPost
+                ? postContext.postsById[dataId]
+                : postContext.commentsById[dataId]
+            if ((upvote === 0 && downvote === 0) || !obj.epoch_key) {
+                throw new Error('invalid data for vote')
             }
 
-            setAction({ action: ActionType.Vote, data: actionData })
-            init()
+            postContext.vote(
+                isPost ? dataId : '',
+                isPost ? '' : dataId,
+                obj.epoch_key,
+                epkNonce,
+                upvote,
+                downvote
+            )
+            closeVote()
         }
     }
 
@@ -102,146 +85,160 @@ const VoteBox = ({ isUpvote, data, closeVote }: Props) => {
         preventClose(event)
         closeVote()
     }
+    if (!userContext.userState) return <div />
 
     return (
-        <div>
-            {user === null ? (
-                <div></div>
-            ) : (
-                <div className="vote-overlay" onClick={close}>
-                    <div className="vote-box" onClick={preventClose}>
-                        <div className="grey-box">
-                            <div className="close">
+        <div className="vote-overlay" onClick={close}>
+            <div className="vote-box" onClick={preventClose}>
+                <div className="grey-box">
+                    <div className="close">
+                        <img
+                            src={require('../../../public/images/close-white.svg')}
+                            onClick={close}
+                        />
+                    </div>
+                    <div className="title">
+                        <img
+                            src={require(`../../../public/images/${
+                                isUpvote ? 'boost' : 'squash'
+                            }-fill.svg`)}
+                        />
+                        {isUpvote ? 'Boost' : 'Squash'}
+                    </div>
+                    <div className="description">
+                        Tune up the amount of Rep to{' '}
+                        {isUpvote ? 'boost' : 'squash'} this post
+                    </div>
+                    <div className="counter">
+                        <input
+                            type="number"
+                            min="1"
+                            max="10"
+                            step="1"
+                            value={givenAmount}
+                            onChange={changeGivenAmount}
+                        />
+                        <div className="counter-btns">
+                            <div
+                                className="counter-btn add"
+                                onClick={() => {
+                                    setGivenAmount(
+                                        givenAmount < 10
+                                            ? givenAmount + 1
+                                            : givenAmount
+                                    )
+                                }}
+                            >
                                 <img
-                                    src={require('../../../public/images/close-white.svg')}
-                                    onClick={close}
+                                    src={require('../../../public/images/arrow-up.svg')}
                                 />
                             </div>
-                            <div className="title">
+                            <div
+                                className="counter-btn minus"
+                                onClick={() => {
+                                    setGivenAmount(
+                                        givenAmount > 1
+                                            ? givenAmount - 1
+                                            : givenAmount
+                                    )
+                                }}
+                            >
                                 <img
-                                    src={require(`../../../public/images/${
-                                        isUpvote ? 'boost' : 'squash'
-                                    }-fill.svg`)}
+                                    src={require('../../../public/images/arrow-down.svg')}
                                 />
-                                {isUpvote ? 'Boost' : 'Squash'}
-                            </div>
-                            <div className="description">
-                                Tune up the amount of Rep to{' '}
-                                {isUpvote ? 'boost' : 'squash'} this post
-                            </div>
-                            <div className="counter">
-                                <input
-                                    type="number"
-                                    min="1"
-                                    max="10"
-                                    step="1"
-                                    value={givenAmount}
-                                    onChange={changeGivenAmount}
-                                />
-                                <div className="counter-btns">
-                                    <div
-                                        className="counter-btn add"
-                                        onClick={() => {
-                                            setGivenAmount(
-                                                givenAmount < 10
-                                                    ? givenAmount + 1
-                                                    : givenAmount
-                                            )
-                                        }}
-                                    >
-                                        <img
-                                            src={require('../../../public/images/arrow-up.svg')}
-                                        />
-                                    </div>
-                                    <div
-                                        className="counter-btn minus"
-                                        onClick={() => {
-                                            setGivenAmount(
-                                                givenAmount > 1
-                                                    ? givenAmount - 1
-                                                    : givenAmount
-                                            )
-                                        }}
-                                    >
-                                        <img
-                                            src={require('../../../public/images/arrow-down.svg')}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="epks">
-                                {user.epoch_keys.map((key, i) => (
-                                    <div
-                                        className={
-                                            epkNonce === i
-                                                ? 'epk chosen'
-                                                : 'epk'
-                                        }
-                                        key={key}
-                                        onClick={() => setEpkNonce(i)}
-                                    >
-                                        {key}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                        <div className="white-box">
-                            <div className="submit" onClick={doVote}>
-                                Yep, let's do it.
-                            </div>
-                            <div className="histories">
-                                <div
-                                    className="main-btn"
-                                    onClick={() =>
-                                        setHistoriesOpen(!isHistoriesOpen)
-                                    }
-                                >
-                                    <div className="btn-name">
-                                        <p className="title">History</p>
-                                        <p className="description">{`You have ${
-                                            voteHistories.length > 0
-                                                ? ''
-                                                : 'not '
-                                        }${
-                                            isUpvote ? 'boosted' : 'squashed'
-                                        } this before`}</p>
-                                    </div>
-                                    <img
-                                        src={require(`../../../public/images/arrow-tri-${
-                                            isHistoriesOpen ? 'up' : 'down'
-                                        }.svg`)}
-                                    />
-                                </div>
-                                {isHistoriesOpen ? (
-                                    <div className="histories-list">
-                                        {voteHistories.map((h, i) => (
-                                            <div className="record" key={i}>
-                                                <div className="record-epk">
-                                                    {h.epoch_key}
-                                                </div>
-                                                <span>
-                                                    {isUpvote
-                                                        ? h.upvote
-                                                        : h.downvote}
-                                                </span>
-                                                <img
-                                                    src={require(`../../../public/images/${
-                                                        isUpvote
-                                                            ? 'boost'
-                                                            : 'squash'
-                                                    }-fill.svg`)}
-                                                />
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div></div>
-                                )}
                             </div>
                         </div>
                     </div>
+                    <div className="epks">
+                        {userContext.currentEpochKeys.map((key, i) => (
+                            <div
+                                className={
+                                    epkNonce === i ? 'epk chosen' : 'epk'
+                                }
+                                key={key}
+                                onClick={() => setEpkNonce(i)}
+                            >
+                                {key}
+                            </div>
+                        ))}
+                    </div>
                 </div>
-            )}
+                <div className="white-box">
+                    <div
+                        className={isAvailable ? 'submit' : 'submit outdated'}
+                        onClick={doVote}
+                    >
+                        {isAvailable ? "Yep, let's do it." : 'Outdated'}
+                    </div>
+                    <div className="histories">
+                        <div
+                            className="main-btn"
+                            onClick={() => setHistoriesOpen(!isHistoriesOpen)}
+                        >
+                            <div className="btn-name">
+                                <p className="title">History</p>
+                                <p className="description">{`You have ${
+                                    voteHistories.length > 0 ? '' : 'not '
+                                }${
+                                    isUpvote ? 'boosted' : 'squashed'
+                                } this before`}</p>
+                            </div>
+                            <img
+                                src={require(`../../../public/images/arrow-tri-${
+                                    isHistoriesOpen ? 'up' : 'down'
+                                }.svg`)}
+                            />
+                        </div>
+                        {isHistoriesOpen ? (
+                            <div className="histories-list">
+                                {votes.map((id, i) => {
+                                    const v = postContext.votesById[id]
+                                    const shown =
+                                        (isUpvote && v.posRep > 0) ||
+                                        (!isUpvote && v.negRep > 0)
+                                    return shown ? (
+                                        <div className="record" key={i}>
+                                            <div className="record-epk">
+                                                {
+                                                    postContext.votesById[id]
+                                                        .voter
+                                                }
+                                            </div>
+                                            <span>
+                                                {isUpvote ? v.posRep : v.negRep}
+                                            </span>
+                                            <img
+                                                src={require(`../../../public/images/${
+                                                    isUpvote
+                                                        ? 'boost'
+                                                        : 'squash'
+                                                }-fill.svg`)}
+                                            />
+                                        </div>
+                                    ) : null
+                                })}
+                            </div>
+                        ) : (
+                            // <div className="epks">
+                            //     {user.allEpks.map((key, i) => (
+                            //         <div
+                            //             className={
+                            //                 epkNonce === i
+                            //                     ? 'epk chosen'
+                            //                     : 'epk'
+                            //             }
+                            //             key={key}
+                            //             onClick={() => setEpkNonce(i)}
+                            //         >
+                            //             {key}
+                            //         </div>
+                            //     ))}
+                            // </div>
+                            <div></div>
+                        )}
+                    </div>
+                </div>
+            </div>
         </div>
     )
 }
