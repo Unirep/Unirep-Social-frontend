@@ -9,7 +9,7 @@ import UnirepContext from '../../context/Unirep'
 import PostContext from '../../context/Post'
 
 import { EXPLORER_URL } from '../../config'
-import { Post, Page, ButtonType, AlertType, DataType } from '../../constants'
+import { Page, ButtonType, AlertType, DataType } from '../../constants'
 import CommentField from './commentField'
 import CommentBlock from './commentBlock'
 import BlockButton from './blockButton'

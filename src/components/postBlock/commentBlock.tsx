@@ -8,7 +8,7 @@ import UnirepContext from '../../context/Unirep'
 import PostContext from '../../context/Post'
 
 import { EXPLORER_URL } from '../../config'
-import { Comment, Page, ButtonType } from '../../constants'
+import { Page, ButtonType } from '../../constants'
 import BlockButton from './blockButton'
 import MarkdownIt from 'markdown-it'
 
