@@ -10,6 +10,13 @@ import PostContext from '../../context/Post'
 import { EXPLORER_URL } from '../../config'
 import { Comment, Page, ButtonType } from '../../constants'
 import BlockButton from './blockButton'
+import MarkdownIt from 'markdown-it'
+
+const markdown = new MarkdownIt({
+    breaks: true,
+    html: false,
+    linkify: true,
+})
 
 type Props = {
     commentId: string
@@ -19,6 +26,7 @@ type Props = {
 const CommentBlock = ({ commentId, page }: Props) => {
     const postContext = useContext(PostContext)
     const comment = postContext.commentsById[commentId]
+    const commentHtml = markdown.render(comment.content)
     const unirepConfig = useContext(UnirepContext)
     const date = dateformat(new Date(comment.post_time), 'dd/mm/yyyy hh:MM TT')
     const history = useHistory()
@@ -71,7 +79,15 @@ const CommentBlock = ({ commentId, page }: Props) => {
                 className="block-content no-padding-horizontal"
                 onClick={gotoPost}
             >
-                {comment.content}
+                <div
+                    style={{
+                        maxHeight: page == Page.Home ? '300px' : undefined,
+                        overflow: 'hidden',
+                    }}
+                    dangerouslySetInnerHTML={{
+                        __html: commentHtml,
+                    }}
+                />
             </div>
             <div className="block-buttons no-padding">
                 <BlockButton

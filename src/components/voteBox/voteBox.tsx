@@ -4,6 +4,8 @@ import 'react-circular-progressbar/dist/styles.css'
 import UserContext from '../../context/User'
 import PostContext from '../../context/Post'
 
+import { Post, Vote, Comment, DataType } from '../../constants'
+
 type Props = {
     isUpvote: boolean
     closeVote: () => void
@@ -24,6 +26,12 @@ const VoteBox = ({ isUpvote, closeVote, dataId, isPost }: Props) => {
             dataId
         ] || []
 
+    const isAvailable = isPost
+        ? userContext.currentEpoch ===
+          postContext.postsById[dataId].current_epoch
+        : userContext.currentEpoch ===
+          postContext.commentsById[dataId].current_epoch
+
     useEffect(() => {
         if (isPost) {
             postContext.loadVotesForPostId(dataId)
@@ -37,7 +45,7 @@ const VoteBox = ({ isUpvote, closeVote, dataId, isPost }: Props) => {
             console.error('user not login!')
         } else if (givenAmount === undefined) {
             console.error('no enter any given amount')
-        } else {
+        } else if (isAvailable) {
             const upvote = isUpvote ? givenAmount : 0
             const downvote = isUpvote ? 0 : givenAmount
             const obj = isPost
@@ -155,8 +163,11 @@ const VoteBox = ({ isUpvote, closeVote, dataId, isPost }: Props) => {
                     </div>
                 </div>
                 <div className="white-box">
-                    <div className="submit" onClick={doVote}>
-                        Yep, let's do it.
+                    <div
+                        className={isAvailable ? 'submit' : 'submit outdated'}
+                        onClick={doVote}
+                    >
+                        {isAvailable ? "Yep, let's do it." : 'Outdated'}
                     </div>
                     <div className="histories">
                         <div
@@ -179,25 +190,32 @@ const VoteBox = ({ isUpvote, closeVote, dataId, isPost }: Props) => {
                         </div>
                         {isHistoriesOpen ? (
                             <div className="histories-list">
-                                {votes.map((id, i) => (
-                                    <div className="record" key={i}>
-                                        <div className="record-epk">
-                                            {postContext.votesById[id].voter}
+                                {votes.map((id, i) => {
+                                    const v = postContext.votesById[id]
+                                    const shown =
+                                        (isUpvote && v.posRep > 0) ||
+                                        (!isUpvote && v.negRep > 0)
+                                    return shown ? (
+                                        <div className="record" key={i}>
+                                            <div className="record-epk">
+                                                {
+                                                    postContext.votesById[id]
+                                                        .voter
+                                                }
+                                            </div>
+                                            <span>
+                                                {isUpvote ? v.posRep : v.negRep}
+                                            </span>
+                                            <img
+                                                src={require(`../../../public/images/${
+                                                    isUpvote
+                                                        ? 'boost'
+                                                        : 'squash'
+                                                }-fill.svg`)}
+                                            />
                                         </div>
-                                        <span>
-                                            {isUpvote
-                                                ? postContext.votesById[id]
-                                                      .posRep
-                                                : postContext.votesById[id]
-                                                      .negRep}
-                                        </span>
-                                        <img
-                                            src={require(`../../../public/images/${
-                                                isUpvote ? 'boost' : 'squash'
-                                            }-fill.svg`)}
-                                        />
-                                    </div>
-                                ))}
+                                    ) : null
+                                })}
                             </div>
                         ) : (
                             // <div className="epks">

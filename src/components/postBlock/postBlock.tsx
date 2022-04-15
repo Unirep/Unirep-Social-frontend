@@ -16,6 +16,7 @@ import BlockButton from './blockButton'
 import MarkdownIt from 'markdown-it'
 
 const markdown = new MarkdownIt({
+    breaks: true,
     html: false,
     linkify: true,
 })
@@ -148,7 +149,8 @@ const PostBlock = ({ postId, page }: Props) => {
                     <div className="comment-block">
                         {!userContext.userState ? (
                             <AlertBox type={AlertType.commentNotLogin} />
-                        ) : userContext.netReputation < 3 ? (
+                        ) : userContext.netReputation <
+                          unirepConfig.commentReputation ? (
                             <AlertBox type={AlertType.commentNotEnoughPoints} />
                         ) : showCommentField ? (
                             <CommentField
