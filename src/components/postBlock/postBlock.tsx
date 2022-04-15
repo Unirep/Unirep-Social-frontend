@@ -7,7 +7,6 @@ import { WebContext } from '../../context/WebContext'
 import UserContext from '../../context/User'
 import UnirepContext from '../../context/Unirep'
 import PostContext from '../../context/Post'
-import './postBlock.scss'
 
 import { EXPLORER_URL } from '../../config'
 import { Page, ButtonType, AlertType, DataType } from '../../constants'
