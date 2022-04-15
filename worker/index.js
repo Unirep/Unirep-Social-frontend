@@ -17,17 +17,27 @@ async function generateResponse(event) {
         // proxy to the backend
         if (ENABLE_KEY_CACHE) {
             const response = await caches.default.match(event.request.url)
-            if (response) return response
+            if (response) {
+                return response
+            }
         }
-        const r = await fetch(`${BACKEND_URL}${url.pathname}`)
+        const r = await fetch(`${BACKEND_URL}${url.pathname}`, {
+            cacheTtl: 24 * 60 * 60,
+            cacheEverything: true,
+        })
+        const newResponse = new Response(r.body, r)
+        newResponse.headers.set('cache-control', 'public, max-age=86400')
         if (ENABLE_KEY_CACHE) {
             const [b1, b2] = r.body.tee()
             event.waitUntil(
-                caches.default.put(event.request.url, new Response(b1))
+                caches.default.put(
+                    event.request.url,
+                    new Response(b1, newResponse)
+                )
             )
-            return new Response(b2, r)
+            return new Response(b2, newResponse)
         } else {
-            return r
+            return new Response(r.body, newResponse)
         }
     }
     const spaKeyModifier = (request) => {
