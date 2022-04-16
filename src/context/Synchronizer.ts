@@ -35,6 +35,7 @@ export class Synchronizer {
     startBlock = 0
     latestBlock = 0
     isInitialSyncing = true
+    initialSyncFinalBlock = Infinity
 
     constructor() {
         // makeAutoObservable(this)
@@ -130,7 +131,6 @@ export class Synchronizer {
         console.log('Starting daemon')
         this.daemonRunning = true
         this.isInitialSyncing = true
-        this.waitForSync().then(() => (this.isInitialSyncing = false))
         let latestBlock = await DEFAULT_ETH_PROVIDER.getBlockNumber()
         this.latestBlock = latestBlock
         DEFAULT_ETH_PROVIDER.on('block', (num) => {
@@ -167,6 +167,7 @@ export class Synchronizer {
             // first process historical ones then listen
             await this.processEvents(allEvents)
             this.latestProcessedBlock = newLatest
+            this.isInitialSyncing = newLatest <= this.initialSyncFinalBlock
             this.save()
         }
     }
