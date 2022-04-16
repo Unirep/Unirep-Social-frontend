@@ -9,6 +9,7 @@ import QueueContext, { ActionType } from '../../context/Queue'
 
 import HelpWidget from '../helpWidget/helpWidget'
 import { InfoType } from '../../constants'
+import { shortenEpochKey } from '../../utils'
 
 const UserInfoWidget = () => {
     const epochManager = useContext(EpochContext)
@@ -83,7 +84,7 @@ const UserInfoWidget = () => {
                         <div className="epks">
                             {userContext.currentEpochKeys.map((key) => (
                                 <div className="epk" key={key}>
-                                    {key}
+                                    {shortenEpochKey(key)}
                                 </div>
                             ))}
                         </div>

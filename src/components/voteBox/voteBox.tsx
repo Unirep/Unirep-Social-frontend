@@ -5,7 +5,7 @@ import UserContext from '../../context/User'
 import PostContext from '../../context/Post'
 import './voteBox.scss'
 
-import { Post, Vote, Comment, DataType } from '../../constants'
+import { shortenEpochKey } from '../../utils'
 
 type Props = {
     isUpvote: boolean
@@ -158,7 +158,7 @@ const VoteBox = ({ isUpvote, closeVote, dataId, isPost }: Props) => {
                                 key={key}
                                 onClick={() => setEpkNonce(i)}
                             >
-                                {key}
+                                {shortenEpochKey(key)}
                             </div>
                         ))}
                     </div>
