@@ -136,7 +136,14 @@ const SignupPage = () => {
                             </span>
                         ))}
                     </div>
-                    <p>{content[step]}</p>
+                    <div>
+                        {content[step].split('<br>').map((t) => (
+                            <span key={t}>
+                                {t}
+                                <br />
+                            </span>
+                        ))}
+                    </div>
                     {step === 3 ? (
                         <div></div>
                     ) : (
