@@ -139,6 +139,8 @@ export class Synchronizer {
                 this.latestBlock = num
             }
         })
+        this.initialSyncFinalBlock = this.latestBlock
+        console.log('initial sync final block ' + this.initialSyncFinalBlock)
         for (;;) {
             if (this.daemonStop) {
                 this.daemonStop = false
@@ -167,7 +169,7 @@ export class Synchronizer {
             // first process historical ones then listen
             await this.processEvents(allEvents)
             this.latestProcessedBlock = newLatest
-            this.isInitialSyncing = newLatest <= this.initialSyncFinalBlock
+            this.isInitialSyncing = newLatest < this.initialSyncFinalBlock
             this.save()
         }
     }
