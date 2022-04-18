@@ -214,10 +214,12 @@ export class Data {
                     }),
                     method: 'POST',
                 })
-                const { transaction, error } = await r.json()
+                const { transaction, error, post: _post } = await r.json()
                 if (error) throw error
                 await queueContext.afterTx(transaction)
-                await this.loadFeed(QueryType.New)
+                const post = convertDataToPost(_post)
+                this.postsById[post.id] = post
+                this.feedsByQuery[QueryType.New].unshift(post.id)
             },
             {
                 successMessage: 'Post is finalized',
