@@ -5,6 +5,10 @@ import { Record, Post, DataType, Vote, Comment, QueryType } from './constants'
 import UnirepContext from './context/Unirep'
 import { ActionType } from './context/Queue'
 
+export const shortenEpochKey = (epk: string) => {
+    return `${epk.slice(0, 4)}...${epk.slice(-4)}`
+}
+
 const decodeIdentity = (identity: string) => {
     try {
         const id = unSerialiseIdentity(identity)

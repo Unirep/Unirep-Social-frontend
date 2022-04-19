@@ -314,7 +314,9 @@ export class User extends Synchronizer {
             this.userState = undefined
             throw error
         }
-        await config.DEFAULT_ETH_PROVIDER.waitForTransaction(transaction)
+        const { blockNumber } =
+            await config.DEFAULT_ETH_PROVIDER.waitForTransaction(transaction)
+        this.initialSyncFinalBlock = blockNumber
         await this.calculateAllEpks()
         // start the daemon later so the signup ui isn't slow
         this.startDaemon()
