@@ -16,6 +16,7 @@ import AdminPage from './pages/adminPage/adminPage'
 import SettingPage from './pages/settingPage/settingPage'
 
 import { WebContext } from './context/WebContext'
+import Favicon from 'react-favicon'
 
 const AppRouter = () => {
     const [adminCode, setAdminCode] = useLocalStorage('admin', '')
@@ -26,6 +27,7 @@ const AppRouter = () => {
     return (
         <BrowserRouter>
             <div>
+                <Favicon url={require('../public/favicon.ico')} />
                 <WebContext.Provider
                     value={{
                         isMenuOpen,

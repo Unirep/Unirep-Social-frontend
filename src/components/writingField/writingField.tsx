@@ -8,6 +8,7 @@ import UserContext from '../../context/User'
 
 import HelpWidget from '../helpWidget/helpWidget'
 import { DataType, InfoType, Draft } from '../../constants'
+import { shortenEpochKey } from '../../utils'
 
 type Props = {
     type: DataType
@@ -152,7 +153,7 @@ const WritingField = (props: Props) => {
                                     onClick={() => setEpkNonce(i)}
                                     key={epk}
                                 >
-                                    {epk}
+                                    {shortenEpochKey(epk)}
                                 </div>
                             ))
                         )}
