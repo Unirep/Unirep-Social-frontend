@@ -3,7 +3,6 @@ import { HashLink as Link } from 'react-router-hash-link'
 import { observer } from 'mobx-react-lite'
 
 import QueueContext, { LoadingState } from '../../context/Queue'
-import './loadingWidget.scss'
 
 const LoadingWidget = () => {
     const [isFlip, setFlip] = useState<boolean>(false)
