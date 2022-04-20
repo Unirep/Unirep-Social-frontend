@@ -4,7 +4,6 @@ import { observer } from 'mobx-react-lite'
 
 import UserContext from '../../context/User'
 import PostContext from '../../context/Post'
-import { WebContext } from '../../context/WebContext'
 import './newPage.scss'
 
 import WritingField from '../writingField/writingField'
@@ -12,7 +11,6 @@ import BasicPage from '../basicPage/basicPage'
 import { DataType } from '../../constants'
 
 const NewPage = () => {
-    const { setDraft } = useContext(WebContext)
     const history = useHistory()
     const location = useLocation<Location>()
     const state = JSON.parse(JSON.stringify(location.state))
@@ -38,7 +36,6 @@ const NewPage = () => {
             throw new Error('Should not be able to create post without login')
         }
         postContext.publishPost(title, content, epkNonce, reputation)
-        setDraft('')
         history.push('/')
     }
 

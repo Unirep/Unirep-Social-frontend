@@ -1,7 +1,7 @@
 import { createContext } from 'react'
 import { makeAutoObservable } from 'mobx'
 
-import { Post, Comment, QueryType, Vote } from '../constants'
+import { Post, Comment, QueryType, Vote, Draft, DataType } from '../constants'
 import { makeURL, convertDataToPost, convertDataToComment } from '../utils'
 import UserContext, { User } from './User'
 import QueueContext, { Queue } from './Queue'
@@ -20,13 +20,39 @@ export class Data {
     votesById = {} as { [id: string]: Vote }
     votesByCommentId = {} as { [commentId: string]: string[] }
     votesByPostId = {} as { [commentId: string]: string[] }
+    postDraft: Draft | undefined
+    commentDraft: Draft | undefined
 
     constructor() {
         makeAutoObservable(this)
+        if (typeof window !== 'undefined') {
+            this.load()
+        }
     }
 
     // must be called in browser, not in SSR
-    load() {}
+    load() {
+        const storedPostDraft = window.localStorage.getItem('post-draft')
+        if (storedPostDraft && storedPostDraft !== 'undefined') {
+            this.postDraft = JSON.parse(storedPostDraft)
+        }
+
+        const storedCommentDraft = window.localStorage.getItem('comment-draft')
+        if (storedCommentDraft && storedCommentDraft !== 'undefined') {
+            this.commentDraft = JSON.parse(storedCommentDraft)
+        }
+    }
+
+    save() {
+        window.localStorage.setItem(
+            'post-draft',
+            JSON.stringify(this.postDraft)
+        )
+        window.localStorage.setItem(
+            'comment-draft',
+            JSON.stringify(this.commentDraft)
+        )
+    }
 
     private ingestPosts(_posts: Post | Post[]) {
         const posts = [_posts].flat()
@@ -220,6 +246,8 @@ export class Data {
                 const post = convertDataToPost(_post)
                 this.postsById[post.id] = post
                 this.feedsByQuery[QueryType.New].unshift(post.id)
+                this.postDraft = undefined
+                this.save()
             },
             {
                 successMessage: 'Post is finalized',
@@ -323,11 +351,40 @@ export class Data {
                     this.loadCommentsByPostId(postId),
                     this.loadPost(postId),
                 ])
+                this.commentDraft = undefined
+                this.save()
             },
             {
                 successMessage: 'Comment is finalized!',
             }
         )
+    }
+
+    setDraft(type: DataType, title: string = '', content: string = '') {
+        if (type === DataType.Post) {
+            if (this.postDraft) {
+                this.postDraft =
+                    title.length > 0
+                        ? { ...this.postDraft, title }
+                        : { ...this.postDraft }
+                this.postDraft =
+                    content.length > 0
+                        ? { ...this.postDraft, content }
+                        : { ...this.postDraft }
+            } else {
+                this.postDraft = { title, content }
+            }
+        } else if (type === DataType.Comment) {
+            if (this.commentDraft) {
+                this.commentDraft =
+                    content.length > 0
+                        ? { ...this.commentDraft, content }
+                        : { ...this.commentDraft }
+            } else {
+                this.commentDraft = { title, content }
+            }
+        }
+        this.save()
     }
 }
 

@@ -2,14 +2,15 @@ import { useState, useContext, useEffect } from 'react'
 import 'react-circular-progressbar/dist/styles.css'
 import { observer } from 'mobx-react-lite'
 
-import { WebContext } from '../../context/WebContext'
 import UnirepContext from '../../context/Unirep'
 import UserContext from '../../context/User'
+import PostContext from '../../context/Post'
 import './writingField.scss'
 
 import HelpWidget from '../helpWidget/helpWidget'
 import { DataType, InfoType, Draft } from '../../constants'
 import { shortenEpochKey } from '../../utils'
+import Post from '../../context/Post'
 
 type Props = {
     type: DataType
@@ -24,9 +25,9 @@ type Props = {
 }
 
 const WritingField = (props: Props) => {
-    const { draft, setDraft } = useContext(WebContext)
     const unirepConfig = useContext(UnirepContext)
     const user = useContext(UserContext)
+    const postContext = useContext(PostContext)
 
     const [title, setTitle] = useState<string>('')
     const [content, setContent] = useState<string>('')
@@ -40,9 +41,14 @@ const WritingField = (props: Props) => {
     const [reputation, setReputation] = useState(defaultRep)
 
     useEffect(() => {
-        if (draft !== null && draft.type === props.type) {
-            setTitle(draft.title)
-            setContent(draft.content)
+        if (props.type === DataType.Post && postContext.postDraft) {
+            setTitle(postContext.postDraft.title)
+            setContent(postContext.postDraft.content)
+        } else if (
+            props.type === DataType.Comment &&
+            postContext.commentDraft
+        ) {
+            setContent(postContext.commentDraft.content)
         }
     }, [])
 
@@ -56,48 +62,12 @@ const WritingField = (props: Props) => {
 
     const handleTitleInput = (event: any) => {
         setTitle(event.target.value)
-
-        if (draft === null) {
-            const d: Draft = {
-                type: props.type,
-                title: event.target.value,
-                content,
-            }
-            setDraft(d)
-        } else {
-            if (draft.type === props.type) {
-                setDraft({ ...draft, title: event.target.value })
-            } else {
-                setDraft({
-                    ...draft,
-                    title: event.target.value,
-                    type: props.type,
-                })
-            }
-        }
+        postContext.setDraft(props.type, event.target.value, '')
     }
 
     const handleContentInput = (event: any) => {
         setContent(event.target.value)
-
-        if (draft === null) {
-            const d: Draft = {
-                type: props.type,
-                title,
-                content: event.target.value,
-            }
-            setDraft(d)
-        } else {
-            if (draft.type === props.type) {
-                setDraft({ ...draft, content: event.target.value })
-            } else {
-                setDraft({
-                    ...draft,
-                    content: event.target.value,
-                    type: props.type,
-                })
-            }
-        }
+        postContext.setDraft(props.type, '', event.target.value)
     }
 
     const handleRepInput = (event: any) => {

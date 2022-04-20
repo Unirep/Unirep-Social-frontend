@@ -8,8 +8,6 @@ type GlobalContent = {
     setPage: (value: Page) => void
     adminCode: string
     setAdminCode: (value: string) => void
-    draft: null | Draft
-    setDraft: (value: any) => void
 }
 
 export const WebContext = createContext<GlobalContent>({
@@ -19,6 +17,4 @@ export const WebContext = createContext<GlobalContent>({
     setPage: () => {},
     adminCode: '',
     setAdminCode: () => {},
-    draft: null,
-    setDraft: () => {},
 })

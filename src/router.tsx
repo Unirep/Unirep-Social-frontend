@@ -20,7 +20,6 @@ import Favicon from 'react-favicon'
 
 const AppRouter = () => {
     const [adminCode, setAdminCode] = useLocalStorage('admin', '')
-    const [draft, setDraft] = useLocalStorage('draft', null)
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [page, setPage] = useState(Constants.Page.Home)
 
@@ -36,8 +35,6 @@ const AppRouter = () => {
                         setPage,
                         adminCode,
                         setAdminCode,
-                        draft,
-                        setDraft,
                     }}
                 >
                     <Header />
