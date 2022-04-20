@@ -30,7 +30,7 @@ export class Synchronizer {
     spentProofs = {} as { [key: ProofKey]: boolean }
     latestProcessedBlock = 0
     protected daemonRunning = false
-    protected daemonStop = false
+    protected daemonPromise = Promise.resolve()
     // progress management
     startBlock = 0
     latestBlock = 0
@@ -94,7 +94,6 @@ export class Synchronizer {
         this.startBlock = 0
         this.validProofs = {}
         this.spentProofs = {}
-        this.daemonStop = true
 
         this.userState = undefined
         this.unirepState = undefined
@@ -129,25 +128,30 @@ export class Synchronizer {
             throw new Error('Cannot start multiple daemons')
         }
         console.log('Starting daemon')
+        this.daemonPromise = this._startDaemon()
+    }
+
+    private async _startDaemon() {
         this.daemonRunning = true
         this.isInitialSyncing = true
         let latestBlock = await DEFAULT_ETH_PROVIDER.getBlockNumber()
         this.latestBlock = latestBlock
-        DEFAULT_ETH_PROVIDER.on('block', (num) => {
+        const handler = (num: number) => {
             if (num > latestBlock) {
                 latestBlock = num
                 this.latestBlock = num
             }
-        })
+        }
+        DEFAULT_ETH_PROVIDER.on('block', handler)
+
         this.initialSyncFinalBlock = this.latestBlock
         this.isInitialSyncing =
             this.latestProcessedBlock < this.initialSyncFinalBlock
 
         for (;;) {
-            if (this.daemonStop) {
-                this.daemonStop = false
-                this.daemonRunning = false
-                break
+            if (!this.daemonRunning) {
+                DEFAULT_ETH_PROVIDER.off('block', handler)
+                return
             }
             if (this.latestProcessedBlock === latestBlock) {
                 await new Promise((r) => setTimeout(r, 1000))
@@ -155,18 +159,11 @@ export class Synchronizer {
             }
             const newLatest = latestBlock
             const allEvents = (
-                await Promise.all([
-                    unirepConfig.unirep.queryFilter(
-                        this.unirepFilter,
-                        this.latestProcessedBlock + 1,
-                        newLatest
-                    ),
-                    // unirepConfig.unirepSocial.queryFilter(
-                    //     this.unirepSocialFilter,
-                    //     this.latestProcessedBlock + 1,
-                    //     newLatest
-                    // ),
-                ])
+                await unirepConfig.unirep.queryFilter(
+                    this.unirepFilter,
+                    this.latestProcessedBlock + 1,
+                    newLatest
+                )
             ).flat() as ethers.Event[]
             // first process historical ones then listen
             await this.processEvents(allEvents)

@@ -356,8 +356,12 @@ export class User extends Synchronizer {
         return true
     }
 
-    logout() {
+    async logout() {
         console.log('log out')
+        if (this.daemonRunning) {
+            this.daemonRunning = false
+            await this.daemonPromise
+        }
         this.id = undefined
         this.allEpks = [] as string[]
         this.reputation = 0
