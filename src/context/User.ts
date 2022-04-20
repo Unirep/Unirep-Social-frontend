@@ -251,12 +251,11 @@ export class User extends Synchronizer {
     }
 
     async checkInvitationCode(invitationCode: string): Promise<boolean> {
-        return true
         // check the code first but don't delete it until we signup --> related to backend
         const apiURL = makeURL(`genInvitationCode/${invitationCode}`, {})
         const r = await fetch(apiURL)
         if (!r.ok) return false
-        return r.json()
+        return true
     }
 
     private async _hasSignedUp(identity: string) {
@@ -315,7 +314,10 @@ export class User extends Synchronizer {
             this.userState = undefined
             throw error
         }
-        await config.DEFAULT_ETH_PROVIDER.waitForTransaction(transaction)
+        const { blockNumber } =
+            await config.DEFAULT_ETH_PROVIDER.waitForTransaction(transaction)
+        this.initialSyncFinalBlock = blockNumber
+        await this.calculateAllEpks()
         // start the daemon later so the signup ui isn't slow
         this.startDaemon()
         return {
@@ -462,6 +464,7 @@ export class User extends Synchronizer {
     async epochEnded(event: any) {
         await super.epochEnded(event)
         await this.loadReputation()
+        await this.calculateAllEpks()
         this.spent = 0
     }
 }
