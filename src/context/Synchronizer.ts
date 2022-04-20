@@ -143,7 +143,7 @@ export class Synchronizer {
             }
         }
         DEFAULT_ETH_PROVIDER.on('block', handler)
-        
+
         this.initialSyncFinalBlock = this.latestBlock
         this.isInitialSyncing =
             this.latestProcessedBlock < this.initialSyncFinalBlock
