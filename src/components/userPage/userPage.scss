@@ -242,6 +242,8 @@
 
         .main {
             flex: 11;
+            overflow: hidden;
+            display: block;
 
             .header {
                 width: 100%;
@@ -292,12 +294,15 @@
                     word-break: break-all;
 
                     .title {
+                        width: 100%;
                         font-size: $title-sm;
                         font-weight: 600;
                         margin-bottom: 16px;
                     }
 
                     .content {
+                        display: block;
+                        width: 100%;
                         font-size: $text-base;
                     }
                 }

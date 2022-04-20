@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { HashLink as Link } from 'react-router-hash-link'
 import dateformat from 'dateformat'
+import MarkdownIt from 'markdown-it'
 
 import { ActionType } from '../../context/Queue'
 import { Record, titlePrefix, titlePostfix } from '../../constants'
@@ -19,6 +20,12 @@ type ActionData = {
     title: string
     content: string
 }
+
+const markdown = new MarkdownIt({
+    breaks: true,
+    html: false,
+    linkify: true,
+})
 
 const ActivityWidget = ({ record, isSpent }: Props) => {
     const [date, setDate] = useState<string>(
@@ -70,17 +77,23 @@ const ActivityWidget = ({ record, isSpent }: Props) => {
     })
     const [actionData, setActionData] = useState<ActionData>(() => {
         if (record.content !== undefined && record.content.length > 0) {
+            console.log(record.content)
             let i = record.content.indexOf(titlePrefix)
-            if (i === -1) return { title: '', content: record.content }
+            if (i === -1)
+                return { title: '', content: markdown.render(record.content) }
             else {
                 i = i + titlePrefix.length
                 let j = record.content.indexOf(titlePostfix)
-                if (j === -1) return { title: '', content: record.content }
+                if (j === -1)
+                    return {
+                        title: '',
+                        content: markdown.render(record.content),
+                    }
                 else
                     return {
                         title: record.content.substring(i, j),
-                        content: record.content.substring(
-                            j + titlePostfix.length
+                        content: markdown.render(
+                            record.content.substring(j + titlePostfix.length)
                         ),
                     }
             }
@@ -142,15 +155,21 @@ const ActivityWidget = ({ record, isSpent }: Props) => {
                                     <div className="title">
                                         {actionData.title}
                                     </div>
-                                    <div className="content">
-                                        {actionData.content}
-                                    </div>
+                                    <div
+                                        className="content"
+                                        dangerouslySetInnerHTML={{
+                                            __html: actionData.content,
+                                        }}
+                                    />
                                 </div>
                             ) : (
                                 <div className="data">
-                                    <div className="content">
-                                        {actionData.content}
-                                    </div>
+                                    <div
+                                        className="content"
+                                        dangerouslySetInnerHTML={{
+                                            __html: actionData.content,
+                                        }}
+                                    />
                                 </div>
                             )
                         ) : (
