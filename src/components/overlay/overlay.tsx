@@ -22,9 +22,9 @@ const Overlay = () => {
         history.push(`/user`, { isConfirmed: true })
     }
 
-    const signout = () => {
+    const signout = async () => {
         if (!queue.isLoading) {
-            userContext.logout()
+            await userContext.logout()
             setIsMenuOpen(false)
             history.push('/')
         }
