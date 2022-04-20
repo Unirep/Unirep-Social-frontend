@@ -362,26 +362,34 @@ export class Data {
 
     setDraft(type: DataType, title: string = '', content: string = '') {
         if (type === DataType.Post) {
-            if (this.postDraft) {
-                this.postDraft =
-                    title.length > 0
-                        ? { ...this.postDraft, title }
-                        : { ...this.postDraft }
-                this.postDraft =
-                    content.length > 0
-                        ? { ...this.postDraft, content }
-                        : { ...this.postDraft }
+            if (title.length === 0 && content.length === 0) {
+                this.postDraft = undefined
             } else {
-                this.postDraft = { title, content }
+                if (this.postDraft) {
+                    this.postDraft =
+                        title.length > 0
+                            ? { ...this.postDraft, title }
+                            : { ...this.postDraft }
+                    this.postDraft =
+                        content.length > 0
+                            ? { ...this.postDraft, content }
+                            : { ...this.postDraft }
+                } else {
+                    this.postDraft = { title, content }
+                }
             }
         } else if (type === DataType.Comment) {
-            if (this.commentDraft) {
-                this.commentDraft =
-                    content.length > 0
-                        ? { ...this.commentDraft, content }
-                        : { ...this.commentDraft }
+            if (content.length === 0) {
+                this.commentDraft = undefined
             } else {
-                this.commentDraft = { title, content }
+                if (this.commentDraft) {
+                    this.commentDraft =
+                        content.length > 0
+                            ? { ...this.commentDraft, content }
+                            : { ...this.commentDraft }
+                } else {
+                    this.commentDraft = { title, content }
+                }
             }
         }
         this.save()
