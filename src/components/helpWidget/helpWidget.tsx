@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import './helpWidget.scss'
 import { InfoType } from '../../constants'
 
 type Props = {

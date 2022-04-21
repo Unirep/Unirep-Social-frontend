@@ -1,5 +1,3 @@
-import './loadingCover.scss'
-
 const LoadingCover = () => {
     return (
         <div className="loading-cover">
