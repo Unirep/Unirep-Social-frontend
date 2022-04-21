@@ -70,26 +70,26 @@ const UserPage = () => {
     const [tag, setTag] = useState<Tag>(Tag.Posts)
     const [sort, setSort] = useState<QueryType>(QueryType.Boost)
     const [isDropdown, setIsDropdown] = useState<boolean>(false)
-    const myPosts =
-        postContext.feedsByQuery[
-            postContext.feedKey(sort, user.currentEpochKeys)
-        ] || []
-    const myComments =
-        postContext.commentsByQuery[
-            postContext.feedKey(sort, user.currentEpochKeys)
-        ] || []
+    const [myPosts, setMyPosts] = useState<string[]>([])
+    const [myComments, setMyComments] = useState<string[]>([])
 
     const [received, setReceived] = useState<number[]>([0, 0, 0]) // airdrop, boost, squash
     const [spent, setSpent] = useState<number[]>([0, 0, 0, 0]) // post, comment, boost, squash
 
     const getUserPosts = async (sort: QueryType, lastRead: string = '0') => {
         await user.loadingPromise
-        await postContext.loadFeed(sort, lastRead, user.currentEpochKeys)
+        await postContext.loadFeed(sort, lastRead, user.allEpks)
+        setMyPosts(
+            postContext.feedsByQuery[postContext.feedKey(sort, user.allEpks)]
+        )
     }
 
     const getUserComments = async (sort: QueryType, lastRead: string = '0') => {
         await user.loadingPromise
-        await postContext.loadComments(sort, lastRead, user.currentEpochKeys)
+        await postContext.loadComments(sort, lastRead, user.allEpks)
+        setMyComments(
+            postContext.commentsByQuery[postContext.feedKey(sort, user.allEpks)]
+        )
     }
 
     const getUserRecords = async () => {

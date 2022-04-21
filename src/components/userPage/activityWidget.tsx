@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { HashLink as Link } from 'react-router-hash-link'
 import dateformat from 'dateformat'
 
 import { ActionType } from '../../context/Queue'
+import PostContext from '../../context/Post'
 import { Record, titlePrefix, titlePostfix } from '../../constants'
 
 type Props = {
@@ -21,6 +22,8 @@ type ActionData = {
 }
 
 const ActivityWidget = ({ record, isSpent }: Props) => {
+    const postContext = useContext(PostContext)
+
     const [date, setDate] = useState<string>(
         dateformat(new Date(record.time), 'dd/mm/yyyy hh:MM TT')
     )
@@ -60,12 +63,13 @@ const ActivityWidget = ({ record, isSpent }: Props) => {
         if (record.data_id === '0') {
             return '/user'
         } else {
-            const id = record.data_id.split('_')
-            if (id.length > 1) {
-                return `/post/${id[0]}#${id[1]}`
-            } else {
-                return `/post/${id[0]}`
-            }
+            if (postContext.postsById[record.data_id])
+                return `/post/${record.data_id}`
+            else if (postContext.commentsById[record.data_id])
+                return `/post/${
+                    postContext.commentsById[record.data_id].post_id
+                }#${record.data_id}`
+            else return ''
         }
     })
     const [actionData, setActionData] = useState<ActionData>(() => {
