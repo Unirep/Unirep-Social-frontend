@@ -78,23 +78,29 @@ const UserPage = () => {
 
     const getUserPosts = async (sort: QueryType, lastRead: string = '0') => {
         await user.loadingPromise
-        await postContext.loadFeed(sort, lastRead, user.allEpks)
+        await postContext.loadFeed(sort, lastRead, user.allEpochKeys)
         setMyPosts(
-            postContext.feedsByQuery[postContext.feedKey(sort, user.allEpks)]
+            postContext.feedsByQuery[
+                postContext.feedKey(sort, user.allEpochKeys)
+            ]
         )
     }
 
     const getUserComments = async (sort: QueryType, lastRead: string = '0') => {
         await user.loadingPromise
-        await postContext.loadComments(sort, lastRead, user.allEpks)
+        await postContext.loadComments(sort, lastRead, user.allEpochKeys)
         setMyComments(
-            postContext.commentsByQuery[postContext.feedKey(sort, user.allEpks)]
+            postContext.commentsByQuery[
+                postContext.feedKey(sort, user.allEpochKeys)
+            ]
         )
     }
 
     const getUserRecords = async () => {
         if (!user.userState || !user.identity) return
-        const ret = await getRecords(user.currentEpoch, user.identity)
+        await user.loadingPromise
+
+        const ret = await getRecords(user.allEpochKeys, user.identity)
         const isParsable = !ret.some((h) => h === undefined)
         if (isParsable) {
             setRecords(ret)
@@ -102,11 +108,12 @@ const UserPage = () => {
             let r: number[] = [0, 0, 0]
             let s: number[] = [0, 0, 0, 0]
 
+            console.log('my epks: ' + user.currentEpochKeys)
+
             ret.forEach((h) => {
-                const isReceived = user.allEpks.indexOf(h.to) !== -1
-                const isSpent = user.allEpks.indexOf(h.from) !== -1
+                const isReceived = user.currentEpochKeys.indexOf(h.to) !== -1
+                const isSpent = user.currentEpochKeys.indexOf(h.from) !== -1
                 if (isReceived) {
-                    // console.log(h.to + 'is receiver, is me, ' + h.upvote);
                     // right stuff
                     if (h.action === ActionType.UST) {
                         r[0] += h.upvote
@@ -117,7 +124,6 @@ const UserPage = () => {
                 }
 
                 if (isSpent) {
-                    // console.log(h.from + 'is giver, is me, ' + h.downvote);
                     if (h.action === ActionType.Post) {
                         s[0] += h.downvote
                     } else if (h.action === ActionType.Comment) {
@@ -414,9 +420,7 @@ const UserPage = () => {
                                     key={h.data_id}
                                     record={h}
                                     isSpent={
-                                        user.currentEpochKeys.indexOf(
-                                            h.from
-                                        ) !== -1
+                                        user.allEpochKeys.indexOf(h.from) !== -1
                                     }
                                 />
                             ))}

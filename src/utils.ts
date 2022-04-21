@@ -58,15 +58,10 @@ export const makeURL = (action: string, data: any = {}) => {
     return `${config.SERVER}/api/${action}?${params}`
 }
 
-export const getRecords = async (currentEpoch: number, identity: string) => {
+export const getRecords = async (epks: string[], identity: string) => {
     const unirepConfig = (UnirepContext as any)._currentValue
     await unirepConfig.loadingPromise
     const { commitment } = decodeIdentity(identity)
-    const epks: string[] = []
-    for (let i = 1; i <= currentEpoch; i++) {
-        const epksRet = getEpochKeys(identity, i)
-        epks.push(...epksRet)
-    }
 
     const commitmentAPIURL = makeURL(`records`, { commitment })
     const paramStr = epks.join('_')

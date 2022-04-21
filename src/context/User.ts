@@ -23,7 +23,7 @@ import { Synchronizer } from './Synchronizer'
 
 export class User extends Synchronizer {
     id?: Identity
-    allEpks = [] as string[]
+    protected allEpks = [] as string[]
     currentEpoch = 0
     reputation = 30
     unirepConfig = (UnirepContext as any)._currentValue
@@ -39,7 +39,7 @@ export class User extends Synchronizer {
             unirepState: observable,
             userState: observable,
             currentEpochKeys: computed,
-            allEpks: observable,
+            allEpochKeys: computed,
             syncPercent: computed,
             startBlock: observable,
             latestBlock: observable,
@@ -60,6 +60,10 @@ export class User extends Synchronizer {
 
     get isSynced() {
         return this.currentEpoch === this.unirepState?.currentEpoch
+    }
+
+    get allEpochKeys() {
+        return this.allEpks
     }
 
     // must be called in browser, not in SSR
