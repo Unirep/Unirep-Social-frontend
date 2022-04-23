@@ -48,7 +48,7 @@ const BlockButton = ({ type, count, data }: Props) => {
             setSquashOn(true)
         } else if (type === ButtonType.Share) {
             navigator.clipboard.writeText(
-                `https://unirep.social/post/${data.id}`
+                `${window.location.origin}/post/${data.id}`
             )
             setIsLinkCopied(true)
         }
