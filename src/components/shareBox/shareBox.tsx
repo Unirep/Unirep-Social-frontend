@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import './shareBox.scss'
 
 type Props = {
     url: string

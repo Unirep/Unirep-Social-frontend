@@ -5,7 +5,6 @@ import { observer } from 'mobx-react-lite'
 import { WebContext } from '../../context/WebContext'
 import UnirepContext from '../../context/Unirep'
 import UserContext from '../../context/User'
-import './writingField.scss'
 
 import HelpWidget from '../helpWidget/helpWidget'
 import { DataType, InfoType, Draft } from '../../constants'

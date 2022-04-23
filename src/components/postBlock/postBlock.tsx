@@ -7,10 +7,9 @@ import { WebContext } from '../../context/WebContext'
 import UserContext from '../../context/User'
 import UnirepContext from '../../context/Unirep'
 import PostContext from '../../context/Post'
-import './postBlock.scss'
 
 import { EXPLORER_URL } from '../../config'
-import { Post, Page, ButtonType, AlertType, DataType } from '../../constants'
+import { Page, ButtonType, AlertType, DataType } from '../../constants'
 import CommentField from './commentField'
 import CommentBlock from './commentBlock'
 import BlockButton from './blockButton'
@@ -66,6 +65,11 @@ const PostBlock = ({ postId, page }: Props) => {
         postContext.loadCommentsByPostId(postId)
     }, [])
 
+    const gotoPostPage = () => {
+        if (page === Page.Post) return
+        history.push(`/post/${post.id}`, { commentId: '' })
+    }
+
     return (
         <div className="post-block">
             <div className="block-header">
@@ -105,12 +109,7 @@ const PostBlock = ({ postId, page }: Props) => {
                 </a>
             </div>
             {page === Page.Home ? <div className="divider"></div> : <div></div>}
-            <div
-                className="block-content"
-                onClick={() =>
-                    history.push(`/post/${post.id}`, { commentId: '' })
-                }
-            >
+            <div className="block-content" onClick={gotoPostPage}>
                 <div className="title">{post.title}</div>
                 <div className="content">
                     <div

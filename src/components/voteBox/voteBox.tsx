@@ -3,8 +3,6 @@ import 'react-circular-progressbar/dist/styles.css'
 
 import UserContext from '../../context/User'
 import PostContext from '../../context/Post'
-import './voteBox.scss'
-
 import { shortenEpochKey } from '../../utils'
 
 type Props = {
@@ -218,24 +216,7 @@ const VoteBox = ({ isUpvote, closeVote, dataId, isPost }: Props) => {
                                     ) : null
                                 })}
                             </div>
-                        ) : (
-                            // <div className="epks">
-                            //     {user.allEpks.map((key, i) => (
-                            //         <div
-                            //             className={
-                            //                 epkNonce === i
-                            //                     ? 'epk chosen'
-                            //                     : 'epk'
-                            //             }
-                            //             key={key}
-                            //             onClick={() => setEpkNonce(i)}
-                            //         >
-                            //             {key}
-                            //         </div>
-                            //     ))}
-                            // </div>
-                            <div></div>
-                        )}
+                        ) : null}
                     </div>
                 </div>
             </div>
