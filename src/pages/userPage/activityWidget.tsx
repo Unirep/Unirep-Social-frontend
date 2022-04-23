@@ -83,14 +83,12 @@ const ActivityWidget = ({ record, isSpent }: Props) => {
         let j = record.content.indexOf(titlePostfix)
         if (i === -1 || j === -1)
             return { title: '', content: markdown.render(record.content) }
-        else {
-            i = i + titlePrefix.length
-            return {
-                title: record.content.substring(i, j),
-                content: markdown.render(
-                    record.content.substring(j + titlePostfix.length)
-                ),
-            }
+        i = i + titlePrefix.length
+        return {
+            title: record.content.substring(i, j),
+            content: markdown.render(
+                record.content.substring(j + titlePostfix.length)
+            ),
         }
     })
 
