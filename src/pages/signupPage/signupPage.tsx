@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite'
 
 import PostContext from '../../context/Post'
 import UserContext from '../../context/User'
+import { ABOUT_URL } from '../../config'
 
 import LoadingCover from '../../components/loadingCover/loadingCover'
 import LoadingButton from '../../components/loadingButton/loadingButton'
@@ -236,7 +237,7 @@ const SignupPage = () => {
                     <div className="added-info">
                         Need an invitation code?{' '}
                         <a
-                            href="https://about.unirep.social/alpha-invitation"
+                            href={`${ABOUT_URL}/alpha-invitation`}
                             target="_blank"
                         >
                             Request here
