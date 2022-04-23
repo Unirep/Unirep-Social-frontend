@@ -410,7 +410,7 @@ const UserPage = () => {
                         <div>
                             {records.map((h, i) => (
                                 <ActivityWidget
-                                    key={i}
+                                    key={h.time}
                                     record={h}
                                     isSpent={
                                         user.currentEpochKeys.indexOf(
