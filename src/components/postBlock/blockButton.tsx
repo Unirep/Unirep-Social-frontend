@@ -46,11 +46,23 @@ const BlockButton = ({ type, count, data }: Props) => {
             setBoostOn(true)
         } else if (type === ButtonType.Squash) {
             setSquashOn(true)
-        } else if (type === ButtonType.Share) {
+        } else if (type === ButtonType.Share && data.type === DataType.Post) {
             navigator.clipboard.writeText(
                 `${window.location.origin}/post/${data.id}`
             )
             setIsLinkCopied(true)
+        } else if (
+            type === ButtonType.Share &&
+            data.type === DataType.Comment
+        ) {
+            navigator.clipboard.writeText(
+                `${window.location.origin}/post/${(data as Comment).post_id}#${
+                    data.id
+                }`
+            )
+            setIsLinkCopied(true)
+        } else if (type === ButtonType.Share) {
+            throw new Error(`Unrecognized data type: ${JSON.stringify(data)}`)
         }
     }
 
