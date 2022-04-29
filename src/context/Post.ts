@@ -361,41 +361,10 @@ export class Data {
     }
 
     setDraft(type: DataType, title: string = '', content: string = '') {
-        console.log(title)
-        console.log(content)
         if (type === DataType.Post) {
             this.postDraft = { title, content }
-            // if (title.length === 0 && content.length === 0) {
-            //     this.postDraft = undefined
-            // } else {
-            //     if (this.postDraft) {
-            //         this.postDraft =
-            //             title.length > 0
-            //                 ? { ...this.postDraft, title }
-            //                 : { ...this.postDraft }
-            //         this.postDraft =
-            //             content.length > 0
-            //                 ? { ...this.postDraft, content }
-            //                 : { ...this.postDraft }
-            //     } else {
-            //         this.postDraft = { title, content }
-            //     }
-            // }
         } else if (type === DataType.Comment) {
             this.commentDraft = { title, content }
-
-            // if (content.length === 0) {
-            //     this.commentDraft = undefined
-            // } else {
-            //     if (this.commentDraft) {
-            //         this.commentDraft =
-            //             content.length > 0
-            //                 ? { ...this.commentDraft, content }
-            //                 : { ...this.commentDraft }
-            //     } else {
-            //         this.commentDraft = { title, content }
-            //     }
-            // }
         }
         this.save()
     }
