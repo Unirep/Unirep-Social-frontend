@@ -2,6 +2,8 @@ import { useContext } from 'react'
 import { useHistory } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 
+import { ABOUT_URL } from '../../config'
+
 import { WebContext } from '../../context/WebContext'
 import UserContext from '../../context/User'
 import QueueContext from '../../context/Queue'
@@ -37,13 +39,9 @@ const Overlay = () => {
                     <img src={require('../../../public/images/close.svg')} />
                 </div>
                 <div className="fixed-info">
-                    <a href="https://about.unirep.social/how-it-works">
-                        How it work
-                    </a>
-                    <a href="https://about.unirep.social/how-it-works#faq">
-                        FAQ
-                    </a>
-                    <a href="https://about.unirep.social">About</a>
+                    <a href={`${ABOUT_URL}/how-it-works`}>How it work</a>
+                    <a href={`${ABOUT_URL}/how-it-works#faq`}>FAQ</a>
+                    <a href={ABOUT_URL}>About</a>
                 </div>
                 {userContext.userState ? (
                     <div className="dynamic-info">
