@@ -1,5 +1,5 @@
 import { createContext } from 'react'
-import { Page, Draft } from '../constants'
+import { Page } from '../constants'
 
 type GlobalContent = {
     isMenuOpen: boolean

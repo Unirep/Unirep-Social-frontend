@@ -60,12 +60,13 @@ const WritingField = (props: Props) => {
 
     const handleTitleInput = (event: any) => {
         setTitle(event.target.value)
-        postContext.setDraft(props.type, event.target.value, '')
+        postContext.setDraft(props.type, event.target.value, content)
     }
 
     const handleContentInput = (event: any) => {
         setContent(event.target.value)
-        postContext.setDraft(props.type, '', event.target.value)
+        console.log('handle content input')
+        postContext.setDraft(props.type, title, event.target.value)
     }
 
     const handleRepInput = (event: any) => {

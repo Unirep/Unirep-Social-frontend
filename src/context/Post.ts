@@ -20,8 +20,8 @@ export class Data {
     votesById = {} as { [id: string]: Vote }
     votesByCommentId = {} as { [commentId: string]: string[] }
     votesByPostId = {} as { [commentId: string]: string[] }
-    postDraft: Draft | undefined
-    commentDraft: Draft | undefined
+    postDraft: Draft = { title: '', content: '' }
+    commentDraft: Draft = { title: '', content: '' }
 
     constructor() {
         makeAutoObservable(this)
@@ -33,12 +33,12 @@ export class Data {
     // must be called in browser, not in SSR
     load() {
         const storedPostDraft = window.localStorage.getItem('post-draft')
-        if (storedPostDraft && storedPostDraft !== 'undefined') {
+        if (storedPostDraft) {
             this.postDraft = JSON.parse(storedPostDraft)
         }
 
         const storedCommentDraft = window.localStorage.getItem('comment-draft')
-        if (storedCommentDraft && storedCommentDraft !== 'undefined') {
+        if (storedCommentDraft) {
             this.commentDraft = JSON.parse(storedCommentDraft)
         }
     }
@@ -246,7 +246,7 @@ export class Data {
                 const post = convertDataToPost(_post)
                 this.postsById[post.id] = post
                 this.feedsByQuery[QueryType.New].unshift(post.id)
-                this.postDraft = undefined
+                this.postDraft = { title: '', content: '' }
                 this.save()
             },
             {
@@ -351,7 +351,7 @@ export class Data {
                     this.loadCommentsByPostId(postId),
                     this.loadPost(postId),
                 ])
-                this.commentDraft = undefined
+                this.commentDraft = { title: '', content: '' }
                 this.save()
             },
             {
@@ -361,36 +361,41 @@ export class Data {
     }
 
     setDraft(type: DataType, title: string = '', content: string = '') {
+        console.log(title)
+        console.log(content)
         if (type === DataType.Post) {
-            if (title.length === 0 && content.length === 0) {
-                this.postDraft = undefined
-            } else {
-                if (this.postDraft) {
-                    this.postDraft =
-                        title.length > 0
-                            ? { ...this.postDraft, title }
-                            : { ...this.postDraft }
-                    this.postDraft =
-                        content.length > 0
-                            ? { ...this.postDraft, content }
-                            : { ...this.postDraft }
-                } else {
-                    this.postDraft = { title, content }
-                }
-            }
+            this.postDraft = { title, content }
+            // if (title.length === 0 && content.length === 0) {
+            //     this.postDraft = undefined
+            // } else {
+            //     if (this.postDraft) {
+            //         this.postDraft =
+            //             title.length > 0
+            //                 ? { ...this.postDraft, title }
+            //                 : { ...this.postDraft }
+            //         this.postDraft =
+            //             content.length > 0
+            //                 ? { ...this.postDraft, content }
+            //                 : { ...this.postDraft }
+            //     } else {
+            //         this.postDraft = { title, content }
+            //     }
+            // }
         } else if (type === DataType.Comment) {
-            if (content.length === 0) {
-                this.commentDraft = undefined
-            } else {
-                if (this.commentDraft) {
-                    this.commentDraft =
-                        content.length > 0
-                            ? { ...this.commentDraft, content }
-                            : { ...this.commentDraft }
-                } else {
-                    this.commentDraft = { title, content }
-                }
-            }
+            this.commentDraft = { title, content }
+
+            // if (content.length === 0) {
+            //     this.commentDraft = undefined
+            // } else {
+            //     if (this.commentDraft) {
+            //         this.commentDraft =
+            //             content.length > 0
+            //                 ? { ...this.commentDraft, content }
+            //                 : { ...this.commentDraft }
+            //     } else {
+            //         this.commentDraft = { title, content }
+            //     }
+            // }
         }
         this.save()
     }
