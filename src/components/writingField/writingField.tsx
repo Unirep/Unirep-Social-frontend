@@ -5,12 +5,10 @@ import { observer } from 'mobx-react-lite'
 import UnirepContext from '../../context/Unirep'
 import UserContext from '../../context/User'
 import PostContext from '../../context/Post'
-import './writingField.scss'
 
 import HelpWidget from '../helpWidget/helpWidget'
-import { DataType, InfoType, Draft } from '../../constants'
+import { DataType, InfoType } from '../../constants'
 import { shortenEpochKey } from '../../utils'
-import Post from '../../context/Post'
 
 type Props = {
     type: DataType

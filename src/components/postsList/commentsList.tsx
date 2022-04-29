@@ -1,9 +1,7 @@
-import './postsList.scss'
-import '../postBlock/postBlock.scss'
 import { observer } from 'mobx-react-lite'
 
 import CommentBlock from '../postBlock/commentBlock'
-import { Comment, Page } from '../../constants'
+import { Page } from '../../constants'
 import { LOAD_POST_COUNT } from '../../config'
 
 type Props = {

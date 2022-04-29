@@ -1,5 +1,3 @@
-import './loadingButton.scss'
-
 type Props = {
     isLoading: boolean
     name: string
