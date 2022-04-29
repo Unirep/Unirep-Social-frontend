@@ -50,9 +50,7 @@ export class Data {
     }
 
     feedKey(query: string, epks = [] as string[]) {
-        return epks.length === 0
-            ? query
-            : `${query}-${epks.sort((a, b) => (a > b ? -1 : 1)).join('_')}`
+        return epks.length === 0 ? query : `${query}-user`
     }
 
     async loadPost(id: string) {

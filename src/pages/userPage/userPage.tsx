@@ -69,8 +69,6 @@ const UserPage = () => {
     const [tag, setTag] = useState<Tag>(Tag.Posts)
     const [sort, setSort] = useState<QueryType>(QueryType.Boost)
     const [isDropdown, setIsDropdown] = useState<boolean>(false)
-    const [myPosts, setMyPosts] = useState<string[]>([])
-    const [myComments, setMyComments] = useState<string[]>([])
 
     const [received, setReceived] = useState<number[]>([0, 0, 0]) // airdrop, boost, squash
     const [spent, setSpent] = useState<number[]>([0, 0, 0, 0]) // post, comment, boost, squash
@@ -78,21 +76,11 @@ const UserPage = () => {
     const getUserPosts = async (sort: QueryType, lastRead: string = '0') => {
         await user.loadingPromise
         await postContext.loadFeed(sort, lastRead, user.allEpochKeys)
-        setMyPosts(
-            postContext.feedsByQuery[
-                postContext.feedKey(sort, user.allEpochKeys)
-            ]
-        )
     }
 
     const getUserComments = async (sort: QueryType, lastRead: string = '0') => {
         await user.loadingPromise
         await postContext.loadComments(sort, lastRead, user.allEpochKeys)
-        setMyComments(
-            postContext.commentsByQuery[
-                postContext.feedKey(sort, user.allEpochKeys)
-            ]
-        )
     }
 
     const getUserRecords = async () => {
@@ -106,8 +94,6 @@ const UserPage = () => {
             resortRecords(QueryType.New, ret)
             let r: number[] = [0, 0, 0]
             let s: number[] = [0, 0, 0, 0]
-
-            console.log('my epks: ' + user.currentEpochKeys)
 
             ret.forEach((h) => {
                 const isReceived = user.currentEpochKeys.indexOf(h.to) !== -1
@@ -192,16 +178,24 @@ const UserPage = () => {
     }
 
     const loadMorePosts = async () => {
-        if (myPosts.length > 0) {
-            await getUserPosts(sort, myPosts[myPosts.length - 1])
+        let posts =
+            postContext.feedsByQuery[
+                postContext.feedKey(sort, user.allEpochKeys)
+            ] ?? []
+        if (posts.length > 0) {
+            await getUserPosts(sort, posts[posts.length - 1])
         } else {
             await getUserPosts(sort)
         }
     }
 
     const loadMoreComments = async () => {
-        if (myComments.length > 0) {
-            await getUserComments(sort, myComments[myComments.length - 1])
+        let comments =
+            postContext.commentsByQuery[
+                postContext.feedKey(sort, user.allEpochKeys)
+            ] ?? []
+        if (comments.length > 0) {
+            await getUserComments(sort, comments[comments.length - 1])
         } else {
             await getUserComments(sort)
         }
@@ -403,12 +397,20 @@ const UserPage = () => {
                 <div className="user-page-content">
                     {tag === Tag.Posts ? (
                         <PostsList
-                            postIds={myPosts}
+                            postIds={
+                                postContext.feedsByQuery[
+                                    postContext.feedKey(sort, user.allEpochKeys)
+                                ] ?? []
+                            }
                             loadMorePosts={loadMorePosts}
                         />
                     ) : tag === Tag.Comments ? (
                         <CommentsList
-                            commentIds={myComments}
+                            commentIds={
+                                postContext.commentsByQuery[
+                                    postContext.feedKey(sort, user.allEpochKeys)
+                                ] ?? []
+                            }
                             page={Page.User}
                             loadMoreComments={loadMoreComments}
                         />
