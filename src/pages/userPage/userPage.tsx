@@ -75,19 +75,18 @@ const UserPage = () => {
 
     const getUserPosts = async (sort: QueryType, lastRead: string = '0') => {
         await user.loadingPromise
-        await postContext.loadFeed(sort, lastRead, user.allEpochKeys)
+        await postContext.loadFeed(sort, lastRead, user.allEpks)
     }
 
     const getUserComments = async (sort: QueryType, lastRead: string = '0') => {
         await user.loadingPromise
-        await postContext.loadComments(sort, lastRead, user.allEpochKeys)
+        await postContext.loadComments(sort, lastRead, user.allEpks)
     }
 
     const getUserRecords = async () => {
         if (!user.userState || !user.identity) return
-        await user.loadingPromise
 
-        const ret = await getRecords(user.allEpochKeys, user.identity)
+        const ret = await getRecords(user.allEpks, user.identity)
         const isParsable = !ret.some((h) => h === undefined)
         if (isParsable) {
             setRecords(ret)
@@ -179,9 +178,8 @@ const UserPage = () => {
 
     const loadMorePosts = async () => {
         let posts =
-            postContext.feedsByQuery[
-                postContext.feedKey(sort, user.allEpochKeys)
-            ] ?? []
+            postContext.feedsByQuery[postContext.feedKey(sort, user.allEpks)] ??
+            []
         if (posts.length > 0) {
             await getUserPosts(sort, posts[posts.length - 1])
         } else {
@@ -192,7 +190,7 @@ const UserPage = () => {
     const loadMoreComments = async () => {
         let comments =
             postContext.commentsByQuery[
-                postContext.feedKey(sort, user.allEpochKeys)
+                postContext.feedKey(sort, user.allEpks)
             ] ?? []
         if (comments.length > 0) {
             await getUserComments(sort, comments[comments.length - 1])
@@ -399,7 +397,7 @@ const UserPage = () => {
                         <PostsList
                             postIds={
                                 postContext.feedsByQuery[
-                                    postContext.feedKey(sort, user.allEpochKeys)
+                                    postContext.feedKey(sort, user.allEpks)
                                 ] ?? []
                             }
                             loadMorePosts={loadMorePosts}
@@ -408,7 +406,7 @@ const UserPage = () => {
                         <CommentsList
                             commentIds={
                                 postContext.commentsByQuery[
-                                    postContext.feedKey(sort, user.allEpochKeys)
+                                    postContext.feedKey(sort, user.allEpks)
                                 ] ?? []
                             }
                             page={Page.User}
@@ -421,7 +419,7 @@ const UserPage = () => {
                                     key={i}
                                     record={h}
                                     isSpent={
-                                        user.allEpochKeys.indexOf(h.from) !== -1
+                                        user.allEpks.indexOf(h.from) !== -1
                                     }
                                 />
                             ))}
