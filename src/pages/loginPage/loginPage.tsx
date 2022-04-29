@@ -1,6 +1,8 @@
 import { useHistory } from 'react-router-dom'
 import { useContext, useState, useEffect } from 'react'
 
+import { ABOUT_URL } from '../../config'
+
 import LoadingCover from '../../components/loadingCover/loadingCover'
 import LoadingButton from '../../components/loadingButton/loadingButton'
 import UserContext from '../../context/User'
@@ -83,7 +85,7 @@ const LoginPage = () => {
                         restart to earn rep points?{' '}
                         <a
                             target="_blank"
-                            href="https://about.unirep.social/alpha-invitation"
+                            href={`${ABOUT_URL}/alpha-invitation`}
                         >
                             Request an invitation code here.
                         </a>
