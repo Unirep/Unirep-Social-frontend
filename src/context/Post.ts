@@ -4,7 +4,7 @@ import { makeAutoObservable } from 'mobx'
 import { Post, Comment, QueryType, Vote } from '../constants'
 import { makeURL, convertDataToPost, convertDataToComment } from '../utils'
 import UserContext, { User } from './User'
-import QueueContext, { Queue } from './Queue'
+import QueueContext, { Queue, ActionType } from './Queue'
 import UnirepContext, { UnirepConfig } from './Unirep'
 
 const queueContext = (QueueContext as any)._currentValue as Queue
@@ -148,33 +148,38 @@ export class Data {
     }
 
     getAirdrop() {
-        queueContext.addOp(async (update) => {
-            if (!userContext.userState) return false
+        queueContext.addOp(
+            async (update) => {
+                if (!userContext.userState) return false
 
-            update({
-                title: 'Waiting to generate Airdrop',
-                details: 'Synchronizing with blockchain...',
-            })
+                update({
+                    title: 'Waiting to generate Airdrop',
+                    details: 'Synchronizing with blockchain...',
+                })
 
-            console.log('before userContext wait for sync')
-            await userContext.waitForSync()
-            console.log('sync complete')
+                console.log('before userContext wait for sync')
+                await userContext.waitForSync()
+                console.log('sync complete')
 
-            await userContext.calculateAllEpks()
-            update({
-                title: 'Creating Airdrop',
-                details: 'Generating ZK proof...',
-            })
+                await userContext.calculateAllEpks()
+                update({
+                    title: 'Creating Airdrop',
+                    details: 'Generating ZK proof...',
+                })
 
-            const { transaction, error } = await userContext.getAirdrop()
-            if (error) throw error
+                const { transaction, error } = await userContext.getAirdrop()
+                if (error) throw error
 
-            update({
-                title: 'Creating Airdrop',
-                details: 'Waiting for TX inclusion...',
-            })
-            await queueContext.afterTx(transaction)
-        })
+                update({
+                    title: 'Creating Airdrop',
+                    details: 'Waiting for TX inclusion...',
+                })
+                await queueContext.afterTx(transaction)
+            },
+            {
+                type: ActionType.UST,
+            }
+        )
     }
 
     publishPost(
@@ -223,6 +228,7 @@ export class Data {
             },
             {
                 successMessage: 'Post is finalized',
+                type: ActionType.Post,
             }
         )
     }
@@ -236,50 +242,55 @@ export class Data {
         downvote: number = 0,
         minRep = 0
     ) {
-        queueContext.addOp(async (updateStatus) => {
-            updateStatus({
-                title: 'Creating Vote',
-                details: 'Generating ZK proof...',
-            })
-            const { proof, publicSignals } = await userContext.genRepProof(
-                upvote + downvote,
-                epkNonce,
-                Math.max(upvote + downvote, minRep)
-            )
-            updateStatus({
-                title: 'Creating Vote',
-                details: 'Broadcasting vote...',
-            })
-            const r = await fetch(makeURL('vote'), {
-                headers: {
-                    'content-type': 'application/json',
-                },
-                body: JSON.stringify({
-                    upvote,
-                    downvote,
-                    proof,
-                    minRep: Math.max(upvote + downvote, minRep),
-                    publicSignals,
-                    receiver,
-                    dataId: postId.length > 0 ? postId : commentId,
-                    isPost: !!postId,
-                }),
-                method: 'POST',
-            })
-            const { error, transaction } = await r.json()
-            if (error) throw error
-            updateStatus({
-                title: 'Creating Vote',
-                details: 'Waiting for transaction...',
-            })
-            await queueContext.afterTx(transaction)
-            if (postId) {
-                await this.loadPost(postId)
+        queueContext.addOp(
+            async (updateStatus) => {
+                updateStatus({
+                    title: 'Creating Vote',
+                    details: 'Generating ZK proof...',
+                })
+                const { proof, publicSignals } = await userContext.genRepProof(
+                    upvote + downvote,
+                    epkNonce,
+                    Math.max(upvote + downvote, minRep)
+                )
+                updateStatus({
+                    title: 'Creating Vote',
+                    details: 'Broadcasting vote...',
+                })
+                const r = await fetch(makeURL('vote'), {
+                    headers: {
+                        'content-type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        upvote,
+                        downvote,
+                        proof,
+                        minRep: Math.max(upvote + downvote, minRep),
+                        publicSignals,
+                        receiver,
+                        dataId: postId.length > 0 ? postId : commentId,
+                        isPost: !!postId,
+                    }),
+                    method: 'POST',
+                })
+                const { error, transaction } = await r.json()
+                if (error) throw error
+                updateStatus({
+                    title: 'Creating Vote',
+                    details: 'Waiting for transaction...',
+                })
+                await queueContext.afterTx(transaction)
+                if (postId) {
+                    await this.loadPost(postId)
+                }
+                if (commentId) {
+                    await this.loadComment(commentId)
+                }
+            },
+            {
+                type: ActionType.Vote,
             }
-            if (commentId) {
-                await this.loadComment(commentId)
-            }
-        })
+        )
     }
 
     leaveComment(
@@ -326,6 +337,7 @@ export class Data {
             },
             {
                 successMessage: 'Comment is finalized!',
+                type: ActionType.Comment,
             }
         )
     }
