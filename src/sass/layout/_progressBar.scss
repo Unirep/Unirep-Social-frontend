@@ -1,22 +1,48 @@
-.progress-bar-container {
+.progress-block {
     position: fixed;
     bottom: 0px;
     left: 0px;
     right: 0px;
     background-color: black;
     z-index: 1000;
+    color: $white;
+}
+
+.progress-bar-container {
+    height: 18px;
+    border: 1px solid black;
+    font-size: $text-xxs;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
 }
 
 .progress-bar {
-    height: 18px;
-    border: 1px solid black;
+    flex: 100%;
     background-color: black;
-    width: 100%;
+
+    .progress-bar-fill {
+        height: 100%;
+        background-repeat: repeat;
+        background-size: 16px;
+        transition: width 0.2s linear;
+    }
 }
 
-.progress-bar-fill {
-    height: 18px;
-    background-repeat: repeat;
-    background-size: 16px;
-    transition: width 0.2s linear;
+.progress-bar-text {
+    flex: 80px;
+    margin-left: 4px;
+}
+
+.progress-info {
+    height: 48px;
+    width: 100%;
+    cursor: pointer;
+    font-size: $text-sm;
+    font-weight: 600;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
