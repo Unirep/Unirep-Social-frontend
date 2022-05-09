@@ -35,6 +35,12 @@ interface Operation {
     type?: ActionType
 }
 
+interface QueueHistory {
+    message: string
+    type?: ActionType
+    isSuccess?: boolean
+}
+
 const defaultStatus: Status = {
     title: 'Submitting your content',
     details: `Please wait 'til this transaction complete for creating post, comment, boost, or squash. This is the life of blockchain :P`,
@@ -42,6 +48,7 @@ const defaultStatus: Status = {
 
 export class Queue {
     operations = [] as Operation[]
+    histories = [] as QueueHistory[]
     loadingState = LoadingState.none
     latestMessage = ''
     status = defaultStatus
@@ -116,11 +123,22 @@ export class Queue {
                 )
                 this.latestMessage = op.successMessage
                 this.loadingState = LoadingState.success
+                this.histories.push({
+                    message: op.successMessage,
+                    type: op.type,
+                    isSuccess: true,
+                })
             } catch (err) {
                 this.loadingState = LoadingState.failed
                 this.latestMessage = op.failureMessage
+                this.histories.push({
+                    message: op.failureMessage,
+                    type: op.type,
+                    isSuccess: false,
+                })
                 console.log('Error in queue operation', err)
             }
+            console.log(JSON.stringify(this.histories))
         }
         this.activeOp = undefined
         this.daemonRunning = false
