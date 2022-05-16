@@ -1,7 +1,6 @@
 import { useContext } from 'react'
 import { observer } from 'mobx-react-lite'
 
-import { WebContext } from '../../context/WebContext'
 import UserContext from '../../context/User'
 import PostContext from '../../context/Post'
 
@@ -17,7 +16,6 @@ type Props = {
 const CommentField = (props: Props) => {
     const userContext = useContext(UserContext)
     const postContext = useContext(PostContext)
-    const { setDraft } = useContext(WebContext)
 
     const preventPropagation = (event: any) => {
         event.stopPropagation()
@@ -44,7 +42,6 @@ const CommentField = (props: Props) => {
                 epkNonce,
                 reputation
             )
-            setDraft('')
             props.closeComment()
         }
     }

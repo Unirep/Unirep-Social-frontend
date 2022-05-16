@@ -152,7 +152,6 @@ export interface Params {
 }
 
 export interface Draft {
-    type: DataType
     title: string
     content: string
 }
