@@ -255,7 +255,6 @@ export class Data {
                 this.save()
 
                 return transaction
-
             },
             {
                 successMessage: 'Post is finalized',
