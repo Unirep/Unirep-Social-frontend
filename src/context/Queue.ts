@@ -111,7 +111,10 @@ export class Queue {
         for (;;) {
             const op = this.operations.shift()
             this.activeOp = op
-            if (op === undefined) break
+            if (op === undefined) {
+                this.loadingState = LoadingState.none
+                break
+            }
             try {
                 this.loadingState = LoadingState.loading
                 await op.fn(
@@ -121,16 +124,12 @@ export class Queue {
                             ...s,
                         })
                 )
-                this.latestMessage = op.successMessage
-                this.loadingState = LoadingState.success
                 this.histories.push({
                     message: op.successMessage,
                     type: op.type,
                     isSuccess: true,
                 })
             } catch (err) {
-                this.loadingState = LoadingState.failed
-                this.latestMessage = op.failureMessage
                 this.histories.push({
                     message: op.failureMessage,
                     type: op.type,

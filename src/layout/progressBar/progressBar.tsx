@@ -32,14 +32,9 @@ const ProgressBar = () => {
                 <div className="progress-bar-container">Nothing's Pending.</div>
             )}
             {queueContext.loadingState === LoadingState.loading ? (
-                <div className="progress-info">{queueContext.status.title}</div>
-            ) : queueContext.loadingState === LoadingState.success ? (
                 <div className="progress-info">
-                    {queueContext.latestMessage}
-                </div>
-            ) : queueContext.loadingState === LoadingState.failed ? (
-                <div className="progress-info">
-                    {queueContext.latestMessage}
+                    <h4>{queueContext.status.title}</h4>
+                    <p>{queueContext.status.details}</p>
                 </div>
             ) : null}
         </div>

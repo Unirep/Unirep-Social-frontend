@@ -39,10 +39,20 @@
     height: 48px;
     width: 100%;
     cursor: pointer;
-    font-size: $text-sm;
-    font-weight: 600;
-
+    
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: space-evenly;
     align-items: center;
+
+    h4 {
+        font-size: $text-base;
+        font-weight: 700;
+        margin: 0px;
+    }
+
+    p {
+        font-size: $text-xs;
+        margin: 0px;
+    }
 }
