@@ -3,7 +3,6 @@ import { useHistory } from 'react-router-dom'
 import dateformat from 'dateformat'
 import { observer } from 'mobx-react-lite'
 
-import { WebContext } from '../../context/WebContext'
 import UserContext from '../../context/User'
 import UnirepContext from '../../context/Unirep'
 import PostContext from '../../context/Post'
@@ -47,7 +46,6 @@ type Props = {
 
 const PostBlock = ({ postId, page }: Props) => {
     const history = useHistory()
-    const { draft } = useContext(WebContext)
     const userContext = useContext(UserContext)
     const postContext = useContext(PostContext)
     const post = postContext.postsById[postId]
@@ -55,8 +53,8 @@ const PostBlock = ({ postId, page }: Props) => {
     const comments = postContext.commentsByPostId[postId] || []
 
     const date = dateformat(new Date(post.post_time), 'dd/mm/yyyy hh:MM TT')
-    const [showCommentField, setShowCommentField] = useState(
-        draft !== null && draft.type === DataType.Comment
+    const [showCommentField, setShowCommentField] = useState<boolean>(
+        postContext.commentDraft.content.length > 0
     )
     const [isEpkHovered, setEpkHovered] = useState<boolean>(false)
     const unirepConfig = useContext(UnirepContext)

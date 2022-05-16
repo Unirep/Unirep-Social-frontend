@@ -1,7 +1,7 @@
 import { createContext } from 'react'
 import { makeAutoObservable } from 'mobx'
 
-import { Post, Comment, QueryType, Vote } from '../constants'
+import { Post, Comment, QueryType, Vote, Draft, DataType } from '../constants'
 import { makeURL, convertDataToPost, convertDataToComment } from '../utils'
 import UserContext, { User } from './User'
 import QueueContext, { Queue, ActionType } from './Queue'
@@ -20,13 +20,39 @@ export class Data {
     votesById = {} as { [id: string]: Vote }
     votesByCommentId = {} as { [commentId: string]: string[] }
     votesByPostId = {} as { [commentId: string]: string[] }
+    postDraft: Draft = { title: '', content: '' }
+    commentDraft: Draft = { title: '', content: '' }
 
     constructor() {
         makeAutoObservable(this)
+        if (typeof window !== 'undefined') {
+            this.load()
+        }
     }
 
     // must be called in browser, not in SSR
-    load() {}
+    load() {
+        const storedPostDraft = window.localStorage.getItem('post-draft')
+        if (storedPostDraft) {
+            this.postDraft = JSON.parse(storedPostDraft)
+        }
+
+        const storedCommentDraft = window.localStorage.getItem('comment-draft')
+        if (storedCommentDraft) {
+            this.commentDraft = JSON.parse(storedCommentDraft)
+        }
+    }
+
+    save() {
+        window.localStorage.setItem(
+            'post-draft',
+            JSON.stringify(this.postDraft)
+        )
+        window.localStorage.setItem(
+            'comment-draft',
+            JSON.stringify(this.commentDraft)
+        )
+    }
 
     private ingestPosts(_posts: Post | Post[]) {
         const posts = [_posts].flat()
@@ -225,8 +251,11 @@ export class Data {
                 const post = convertDataToPost(_post)
                 this.postsById[post.id] = post
                 this.feedsByQuery[QueryType.New].unshift(post.id)
+                this.postDraft = { title: '', content: '' }
+                this.save()
 
                 return transaction
+
             },
             {
                 successMessage: 'Post is finalized',
@@ -339,6 +368,9 @@ export class Data {
                     this.loadPost(postId),
                 ])
 
+                this.commentDraft = { title: '', content: '' }
+                this.save()
+
                 return postId + '#' + transaction
             },
             {
@@ -346,6 +378,15 @@ export class Data {
                 type: ActionType.Comment,
             }
         )
+    }
+
+    setDraft(type: DataType, title: string = '', content: string = '') {
+        if (type === DataType.Post) {
+            this.postDraft = { title, content }
+        } else if (type === DataType.Comment) {
+            this.commentDraft = { title, content }
+        }
+        this.save()
     }
 }
 
