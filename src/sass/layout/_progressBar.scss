@@ -39,10 +39,11 @@
     height: 48px;
     width: 100%;
     cursor: pointer;
-    
+    padding: 0px 24px;
+
     display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
+    flex-direction: row;
+    justify-content: space-between;
     align-items: center;
 
     h4 {
@@ -54,5 +55,28 @@
     p {
         font-size: $text-xs;
         margin: 0px;
+    }
+
+    img {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+.progress-list {
+    width: 100%;
+    max-height: 270px;
+    background-color: black;
+    padding: 40px 0px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+
+    .list-item {
+        width: 80%;
+        padding: 8px 0px;
+        border-bottom: 1px solid $grey-700;
     }
 }
