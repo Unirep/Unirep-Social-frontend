@@ -1,5 +1,6 @@
 import { useContext, useState } from 'react'
 import { observer } from 'mobx-react-lite'
+import { EXPLORER_URL } from '../../config'
 
 import UserContext from '../../context/User'
 import QueueContext, { LoadingState } from '../../context/Queue'
@@ -11,10 +12,7 @@ const ProgressBar = () => {
     const [isListOpen, setIsListOpen] = useState<boolean>(false)
 
     return (
-        <div
-            className="progress-block"
-            onClick={() => setIsListOpen(!isListOpen)}
-        >
+        <div className="progress-block">
             {queueContext.loadingState === LoadingState.loading ? (
                 <div className="progress-bar-container">
                     <div className="progress-bar">
@@ -72,7 +70,49 @@ const ProgressBar = () => {
                 <div className="progress-list">
                     {queueContext.histories.map((h, i) => (
                         <div className="list-item" key={i}>
-                            {h.type}
+                            <p>
+                                <img
+                                    src={require(`../../../public/images/${
+                                        h.isSuccess
+                                            ? 'check-circle'
+                                            : 'emotion-sad-fill'
+                                    }.svg`)}
+                                />
+                                {h.type}
+                            </p>
+                            <a
+                                className="etherscan"
+                                target="_blank"
+                                // href={`${EXPLORER_URL}/tx/${h.id}`}
+                            >
+                                <span>Etherscan</span>
+                                <img
+                                    src={require('../../../public/images/etherscan-white.svg')}
+                                />
+                            </a>
+                        </div>
+                    ))}
+                    {queueContext.activeOp ? (
+                        <div className="list-item">
+                            <p>
+                                <img
+                                    src={require(`../../../public/images/progress-bg.png`)}
+                                />
+                                {queueContext.activeOp.type}
+                            </p>
+                            <p>Loading...</p>
+                        </div>
+                    ) : null}
+
+                    {queueContext.operations.map((op, i) => (
+                        <div className="list-item" key={i}>
+                            <p>
+                                <img
+                                    src={require(`../../../public/images/progress-bg.png`)}
+                                />
+                                {op.type}
+                            </p>
+                            <p className="cancel">Cancel</p>
                         </div>
                     ))}
                 </div>

@@ -53,7 +53,7 @@ export class Queue {
     latestMessage = ''
     status = defaultStatus
     daemonRunning = false
-    private activeOp?: Operation
+    activeOp?: Operation
 
     constructor() {
         makeAutoObservable(this)
@@ -137,7 +137,6 @@ export class Queue {
                 })
                 console.log('Error in queue operation', err)
             }
-            console.log(JSON.stringify(this.histories))
         }
         this.activeOp = undefined
         this.daemonRunning = false
