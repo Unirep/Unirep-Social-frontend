@@ -39,6 +39,7 @@ interface QueueHistory {
     message: string
     type?: ActionType
     isSuccess?: boolean
+    data?: string
 }
 
 const defaultStatus: Status = {
@@ -114,7 +115,7 @@ export class Queue {
             if (op === undefined) break
             try {
                 this.loadingState = LoadingState.loading
-                await op.fn(
+                const data = await op.fn(
                     (s) =>
                         (this.status = {
                             ...defaultStatus,
@@ -127,6 +128,7 @@ export class Queue {
                     message: op.successMessage,
                     type: op.type,
                     isSuccess: true,
+                    data,
                 })
             } catch (err) {
                 this.loadingState = LoadingState.failed

@@ -225,6 +225,8 @@ export class Data {
                 const post = convertDataToPost(_post)
                 this.postsById[post.id] = post
                 this.feedsByQuery[QueryType.New].unshift(post.id)
+
+                return transaction
             },
             {
                 successMessage: 'Post is finalized',
@@ -282,9 +284,11 @@ export class Data {
                 await queueContext.afterTx(transaction)
                 if (postId) {
                     await this.loadPost(postId)
+                    return postId
                 }
                 if (commentId) {
                     await this.loadComment(commentId)
+                    return commentId
                 }
             },
             {
@@ -334,6 +338,8 @@ export class Data {
                     this.loadCommentsByPostId(postId),
                     this.loadPost(postId),
                 ])
+
+                return postId + '#' + transaction
             },
             {
                 successMessage: 'Comment is finalized!',
