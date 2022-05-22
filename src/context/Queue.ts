@@ -31,7 +31,6 @@ interface Operation {
     fn: OperationFn
     successMessage: string
     failureMessage: string
-    status?: Status
     type?: ActionType
 }
 
@@ -95,6 +94,11 @@ export class Queue {
         })
         // TODO: possibly auto queue a UST if needed?
         this.startDaemon()
+    }
+
+    removeOp(operation: Operation) {
+        // console.log('remove op: ' + operation.toString())
+        this.operations.filter(op => op !== operation) // no use, maybe need an index??? or keyword??????
     }
 
     resetLoading() {
