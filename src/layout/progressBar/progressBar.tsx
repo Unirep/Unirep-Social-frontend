@@ -83,7 +83,7 @@ const ProgressBar = () => {
                             <a
                                 className="etherscan"
                                 target="_blank"
-                                // href={`${EXPLORER_URL}/tx/${h.id}`}
+                                href={`${EXPLORER_URL}/tx/${h.data}`}
                             >
                                 <span>Etherscan</span>
                                 <img
