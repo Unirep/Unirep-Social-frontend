@@ -4,7 +4,6 @@ import { WebContext } from '../../context/WebContext'
 
 import Banner from '../../layout/banner/banner'
 import SideColumn from '../../layout/sideColumn/sideColumn'
-import LoadingWidget from '../../components/loadingWidget/loadingWidget'
 import Overlay from '../../layout/overlay/overlay'
 import ProgressBar from '../../layout/progressBar/progressBar'
 
@@ -27,7 +26,6 @@ const BasicPage = ({ children }: Props) => {
             </div>
             <div className="margin-box"></div>
 
-            <LoadingWidget />
             <ProgressBar />
 
             {isMenuOpen ? <Overlay /> : <div></div>}

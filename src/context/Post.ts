@@ -76,9 +76,7 @@ export class Data {
     }
 
     feedKey(query: string, epks = [] as string[]) {
-        return epks.length === 0
-            ? query
-            : `${query}-${epks.sort((a, b) => (a > b ? -1 : 1)).join('_')}`
+        return epks.length === 0 ? query : `${query}-user`
     }
 
     async loadPost(id: string) {
@@ -253,6 +251,8 @@ export class Data {
                 this.feedsByQuery[QueryType.New].unshift(post.id)
                 this.postDraft = { title: '', content: '' }
                 this.save()
+
+                return transaction
             },
             {
                 successMessage: 'Post is finalized',
@@ -310,9 +310,11 @@ export class Data {
                 await queueContext.afterTx(transaction)
                 if (postId) {
                     await this.loadPost(postId)
+                    return postId
                 }
                 if (commentId) {
                     await this.loadComment(commentId)
+                    return commentId
                 }
             },
             {
@@ -362,8 +364,11 @@ export class Data {
                     this.loadCommentsByPostId(postId),
                     this.loadPost(postId),
                 ])
+
                 this.commentDraft = { title: '', content: '' }
                 this.save()
+
+                return postId + '#' + transaction
             },
             {
                 successMessage: 'Comment is finalized!',

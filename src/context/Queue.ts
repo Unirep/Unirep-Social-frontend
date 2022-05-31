@@ -38,6 +38,7 @@ interface QueueHistory {
     message: string
     type?: ActionType
     isSuccess?: boolean
+    data?: string
 }
 
 const defaultStatus: Status = {
@@ -52,7 +53,7 @@ export class Queue {
     latestMessage = ''
     status = defaultStatus
     daemonRunning = false
-    private activeOp?: Operation
+    activeOp?: Operation
 
     constructor() {
         makeAutoObservable(this)
@@ -98,7 +99,7 @@ export class Queue {
 
     removeOp(operation: Operation) {
         // console.log('remove op: ' + operation.toString())
-        this.operations.filter(op => op !== operation) // no use, maybe need an index??? or keyword??????
+        this.operations.filter((op) => op !== operation) // no use, maybe need an index??? or keyword??????
     }
 
     resetLoading() {
@@ -115,26 +116,26 @@ export class Queue {
         for (;;) {
             const op = this.operations.shift()
             this.activeOp = op
-            if (op === undefined) break
+            if (op === undefined) {
+                this.loadingState = LoadingState.none
+                break
+            }
             try {
                 this.loadingState = LoadingState.loading
-                await op.fn(
+                const data = await op.fn(
                     (s) =>
                         (this.status = {
                             ...defaultStatus,
                             ...s,
                         })
                 )
-                this.latestMessage = op.successMessage
-                this.loadingState = LoadingState.success
                 this.histories.push({
                     message: op.successMessage,
                     type: op.type,
                     isSuccess: true,
+                    data,
                 })
             } catch (err) {
-                this.loadingState = LoadingState.failed
-                this.latestMessage = op.failureMessage
                 this.histories.push({
                     message: op.failureMessage,
                     type: op.type,
@@ -142,7 +143,6 @@ export class Queue {
                 })
                 console.log('Error in queue operation', err)
             }
-            console.log(JSON.stringify(this.histories))
         }
         this.activeOp = undefined
         this.daemonRunning = false
