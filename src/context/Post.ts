@@ -319,6 +319,7 @@ export class Data {
             },
             {
                 type: ActionType.Vote,
+                data: postId ? postId : commentId,
             }
         )
     }
@@ -373,6 +374,7 @@ export class Data {
             {
                 successMessage: 'Comment is finalized!',
                 type: ActionType.Comment,
+                data: postId,
             }
         )
     }

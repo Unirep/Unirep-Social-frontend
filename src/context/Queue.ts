@@ -33,6 +33,7 @@ interface Operation {
     failureMessage: string
     status?: Status
     type?: ActionType
+    data?: string
 }
 
 interface QueueHistory {
@@ -136,6 +137,7 @@ export class Queue {
                     message: op.failureMessage,
                     type: op.type,
                     isSuccess: false,
+                    data: op.data,
                 })
                 console.log('Error in queue operation', err)
             }

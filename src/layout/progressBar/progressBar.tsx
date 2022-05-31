@@ -1,13 +1,15 @@
 import { useContext, useState } from 'react'
+import { useHistory } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 import { EXPLORER_URL } from '../../config'
 
 import UserContext from '../../context/User'
-import QueueContext, { LoadingState } from '../../context/Queue'
+import QueueContext, { LoadingState, ActionType } from '../../context/Queue'
 
 const ProgressBar = () => {
     const userContext = useContext(UserContext)
     const queueContext = useContext(QueueContext)
+    const history = useHistory()
 
     const [isListOpen, setIsListOpen] = useState<boolean>(false)
 
@@ -80,16 +82,37 @@ const ProgressBar = () => {
                                 />
                                 {h.type}
                             </p>
-                            <a
-                                className="etherscan"
-                                target="_blank"
-                                href={`${EXPLORER_URL}/tx/${h.data}`}
-                            >
-                                <span>Etherscan</span>
-                                <img
-                                    src={require('../../../public/images/etherscan-white.svg')}
-                                />
-                            </a>
+                            {h.isSuccess ? (
+                                <a
+                                    className="etherscan"
+                                    target="_blank"
+                                    href={`${EXPLORER_URL}/tx/${h.data}`}
+                                >
+                                    <span>Etherscan</span>
+                                    <img
+                                        src={require('../../../public/images/etherscan-white.svg')}
+                                    />
+                                </a>
+                            ) : h.type === ActionType.Post ? (
+                                <a
+                                    className="etherscan"
+                                    onClick={() => {
+                                        history.push('/new', {
+                                            isConfirmed: true,
+                                        })
+                                    }}
+                                >
+                                    see my post
+                                </a>
+                            ) : h.type === ActionType.Comment ||
+                              h.type === ActionType.Vote ? (
+                                <a
+                                    className="etherscan"
+                                    href={`/post/${h.data}`} // if vote on comments, now is not going to the right page
+                                >
+                                    go to post
+                                </a>
+                            ) : null}
                         </div>
                     ))}
                     {queueContext.activeOp ? (
