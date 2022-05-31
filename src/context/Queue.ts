@@ -28,6 +28,7 @@ type OperationFn = (
 ) => void | Promise<any>
 
 interface Operation {
+    id: number
     fn: OperationFn
     successMessage: string
     failureMessage: string
@@ -35,6 +36,7 @@ interface Operation {
 }
 
 interface QueueHistory {
+    opId: number
     message: string
     type?: ActionType
     isSuccess?: boolean
@@ -86,6 +88,7 @@ export class Queue {
 
     addOp(operation: OperationFn, options = {}) {
         this.operations.push({
+            id: Math.floor(Math.random() * 100000000000),
             fn: operation,
             ...{
                 successMessage: 'Success!',
@@ -98,8 +101,7 @@ export class Queue {
     }
 
     removeOp(operation: Operation) {
-        // console.log('remove op: ' + operation.toString())
-        this.operations.filter((op) => op !== operation) // no use, maybe need an index??? or keyword??????
+        this.operations = this.operations.filter((op) => op.id !== operation.id)
     }
 
     resetLoading() {
@@ -130,6 +132,7 @@ export class Queue {
                         })
                 )
                 this.histories.push({
+                    opId: op.id,
                     message: op.successMessage,
                     type: op.type,
                     isSuccess: true,
@@ -137,6 +140,7 @@ export class Queue {
                 })
             } catch (err) {
                 this.histories.push({
+                    opId: op.id,
                     message: op.failureMessage,
                     type: op.type,
                     isSuccess: false,
