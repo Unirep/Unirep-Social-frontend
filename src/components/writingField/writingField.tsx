@@ -1,6 +1,10 @@
-import { useState, useContext, useEffect } from 'react'
+import { useState, useContext, useEffect, useRef } from 'react'
 import 'react-circular-progressbar/dist/styles.css'
 import { observer } from 'mobx-react-lite'
+import { EditorState } from 'draft-js'
+import { Editor } from 'react-draft-wysiwyg'
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
+import { convertToHTML } from 'draft-convert'
 
 import UnirepContext from '../../context/Unirep'
 import UserContext from '../../context/User'
@@ -31,6 +35,9 @@ const WritingField = (props: Props) => {
     const [content, setContent] = useState<string>('')
     const [epkNonce, setEpkNonce] = useState<number>(0)
     const [errorMsg, setErrorMsg] = useState<string>('')
+    const [editorState, setEditorState] = useState<EditorState>(
+        EditorState.createEmpty()
+    )
 
     const defaultRep =
         props.type === DataType.Post
@@ -52,7 +59,7 @@ const WritingField = (props: Props) => {
 
     useEffect(() => {
         setErrorMsg('')
-    }, [title, content, reputation, epkNonce])
+    }, [title, content, reputation, epkNonce, editorState])
 
     const onClickField = (event: any) => {
         props.onClick(event)
@@ -63,13 +70,20 @@ const WritingField = (props: Props) => {
         postContext.setDraft(props.type, event.target.value, content)
     }
 
-    const handleContentInput = (event: any) => {
-        setContent(event.target.value)
-        postContext.setDraft(props.type, title, event.target.value)
-    }
+    // const handleContentInput = (event: any) => {
+    //     setContent(event.target.value)
+    //     postContext.setDraft(props.type, title, event.target.value)
+    // }
 
     const handleRepInput = (event: any) => {
         setReputation(+event.target.value)
+    }
+
+    const onEditorChange = (state: EditorState) => {
+        setEditorState(state)
+        let htmlContent = convertToHTML(state.getCurrentContent())
+        setContent(htmlContent)
+        postContext.setDraft(props.type, title, htmlContent)
     }
 
     const submit = () => {
@@ -96,7 +110,7 @@ const WritingField = (props: Props) => {
             ) : (
                 <div></div>
             )}
-            {props.type === DataType.Post ? (
+            {/* {props.type === DataType.Post ? (
                 <textarea onChange={handleContentInput} value={content} />
             ) : (
                 <textarea
@@ -104,7 +118,14 @@ const WritingField = (props: Props) => {
                     onChange={handleContentInput}
                     value={content}
                 />
-            )}
+            )} */}
+            <Editor
+                editorState={editorState}
+                onEditorStateChange={(state) => onEditorChange(state)}
+                wrapperClassName="wrapper-class"
+                editorClassName="editor-class"
+                toolbarClassName="toolbar-class"
+            />
             <div className="info-row">
                 <div className="element">
                     <div className="name">

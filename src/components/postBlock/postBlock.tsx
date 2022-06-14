@@ -16,7 +16,7 @@ import MarkdownIt from 'markdown-it'
 
 const markdown = new MarkdownIt({
     breaks: true,
-    html: false,
+    html: true,
     linkify: true,
 })
 
