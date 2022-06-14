@@ -1,10 +1,9 @@
-import { useState, useContext, useEffect, useRef } from 'react'
-import 'react-circular-progressbar/dist/styles.css'
+import { useState, useContext, useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
-import { EditorState } from 'draft-js'
+import { EditorState, ContentState } from 'draft-js'
 import { Editor } from 'react-draft-wysiwyg'
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
-import { convertToHTML } from 'draft-convert'
+import { convertToHTML, convertFromHTML } from 'draft-convert'
 
 import UnirepContext from '../../context/Unirep'
 import UserContext from '../../context/User'
@@ -48,12 +47,20 @@ const WritingField = (props: Props) => {
     useEffect(() => {
         if (props.type === DataType.Post && postContext.postDraft) {
             setTitle(postContext.postDraft.title)
-            setContent(postContext.postDraft.content)
+            setEditorState(
+                EditorState.createWithContent(
+                    convertFromHTML(postContext.postDraft.content)
+                )
+            )
         } else if (
             props.type === DataType.Comment &&
             postContext.commentDraft
         ) {
-            setContent(postContext.commentDraft.content)
+            setEditorState(
+                EditorState.createWithContent(
+                    convertFromHTML(postContext.commentDraft.content)
+                )
+            )
         }
     }, [])
 
