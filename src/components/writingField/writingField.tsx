@@ -114,15 +114,6 @@ const WritingField = (props: Props) => {
             ) : (
                 <div></div>
             )}
-            {/* {props.type === DataType.Post ? (
-                <textarea onChange={handleContentInput} value={content} />
-            ) : (
-                <textarea
-                    autoFocus
-                    onChange={handleContentInput}
-                    value={content}
-                />
-            )} */}
             <Editor
                 editorState={editorState}
                 onEditorStateChange={(state) => onEditorChange(state)}

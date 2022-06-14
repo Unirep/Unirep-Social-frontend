@@ -198,14 +198,19 @@
 
     .wrapper-class {
         padding: 1rem;
-        border: 1px solid #ccc;
+        border: 1px solid $grey-100;
     }
     .editor-class {
-        background-color: lightgray;
+        background-color: white;
         padding: 1rem;
-        border: 1px solid #ccc;
+        border: 1px solid $grey-100;
     }
     .toolbar-class {
-        border: 1px solid #ccc;
+        border: 1px solid $grey-100;
+
+        a {
+            text-decoration: none;
+            color: $black;
+        }
     }
 }
