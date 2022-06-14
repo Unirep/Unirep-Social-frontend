@@ -70,18 +70,22 @@ const WritingField = (props: Props) => {
         postContext.setDraft(props.type, event.target.value, content)
     }
 
-    // const handleContentInput = (event: any) => {
-    //     setContent(event.target.value)
-    //     postContext.setDraft(props.type, title, event.target.value)
-    // }
-
     const handleRepInput = (event: any) => {
         setReputation(+event.target.value)
     }
 
     const onEditorChange = (state: EditorState) => {
         setEditorState(state)
-        let htmlContent = convertToHTML(state.getCurrentContent())
+        let htmlContent = convertToHTML({
+            entityToHTML: (entity, originalText) => {
+                if (entity.type === 'IMAGE') {
+                    return (
+                        <img src={entity.data.src} width="auto" height="auto" />
+                    )
+                }
+                return originalText
+            },
+        })(state.getCurrentContent())
         setContent(htmlContent)
         postContext.setDraft(props.type, title, htmlContent)
     }
