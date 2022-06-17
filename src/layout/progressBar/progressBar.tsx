@@ -4,10 +4,12 @@ import { observer } from 'mobx-react-lite'
 import { EXPLORER_URL } from '../../config'
 
 import UserContext from '../../context/User'
+import PostContext from '../../context/Post'
 import QueueContext, { LoadingState, ActionType } from '../../context/Queue'
 
 const ProgressBar = () => {
     const userContext = useContext(UserContext)
+    const postContext = useContext(PostContext)
     const queueContext = useContext(QueueContext)
     const history = useHistory()
 
@@ -104,11 +106,28 @@ const ProgressBar = () => {
                                 >
                                     see my post
                                 </a>
-                            ) : h.type === ActionType.Comment ||
-                              h.type === ActionType.Vote ? (
+                            ) : h.type === ActionType.Comment ? (
                                 <a
                                     className="etherscan"
                                     href={`/post/${h.data}`} // if vote on comments, now is not going to the right page
+                                >
+                                    go to post
+                                </a>
+                            ) : h.type === ActionType.Vote &&
+                              h.data !== undefined ? (
+                                <a
+                                    className="etherscan"
+                                    href={
+                                        postContext.postsById[h.data]
+                                            ? `/post/${h.data}`
+                                            : postContext.commentsById[h.data]
+                                            ? `/post/${
+                                                  postContext.commentsById[
+                                                      h.data
+                                                  ].post_id
+                                              }#${h.data}`
+                                            : ''
+                                    }
                                 >
                                     go to post
                                 </a>
