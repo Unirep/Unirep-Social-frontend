@@ -16,8 +16,9 @@
         "noEmit": false,
         "jsx": "react-jsx",
         "typeRoots": ["./types", "./node_modules/@types"],
-        "useDefineForClassFields": true
+        "useDefineForClassFields": true,
+        "outDir": "build"
     },
     "include": ["src"],
-    "exclude": ["node_modules", "typings"]
+    "exclude": ["node_modules", "typings", "build/**/*"]
 }
