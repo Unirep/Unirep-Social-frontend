@@ -1,34 +1,15 @@
-// module.exports = {
-//   testEnvironment: "jest-environment-jsdom",
-//   testPathIgnorePatterns: ['<rootDir/node_modules>', ],
-//   setupFilesAfterEnv: ['<rootDir>/setupTests.js'],
-//   moduleNameMapper: {
-//     '\\.(css|scss|sass|less)$/': 'identity-obj-proxy'
-//   },
-//   // transform: {
-//   //   '\\.(js|jsx|ts|tsx)$/': '<rootDir>/node_modules/babel-jest',
-//   //   '/^.+.(css|scss|sass|less)$/': 'identity-obj-proxy'
-//   // },
-//   // see https://jestjs.io/docs/code-transformation for more information on transform option
-//   // /\.[jt]sx?$/
-
-//   "transform": {
-//     "^.+\\.(jsx)$": "babel-jest",
-//   }
-
-// };
 
 module.exports = {
-  "roots": [
-  "<rootDir>/src"
-  ],
-  "testMatch": [
-  "**/__tests__/**/*.+(ts|tsx|js)",
-  "**/?(*.)+(spec|test).+(ts|tsx|js)"
-  ],
-  "transform": {
-  "^.+\\.(ts|tsx)$": "ts-jest"
+  roots: ['<rootDir>'],
+  transform: {
+    '^.+\\.(ts|tsx|js|jsx)?$': 'ts-jest'
   },
-  "moduleFileExtensions": ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  
-  }
+  testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.js?$',
+  moduleFileExtensions: ['tsx', 'js', 'json', 'node'],
+  // collectCoverage: true,
+  clearMocks: true,
+  // coverageDirectory: "coverage",
+  setupFilesAfterEnv: [
+    "<rootDir>/setupTests.js"
+  ]
+};

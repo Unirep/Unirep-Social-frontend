@@ -6,3 +6,20 @@ module.exports = {
     ['@babel/preset-env', { modules: isTest ? 'commonjs' : false }], 
     '@babel/preset-typescript',
 };
+
+
+// module.exports = {
+//   presets: [
+//     [
+//       "@babel/preset-env",
+//       {
+//         "modules": "commonjs",
+//         "debug": false
+//       }
+//     ],
+//     /// your presets
+//   ],
+//   plugins: [
+//     //... your plugins
+//   ]
+// };
