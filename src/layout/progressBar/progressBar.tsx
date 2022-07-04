@@ -84,11 +84,11 @@ const ProgressBar = () => {
                                 />
                                 {h.type}
                             </p>
-                            {h.isSuccess ? (
+                            {h.isSuccess && h.metadata ? (
                                 <a
                                     className="etherscan"
                                     target="_blank"
-                                    href={`${EXPLORER_URL}/tx/${h.data}`}
+                                    href={`${EXPLORER_URL}/tx/${h.metadata.transaction}`}
                                 >
                                     <span>Etherscan</span>
                                     <img
@@ -106,26 +106,29 @@ const ProgressBar = () => {
                                 >
                                     see my post
                                 </a>
-                            ) : h.type === ActionType.Comment ? (
+                            ) : h.type === ActionType.Comment && h.metadata ? (
                                 <a
                                     className="etherscan"
-                                    href={`/post/${h.data}`} // if vote on comments, now is not going to the right page
+                                    href={`/post/${h.metadata.id}`} // if vote on comments, now is not going to the right page
                                 >
                                     go to post
                                 </a>
                             ) : h.type === ActionType.Vote &&
-                              h.data !== undefined ? (
+                              h.metadata &&
+                              h.metadata.id ? (
                                 <a
                                     className="etherscan"
                                     href={
-                                        postContext.postsById[h.data]
-                                            ? `/post/${h.data}`
-                                            : postContext.commentsById[h.data]
+                                        postContext.postsById[h.metadata.id]
+                                            ? `/post/${h.metadata.id}`
+                                            : postContext.commentsById[
+                                                  h.metadata.id
+                                              ]
                                             ? `/post/${
                                                   postContext.commentsById[
-                                                      h.data
+                                                      h.metadata.id
                                                   ].post_id
-                                              }#${h.data}`
+                                              }#${h.metadata.id}`
                                             : ''
                                     }
                                 >

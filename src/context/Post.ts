@@ -4,7 +4,7 @@ import { makeAutoObservable } from 'mobx'
 import { Post, Comment, QueryType, Vote, Draft, DataType } from '../constants'
 import { makeURL, convertDataToPost, convertDataToComment } from '../utils'
 import UserContext, { User } from './User'
-import QueueContext, { Queue, ActionType } from './Queue'
+import QueueContext, { Queue, ActionType, Metadata } from './Queue'
 import UnirepContext, { UnirepConfig } from './Unirep'
 
 const queueContext = (QueueContext as any)._currentValue as Queue
@@ -199,6 +199,9 @@ export class Data {
                     details: 'Waiting for TX inclusion...',
                 })
                 await queueContext.afterTx(transaction)
+
+                let metadata: Metadata = { transaction }
+                return metadata
             },
             {
                 type: ActionType.UST,
@@ -252,7 +255,8 @@ export class Data {
                 this.postDraft = { title: '', content: '' }
                 this.save()
 
-                return transaction
+                let metadata: Metadata = { id: transaction, transaction }
+                return metadata
             },
             {
                 successMessage: 'Post is finalized',
@@ -270,6 +274,7 @@ export class Data {
         downvote: number = 0,
         minRep = 0
     ) {
+        let metadata: Metadata = { id: postId ? postId : commentId }
         queueContext.addOp(
             async (updateStatus) => {
                 updateStatus({
@@ -308,18 +313,16 @@ export class Data {
                     details: 'Waiting for transaction...',
                 })
                 await queueContext.afterTx(transaction)
-                if (postId) {
-                    await this.loadPost(postId)
-                    return postId
-                }
-                if (commentId) {
-                    await this.loadComment(commentId)
-                    return commentId
-                }
+
+                if (postId) await this.loadPost(postId)
+                if (commentId) await this.loadComment(commentId)
+
+                metadata.transaction = transaction
+                return metadata
             },
             {
                 type: ActionType.Vote,
-                data: postId ? postId : commentId,
+                metadata: metadata,
             }
         )
     }
@@ -330,6 +333,7 @@ export class Data {
         epkNonce: number = 0,
         minRep = 0
     ) {
+        let metadata: Metadata = { id: postId }
         queueContext.addOp(
             async (updateStatus) => {
                 updateStatus({
@@ -369,12 +373,15 @@ export class Data {
                 this.commentDraft = { title: '', content: '' }
                 this.save()
 
-                return postId + '#' + transaction
+                metadata.id = postId + '#' + transaction
+                metadata.transaction = transaction
+
+                return metadata
             },
             {
                 successMessage: 'Comment is finalized!',
                 type: ActionType.Comment,
-                data: postId,
+                metadata,
             }
         )
     }

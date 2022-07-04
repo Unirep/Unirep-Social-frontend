@@ -5,7 +5,7 @@ import { observer } from 'mobx-react-lite'
 import UserContext from '../../context/User'
 import PostContext from '../../context/Post'
 import EpochContext from '../../context/EpochManager'
-import QueueContext, { ActionType } from '../../context/Queue'
+import QueueContext, { ActionType, Metadata } from '../../context/Queue'
 
 import HelpWidget from '../../components/helpWidget/helpWidget'
 import { InfoType } from '../../constants'
@@ -140,6 +140,11 @@ const UserInfoWidget = () => {
                                             await userContext.calculateAllEpks()
                                             await userContext.loadReputation()
                                             await epochManager.updateWatch()
+
+                                            let metadata: Metadata = {
+                                                transaction,
+                                            }
+                                            return metadata
                                         },
                                         {
                                             type: ActionType.UST,

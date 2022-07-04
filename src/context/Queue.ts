@@ -18,6 +18,11 @@ export enum ActionType {
     Signup = 'Signup',
 }
 
+export interface Metadata {
+    id?: string
+    transaction?: string
+}
+
 interface Status {
     title?: string
     details?: string
@@ -33,14 +38,14 @@ interface Operation {
     failureMessage: string
     status?: Status
     type?: ActionType
-    data?: string
+    metadata?: Metadata
 }
 
 interface QueueHistory {
     message: string
     type?: ActionType
     isSuccess?: boolean
-    data?: string
+    metadata?: Metadata
 }
 
 const defaultStatus: Status = {
@@ -130,14 +135,14 @@ export class Queue {
                     message: op.successMessage,
                     type: op.type,
                     isSuccess: true,
-                    data,
+                    metadata: data,
                 })
             } catch (err) {
                 this.histories.push({
                     message: op.failureMessage,
                     type: op.type,
                     isSuccess: false,
-                    data: op.data,
+                    metadata: op.metadata,
                 })
                 console.log('Error in queue operation', err)
             }
