@@ -84,7 +84,7 @@ const ProgressBar = () => {
                                 />
                                 {h.type}
                             </p>
-                            {h.isSuccess && h.metadata ? (
+                            {h.isSuccess && h.metadata && (
                                 <a
                                     className="etherscan"
                                     target="_blank"
@@ -95,7 +95,8 @@ const ProgressBar = () => {
                                         src={require('../../../public/images/etherscan-white.svg')}
                                     />
                                 </a>
-                            ) : h.type === ActionType.Post ? (
+                            )}
+                            {!h.isSuccess && h.type === ActionType.Post && (
                                 <a
                                     className="etherscan"
                                     onClick={() => {
@@ -106,35 +107,40 @@ const ProgressBar = () => {
                                 >
                                     see my post
                                 </a>
-                            ) : h.type === ActionType.Comment && h.metadata ? (
-                                <a
-                                    className="etherscan"
-                                    href={`/post/${h.metadata.id}`} // if vote on comments, now is not going to the right page
-                                >
-                                    go to post
-                                </a>
-                            ) : h.type === ActionType.Vote &&
-                              h.metadata &&
-                              h.metadata.id ? (
-                                <a
-                                    className="etherscan"
-                                    href={
-                                        postContext.postsById[h.metadata.id]
-                                            ? `/post/${h.metadata.id}`
-                                            : postContext.commentsById[
-                                                  h.metadata.id
-                                              ]
-                                            ? `/post/${
-                                                  postContext.commentsById[
+                            )}
+                            {!h.isSuccess &&
+                                h.type === ActionType.Comment &&
+                                h.metadata && (
+                                    <a
+                                        className="etherscan"
+                                        href={`/post/${h.metadata.id}`} // if vote on comments, now is not going to the right page
+                                    >
+                                        go to post
+                                    </a>
+                                )}
+                            {!h.isSuccess &&
+                                h.type === ActionType.Vote &&
+                                h.metadata &&
+                                h.metadata.id && (
+                                    <a
+                                        className="etherscan"
+                                        href={
+                                            postContext.postsById[h.metadata.id]
+                                                ? `/post/${h.metadata.id}`
+                                                : postContext.commentsById[
                                                       h.metadata.id
-                                                  ].post_id
-                                              }#${h.metadata.id}`
-                                            : ''
-                                    }
-                                >
-                                    go to post
-                                </a>
-                            ) : null}
+                                                  ]
+                                                ? `/post/${
+                                                      postContext.commentsById[
+                                                          h.metadata.id
+                                                      ].post_id
+                                                  }#${h.metadata.id}`
+                                                : ''
+                                        }
+                                    >
+                                        go to post
+                                    </a>
+                                )}
                         </div>
                     ))}
                     {queueContext.activeOp ? (
