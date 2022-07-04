@@ -88,7 +88,7 @@ export class Queue {
 
     addOp(operation: OperationFn, options = {}) {
         this.operations.push({
-            id: Math.floor(Math.random() * 100000000000),
+            id: Date.now(),
             fn: operation,
             ...{
                 successMessage: 'Success!',
