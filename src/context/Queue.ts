@@ -1,5 +1,6 @@
 import { createContext } from 'react'
 import { makeAutoObservable } from 'mobx'
+import { uuid } from 'uuidv4'
 import { makeURL } from '../utils'
 import { DEFAULT_ETH_PROVIDER } from '../config'
 
@@ -28,7 +29,7 @@ type OperationFn = (
 ) => void | Promise<any>
 
 interface Operation {
-    id: number
+    id: string
     fn: OperationFn
     successMessage: string
     failureMessage: string
@@ -36,7 +37,7 @@ interface Operation {
 }
 
 interface QueueHistory {
-    opId: number
+    opId: string
     message: string
     type?: ActionType
     isSuccess?: boolean
@@ -88,7 +89,7 @@ export class Queue {
 
     addOp(operation: OperationFn, options = {}) {
         this.operations.push({
-            id: Date.now(),
+            id: uuid(),
             fn: operation,
             ...{
                 successMessage: 'Success!',
