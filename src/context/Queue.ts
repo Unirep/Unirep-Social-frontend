@@ -1,5 +1,6 @@
 import { createContext } from 'react'
 import { makeAutoObservable } from 'mobx'
+import { nanoid } from 'nanoid'
 import { makeURL } from '../utils'
 import { DEFAULT_ETH_PROVIDER } from '../config'
 
@@ -28,14 +29,15 @@ type OperationFn = (
 ) => void | Promise<any>
 
 interface Operation {
+    id: string
     fn: OperationFn
     successMessage: string
     failureMessage: string
-    status?: Status
     type?: ActionType
 }
 
 interface QueueHistory {
+    opId: string
     message: string
     type?: ActionType
     isSuccess?: boolean
@@ -87,6 +89,7 @@ export class Queue {
 
     addOp(operation: OperationFn, options = {}) {
         this.operations.push({
+            id: nanoid(),
             fn: operation,
             ...{
                 successMessage: 'Success!',
@@ -96,6 +99,10 @@ export class Queue {
         })
         // TODO: possibly auto queue a UST if needed?
         this.startDaemon()
+    }
+
+    removeOp(operation: Operation) {
+        this.operations = this.operations.filter((op) => op.id !== operation.id)
     }
 
     resetLoading() {
@@ -126,6 +133,7 @@ export class Queue {
                         })
                 )
                 this.histories.push({
+                    opId: op.id,
                     message: op.successMessage,
                     type: op.type,
                     isSuccess: true,
@@ -133,6 +141,7 @@ export class Queue {
                 })
             } catch (err) {
                 this.histories.push({
+                    opId: op.id,
                     message: op.failureMessage,
                     type: op.type,
                     isSuccess: false,

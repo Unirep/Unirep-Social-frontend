@@ -68,8 +68,8 @@ const ProgressBar = () => {
             )}
             {isListOpen ? (
                 <div className="progress-list">
-                    {queueContext.histories.map((h, i) => (
-                        <div className="list-item" key={i}>
+                    {queueContext.histories.map((h) => (
+                        <div className="list-item" key={h.opId}>
                             <p>
                                 <img
                                     src={require(`../../../public/images/${
@@ -104,15 +104,20 @@ const ProgressBar = () => {
                         </div>
                     ) : null}
 
-                    {queueContext.operations.map((op, i) => (
-                        <div className="list-item" key={i}>
+                    {queueContext.operations.map((op) => (
+                        <div className="list-item" key={op.id}>
                             <p>
                                 <img
                                     src={require(`../../../public/images/progress-bg.png`)}
                                 />
                                 {op.type}
                             </p>
-                            <p className="cancel">Cancel</p>
+                            <p
+                                className="cancel"
+                                onClick={() => queueContext.removeOp(op)}
+                            >
+                                Cancel
+                            </p>
                         </div>
                     ))}
                 </div>
