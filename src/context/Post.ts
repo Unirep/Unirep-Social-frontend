@@ -4,7 +4,7 @@ import { makeAutoObservable } from 'mobx'
 import { Post, Comment, QueryType, Vote, Draft, DataType } from '../constants'
 import { makeURL, convertDataToPost, convertDataToComment } from '../utils'
 import UserContext, { User } from './User'
-import QueueContext, { Queue, ActionType } from './Queue'
+import QueueContext, { Queue, ActionType, Metadata } from './Queue'
 import UnirepContext, { UnirepConfig } from './Unirep'
 
 const queueContext = (QueueContext as any)._currentValue as Queue
@@ -199,6 +199,9 @@ export class Data {
                     details: 'Waiting for TX inclusion...',
                 })
                 await queueContext.afterTx(transaction)
+
+                let metadata: Metadata = { transactionId: transaction }
+                return metadata
             },
             {
                 type: ActionType.UST,
@@ -252,7 +255,7 @@ export class Data {
                 this.postDraft = { title: '', content: '' }
                 this.save()
 
-                return transaction
+                return { id: transaction, transactionId: transaction }
             },
             {
                 successMessage: 'Post is finalized',
@@ -308,17 +311,18 @@ export class Data {
                     details: 'Waiting for transaction...',
                 })
                 await queueContext.afterTx(transaction)
-                if (postId) {
-                    await this.loadPost(postId)
-                    return postId
-                }
-                if (commentId) {
-                    await this.loadComment(commentId)
-                    return commentId
+
+                if (postId) await this.loadPost(postId)
+                if (commentId) await this.loadComment(commentId)
+
+                return {
+                    id: postId ? postId : commentId,
+                    transactionId: transaction,
                 }
             },
             {
                 type: ActionType.Vote,
+                metadata: { id: postId ? postId : commentId },
             }
         )
     }
@@ -368,11 +372,15 @@ export class Data {
                 this.commentDraft = { title: '', content: '' }
                 this.save()
 
-                return postId + '#' + transaction
+                return {
+                    id: postId + '#' + transaction,
+                    transactionId: transaction,
+                }
             },
             {
                 successMessage: 'Comment is finalized!',
                 type: ActionType.Comment,
+                metadata: { id: postId },
             }
         )
     }

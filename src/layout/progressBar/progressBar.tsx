@@ -1,13 +1,17 @@
 import { useContext, useState } from 'react'
+import { useHistory } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 import { EXPLORER_URL } from '../../config'
 
 import UserContext from '../../context/User'
-import QueueContext, { LoadingState } from '../../context/Queue'
+import PostContext from '../../context/Post'
+import QueueContext, { LoadingState, ActionType } from '../../context/Queue'
 
 const ProgressBar = () => {
     const userContext = useContext(UserContext)
+    const postContext = useContext(PostContext)
     const queueContext = useContext(QueueContext)
+    const history = useHistory()
 
     const [isListOpen, setIsListOpen] = useState<boolean>(false)
 
@@ -80,16 +84,63 @@ const ProgressBar = () => {
                                 />
                                 {h.type}
                             </p>
-                            <a
-                                className="etherscan"
-                                target="_blank"
-                                // href={`${EXPLORER_URL}/tx/${h.id}`}
-                            >
-                                <span>Etherscan</span>
-                                <img
-                                    src={require('../../../public/images/etherscan-white.svg')}
-                                />
-                            </a>
+                            {h.isSuccess && h.metadata && (
+                                <a
+                                    className="etherscan"
+                                    target="_blank"
+                                    href={`${EXPLORER_URL}/tx/${h.metadata.transactionId}`}
+                                >
+                                    <span>Etherscan</span>
+                                    <img
+                                        src={require('../../../public/images/etherscan-white.svg')}
+                                    />
+                                </a>
+                            )}
+                            {!h.isSuccess && h.type === ActionType.Post && (
+                                <a
+                                    className="etherscan"
+                                    onClick={() => {
+                                        history.push('/new', {
+                                            isConfirmed: true,
+                                        })
+                                    }}
+                                >
+                                    see my post
+                                </a>
+                            )}
+                            {!h.isSuccess &&
+                                h.type === ActionType.Comment &&
+                                h.metadata && (
+                                    <a
+                                        className="etherscan"
+                                        href={`/post/${h.metadata.id}`} // if vote on comments, now is not going to the right page
+                                    >
+                                        go to post
+                                    </a>
+                                )}
+                            {!h.isSuccess &&
+                                h.type === ActionType.Vote &&
+                                h.metadata &&
+                                h.metadata.id && (
+                                    <a
+                                        className="etherscan"
+                                        href={
+                                            postContext.postsById[h.metadata.id]
+                                                ? `/post/${h.metadata.id}`
+                                                : postContext.commentsById[
+                                                      h.metadata.id
+                                                  ]
+                                                ? `/post/${
+                                                      postContext.commentsById[
+                                                          h.metadata.id
+                                                      ].post_id
+                                                  }#${h.metadata.id}`
+                                                : ''
+                                        }
+                                    >
+                                        go to post
+                                    </a>
+                                )}
                         </div>
                     ))}
                     {queueContext.activeOp ? (
