@@ -200,7 +200,7 @@ export class Data {
                 })
                 await queueContext.afterTx(transaction)
 
-                let metadata: Metadata = { transaction }
+                let metadata: Metadata = { transactionId: transaction }
                 return metadata
             },
             {
@@ -255,8 +255,7 @@ export class Data {
                 this.postDraft = { title: '', content: '' }
                 this.save()
 
-                let metadata: Metadata = { id: transaction, transaction }
-                return metadata
+                return { id: transaction, transactionId: transaction }
             },
             {
                 successMessage: 'Post is finalized',
@@ -274,7 +273,6 @@ export class Data {
         downvote: number = 0,
         minRep = 0
     ) {
-        let metadata: Metadata = { id: postId ? postId : commentId }
         queueContext.addOp(
             async (updateStatus) => {
                 updateStatus({
@@ -317,12 +315,14 @@ export class Data {
                 if (postId) await this.loadPost(postId)
                 if (commentId) await this.loadComment(commentId)
 
-                metadata.transaction = transaction
-                return metadata
+                return {
+                    id: postId ? postId : commentId,
+                    transactionId: transaction,
+                }
             },
             {
                 type: ActionType.Vote,
-                metadata: metadata,
+                metadata: { id: postId ? postId : commentId },
             }
         )
     }
@@ -333,7 +333,6 @@ export class Data {
         epkNonce: number = 0,
         minRep = 0
     ) {
-        let metadata: Metadata = { id: postId }
         queueContext.addOp(
             async (updateStatus) => {
                 updateStatus({
@@ -373,15 +372,15 @@ export class Data {
                 this.commentDraft = { title: '', content: '' }
                 this.save()
 
-                metadata.id = postId + '#' + transaction
-                metadata.transaction = transaction
-
-                return metadata
+                return {
+                    id: postId + '#' + transaction,
+                    transactionId: transaction,
+                }
             },
             {
                 successMessage: 'Comment is finalized!',
                 type: ActionType.Comment,
-                metadata,
+                metadata: { id: postId },
             }
         )
     }

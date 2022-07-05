@@ -142,7 +142,7 @@ const UserInfoWidget = () => {
                                             await epochManager.updateWatch()
 
                                             let metadata: Metadata = {
-                                                transaction,
+                                                transactionId: transaction,
                                             }
                                             return metadata
                                         },

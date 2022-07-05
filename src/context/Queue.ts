@@ -20,7 +20,7 @@ export enum ActionType {
 
 export interface Metadata {
     id?: string
-    transaction?: string
+    transactionId?: string
 }
 
 interface Status {
