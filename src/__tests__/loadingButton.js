@@ -1,13 +1,13 @@
 import React from 'react'
-import { screen, render, rerender } from '@testing-library/react'
+import { screen, render } from '@testing-library/react'
 import LoadingButton from '../components/loadingButton/loadingButton'
+import userPage from '../pages/userPage/userPage'
 
 test('loadingButton renders and props render conditionally', () => {
-    render(<LoadingButton isLoading={false} name={"string"} />)
-    screen.debug()
+    const { rerender } = render(<LoadingButton isLoading={false} name={"string"} />)
+    
     expect(screen.getByText(/string/i)).toBeInTheDocument()
     
-    render(<LoadingButton isLoading={true} name={"name"} />)
-    screen.debug()
+    rerender(<LoadingButton isLoading={true} name={"name"} />)
     expect(screen.getByText(/name/i)).toBeInTheDocument()
 })
