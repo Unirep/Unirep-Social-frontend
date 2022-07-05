@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 import { makeAutoObservable } from 'mobx'
-import { uuid } from 'uuidv4'
+import { nanoid } from 'nanoid'
 import { makeURL } from '../utils'
 import { DEFAULT_ETH_PROVIDER } from '../config'
 
@@ -89,7 +89,7 @@ export class Queue {
 
     addOp(operation: OperationFn, options = {}) {
         this.operations.push({
-            id: uuid(),
+            id: nanoid(),
             fn: operation,
             ...{
                 successMessage: 'Success!',
