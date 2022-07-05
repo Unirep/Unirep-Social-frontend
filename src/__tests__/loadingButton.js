@@ -1,6 +1,5 @@
 import React from 'react'
 import { screen, render, rerender } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import LoadingButton from '../components/loadingButton/loadingButton'
 
 test('loadingButton renders and props render conditionally', () => {
