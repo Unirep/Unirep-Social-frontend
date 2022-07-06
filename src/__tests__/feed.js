@@ -40,16 +40,16 @@ test('respects feedChoice props of "boost"', () => {
 });
 
 test('respects feedChoice props of "comments"', () => {
-    render(<Feed feedChoice="comments" setFeedChoice={setFeedChoiceMock} />)
+    render(<Feed feedChoice="comments" setFeedChoice={setFeedChoiceMock("comments")} />)
     userEvent.click(screen.getByText(/comments/i))
     // check that feedChoice is correctly used
     expect(screen.getByText(/comments/i)).toBeInTheDocument()
     // check that the callback was called
-    expect(setFeedChoiceMock).toHaveBeenCalledWith("boost");
+    expect(setFeedChoiceMock).toHaveBeenCalledWith("comments");
 });
 
 test('respects feedChoice props of "squash"', () => {
-    render(<Feed feedChoice="squash" setFeedChoice={setFeedChoiceMock} />)
+    render(<Feed feedChoice="squash" setFeedChoice={setFeedChoiceMock("squash")} />)
     userEvent.click(screen.getByText(/squash/i))
     // check that feedChoice is correctly used
     expect(screen.getByText(/squash/i)).toBeInTheDocument()
