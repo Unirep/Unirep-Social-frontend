@@ -5,7 +5,6 @@ import Feed from '../components/feed/feed'
 
 const setFeedChoiceMock = jest.fn();
 
-
 test('should render all of the QueryTypes in the Feed', () => {
     render(<Feed />)
     
@@ -15,10 +14,8 @@ test('should render all of the QueryTypes in the Feed', () => {
     expect(screen.getByText(/squash/i)).toBeInTheDocument()
 })
 
-
-test('calls callback correctly with jest mock function', () => {
+test('calls callback correctly with jest mock function with "new" arg', () => {
     render(<Feed feedChoice={"new"} setFeedChoice={setFeedChoiceMock("new")} />)
-
     // click on whatever makes the drop down open
     userEvent.click(screen.getByText(/new/i));
     screen.debug()
